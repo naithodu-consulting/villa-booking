@@ -9,7 +9,13 @@
     "lint": "eslint",
     "test": "vitest run --config vitest.config.mts",
     "test:watch": "vitest --config vitest.config.mts",
-    "test:coverage": "vitest run --config vitest.config.mts --coverage"
+    "test:coverage": "vitest run --config vitest.config.mts --coverage",
+    "supabase:start": "supabase status || supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset",
+    "supabase:studio": "open http://localhost:54323",
+    "supabase:seed-admin": "bash supabase/seeds/seed_test_admin.sh",
+    "supabase:types": "supabase gen types typescript --local > src/types/database.types.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

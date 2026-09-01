@@ -2,11 +2,10 @@
 -- Description: Complete schema for Villa Direct Booking Platform
 
 -- 1. Enable UUID Extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 2. PROPERTIES TABLE
 CREATE TABLE IF NOT EXISTS properties (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     slug VARCHAR(100) UNIQUE NOT NULL,
     name VARCHAR(255) NOT NULL,
     tagline VARCHAR(255),
@@ -31,7 +30,7 @@ CREATE TABLE IF NOT EXISTS properties (
 
 -- 3. ROOMS TABLE
 CREATE TABLE IF NOT EXISTS rooms (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     name VARCHAR(150) NOT NULL,
     room_type VARCHAR(50) DEFAULT 'bedroom', -- master, guest, luxury_suite
@@ -45,7 +44,7 @@ CREATE TABLE IF NOT EXISTS rooms (
 
 -- 4. PROPERTY IMAGES TABLE
 CREATE TABLE IF NOT EXISTS property_images (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     room_id UUID REFERENCES rooms(id) ON DELETE SET NULL,
     url TEXT NOT NULL,
@@ -57,7 +56,7 @@ CREATE TABLE IF NOT EXISTS property_images (
 
 -- 5. PRICING RULES TABLE (Seasonal / Holiday overrides)
 CREATE TABLE IF NOT EXISTS pricing_rules (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     rule_name VARCHAR(150) NOT NULL,
     start_date DATE NOT NULL,
@@ -70,7 +69,7 @@ CREATE TABLE IF NOT EXISTS pricing_rules (
 
 -- 6. BLOCKED DATES TABLE (Maintenance, Owner Hold, Direct Reservations)
 CREATE TABLE IF NOT EXISTS blocked_dates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
@@ -82,7 +81,7 @@ CREATE TABLE IF NOT EXISTS blocked_dates (
 
 -- 7. BOOKINGS TABLE
 CREATE TABLE IF NOT EXISTS bookings (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     reference_number VARCHAR(20) UNIQUE NOT NULL,
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     guest_name VARCHAR(255) NOT NULL,
@@ -109,7 +108,7 @@ CREATE TABLE IF NOT EXISTS bookings (
 
 -- 8. PAYMENTS TABLE
 CREATE TABLE IF NOT EXISTS payments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
     razorpay_order_id VARCHAR(100) UNIQUE NOT NULL,
     razorpay_payment_id VARCHAR(100) UNIQUE,
@@ -123,7 +122,7 @@ CREATE TABLE IF NOT EXISTS payments (
 
 -- 9. ADDON SERVICES TABLE
 CREATE TABLE IF NOT EXISTS addon_services (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     name VARCHAR(150) NOT NULL,
     description TEXT,

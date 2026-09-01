@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createServiceClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/availability?propertyId=...&checkIn=YYYY-MM-DD&checkOut=YYYY-MM-DD
@@ -24,20 +25,38 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // TODO: Replace with real Supabase query:
-    // const { data, error } = await supabase.rpc('check_availability', {
-    //   p_property_id: propertyId,
-    //   p_check_in: checkIn,
-    //   p_check_out: checkOut,
-    // });
+    const supabase = createServiceClient();
 
-    // Mock: always available until Supabase is wired
-    return NextResponse.json({
-      available: true,
-      propertyId,
-      checkIn,
-      checkOut,
-    });
+    // Check overlapping active bookings
+    const { count: bookingCount, error: bookingError } = await supabase
+      .from('bookings')
+      .select('id', { count: 'exact', head: true })
+      .eq('property_id', propertyId)
+      .in('status', ['pending', 'confirmed'])
+      .lt('check_in', checkOut)
+      .gt('check_out', checkIn);
+
+    if (bookingError) throw bookingError;
+
+    if ((bookingCount ?? 0) > 0) {
+      return NextResponse.json({ available: false, reason: 'DATE_UNAVAILABLE' });
+    }
+
+    // Check overlapping blocked dates
+    const { count: blockedCount, error: blockedError } = await supabase
+      .from('blocked_dates')
+      .select('id', { count: 'exact', head: true })
+      .eq('property_id', propertyId)
+      .lt('start_date', checkOut)
+      .gt('end_date', checkIn);
+
+    if (blockedError) throw blockedError;
+
+    if ((blockedCount ?? 0) > 0) {
+      return NextResponse.json({ available: false, reason: 'DATE_BLOCKED' });
+    }
+
+    return NextResponse.json({ available: true, propertyId, checkIn, checkOut });
   } catch (err) {
     console.error('[availability] DB error:', err);
     return NextResponse.json({ error: 'Could not check availability. Please try again.' }, { status: 500 });

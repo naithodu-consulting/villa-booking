@@ -5,7 +5,8 @@ import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
 import MobileNav from '@/components/layout/MobileNav';
 import Footer from '@/components/layout/Footer';
-import { MOCK_MANGALORE_VILLA, MOCK_IMAGES, MOCK_ROOMS, MOCK_AMENITIES } from '@/lib/mock-data';
+import { MOCK_AMENITIES } from '@/lib/mock-data';
+import { getProperty, getRooms, getImages, getPricingRules } from '@/lib/data';
 import {
   ShieldCheck, MapPin, Users, Wifi, Waves, Home,
   MessageSquare, Check, Sparkles, Star, Phone,
@@ -30,7 +31,7 @@ const FAQS = [
   },
   {
     q: 'What are the check-in and check-out times?',
-    a: `Standard check-in is at ${MOCK_MANGALORE_VILLA.check_in_time} and check-out is at ${MOCK_MANGALORE_VILLA.check_out_time}. Early check-in and late check-out are subject to availability. Please contact us in advance.`,
+    a: 'Standard check-in is at 14:00 and check-out is at 11:00. Early check-in and late check-out are subject to availability. Please contact us in advance.',
   },
   {
     q: 'How far is the beach from the villa?',
@@ -77,8 +78,22 @@ const REVIEWS = [
   },
 ];
 
-export default function LandingPage() {
-  const property = MOCK_MANGALORE_VILLA;
+export default async function LandingPage() {
+  const property = await getProperty();
+  if (!property) {
+    return (
+      <div className="min-h-screen bg-[#F9F6F1] flex items-center justify-center">
+        <p className="text-[#6B7A8A] text-sm">Property not found. Please check your database setup.</p>
+      </div>
+    );
+  }
+
+  const [rooms, images, pricingRules] = await Promise.all([
+    getRooms(property.id),
+    getImages(property.id),
+    getPricingRules(property.id),
+  ]);
+
   const whatsappNumber = property.whatsapp_number ?? '919876543210';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'm interested in booking ${property.name}`)}`;
   const avgRating = (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1);
@@ -147,7 +162,7 @@ export default function LandingPage() {
           </div>
 
           {/* Gallery — same container width, no extra padding */}
-          <GalleryModal images={MOCK_IMAGES} />
+          <GalleryModal images={images} />
         </div>
       </section>
 
@@ -193,7 +208,7 @@ export default function LandingPage() {
               <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">Room Breakdown</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {MOCK_ROOMS.map((room) => (
+              {rooms.map((room) => (
                 <div
                   key={room.id}
                   className="bg-white p-5 rounded-2xl border border-[rgba(0,0,0,0.09)] hover:border-[rgba(168,116,50,0.4)] shadow-sm transition-all flex flex-col justify-between"
@@ -444,7 +459,7 @@ export default function LandingPage() {
         {/* Right column — sticky booking widget */}
         <div className="lg:col-span-1">
           <div className="sticky top-20">
-            <BookingWidget property={property} pricingRules={[]} />
+            <BookingWidget property={property} pricingRules={pricingRules} />
             {/* Check-in/out quick info */}
             <div className="mt-4 bg-white p-4 rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-sm space-y-2 text-xs text-[#6B7A8A]">
               <div className="flex items-center gap-2">

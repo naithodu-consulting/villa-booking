@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
-import { MOCK_MANGALORE_VILLA } from '@/lib/mock-data';
-import type { PricingRule } from '@/types';
+import type { Property, PricingRule } from '@/types';
 
 // Deferred so build-time static analysis doesn't throw when env vars are absent
 function getRazorpay() {
@@ -35,10 +34,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
 
-    // Server-side price calculation — never trust the client amount
-    // TODO: Replace mock with Supabase query once DB is connected
-    const property = MOCK_MANGALORE_VILLA;
-    const pricingRules: PricingRule[] = []; // TODO: fetch from supabase
+    // Fetch property + active pricing rules from DB — never trust client amounts
+    const supabase = createServiceClient();
+    const today = new Date().toISOString().slice(0, 10);
+
+    const [{ data: propertyData, error: propError }, { data: rulesData }] = await Promise.all([
+      supabase.from('properties').select('*').eq('id', propertyId).eq('is_active', true).single(),
+      supabase.from('pricing_rules').select('*').eq('property_id', propertyId).gte('end_date', today),
+    ]);
+
+    if (propError || !propertyData) {
+      return NextResponse.json({ error: 'Property not found.' }, { status: 404 });
+    }
+
+    const property: Property = {
+      ...propertyData,
+      check_in_time: propertyData.check_in_time?.slice(0, 5) ?? '14:00',
+      check_out_time: propertyData.check_out_time?.slice(0, 5) ?? '11:00',
+      whatsapp_number: process.env.NEXT_PUBLIC_PROPERTY_WHATSAPP,
+    };
+    const pricingRules: PricingRule[] = rulesData ?? [];
 
     let breakdown;
     try {
@@ -67,7 +82,6 @@ export async function POST(request: NextRequest) {
     // TODO: Replace mock with live Supabase once DB is connected
     let bookingReference: string;
     try {
-      const supabase = await createServiceClient();
       const { data, error } = await supabase.rpc('create_booking_atomic', {
         p_property_id: propertyId,
         p_guest_name: guestName,

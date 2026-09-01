@@ -21,7 +21,7 @@ BEGIN
     ON CONFLICT (id) DO NOTHING;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -32,7 +32,7 @@ CREATE TRIGGER on_auth_user_created
 -- 2. GUEST REVIEWS TABLE
 --    Only confirmed + completed bookings may leave a review (enforced by FK + check).
 CREATE TABLE IF NOT EXISTS reviews (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
     booking_id UUID UNIQUE REFERENCES bookings(id) ON DELETE SET NULL,
     reviewer_name VARCHAR(255) NOT NULL,
@@ -68,7 +68,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_logs (actor_id, created_at D
 -- 4. NOTIFICATION TEMPLATES TABLE
 --    Stores email/WhatsApp template bodies keyed by event name.
 CREATE TABLE IF NOT EXISTS notification_templates (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_name VARCHAR(100) UNIQUE NOT NULL, -- booking.confirmed, booking.cancelled, payment.failed
     channel VARCHAR(20) NOT NULL DEFAULT 'email', -- email | whatsapp
     subject VARCHAR(255),                    -- email subject (null for WhatsApp)
