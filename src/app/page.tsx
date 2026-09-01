@@ -119,7 +119,7 @@ export default async function LandingPage() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-7 text-xs font-semibold text-white/70" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-white/70" aria-label="Main navigation">
           <a href="#overview" className="hover:text-[#C9944A] transition-colors py-1">Overview</a>
           <a href="#rooms" className="hover:text-[#C9944A] transition-colors py-1">Rooms</a>
           <a href="#amenities" className="hover:text-[#C9944A] transition-colors py-1">Amenities</a>
@@ -147,7 +147,7 @@ export default async function LandingPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgba(168,116,50,0.08)] border border-[rgba(168,116,50,0.2)] text-[#A87432] text-xs font-semibold tracking-wide mb-5">
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl text-[#562424] leading-tight mb-2" style={{ fontFamily: "'Airwaves', cursive" }}>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#562424] tracking-tight leading-tight mb-2">
                 {property.name}
               </h1>
               <p className="text-[#6B7A8A] text-sm flex items-center gap-1.5">
