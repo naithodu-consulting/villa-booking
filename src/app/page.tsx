@@ -105,7 +105,7 @@ export default async function LandingPage() {
       <header className="sticky top-0 z-40 bg-[#562424] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between shadow-lg">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/habbaa-logo.png"
+            src="/habbaa-logo-white.svg"
             alt="Habbaa"
             width={52}
             height={52}

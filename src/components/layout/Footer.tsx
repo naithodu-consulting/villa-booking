@@ -21,15 +21,17 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-3">
               <Image
-                src="/habbaa-logo.png"
+                src="/habbaa-logo-white.svg"
                 alt="Habbaa"
                 width={48}
                 height={48}
                 className="rounded-full flex-shrink-0"
               />
               <div>
-                <p className="text-sm font-bold text-white">{property.name} <span className="font-light opacity-60">- By Habbaa</span></p>
-                <p className="text-[11px] text-[#C9944A] font-medium">{property.city}, {property.state}</p>
+                <div className="flex flex-col leading-tight">
+                  <span className="text-sm font-bold text-white">{property.name}</span>
+                  <span className="text-[11px] font-medium tracking-widest text-[#C9944A] uppercase mt-0.5">By Habbaa</span>
+                </div>
               </div>
             </div>
             <p className="text-sm text-white/55 leading-relaxed max-w-sm">
