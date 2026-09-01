@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Coastal Haven Villa — Urwa, Mangalore',
+  title: 'Villa 19 — Urwa, Mangalore',
   description:
     'Book a premium 4-bedroom private villa in Urwa, Mangalore, Karnataka. Lush lawns, private balconies, ample parking, beach 1.5 km away. Hosts up to 12 guests. Direct booking — no platform fees.',
 };
@@ -82,7 +83,7 @@ export default async function LandingPage() {
   const property = await getProperty();
   if (!property) {
     return (
-      <div className="min-h-screen bg-[#F9F6F1] flex items-center justify-center">
+      <div className="min-h-screen bg-[#FFFCF0] flex items-center justify-center">
         <p className="text-[#6B7A8A] text-sm">Property not found. Please check your database setup.</p>
       </div>
     );
@@ -99,15 +100,20 @@ export default async function LandingPage() {
   const avgRating = (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-[#F9F6F1] text-[#1A1208] flex flex-col pb-20 md:pb-0">
+    <div className="min-h-screen bg-[#FFFCF0] text-[#1A1208] flex flex-col pb-20 md:pb-0">
       {/* ── Header ────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-[#0E1F3B] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between shadow-lg">
+      <header className="sticky top-0 z-40 bg-[#562424] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between shadow-lg">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#A87432] via-[#C9944A] to-[#E8B86D] flex items-center justify-center text-[#0E1F3B] font-black text-lg shadow-md shadow-[rgba(168,116,50,0.3)]">
-            V
-          </div>
+          <Image
+            src="/habbaa-logo-white.svg"
+            alt="Habbaa"
+            width={52}
+            height={52}
+            className="rounded-full"
+            priority
+          />
           <div>
-            <p className="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">{property.name}</p>
+            <p className="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">{property.name} <span className="font-light opacity-60">- By Habbaa</span></p>
             <p className="text-[11px] text-[#C9944A] font-medium tracking-wide">{property.city}, {property.state}</p>
           </div>
         </Link>
@@ -138,10 +144,10 @@ export default async function LandingPage() {
           {/* Title row */}
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4 sm:mb-5">
             <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgba(168,116,50,0.08)] border border-[rgba(168,116,50,0.2)] text-[#A87432] text-xs font-semibold tracking-wide mb-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgba(168,116,50,0.08)] border border-[rgba(168,116,50,0.2)] text-[#A87432] text-xs font-semibold tracking-wide mb-5">
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
               </div>
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0E1F3B] tracking-tight leading-tight mb-2">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl text-[#562424] leading-tight mb-2" style={{ fontFamily: "'Airwaves', cursive" }}>
                 {property.name}
               </h1>
               <p className="text-[#6B7A8A] text-sm flex items-center gap-1.5">
@@ -184,7 +190,7 @@ export default async function LandingPage() {
                   <Icon className={`w-5 h-5 ${color}`} aria-hidden="true" />
                 </div>
                 <p className="text-[11px] text-[#8A9AAA] font-bold uppercase tracking-wider">{label}</p>
-                <p className="text-sm font-bold text-[#0E1F3B] mt-1 leading-snug">{value}</p>
+                <p className="text-sm font-bold text-[#562424] mt-1 leading-snug">{value}</p>
               </div>
             ))}
           </div>
@@ -197,7 +203,7 @@ export default async function LandingPage() {
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> About the Villa
               </span>
             </div>
-            <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">{property.tagline}</h2>
+            <h2 className="text-2xl font-black text-[#562424] tracking-tight">{property.tagline}</h2>
             <p className="text-[#4A5568] leading-relaxed text-sm sm:text-base">{property.description}</p>
           </div>
 
@@ -205,7 +211,7 @@ export default async function LandingPage() {
           <div id="rooms" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full bg-[#A87432]" aria-hidden="true" />
-              <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">Room Breakdown</h2>
+              <h2 className="text-2xl font-black text-[#562424] tracking-tight">Room Breakdown</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {rooms.map((room) => (
@@ -216,7 +222,7 @@ export default async function LandingPage() {
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[11px] font-bold text-[#A87432] uppercase tracking-wider">{room.room_type}</span>
-                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(14,31,59,0.07)] text-[#3D4A5C]">
+                      <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(86,36,36,0.08)] text-[#3E1818]">
                         {room.max_guests} Guests
                       </span>
                     </div>
@@ -237,7 +243,7 @@ export default async function LandingPage() {
           <div id="amenities" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full bg-[#1E8A7A]" aria-hidden="true" />
-              <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">Property Amenities</h2>
+              <h2 className="text-2xl font-black text-[#562424] tracking-tight">Property Amenities</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {MOCK_AMENITIES.map((group, idx) => (
@@ -262,7 +268,7 @@ export default async function LandingPage() {
           <div id="location" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full bg-[#A87432]" aria-hidden="true" />
-              <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">Location</h2>
+              <h2 className="text-2xl font-black text-[#562424] tracking-tight">Location</h2>
             </div>
             <div className="bg-white p-6 rounded-3xl border border-[rgba(0,0,0,0.09)] shadow-sm space-y-4">
               <div className="flex items-start gap-3">
@@ -311,7 +317,7 @@ export default async function LandingPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-1 h-5 rounded-full bg-[#A87432]" aria-hidden="true" />
-                <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">Guest Reviews</h2>
+                <h2 className="text-2xl font-black text-[#562424] tracking-tight">Guest Reviews</h2>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex" aria-hidden="true">
@@ -331,7 +337,7 @@ export default async function LandingPage() {
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-bold text-[#1A1208]">{review.name}</p>
                         {review.verified && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[rgba(30,138,122,0.08)] border border-[rgba(30,138,122,0.2)] text-[#1E8A7A] text-[10px] font-bold">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[rgba(30,138,122,0.08)] border border-[rgba(30,138,122,0.2)] text-[#1E8A7A] text-[11px] font-bold">
                             <ShieldCheck className="w-3 h-3" aria-hidden="true" /> Verified Stay
                           </span>
                         )}
@@ -358,7 +364,7 @@ export default async function LandingPage() {
           <div id="cancellation" className="scroll-mt-24 bg-white p-6 sm:p-8 rounded-3xl border border-[rgba(0,0,0,0.09)] shadow-sm space-y-5">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full bg-[#1E8A7A]" aria-hidden="true" />
-              <h2 className="text-xl font-bold text-[#0E1F3B]">Cancellation Policy</h2>
+              <h2 className="text-2xl font-bold text-[#562424]">Cancellation Policy</h2>
             </div>
             <div className="space-y-3">
               {[
@@ -378,7 +384,7 @@ export default async function LandingPage() {
                 </div>
               ))}
             </div>
-            <p className="text-[11px] text-[#8A9AAA]">
+            <p className="text-xs text-[#8A9AAA]">
               Security deposit, if applicable, is refunded within 5 working days of check-out, subject to property inspection.
               Refunds are processed to the original payment method.
             </p>
@@ -388,7 +394,7 @@ export default async function LandingPage() {
           <div id="policies" className="scroll-mt-24 bg-white p-6 sm:p-8 rounded-3xl border border-[rgba(0,0,0,0.09)] shadow-sm space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full bg-[#A87432]" aria-hidden="true" />
-              <h2 className="text-xl font-bold text-[#0E1F3B]">House Rules</h2>
+              <h2 className="text-2xl font-bold text-[#562424]">House Rules</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#4A5568]">
               {[
@@ -413,7 +419,7 @@ export default async function LandingPage() {
           <div id="faq" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full bg-[#1E8A7A]" aria-hidden="true" />
-              <h2 className="text-2xl font-black text-[#0E1F3B] tracking-tight">Frequently Asked Questions</h2>
+              <h2 className="text-2xl font-black text-[#562424] tracking-tight">Frequently Asked Questions</h2>
             </div>
             <div className="space-y-2">
               {FAQS.map((faq, i) => (
@@ -422,7 +428,7 @@ export default async function LandingPage() {
                     {faq.q}
                     <ChevronDown className="w-4 h-4 text-[#6B7A8A] flex-shrink-0 group-open:rotate-180 transition-transform" aria-hidden="true" />
                   </summary>
-                  <p className="px-5 pb-5 text-xs text-[#4A5568] leading-relaxed border-t border-[rgba(0,0,0,0.09)] pt-4">
+                  <p className="px-5 pb-5 text-sm text-[#4A5568] leading-relaxed border-t border-[rgba(0,0,0,0.09)] pt-4">
                     {faq.a}
                   </p>
                 </details>
@@ -434,7 +440,7 @@ export default async function LandingPage() {
           <div className="bg-white p-6 rounded-3xl border border-[rgba(0,0,0,0.09)] shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div>
               <p className="text-sm font-bold text-[#1A1208]">Have a question before booking?</p>
-              <p className="text-xs text-[#6B7A8A] mt-0.5">We typically respond within 30 minutes on WhatsApp.</p>
+              <p className="text-sm text-[#6B7A8A] mt-0.5">We typically respond within 30 minutes on WhatsApp.</p>
             </div>
             <div className="flex items-center gap-3">
               <a

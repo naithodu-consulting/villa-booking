@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MapPin, Phone, Mail, MessageSquare } from 'lucide-react';
 import type { Property } from '@/types';
 
@@ -13,21 +14,25 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
   const email = process.env.PROPERTY_EMAIL ?? 'bookings@ooruda.com';
 
   return (
-    <footer className="mt-12 border-t border-white/8 bg-[#0E1F3B]">
+    <footer className="mt-12 border-t border-white/8 bg-[#562424]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#A87432] to-[#C9944A] flex items-center justify-center text-[#0E1F3B] font-black text-lg">
-                V
-              </div>
+              <Image
+                src="/habbaa-logo-white.svg"
+                alt="Habbaa"
+                width={48}
+                height={48}
+                className="rounded-full flex-shrink-0"
+              />
               <div>
-                <p className="text-sm font-bold text-white">{property.name}</p>
+                <p className="text-sm font-bold text-white">{property.name} <span className="font-light opacity-60">- By Habbaa</span></p>
                 <p className="text-[11px] text-[#C9944A] font-medium">{property.city}, {property.state}</p>
               </div>
             </div>
-            <p className="text-xs text-white/55 leading-relaxed max-w-sm">
+            <p className="text-sm text-white/55 leading-relaxed max-w-sm">
               A premium private villa retreat on the Karnataka coast. Direct booking — no middlemen, no platform fees.
             </p>
             <div className="flex items-center gap-1.5 text-xs text-white/50">

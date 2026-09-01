@@ -4,7 +4,7 @@ import { Property, Room, PropertyImage, AmenityGroup } from '@/types';
 export const MOCK_MANGALORE_VILLA: Property = {
   id: 'v101-mangalore-coastal',
   slug: 'coastal-haven-mangalore',
-  name: 'Coastal Haven Villa',
+  name: 'Villa 19',
   tagline: 'Premium 4-Bedroom Private Villa in Urwa, Mangalore',
   description: 'Escape to Coastal Haven - a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is just 1.5 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
   address: 'Urwa',
@@ -76,7 +76,7 @@ export const MOCK_IMAGES: PropertyImage[] = [
     id: 'img-hero',
     property_id: MOCK_MANGALORE_VILLA.id,
     url: 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=1600&q=80',
-    alt_text: 'Coastal Haven Villa - Main Exterior with Tropical Garden',
+    alt_text: 'Villa 19 - Main Exterior with Tropical Garden',
     category: 'hero',
     display_order: 1,
   },

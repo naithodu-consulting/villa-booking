@@ -50,7 +50,7 @@ export default function MobileNav({ whatsappUrl, adminLoginHref }: MobileNavProp
       {/* Backdrop */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-[#0E1F3B]/70 backdrop-blur-sm"
+          className="fixed inset-0 z-50 bg-[#562424]/70 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
           aria-hidden="true"
         />
@@ -65,7 +65,7 @@ export default function MobileNav({ whatsappUrl, adminLoginHref }: MobileNavProp
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between p-5 border-b border-[rgba(0,0,0,0.09)] bg-[#0E1F3B]">
+        <div className="flex items-center justify-between p-5 border-b border-[rgba(0,0,0,0.09)] bg-[#562424]">
           <p className="text-sm font-bold text-white">Menu</p>
           <button
             onClick={() => setIsOpen(false)}
@@ -82,7 +82,7 @@ export default function MobileNav({ whatsappUrl, adminLoginHref }: MobileNavProp
               <a
                 href={href}
                 onClick={() => setIsOpen(false)}
-                className="block px-4 py-3 rounded-xl text-sm font-semibold text-[#4A5568] hover:text-[#0E1F3B] hover:bg-[#F0EBE0] transition-all"
+                className="block px-4 py-3 rounded-xl text-sm font-semibold text-[#4A5568] hover:text-[#562424] hover:bg-[#F0EBE0] transition-all"
               >
                 {label}
               </a>

@@ -86,7 +86,7 @@ function BookingCheckoutContent() {
 
   if (isSuccess) {
     return (
-      <main className="min-h-screen bg-[#F9F6F1] text-[#1A1208] flex items-center justify-center p-4">
+      <main className="min-h-screen bg-[#FFFCF0] text-[#1A1208] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-[rgba(30,138,122,0.3)] shadow-lg text-center space-y-6">
           <div className="w-16 h-16 bg-[rgba(30,138,122,0.08)] text-[#1E8A7A] rounded-full flex items-center justify-center mx-auto border border-[rgba(30,138,122,0.25)]">
             <CheckCircle2 className="w-9 h-9" />
@@ -94,7 +94,7 @@ function BookingCheckoutContent() {
 
           <div>
             <span className="text-[10px] font-extrabold text-[#1E8A7A] uppercase tracking-widest">Payment Verified</span>
-            <h1 className="text-2xl font-black text-[#0E1F3B] mt-1">Booking Confirmed!</h1>
+            <h1 className="text-2xl font-black text-[#562424] mt-1">Booking Confirmed!</h1>
             <p className="text-xs text-[#6B7A8A] mt-2">
               Thank you, <strong className="text-[#1A1208]">{guestName}</strong>. Your reservation has been locked.
             </p>
@@ -139,10 +139,10 @@ function BookingCheckoutContent() {
 
   if (paramError) {
     return (
-      <main className="min-h-screen bg-[#F9F6F1] text-[#1A1208] flex items-center justify-center p-4">
+      <main className="min-h-screen bg-[#FFFCF0] text-[#1A1208] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-red-200 shadow-lg text-center space-y-5">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto" />
-          <h1 className="text-xl font-bold text-[#0E1F3B]">Invalid Booking Details</h1>
+          <h1 className="text-xl font-bold text-[#562424]">Invalid Booking Details</h1>
           <p className="text-xs text-[#6B7A8A]">{paramError}</p>
           <Link href="/" className="btn-primary block w-full text-xs">
             ← Back to Villa
@@ -153,11 +153,11 @@ function BookingCheckoutContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F6F1] text-[#1A1208] flex flex-col">
+    <div className="min-h-screen bg-[#FFFCF0] text-[#1A1208] flex flex-col">
       {/* Minimal header — dark navy for consistency */}
-      <header className="sticky top-0 z-40 bg-[#0E1F3B] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-lg flex-shrink-0">
+      <header className="sticky top-0 z-40 bg-[#562424] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-lg flex-shrink-0">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#A87432] to-[#C9944A] flex items-center justify-center text-[#0E1F3B] font-black text-sm shadow-md shadow-[rgba(168,116,50,0.3)]">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#A87432] to-[#C9944A] flex items-center justify-center text-white font-black text-sm shadow-md shadow-[rgba(168,116,50,0.3)]">
             V
           </div>
           <div>
@@ -187,7 +187,7 @@ function BookingCheckoutContent() {
                 <span className="w-5 h-5 rounded-full bg-[#A87432] text-white text-[10px] font-black flex items-center justify-center">1</span>
                 <span className="text-[10px] font-bold text-[#6B7A8A] uppercase tracking-widest">Guest Details</span>
               </div>
-              <h1 className="text-2xl font-black text-[#0E1F3B]">Complete Your Booking</h1>
+              <h1 className="text-2xl font-black text-[#562424]">Complete Your Booking</h1>
               <p className="text-xs text-[#6B7A8A] mt-1">Enter the primary guest details. Booking confirmation will be sent to your email and WhatsApp.</p>
             </div>
 
@@ -203,7 +203,7 @@ function BookingCheckoutContent() {
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full bg-[#F9F6F1] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
+                  className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
                 />
               </div>
 
@@ -219,7 +219,7 @@ function BookingCheckoutContent() {
                     value={guestEmail}
                     onChange={(e) => setGuestEmail(e.target.value)}
                     placeholder="rahul@example.com"
-                    className="w-full bg-[#F9F6F1] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
+                    className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
                   />
                 </div>
 
@@ -235,7 +235,7 @@ function BookingCheckoutContent() {
                     value={guestPhone}
                     onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                     placeholder="9876543210"
-                    className="w-full bg-[#F9F6F1] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
+                    className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
                   />
                   <p className="text-[10px] text-[#8A9AAA] mt-1">10-digit Indian mobile number</p>
                 </div>
@@ -251,7 +251,7 @@ function BookingCheckoutContent() {
                   value={specialRequests}
                   onChange={(e) => setSpecialRequests(e.target.value)}
                   placeholder="Early check-in, dietary restrictions, extra towels…"
-                  className="w-full bg-[#F9F6F1] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432] resize-none"
+                  className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432] resize-none"
                 />
               </div>
 
@@ -285,7 +285,7 @@ function BookingCheckoutContent() {
 
           {/* Stay Summary */}
           <div className="md:col-span-5 bg-white p-6 rounded-3xl border border-[rgba(0,0,0,0.09)] shadow-md space-y-4">
-            <h2 className="text-base font-bold text-[#0E1F3B] border-b border-[rgba(0,0,0,0.09)] pb-3">Stay Summary</h2>
+            <h2 className="text-base font-bold text-[#562424] border-b border-[rgba(0,0,0,0.09)] pb-3">Stay Summary</h2>
 
             <div className="flex items-center gap-3 pb-3 border-b border-[rgba(0,0,0,0.09)]">
               <div className="w-12 h-12 rounded-xl bg-[#A87432] text-white flex items-center justify-center font-black text-sm flex-shrink-0">
@@ -356,7 +356,7 @@ function BookingCheckoutContent() {
 export default function BookingCheckoutPage() {
   return (
     <Suspense fallback={
-      <main className="min-h-screen bg-[#F9F6F1] flex items-center justify-center">
+      <main className="min-h-screen bg-[#FFFCF0] flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-[#A87432] animate-spin" />
       </main>
     }>

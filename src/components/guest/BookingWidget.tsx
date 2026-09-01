@@ -84,11 +84,11 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
   return (
     <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg overflow-hidden">
-      {/* Dark navy header — rate & guarantee */}
-      <div className="bg-[#0E1F3B] p-5">
+      {/* Dark crimson header — rate & guarantee */}
+      <div className="bg-[#562424] p-5">
         <div className="flex items-baseline justify-between">
           <div>
-            <span className="text-[10px] font-bold tracking-widest text-[#C9944A] uppercase block">
+            <span className="text-[11px] font-bold tracking-widest text-[#C9944A] uppercase block">
               Direct Lowest Guarantee
             </span>
             <div className="flex items-baseline gap-1 mt-0.5">
@@ -96,7 +96,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               <span className="text-white/50 text-xs font-semibold">/ night</span>
             </div>
           </div>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-[rgba(30,138,122,0.2)] text-[#5DB8AC] border border-[rgba(30,138,122,0.3)]">
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[rgba(30,138,122,0.2)] text-[#5DB8AC] border border-[rgba(30,138,122,0.3)]">
             ★ 4.7 · Direct Booking
           </span>
         </div>
@@ -152,7 +152,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               aria-expanded={showGuestMenu}
               aria-haspopup="true"
               onClick={() => setShowGuestMenu((v) => !v)}
-              className="w-full bg-[#F9F6F1] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 rounded-xl text-left flex items-center justify-between text-[#1A1208] text-xs font-semibold hover:border-[rgba(0,0,0,0.2)] transition-colors"
+              className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 rounded-xl text-left flex items-center justify-between text-[#1A1208] text-xs font-semibold hover:border-[rgba(0,0,0,0.2)] transition-colors"
             >
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-[#A87432]" />
@@ -174,7 +174,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs font-bold text-[#1A1208]">Adults</p>
-                    <p className="text-[10px] text-[#6B7A8A]">Ages 13+</p>
+                    <p className="text-[11px] text-[#6B7A8A]">Ages 13+</p>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <button
@@ -203,7 +203,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                 <div className="flex items-center justify-between border-t border-[rgba(0,0,0,0.09)] pt-2.5">
                   <div>
                     <p className="text-xs font-bold text-[#1A1208]">Children</p>
-                    <p className="text-[10px] text-[#6B7A8A]">Ages 5–12</p>
+                    <p className="text-[11px] text-[#6B7A8A]">Ages 5–12</p>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <button
@@ -228,7 +228,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                   </div>
                 </div>
 
-                <p className="text-[10px] text-[#A87432] pt-2 border-t border-[rgba(0,0,0,0.09)]">
+                <p className="text-[11px] text-[#A87432] pt-2 border-t border-[rgba(0,0,0,0.09)]">
                   Base rate includes up to {property.base_occupancy} guests.
                   ₹{extraRateDisplay}/night per additional guest.
                 </p>
@@ -298,7 +298,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
             )}
           </button>
 
-          <p className="text-center text-[11px] text-[#6B7A8A]">
+          <p className="text-center text-xs text-[#6B7A8A]">
             No platform fees · Best rate guaranteed
           </p>
         </form>

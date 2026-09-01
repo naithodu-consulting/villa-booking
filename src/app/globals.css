@@ -1,11 +1,19 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Airwaves';
+  src: url('/fonts/Airwaves-ScriptOne.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── Design tokens ───────────────────────────────────── */
 :root {
-  --bg-primary: #F9F6F1;
+  --bg-primary: #FFFCF0;
   --bg-surface: #F0EBE0;
   --bg-card: #FFFFFF;
-  --bg-card-hover: #F9F6F1;
+  --bg-card-hover: #FFFCF0;
 
   --accent-gold: #A87432;
   --accent-gold-dark: #8A5E22;
@@ -13,12 +21,12 @@
   --accent-teal: #1E8A7A;
   --accent-emerald: #16A34A;
 
-  --navy: #0E1F3B;
-  --navy-2: #162D52;
+  --navy: #562424;
+  --navy-2: #3E1818;
 
   --text-primary: #1A1208;
   --text-muted: #6B7A8A;
-  --text-dark: #0E1F3B;
+  --text-dark: #562424;
 
   --border-subtle: rgba(0, 0, 0, 0.09);
   --border-medium: rgba(0, 0, 0, 0.14);
@@ -98,7 +106,7 @@
     justify-content: center;
     padding: 0.75rem 1.5rem;
     background: linear-gradient(135deg, #A87432 0%, #C9944A 100%);
-    color: #0E1F3B;
+    color: #FFFFFF;
     font-weight: 700;
     font-size: 0.9375rem;
     border-radius: 0.75rem;

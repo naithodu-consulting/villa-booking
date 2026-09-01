@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: {
     default: "Coastal Haven Private Villa — Mangalore",
-    template: "%s | Coastal Haven Villa",
+    template: "%s | Villa 19",
   },
   description:
     "Book a luxury private villa stay in Mangalore, Karnataka. Private pool, 4 bedrooms, ocean views, direct booking — no platform fees.",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "Coastal Haven Villa",
+    siteName: "Villa 19",
     title: "Coastal Haven Private Villa — Mangalore",
     description: "Luxury 4-bedroom private villa with pool in Mangalore. Direct booking, best rates guaranteed.",
   },

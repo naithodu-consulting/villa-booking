@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
           <div className="w-12 h-12 bg-amber-500 text-slate-950 font-black rounded-2xl flex items-center justify-center mx-auto text-xl shadow-xl shadow-amber-500/20">
             V
           </div>
-          <h1 className="text-2xl font-black text-[#0E1F3B]">Admin Portal</h1>
+          <h1 className="text-2xl font-black text-[#562424]">Admin Portal</h1>
           <p className="text-xs text-[#6B7A8A]">Villa Booking &amp; Property Management</p>
         </div>
 
