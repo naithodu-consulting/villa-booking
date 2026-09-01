@@ -105,21 +105,21 @@ export default async function LandingPage() {
       <header className="sticky top-0 z-40 bg-[#562424] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between shadow-lg">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/habbaa-logo-white.svg"
+            src="/habbaa-logo.png"
             alt="Habbaa"
             width={52}
             height={52}
             className="rounded-full"
             priority
           />
-          <div>
-            <p className="text-sm sm:text-base font-bold tracking-tight text-white leading-tight">{property.name} <span className="font-light opacity-60">- By Habbaa</span></p>
-            <p className="text-[11px] text-[#C9944A] font-medium tracking-wide">{property.city}, {property.state}</p>
+          <div className="flex flex-col leading-tight">
+            <span className="text-base font-bold tracking-tight text-white">{property.name}</span>
+            <span className="text-[11px] font-medium tracking-widest text-[#C9944A] uppercase mt-0.5">By Habbaa</span>
           </div>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-white/70" aria-label="Main navigation">
+        <nav className="hidden md:flex items-center gap-6 text-[15px] font-semibold text-white/75" aria-label="Main navigation">
           <a href="#overview" className="hover:text-[#C9944A] transition-colors py-1">Overview</a>
           <a href="#rooms" className="hover:text-[#C9944A] transition-colors py-1">Rooms</a>
           <a href="#amenities" className="hover:text-[#C9944A] transition-colors py-1">Amenities</a>
@@ -147,7 +147,7 @@ export default async function LandingPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[rgba(168,116,50,0.08)] border border-[rgba(168,116,50,0.2)] text-[#A87432] text-xs font-semibold tracking-wide mb-5">
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
               </div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#562424] tracking-tight leading-tight mb-2">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold italic text-[#562424] leading-tight mb-2" style={{ fontFamily: 'var(--font-playfair)' }}>
                 {property.name}
               </h1>
               <p className="text-[#6B7A8A] text-sm flex items-center gap-1.5">

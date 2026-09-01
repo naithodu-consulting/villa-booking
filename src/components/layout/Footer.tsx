@@ -21,7 +21,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-3">
               <Image
-                src="/habbaa-logo-white.svg"
+                src="/habbaa-logo.png"
                 alt="Habbaa"
                 width={48}
                 height={48}
