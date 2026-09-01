@@ -10,7 +10,7 @@ interface FooterProps {
 
 export default function Footer({ property, whatsappUrl }: FooterProps) {
   const year = new Date().getFullYear();
-  const email = process.env.NEXT_PUBLIC_PROPERTY_EMAIL ?? 'bookings@ooruda.com';
+  const email = process.env.PROPERTY_EMAIL ?? 'bookings@ooruda.com';
 
   return (
     <footer className="mt-12 border-t border-white/8 bg-[#0E1F3B]">

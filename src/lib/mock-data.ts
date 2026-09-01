@@ -21,7 +21,7 @@ export const MOCK_MANGALORE_VILLA: Property = {
   check_in_time: '14:00',
   check_out_time: '11:00',
   is_active: true,
-  whatsapp_number: process.env.NEXT_PUBLIC_PROPERTY_WHATSAPP ?? '919876543210',
+  whatsapp_number: process.env.PROPERTY_WHATSAPP ?? '919876543210',
 };
 
 export const MOCK_ROOMS: Room[] = [
