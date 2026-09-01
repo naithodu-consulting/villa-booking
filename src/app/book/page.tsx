@@ -3,6 +3,7 @@
 import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { MOCK_MANGALORE_VILLA } from '@/lib/mock-data';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import { Lock, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
@@ -157,12 +158,17 @@ function BookingCheckoutContent() {
       {/* Minimal header — dark navy for consistency */}
       <header className="sticky top-0 z-40 bg-[#562424] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-lg flex-shrink-0">
         <Link href="/" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#A87432] to-[#C9944A] flex items-center justify-center text-white font-black text-sm shadow-md shadow-[rgba(168,116,50,0.3)]">
-            V
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white leading-tight hidden sm:block">{property.name}</p>
-            <p className="text-[11px] text-[#C9944A] font-medium hidden sm:block">{property.city}, {property.state}</p>
+          <Image
+            src="/habbaa-logo-white.svg"
+            alt="Habbaa"
+            width={44}
+            height={44}
+            className="rounded-full flex-shrink-0"
+            priority
+          />
+          <div className="flex flex-col leading-tight hidden sm:flex">
+            <span className="text-base font-bold text-white">{property.name}</span>
+            <span className="text-[11px] font-medium tracking-widest text-[#C9944A] uppercase mt-0.5">By Habbaa</span>
           </div>
         </Link>
         <div className="flex items-center gap-3 text-xs">
@@ -188,7 +194,7 @@ function BookingCheckoutContent() {
                 <span className="text-[10px] font-bold text-[#6B7A8A] uppercase tracking-widest">Guest Details</span>
               </div>
               <h1 className="text-2xl font-black text-[#562424]">Complete Your Booking</h1>
-              <p className="text-xs text-[#6B7A8A] mt-1">Enter the primary guest details. Booking confirmation will be sent to your email and WhatsApp.</p>
+              <p className="text-xs text-[#6B7A8A] mt-1">Enter the primary guest details. Booking confirmation will be sent to your email and WhatsApp. <span className="text-[#A87432]">* Required</span></p>
             </div>
 
             <form onSubmit={handlePayment} className="space-y-4" noValidate>
@@ -234,7 +240,7 @@ function BookingCheckoutContent() {
                     pattern="[6-9][0-9]{9}"
                     value={guestPhone}
                     onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                    placeholder="9876543210"
+                    placeholder="10-digit mobile number"
                     className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] rounded-xl px-4 py-3 text-xs text-[#1A1208] focus:outline-none focus:border-[#A87432]"
                   />
                   <p className="text-[10px] text-[#8A9AAA] mt-1">10-digit Indian mobile number</p>
@@ -288,12 +294,18 @@ function BookingCheckoutContent() {
             <h2 className="text-base font-bold text-[#562424] border-b border-[rgba(0,0,0,0.09)] pb-3">Stay Summary</h2>
 
             <div className="flex items-center gap-3 pb-3 border-b border-[rgba(0,0,0,0.09)]">
-              <div className="w-12 h-12 rounded-xl bg-[#A87432] text-white flex items-center justify-center font-black text-sm flex-shrink-0">
-                V
+              <div className="w-12 h-12 rounded-full bg-[#562424] flex-shrink-0 overflow-hidden">
+                <Image
+                  src="/habbaa-logo-white.svg"
+                  alt="Habbaa"
+                  width={48}
+                  height={48}
+                  className="w-full h-full"
+                />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-[#1A1208]">{property.name}</h3>
-                <p className="text-[11px] text-[#6B7A8A]">{property.city}, Karnataka</p>
+                <h3 className="text-sm font-bold text-[#1A1208]">{property.name}</h3>
+                <p className="text-[11px] text-[#C9944A] font-medium tracking-widest uppercase">By Habbaa</p>
               </div>
             </div>
 
@@ -337,7 +349,7 @@ function BookingCheckoutContent() {
                   <span>₹{(breakdown.tax_amount / 100).toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-sm font-black text-[#1A1208] pt-2.5 border-t border-[rgba(0,0,0,0.09)]">
-                  <span>Total Due</span>
+                  <span>Total Payable</span>
                   <span className="text-[#A87432]">₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
                 </div>
                 <p className="text-[10px] text-[#8A9AAA] pt-1">
