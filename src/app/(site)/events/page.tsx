@@ -206,7 +206,7 @@ export default async function EventsPage() {
             </a>
             <Link
               href="/book"
-              className="px-6 py-3.5 rounded-xl font-bold text-sm text-white/70 hover:text-white border border-white/20 hover:bg-white/10 transition-all"
+              className="px-6 py-3.5 rounded-xl font-bold text-sm transition-all" style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "white", border: "1px solid rgba(255,255,255,0.3)" }}
             >
               Check Availability
             </Link>

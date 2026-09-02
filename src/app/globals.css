@@ -81,7 +81,7 @@
     font-family: var(--font-display), Georgia, serif;
     font-weight: 600;
     line-height: 1.15;
-    color: var(--ink);
+    color: inherit;
   }
 
   /* Scrollbar */
