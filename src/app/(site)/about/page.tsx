@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'About Habbaa',
+  title: 'About Us',
   description:
     'Habbaa is a boutique hospitality brand offering curated private villa stays on the Karnataka coast. No middlemen, no platform fees. Just direct, personal hospitality.',
   openGraph: {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: 'https://habbaa.in/about',
   },
   twitter: {
-    title: 'About Habbaa',
+    title: 'About Us',
     description: 'Boutique hospitality on the Karnataka coast. Direct booking, no platform fees.',
   },
 };
@@ -65,7 +65,7 @@ export default function AboutPage() {
             className="text-5xl sm:text-6xl font-bold italic mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
-            About Habbaa
+            About Us
           </h1>
           <p className="text-lg text-white/75 leading-relaxed max-w-xl mx-auto">
             A boutique hospitality brand born on the Karnataka coast.
