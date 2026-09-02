@@ -52,32 +52,8 @@ const FAQS = [
   },
 ];
 
-const REVIEWS = [
-  {
-    name: 'Priya N.',
-    location: 'Bangalore',
-    rating: 5,
-    date: 'July 2026',
-    text: 'Absolutely stunning property. The lawn at sunset is something I will never forget — perfect for our evening get-togethers. The caretaker was incredibly attentive and the kitchen is very well-equipped. We had 10 people and it never felt crowded.',
-    verified: true,
-  },
-  {
-    name: 'Rohan M.',
-    location: 'Mumbai',
-    rating: 5,
-    date: 'June 2026',
-    text: 'Best villa stay we\'ve had in coastal Karnataka. Direct booking was seamless, the property was exactly as described. The BBQ setup and balconies were highlights. Beach is just a short drive away. Will definitely be back.',
-    verified: true,
-  },
-  {
-    name: 'Ananya & Family',
-    location: 'Hyderabad',
-    rating: 4,
-    date: 'Auguest 2026',
-    text: 'A truly private retreat. The kids loved running around the lawn and the property has great shade throughout the day. The beach was only 1.5 km away — we went every morning. Very conveniently located near shops and eateries. Overall excellent.',
-    verified: true,
-  },
-];
+// Reviews are loaded from the database (reviews table, is_approved = true).
+// No hardcoded or fabricated testimonials — they were removed in Phase 0.
 
 export default async function LandingPage() {
   const property = await getProperty();
@@ -97,7 +73,7 @@ export default async function LandingPage() {
 
   const whatsappNumber = property.whatsapp_number ?? '919876543210';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'm interested in booking ${property.name}`)}`;
-  const avgRating = (REVIEWS.reduce((s, r) => s + r.rating, 0) / REVIEWS.length).toFixed(1);
+  // TODO Phase 1: load approved reviews from DB and compute avgRating from real data
 
   return (
     <div className="min-h-screen bg-[#FFFCF0] text-[#1A1208] flex flex-col pb-20 md:pb-0">
@@ -155,16 +131,7 @@ export default async function LandingPage() {
                 <span>{property.address}, {property.city}, {property.state}</span>
               </p>
             </div>
-            {/* Rating — right-aligned on desktop, inline on mobile */}
-            <div className="flex items-center gap-2 sm:flex-shrink-0 pb-1">
-              <div className="flex" aria-label={`Rated ${avgRating} out of 5`}>
-                {[1,2,3,4,5].map((s) => (
-                  <Star key={s} className="w-4 h-4 text-[#A87432] fill-[#A87432]" aria-hidden="true" />
-                ))}
-              </div>
-              <span className="text-sm font-bold text-[#1A1208]">{avgRating}</span>
-              <span className="text-xs text-[#6B7A8A]">({REVIEWS.length} verified stays)</span>
-            </div>
+            {/* Rating shown once real reviews are loaded from DB */}
           </div>
 
           {/* Gallery — same container width, no extra padding */}
@@ -312,51 +279,18 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* Reviews */}
+          {/* Reviews — Phase 1: load from DB with is_approved = true */}
           <div id="reviews" className="scroll-mt-24 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-1 h-5 rounded-full bg-[#A87432]" aria-hidden="true" />
-                <h2 className="text-2xl font-black text-[#562424] tracking-tight">Guest Reviews</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex" aria-hidden="true">
-                  {[1,2,3,4,5].map((s) => (
-                    <Star key={s} className="w-4 h-4 text-[#A87432] fill-[#A87432]" />
-                  ))}
-                </div>
-                <span className="text-sm font-black text-[#1A1208]">{avgRating}</span>
-                <span className="text-xs text-[#6B7A8A]">/ 5.0</span>
-              </div>
+            <div className="flex items-center gap-2.5">
+              <div className="w-1 h-5 rounded-full bg-[#A87432]" aria-hidden="true" />
+              <h2 className="text-2xl font-black text-[#562424] tracking-tight">Guest Reviews</h2>
             </div>
-            <div className="space-y-4">
-              {REVIEWS.map((review, i) => (
-                <div key={i} className="bg-white p-5 sm:p-6 rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-sm space-y-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-bold text-[#1A1208]">{review.name}</p>
-                        {review.verified && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[rgba(30,138,122,0.08)] border border-[rgba(30,138,122,0.2)] text-[#1E8A7A] text-[11px] font-bold">
-                            <ShieldCheck className="w-3 h-3" aria-hidden="true" /> Verified Stay
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-[#6B7A8A]">{review.location} · {review.date}</p>
-                    </div>
-                    <div className="flex flex-shrink-0" aria-label={`${review.rating} out of 5 stars`}>
-                      {[1,2,3,4,5].map((s) => (
-                        <Star
-                          key={s}
-                          className={`w-3.5 h-3.5 ${s <= review.rating ? 'text-[#A87432] fill-[#A87432]' : 'text-[rgba(0,0,0,0.12)]'}`}
-                          aria-hidden="true"
-                        />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-sm text-[#4A5568] leading-relaxed">"{review.text}"</p>
-                </div>
-              ))}
+            <div className="bg-white p-6 rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-sm text-center space-y-3">
+              <p className="text-sm text-[#6B7A8A]">
+                We are gathering our first verified reviews. In the meantime, reach out on{' '}
+                <a href={whatsappUrl} className="text-[#A87432] font-semibold underline underline-offset-2">WhatsApp</a>{' '}
+                and we will be happy to connect you with past guests.
+              </p>
             </div>
           </div>
 

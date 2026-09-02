@@ -35,7 +35,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
               </div>
             </div>
             <p className="text-sm text-white/55 leading-relaxed max-w-sm">
-              A premium private villa retreat on the Karnataka coast. Direct booking — no middlemen, no platform fees.
+              A premium private villa retreat on the Karnataka coast. Direct booking. No middlemen, no platform fees.
             </p>
             <div className="flex items-center gap-1.5 text-xs text-white/50">
               <MapPin className="w-3.5 h-3.5 text-[#C9944A] flex-shrink-0" aria-hidden="true" />
@@ -89,8 +89,8 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
             </div>
             <div className="pt-2 space-y-1.5">
               <p className="font-semibold text-white/40 uppercase tracking-wider text-[10px] pt-2">Legal</p>
-              <p className="text-white/30 italic text-[11px]">Terms & Conditions — coming soon</p>
-              <p className="text-white/30 italic text-[11px]">Privacy Policy — coming soon</p>
+              <p className="text-white/30 italic text-[11px]">Terms & Conditions - coming soon</p>
+              <p className="text-white/30 italic text-[11px]">Privacy Policy - coming soon</p>
               <Link href="#cancellation" className="block text-xs text-white/55 hover:text-[#C9944A] transition-colors">
                 Cancellation Policy
               </Link>

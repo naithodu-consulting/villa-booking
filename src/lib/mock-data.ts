@@ -3,10 +3,10 @@ import { Property, Room, PropertyImage, AmenityGroup } from '@/types';
 // All monetary values in PAISE (₹1 = 100 paise) — never use floats for money
 export const MOCK_MANGALORE_VILLA: Property = {
   id: 'v101-mangalore-coastal',
-  slug: 'coastal-haven-mangalore',
+  slug: 'villa-19',
   name: 'Villa 19',
   tagline: 'Premium 4-Bedroom Private Villa in Urwa, Mangalore',
-  description: 'Escape to Coastal Haven - a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is just 1.5 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
+  description: 'a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is just 1.5 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
   address: 'Urwa',
   city: 'Mangalore',
   state: 'Karnataka',
@@ -172,7 +172,7 @@ export const MOCK_IMAGES: PropertyImage[] = [
 
 export const MOCK_AMENITIES: AmenityGroup[] = [
   { category: 'Comfort & Leisure', items: ['Air Conditioning in All Rooms', 'High-Speed WiFi', '55" Smart TV with OTT', 'Private Balconies'] },
-  { category: 'Kitchen & Dining', items: ['Fully Equipped Kitchen'] },
+  { category: 'Kitchen & Dining', items: ['Fully Equipped Kitchen', 'BBQ Grill & Bonfire Kit', 'Outdoor Dining Area', 'Dining for up to 12 Guests'] },
   { category: 'Outdoor & Location', items: ['Spacious Private Lawn', 'Ample Covered Parking (4+ Cars)', 'Lush Green Surroundings', 'Beach 1.5 km Away', 'Near Main Road, Market & Shops'] },
   { category: 'Safety & Hygiene', items: ['24/7 On-Site Caretaker', 'CCTV Security', '100% Power Backup Generator'] }
 ];

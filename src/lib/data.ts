@@ -1,7 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, Room, PropertyImage, PricingRule } from '@/types';
 
-const PROPERTY_SLUG = 'coastal-haven-mangalore';
+const PROPERTY_SLUG = 'villa-19';
 
 export async function getProperty(): Promise<Property | null> {
   const supabase = createServiceClient();

@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.APP_URL ?? 'https://villamangalore.com';
+  const baseUrl = process.env.APP_URL ?? 'https://habbaa.in';
   const now = new Date();
 
   return [

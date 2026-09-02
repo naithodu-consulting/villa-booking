@@ -1,4 +1,4 @@
--- Seed: Coastal Haven Villa — local development data
+-- Seed: Villa 19 by Habbaa — local development data
 -- All monetary values in PAISE (₹1 = 100 paise)
 -- Fixed UUIDs so this file is idempotent on repeated resets
 
@@ -15,10 +15,10 @@ INSERT INTO properties (
   is_active
 ) VALUES (
   'a1b2c3d4-0000-0000-0000-000000000001',
-  'coastal-haven-mangalore',
-  'Coastal Haven Villa',
+  'villa-19',
+  'Villa 19',
   'Premium 4-Bedroom Private Villa in Urwa, Mangalore',
-  'Escape to Coastal Haven - a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is just 1.5 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
+  'Villa 19 is a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is just 1.5 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
   'Urwa', 'Mangalore', 'Karnataka', '575006',
   12.8634, 74.8422,
   8, 12,
@@ -27,7 +27,8 @@ INSERT INTO properties (
   1400000,  -- ₹14,000/night weekend
   '14:00:00', '11:00:00',
   TRUE
-) ON CONFLICT (id) DO NOTHING;
+) ON CONFLICT (id) DO UPDATE SET
+  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, is_active = EXCLUDED.is_active;
 
 -- ─────────────────────────────────────────────────────────
 -- Rooms (4 bedrooms)
@@ -43,7 +44,7 @@ ON CONFLICT (id) DO NOTHING;
 -- Property Images (12 Unsplash placeholders)
 -- ─────────────────────────────────────────────────────────
 INSERT INTO property_images (id, property_id, url, alt_text, category, display_order) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000021', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=1600&q=80', 'Coastal Haven Villa - Main Exterior with Tropical Garden', 'hero',     1),
+  ('a1b2c3d4-0000-0000-0000-000000000021', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=1600&q=80', 'Villa 19 - Main Exterior with Tropical Garden', 'hero',     1),
   ('a1b2c3d4-0000-0000-0000-000000000022', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80', 'Bright Living Room with Natural Light',                    'living',   2),
   ('a1b2c3d4-0000-0000-0000-000000000023', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80', 'Garden View Master Suite - King Bed',                      'bedroom',  3),
   ('a1b2c3d4-0000-0000-0000-000000000024', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', 'Lawn View Bedroom - Queen Bed & Ensuite',                  'bedroom',  4),

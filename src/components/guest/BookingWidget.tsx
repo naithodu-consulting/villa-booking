@@ -97,7 +97,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
             </div>
           </div>
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[rgba(30,138,122,0.2)] text-[#5DB8AC] border border-[rgba(30,138,122,0.3)]">
-            ★ 4.7 · Direct Booking
+            Direct Booking
           </span>
         </div>
       </div>

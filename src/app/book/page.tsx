@@ -1,15 +1,22 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import Script from 'next/script';
 import { MOCK_MANGALORE_VILLA } from '@/lib/mock-data';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import { Lock, ShieldCheck, ArrowLeft, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 
+declare global {
+  interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    Razorpay: new (options: Record<string, unknown>) => { open(): void };
+  }
+}
+
 function BookingCheckoutContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const property = MOCK_MANGALORE_VILLA;
 
@@ -52,7 +59,7 @@ function BookingCheckoutContent() {
     setIsProcessing(true);
 
     try {
-      // Step 1: Create Razorpay order on server
+      // Step 1: Create Razorpay order + pending booking on server
       const orderRes = await fetch('/api/bookings/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -75,12 +82,55 @@ function BookingCheckoutContent() {
         throw new Error(orderData.error ?? 'Could not create booking order. Please try again.');
       }
 
-      // Step 2: Open Razorpay checkout (SDK must be loaded via script in layout)
-      const { bookingReference } = orderData;
+      const { bookingReference, razorpayOrderId, razorpayKeyId, amount } = orderData;
+
+      // Step 2: Open Razorpay Checkout modal
+      await new Promise<void>((resolve, reject) => {
+        const rzp = new window.Razorpay({
+          key: razorpayKeyId,
+          order_id: razorpayOrderId,
+          amount,
+          currency: 'INR',
+          name: 'Villa 19 by Habbaa',
+          description: `Stay: ${checkIn} → ${checkOut}`,
+          prefill: { name: guestName, email: guestEmail, contact: guestPhone },
+          theme: { color: '#562424' },
+          handler: async (response: {
+            razorpay_payment_id: string;
+            razorpay_order_id: string;
+            razorpay_signature: string;
+          }) => {
+            try {
+              // Step 3: Verify signature server-side and confirm booking
+              const verifyRes = await fetch('/api/bookings/verify-payment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(response),
+              });
+              if (!verifyRes.ok) {
+                const verifyData = await verifyRes.json();
+                reject(new Error(verifyData.error ?? 'Payment verification failed.'));
+              } else {
+                resolve();
+              }
+            } catch (verifyErr) {
+              reject(verifyErr);
+            }
+          },
+          modal: {
+            ondismiss: () => reject(new Error('DISMISSED')),
+          },
+        });
+        rzp.open();
+      });
+
       setBookingRef(bookingReference);
       setIsSuccess(true);
     } catch (err) {
-      setServerError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+      if (msg !== 'DISMISSED') {
+        setServerError(msg);
+      }
       setIsProcessing(false);
     }
   };
@@ -94,10 +144,10 @@ function BookingCheckoutContent() {
           </div>
 
           <div>
-            <span className="text-[10px] font-extrabold text-[#1E8A7A] uppercase tracking-widest">Payment Verified</span>
+            <span className="text-[10px] font-extrabold text-[#1E8A7A] uppercase tracking-widest">Payment Successful</span>
             <h1 className="text-2xl font-black text-[#562424] mt-1">Booking Confirmed!</h1>
             <p className="text-xs text-[#6B7A8A] mt-2">
-              Thank you, <strong className="text-[#1A1208]">{guestName}</strong>. Your reservation has been locked.
+              Thank you, <strong className="text-[#1A1208]">{guestName}</strong>. Your reservation has been secured.
             </p>
           </div>
 
@@ -127,7 +177,8 @@ function BookingCheckoutContent() {
           </div>
 
           <p className="text-[11px] text-[#6B7A8A]">
-            A confirmation receipt has been sent to <strong>{guestEmail}</strong>.
+            Keep your booking reference handy. Our team will reach out on{' '}
+            <strong>{guestPhone}</strong> to confirm check-in details.
           </p>
 
           <Link href="/" className="btn-primary w-full block text-center text-xs font-bold uppercase tracking-wider">
@@ -155,7 +206,8 @@ function BookingCheckoutContent() {
 
   return (
     <div className="min-h-screen bg-[#FFFCF0] text-[#1A1208] flex flex-col">
-      {/* Minimal header — dark navy for consistency */}
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
+      {/* Minimal header */}
       <header className="sticky top-0 z-40 bg-[#562424] backdrop-blur-xl border-b border-white/8 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-lg flex-shrink-0">
         <Link href="/" className="flex items-center gap-3">
           <Image

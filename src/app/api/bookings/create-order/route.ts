@@ -78,38 +78,52 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Persist booking as 'pending' via atomic DB function
-    // TODO: Replace mock with live Supabase once DB is connected
+    // Persist booking as 'pending' via atomic DB function (advisory lock prevents double-booking)
     let bookingReference: string;
-    try {
-      const { data, error } = await supabase.rpc('create_booking_atomic', {
-        p_property_id: propertyId,
-        p_guest_name: guestName,
-        p_guest_email: guestEmail,
-        p_guest_phone: guestPhone,
-        p_num_adults: adults ?? 2,
-        p_num_children: children ?? 0,
-        p_num_infants: 0,
-        p_check_in: checkIn,
-        p_check_out: checkOut,
-        p_num_nights: breakdown.num_nights,
-        p_base_amount: breakdown.base_amount,
-        p_extra_guest_amount: breakdown.extra_guest_amount,
-        p_tax_amount: breakdown.tax_amount,
-        p_total_amount: breakdown.total_amount,
-        p_special_requests: specialRequests ?? null,
-      });
+    let bookingId: string;
+    const { data, error: dbError } = await supabase.rpc('create_booking_atomic', {
+      p_property_id: propertyId,
+      p_guest_name: guestName,
+      p_guest_email: guestEmail,
+      p_guest_phone: guestPhone,
+      p_num_adults: adults ?? 2,
+      p_num_children: children ?? 0,
+      p_num_infants: 0,
+      p_check_in: checkIn,
+      p_check_out: checkOut,
+      p_num_nights: breakdown.num_nights,
+      p_base_amount: breakdown.base_amount,
+      p_extra_guest_amount: breakdown.extra_guest_amount,
+      p_tax_amount: breakdown.tax_amount,
+      p_total_amount: breakdown.total_amount,
+      p_special_requests: specialRequests ?? null,
+    });
 
-      if (error) throw new Error(error.message);
-      bookingReference = (data as { reference_number: string }[])[0].reference_number;
-    } catch (dbErr) {
-      const msg = dbErr instanceof Error ? dbErr.message : '';
+    if (dbError) {
+      const msg = dbError.message ?? '';
       if (msg.startsWith('DATE_UNAVAILABLE') || msg.startsWith('DATE_BLOCKED')) {
         return NextResponse.json({ error: msg }, { status: 409 });
       }
-      // Supabase not yet connected — fall back to mock reference so dev flow keeps working
-      console.warn('[create-order] DB unavailable, using mock reference:', msg);
-      bookingReference = 'MNG-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+      console.error('[create-order] DB error creating booking:', msg);
+      return NextResponse.json({ error: 'Booking could not be created. Please try again.' }, { status: 503 });
+    }
+
+    const row = (data as { reference_number: string; booking_id: string }[])[0];
+    bookingReference = row.reference_number;
+    bookingId = row.booking_id;
+
+    // Insert payments row so the webhook can find it by razorpay_order_id
+    const { error: paymentError } = await supabase.from('payments').insert({
+      booking_id: bookingId,
+      razorpay_order_id: razorpayOrder.id,
+      amount: breakdown.total_amount,
+      currency: 'INR',
+      status: 'created',
+    });
+
+    if (paymentError) {
+      console.error('[create-order] Failed to insert payments row:', paymentError.message);
+      return NextResponse.json({ error: 'Booking could not be created. Please try again.' }, { status: 503 });
     }
 
     return NextResponse.json({

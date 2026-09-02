@@ -1,12 +1,21 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-const ADMIN_ROUTES = ['/admin/dashboard', '/admin/bookings', '/admin/property', '/admin/calendar'];
-const PUBLIC_ADMIN = ['/admin/login'];
+// All /admin routes require auth except /admin/login.
+// Default-deny: any new route under /admin is protected automatically.
+const PUBLIC_ADMIN_PATHS = ['/admin/login'];
 
 export async function middleware(request: NextRequest) {
-  // In dev without Supabase configured, skip auth so the UI is still browsable
+  const { pathname } = request.nextUrl;
+  const isPublicAdmin = PUBLIC_ADMIN_PATHS.some((p) => pathname.startsWith(p));
+
+  // Supabase env vars are required in production; missing = hard failure, not a bypass
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    if (!isPublicAdmin) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = '/admin/login';
+      return NextResponse.redirect(loginUrl);
+    }
     return NextResponse.next({ request });
   }
 
@@ -35,11 +44,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { pathname } = request.nextUrl;
-  const isAdminRoute = ADMIN_ROUTES.some((r) => pathname.startsWith(r));
-  const isPublicAdmin = PUBLIC_ADMIN.some((r) => pathname.startsWith(r));
-
-  if (isAdminRoute && !user) {
+  if (!isPublicAdmin && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/admin/login';
     loginUrl.searchParams.set('next', pathname);

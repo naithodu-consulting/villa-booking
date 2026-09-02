@@ -13,9 +13,16 @@
     "supabase:start": "supabase status || supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
+    "supabase:status": "supabase status",
     "supabase:studio": "open http://localhost:54323",
     "supabase:seed-admin": "bash supabase/seeds/seed_test_admin.sh",
-    "supabase:types": "supabase gen types typescript --local > src/types/database.types.ts"
+    "supabase:types": "supabase gen types typescript --local > src/types/database.types.ts",
+    "supabase:types:remote": "supabase gen types typescript --linked > src/types/database.types.ts",
+    "supabase:diff": "supabase db diff",
+    "supabase:lint": "supabase db lint",
+    "supabase:migration:list": "supabase migration list --linked",
+    "db:push": "./scripts/db-push.sh",
+    "db:push:prod": "./scripts/db-push.sh --production"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",

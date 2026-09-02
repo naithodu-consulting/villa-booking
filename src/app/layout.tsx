@@ -21,23 +21,30 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "Coastal Haven Private Villa — Mangalore",
-    template: "%s | Villa 19",
+    default: "Villa 19 — Private Villa in Mangalore | By Habbaa",
+    template: "%s | Villa 19 by Habbaa",
   },
   description:
-    "Book a luxury private villa stay in Mangalore, Karnataka. Private pool, 4 bedrooms, ocean views, direct booking — no platform fees.",
-  keywords: ["villa mangalore", "luxury villa mangalore", "private pool villa mangalore", "beach villa karnataka"],
+    "Villa 19 — a premium 4-bedroom private villa in Urwa, Mangalore. Private lawn, 12-guest capacity, direct booking at the best rate. By Habbaa.",
+  keywords: [
+    "villa mangalore",
+    "luxury villa mangalore",
+    "private villa mangalore",
+    "4 bedroom villa mangalore",
+    "villa stay karnataka",
+    "group stay mangalore",
+  ],
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "Villa 19",
-    title: "Coastal Haven Private Villa — Mangalore",
-    description: "Luxury 4-bedroom private villa with pool in Mangalore. Direct booking, best rates guaranteed.",
+    siteName: "Villa 19 by Habbaa",
+    title: "Villa 19 — Private Villa in Mangalore",
+    description: "Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking — best rate guaranteed.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Coastal Haven Private Villa — Mangalore",
-    description: "Luxury 4-bedroom private villa with pool in Mangalore. Direct booking, best rates guaranteed.",
+    title: "Villa 19 — Private Villa in Mangalore",
+    description: "Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking — best rate guaranteed.",
   },
   robots: { index: true, follow: true },
 };
