@@ -67,7 +67,7 @@ export default function GalleryModal({ images }: GalleryProps) {
           onClick={() => openLightbox(0)}
           role="button"
           tabIndex={0}
-          aria-label={`Open gallery — ${images[0]?.alt_text}`}
+          aria-label={`Open gallery: ${images[0]?.alt_text}`}
           onKeyDown={(e) => e.key === 'Enter' && openLightbox(0)}
         >
           <Image
@@ -79,9 +79,7 @@ export default function GalleryModal({ images }: GalleryProps) {
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-          <span className="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md px-3 py-1 rounded-md text-xs font-semibold tracking-wide text-amber-400 border border-amber-500/30">
-            Featured View
-          </span>
+
         </div>
 
         {/* Remaining thumbnails — show all 4 on desktop, only 2 on mobile */}

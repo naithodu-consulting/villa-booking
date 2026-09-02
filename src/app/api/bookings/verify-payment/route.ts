@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServiceClient } from '@/lib/supabase/server';
+import { sendBookingConfirmation, sendAdminNewBookingNotification } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,44 +16,77 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Payment verification not configured.' }, { status: 503 });
     }
 
-    // Verify HMAC-SHA256 — same check the webhook performs
+    // Verify HMAC-SHA256 with timingSafeEqual to prevent timing attacks
     const expected = crypto
       .createHmac('sha256', secret)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 
-    if (expected !== razorpay_signature) {
+    const signaturesMatch =
+      expected.length === razorpay_signature.length &&
+      crypto.timingSafeEqual(
+        Buffer.from(expected, 'hex'),
+        Buffer.from(razorpay_signature, 'hex'),
+      );
+
+    if (!signaturesMatch) {
       return NextResponse.json({ error: 'Payment signature invalid.' }, { status: 400 });
     }
 
-    // Mark payment captured and booking confirmed
     const supabase = createServiceClient();
 
-    const { error: updateError } = await supabase
+    // Update payment and fetch booking_id in one round trip
+    const { data: payment, error: updateError } = await supabase
       .from('payments')
       .update({
         razorpay_payment_id,
         razorpay_signature,
         status: 'captured',
       })
-      .eq('razorpay_order_id', razorpay_order_id);
+      .eq('razorpay_order_id', razorpay_order_id)
+      .select('booking_id')
+      .single();
 
     if (updateError) {
       console.error('[verify-payment] Failed to update payment:', updateError.message);
       return NextResponse.json({ error: 'Could not confirm payment. Contact support.' }, { status: 503 });
     }
 
-    const { data: payment } = await supabase
-      .from('payments')
-      .select('booking_id')
-      .eq('razorpay_order_id', razorpay_order_id)
-      .single();
-
     if (payment?.booking_id) {
-      await supabase
+      const { data: booking } = await supabase
         .from('bookings')
         .update({ status: 'confirmed', payment_status: 'paid' })
-        .eq('id', payment.booking_id);
+        .eq('id', payment.booking_id)
+        .select('reference_number, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
+        .single();
+
+      if (booking) {
+        const fmt = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        const emailParams = {
+          guestEmail: booking.guest_email,
+          guestName: booking.guest_name,
+          bookingRef: booking.reference_number,
+          propertyName: 'Villa 19 by Habbaa',
+          checkIn: fmt(booking.check_in),
+          checkOut: fmt(booking.check_out),
+          guests: (booking.num_adults ?? 0) + (booking.num_children ?? 0),
+          totalPaise: booking.total_amount,
+        };
+        await Promise.all([
+          sendBookingConfirmation(emailParams),
+          sendAdminNewBookingNotification({
+            bookingRef: booking.reference_number,
+            guestName: booking.guest_name,
+            guestEmail: booking.guest_email,
+            guestPhone: booking.guest_phone ?? undefined,
+            checkIn: fmt(booking.check_in),
+            checkOut: fmt(booking.check_out),
+            guests: emailParams.guests,
+            totalPaise: booking.total_amount,
+            channel: 'Online (Razorpay)',
+          }),
+        ]);
+      }
     }
 
     return NextResponse.json({ verified: true });

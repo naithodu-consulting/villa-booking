@@ -45,6 +45,69 @@ Nine blocking defects fixed before any public traffic is allowed. None of these 
 
 ---
 
+## v0.2 — Phase 1: Design System, Full Site, & Content — 2026-09-02
+
+Complete ground-up rebuild of all guest-facing pages, design tokens, and supporting infrastructure.
+
+### Design System
+
+- CSS custom properties (`globals.css`): `--maroon`, `--brass`, `--paper`, `--ink`, `--surface`, `--border-*` tokens. Full dark-mode support via `prefers-color-scheme` + `data-theme` attribute.
+- Display font: Crimson Text (Google Fonts, 400/600/700). Body: system font stack.
+- Tailwind extended with brand tokens; all spacing/colour in components references CSS vars.
+
+### Route Architecture
+
+- Reorganised into Next.js App Router route groups: `(site)/` for all guest pages (with shared Header + Footer), `(checkout)/` for `/book` (minimal layout, no nav).
+- Deleted old `src/app/page.tsx` and `src/app/book/page.tsx`; all pages now live under `(site)/`.
+
+### New Pages & Components
+
+- **Homepage** (`(site)/page.tsx`): hero, amenities grid, stat bar, cancellation-policy strip, trust signals.
+- **The Villa** (`(site)/the-villa/`): architecture, outdoor spaces, amenities in detail.
+- **Rooms** (`(site)/rooms/`): dynamic room cards from DB, shared-facilities section.
+- **Gallery** (`(site)/gallery/`): masonry grid with full-screen modal (`GalleryModal.tsx`).
+- **Events** (`(site)/events/`): event types, lawn capacity, enquiry CTA.
+- **FAQ** (`(site)/faq/`): accordion, DB-driven.
+- **Guest Info** (`(site)/guest-info/`): check-in/out, ID requirements, kitchen, house rules.
+- **Reviews** (`(site)/reviews/`): verified placeholder (no fake testimonials).
+- **About** (`(site)/about/`): Habbaa brand story.
+- **Contact** (`(site)/contact/`): WhatsApp, email, map placeholder.
+- **Terms** (`(site)/terms/`): full cancellation policy (30/15 days, 90%/50%/0%), quiet hours, ID rules.
+- **Privacy** (`(site)/privacy/`): GDPR-aligned data policy.
+- **Header** (`components/layout/Header.tsx`): sticky, Habbaa white SVG logo, nav links, Book CTA.
+- **Footer** (`components/layout/Footer.tsx`): brand, explore links, contact, legal links.
+- **BookingCheckout** (`components/guest/BookingCheckout.tsx`): stay summary with formatted dates, price breakdown, Razorpay integration.
+- **EnquiryForm** (`components/guest/EnquiryForm.tsx`): events/enquiry form wired to `/api/enquiries`.
+- **Admin dashboard** moved to `components/admin/AdminDashboard.tsx`; page is now a thin wrapper.
+
+### Schema Migrations
+
+| Migration | Description |
+|-----------|-------------|
+| `00007_phase1_tables.sql` | 10 new tables: rooms, property_images, pricing_rules, blocked_dates, property_policies, faqs, nearby_places, amenities, reviews, calendar_events |
+| `00008_booking_channel.sql` | `booking_channel` column on bookings (direct/OTA/manual) |
+| `00009_content_fixes.sql` | Aligns cancellation policy (30/15 days), quiet hours (11 PM), removes em/en dashes from DB-stored text |
+
+### Content Fixes
+
+- Cancellation policy unified across all surfaces: 30/15 days, 90%/50%/0% refund (Terms page is canonical).
+- Quiet hours corrected to 11 PM everywhere (was inconsistent: "10 PM" on Terms, "11 PM" elsewhere).
+- All AI-generated em dashes (—) and en dashes (–) replaced with hyphens or rephrased across all TSX files, SQL seeds, and email templates.
+- Mock data (`mock-data.ts`) deleted entirely; all data sourced from Supabase.
+- "Featured View" placeholder badge removed from GalleryModal.
+- Reviews page: fake subtitle removed; replaced with honest "verified reviews coming soon" copy.
+
+### API
+
+- `/api/enquiries`: new POST endpoint, saves enquiry to DB, sends email via Resend.
+- `/api/admin/bookings/manual`: admin-only manual booking creation.
+- `/api/admin/properties/[id]/pricing`: admin pricing rule management.
+
+### Seed Data
+
+- `supabase/seed_phase1.sql`: rooms, images, amenities, policies, FAQs, nearby places for Villa 19.
+- `supabase/seed_rooms_images.sql`: room image records.
+
 ---
 
 ## v0.1.1 — DB Environment Setup — 2026-09-02
@@ -75,8 +138,9 @@ Three-environment Supabase setup, matching the Proptech project pattern.
 | `db:push` | Safe push to staging (`scripts/db-push.sh`) |
 | `db:push:prod` | Guarded push to production (`scripts/db-push.sh --production`) |
 
-### Pending (requires `npm run db:push`)
+### Applied to Staging
 
-- `00006_rls.sql` — Row-Level Security migration — staged but not yet applied to the staging DB.
+- `00006_rls.sql` — pushed to staging DB (`hlmqcdzazbrztfovixjk`) via `npm run db:push` on 2026-09-02. Verified: site loads on staging, property data correct.
+- Property slug corrected on staging DB via direct `UPDATE` (seed's `ON CONFLICT DO NOTHING` silently skipped the row because it already existed with the old slug `coastal-haven-mangalore`).
 
 *Next: Phase 1 — design system, component library, property-scoped routing, schema migrations (10 new tables), real content seeding.*

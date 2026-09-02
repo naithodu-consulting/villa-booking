@@ -40,7 +40,7 @@ export interface PropertyImage {
   room_id?: string;
   url: string;
   alt_text: string;
-  category: 'hero' | 'exterior' | 'bedroom' | 'pool' | 'dining' | 'living';
+  category: 'hero' | 'exterior' | 'bedroom' | 'dining' | 'living' | 'bathroom' | 'kitchen' | 'outdoor' | 'surroundings';
   display_order: number;
 }
 
@@ -93,6 +93,49 @@ export interface Booking {
 export interface AmenityGroup {
   category: string;
   items: string[];
+}
+
+export interface PropertyAmenity {
+  id: string;
+  property_id: string;
+  category: string;
+  label: string;
+  icon?: string;
+  is_available: boolean;
+  display_order: number;
+}
+
+export interface FAQ {
+  id: string;
+  property_id: string;
+  question: string;
+  answer: string;
+  category: string;
+  display_order: number;
+  is_published: boolean;
+}
+
+export interface PropertyPolicy {
+  id: string;
+  property_id: string;
+  key: string;
+  title: string;
+  body: string;
+  category: string;
+  display_order: number;
+  is_published: boolean;
+}
+
+export interface NearbyPlace {
+  id: string;
+  property_id: string;
+  name: string;
+  category: string;
+  distance_km?: number;
+  travel_minutes?: number;
+  note?: string;
+  display_order: number;
+  is_published: boolean;
 }
 
 /** All amounts in this breakdown are in PAISE (integer). Divide by 100 to display rupees. */

@@ -29,15 +29,15 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
               />
               <div>
                 <div className="flex flex-col leading-tight">
-                  <span className="text-sm font-bold text-white">{property.name}</span>
-                  <span className="text-[11px] font-medium tracking-widest text-[#C9944A] uppercase mt-0.5">By Habbaa</span>
+                  <span className="text-base font-bold text-white">{property.name}</span>
+                  <span className="text-xs font-medium tracking-widest text-[#C9944A] uppercase mt-0.5">By Habbaa</span>
                 </div>
               </div>
             </div>
-            <p className="text-sm text-white/55 leading-relaxed max-w-sm">
+            <p className="text-base text-white/60 leading-relaxed max-w-sm">
               A premium private villa retreat on the Karnataka coast. Direct booking. No middlemen, no platform fees.
             </p>
-            <div className="flex items-center gap-1.5 text-xs text-white/50">
+            <div className="flex items-center gap-1.5 text-sm text-white/50">
               <MapPin className="w-3.5 h-3.5 text-[#C9944A] flex-shrink-0" aria-hidden="true" />
               <span>{property.address}, {property.city}</span>
             </div>
@@ -45,18 +45,22 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Property</p>
-            <ul className="space-y-2 text-xs text-white/55">
+            <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Explore</p>
+            <ul className="space-y-2 text-sm text-white/65">
               {[
-                ['#overview', 'Overview'],
-                ['#rooms', 'Rooms'],
-                ['#amenities', 'Amenities'],
-                ['#location', 'Location'],
-                ['#reviews', 'Reviews'],
-                ['#faq', 'FAQ'],
+                ['/',            'Overview'],
+                ['/the-villa',   'The Villa'],
+                ['/rooms',       'Rooms'],
+                ['/gallery',     'Gallery'],
+                ['/events',      'Events'],
+                ['/faq',         'FAQ'],
+                ['/guest-info',  'Guest Info'],
+                ['/reviews',     'Reviews'],
+                ['/about',       'About Habbaa'],
+                ['/contact',     'Contact'],
               ].map(([href, label]) => (
                 <li key={href}>
-                  <a href={href} className="hover:text-[#C9944A] transition-colors">{label}</a>
+                  <Link href={href} className="hover:text-[#C9944A] transition-colors">{label}</Link>
                 </li>
               ))}
             </ul>
@@ -64,8 +68,8 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
 
           {/* Contact */}
           <div className="space-y-3">
-            <p className="text-xs font-bold text-white/40 uppercase tracking-wider">Contact Us</p>
-            <div className="space-y-2.5 text-xs text-white/55">
+            <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Contact Us</p>
+            <div className="space-y-2.5 text-sm text-white/65">
               <a
                 href={whatsappUrl}
                 target="_blank"
@@ -88,17 +92,21 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
               </a>
             </div>
             <div className="pt-2 space-y-1.5">
-              <p className="font-semibold text-white/40 uppercase tracking-wider text-[10px] pt-2">Legal</p>
-              <p className="text-white/30 italic text-[11px]">Terms & Conditions - coming soon</p>
-              <p className="text-white/30 italic text-[11px]">Privacy Policy - coming soon</p>
-              <Link href="#cancellation" className="block text-xs text-white/55 hover:text-[#C9944A] transition-colors">
+              <p className="font-bold text-white/50 uppercase tracking-wider text-xs pt-2">Legal</p>
+              <Link href="/terms" className="block text-sm text-white/65 hover:text-[#C9944A] transition-colors">
+                Terms &amp; Conditions
+              </Link>
+              <Link href="/privacy" className="block text-sm text-white/65 hover:text-[#C9944A] transition-colors">
+                Privacy Policy
+              </Link>
+              <Link href="#cancellation" className="block text-sm text-white/65 hover:text-[#C9944A] transition-colors">
                 Cancellation Policy
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-white/35">
+        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
           <p>© {year} {property.name}. All rights reserved.</p>
           <p>Direct booking platform · Powered by Razorpay</p>
         </div>

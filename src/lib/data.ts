@@ -1,5 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
-import type { Property, Room, PropertyImage, PricingRule } from '@/types';
+import type { Property, Room, PropertyImage, PricingRule, PropertyAmenity, FAQ, PropertyPolicy, NearbyPlace } from '@/types';
 
 const PROPERTY_SLUG = 'villa-19';
 
@@ -55,9 +55,67 @@ export async function getPricingRules(propertyId: string): Promise<PricingRule[]
     .from('pricing_rules')
     .select('*')
     .eq('property_id', propertyId)
-    .gte('end_date', today) // only future/active rules
+    .gte('end_date', today)
     .order('start_date');
 
   if (error || !data) return [];
   return data as PricingRule[];
+}
+
+export async function getAmenities(propertyId: string): Promise<PropertyAmenity[]> {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from('property_amenities')
+    .select('*')
+    .eq('property_id', propertyId)
+    .eq('is_available', true)
+    .order('display_order');
+
+  if (error || !data) return [];
+  return data as PropertyAmenity[];
+}
+
+export async function getFAQs(propertyId: string): Promise<FAQ[]> {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase
+    .from('faqs')
+    .select('*')
+    .eq('property_id', propertyId)
+    .eq('is_published', true)
+    .order('display_order');
+
+  if (error || !data) return [];
+  return data as FAQ[];
+}
+
+export async function getPolicies(propertyId: string, category?: string): Promise<PropertyPolicy[]> {
+  const supabase = createServiceClient();
+  let query = supabase
+    .from('property_policies')
+    .select('*')
+    .eq('property_id', propertyId)
+    .eq('is_published', true)
+    .order('display_order');
+
+  if (category) query = query.eq('category', category);
+
+  const { data, error } = await query;
+  if (error || !data) return [];
+  return data as PropertyPolicy[];
+}
+
+export async function getNearbyPlaces(propertyId: string, category?: string): Promise<NearbyPlace[]> {
+  const supabase = createServiceClient();
+  let query = supabase
+    .from('nearby_places')
+    .select('*')
+    .eq('property_id', propertyId)
+    .eq('is_published', true)
+    .order('display_order');
+
+  if (category) query = query.eq('category', category);
+
+  const { data, error } = await query;
+  if (error || !data) return [];
+  return data as NearbyPlace[];
 }
