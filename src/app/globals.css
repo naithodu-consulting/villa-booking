@@ -237,6 +237,80 @@
     background-clip: text;
   }
 
+  /* Frosted-glass secondary button — used on dark (maroon) CTA sections */
+  .btn-frosted {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.12s ease;
+  }
+  .btn-frosted:hover {
+    background-color: rgba(255, 255, 255, 0.26);
+  }
+  .btn-frosted:active {
+    transform: scale(0.95);
+  }
+
+  /* WhatsApp ghost button — light bg variant */
+  .btn-wa-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(37, 211, 102, 0.1);
+    color: #1a9e55;
+    border: 1px solid rgba(37, 211, 102, 0.3);
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.12s ease;
+  }
+  .btn-wa-ghost:hover {
+    background-color: rgba(37, 211, 102, 0.2);
+  }
+  .btn-wa-ghost:active {
+    transform: scale(0.95);
+  }
+
+  /* WhatsApp green button */
+  .btn-wa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #25D366;
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.12s ease;
+  }
+  .btn-wa:hover {
+    filter: brightness(1.1);
+  }
+  .btn-wa:active {
+    transform: scale(0.95);
+  }
+
+  /* Brass-filled button — used on light/maroon sections */
+  .btn-brass-filled {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--brass);
+    color: #ffffff;
+    font-weight: 700;
+    cursor: pointer;
+    transition: filter 0.18s ease, transform 0.12s ease;
+  }
+  .btn-brass-filled:hover {
+    filter: brightness(0.88);
+  }
+  .btn-brass-filled:active {
+    transform: scale(0.98);
+  }
+
   /* Focus ring — visible, 3:1 minimum */
   :focus-visible {
     outline: 2px solid var(--brass);

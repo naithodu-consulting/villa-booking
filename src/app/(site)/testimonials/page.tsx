@@ -12,16 +12,16 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 export const metadata: Metadata = {
-  title: 'Reviews',
-  description: 'Guest reviews for Villa 19, Mangalore. Read what our guests say about their stay.',
+  title: 'Testimonials',
+  description: 'Guest testimonials for Villa 19, Mangalore. Read what our guests say about their stay.',
   openGraph: {
-    title: 'Reviews | Villa 19 by Habbaa',
-    description: 'Real guest experiences at Villa 19, Mangalore. Direct booking, personal host service.',
-    url: 'https://habbaa.in/reviews',
+    title: 'Testimonials | Villa 19 by Habbaa',
+    description: 'Real guest testimonials at Villa 19, Mangalore. Direct booking, personal host service.',
+    url: 'https://habbaa.in/testimonials',
   },
   twitter: {
-    title: 'Reviews | Villa 19 by Habbaa',
-    description: 'Guest reviews for Villa 19, Mangalore.',
+    title: 'Testimonials | Villa 19 by Habbaa',
+    description: 'Guest testimonials for Villa 19, Mangalore.',
   },
 };
 
@@ -43,7 +43,7 @@ export default async function ReviewsPage() {
             className="text-5xl sm:text-6xl font-bold italic mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
-            Guest Reviews
+            Guest Testimonials
           </h1>
           <p className="text-lg text-white/75 leading-relaxed">
             Verified guest reviews will appear here once we open our doors.
@@ -70,7 +70,7 @@ export default async function ReviewsPage() {
           </div>
           <div>
             <p className="text-lg font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
-              Reviews coming soon
+              Testimonials coming soon
             </p>
             <p className="text-sm mt-2 max-w-sm mx-auto leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
               We are gathering our first verified guest reviews. In the meantime, reach out on WhatsApp and we will connect you with past guests directly.
@@ -80,7 +80,7 @@ export default async function ReviewsPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-base transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-base transition-all hover:bg-[rgba(37,211,102,0.2)] active:scale-95"
             style={{ backgroundColor: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.3)', color: '#1a9e55' }}
           >
             <WhatsAppIcon className="w-4 h-4" /> Ask for References
@@ -124,8 +124,7 @@ export default async function ReviewsPage() {
           <p className="text-white/70 text-sm">Book now and help us build our review history.</p>
           <Link
             href="/book"
-            className="inline-block px-8 py-3.5 rounded-xl font-bold text-base mt-2 transition-all"
-            style={{ backgroundColor: 'var(--brass)', color: 'white' }}
+            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl text-base mt-2"
           >
             Check Availability
           </Link>

@@ -37,7 +37,7 @@ export default function PrivacyPage() {
             <p>
               Villa 19 by Habbaa (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the website habbaa.in and manages bookings for
               Villa 19, Urwa, Mangalore, Karnataka 575006. For privacy-related queries, email us at{' '}
-              <a href="mailto:bookings@habbaa.in" style={{ color: 'var(--brass)' }}>bookings@habbaa.in</a>.
+              <a href="mailto:hello@habbaa.com" style={{ color: 'var(--brass)' }}>hello@habbaa.com</a>.
             </p>
           </Section>
 
@@ -92,7 +92,7 @@ export default function PrivacyPage() {
               <li>Request deletion of your data (subject to legal obligations)</li>
               <li>Withdraw consent where processing is consent-based</li>
             </ul>
-            <p className="mt-3">To exercise any of these rights, email <a href="mailto:bookings@habbaa.in" style={{ color: 'var(--brass)' }}>bookings@habbaa.in</a>.</p>
+            <p className="mt-3">To exercise any of these rights, email <a href="mailto:hello@habbaa.com" style={{ color: 'var(--brass)' }}>hello@habbaa.com</a>.</p>
           </Section>
 
           <Section title="8. Changes to this policy">
@@ -104,7 +104,7 @@ export default function PrivacyPage() {
 
           <Section title="9. Contact">
             <p>
-              For any privacy-related concerns: <a href="mailto:bookings@habbaa.in" style={{ color: 'var(--brass)' }}>bookings@habbaa.in</a><br />
+              For any privacy-related concerns: <a href="mailto:hello@habbaa.com" style={{ color: 'var(--brass)' }}>hello@habbaa.com</a><br />
               Villa 19 by Habbaa, Urwa, Mangalore, Karnataka 575006
             </p>
           </Section>

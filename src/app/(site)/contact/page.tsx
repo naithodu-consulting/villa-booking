@@ -28,6 +28,7 @@ export const metadata: Metadata = {
 export default async function ContactPage() {
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number ?? '919876543210';
+  const phoneNumber = process.env.PROPERTY_PHONE ?? whatsappNumber;
   const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.com';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about ${property?.name ?? 'Villa 19'}`)}`;
 
@@ -99,7 +100,7 @@ export default async function ContactPage() {
 
           {/* Call */}
           <a
-            href={`tel:+${whatsappNumber}`}
+            href={`tel:+${phoneNumber}`}
             className="flex flex-col items-center gap-3 p-6 rounded-2xl text-center transition-all hover:shadow-md"
             style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
           >
@@ -111,7 +112,7 @@ export default async function ContactPage() {
             </div>
             <div>
               <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>Call Us</p>
-              <p className="text-base" style={{ color: 'var(--ink-muted)' }}>+{whatsappNumber}</p>
+              <p className="text-base" style={{ color: 'var(--ink-muted)' }}>+{phoneNumber}</p>
               <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass)' }}>Call Now →</p>
             </div>
           </a>

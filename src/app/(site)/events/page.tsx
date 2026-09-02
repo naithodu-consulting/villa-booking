@@ -98,8 +98,7 @@ export default async function EventsPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all"
-            style={{ backgroundColor: '#25D366', color: 'white' }}
+            className="btn-wa inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-base"
           >
             <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
           </a>
@@ -199,14 +198,13 @@ export default async function EventsPage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all"
-              style={{ backgroundColor: '#25D366', color: 'white' }}
+              className="btn-wa flex items-center gap-2 px-8 py-3.5 rounded-xl text-base"
             >
               <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
             </a>
             <Link
               href="/book"
-              className="px-6 py-3.5 rounded-xl font-bold text-sm transition-all" style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "white", border: "1px solid rgba(255,255,255,0.3)" }}
+              className="btn-frosted px-6 py-3.5 rounded-xl text-sm"
             >
               Check Availability
             </Link>

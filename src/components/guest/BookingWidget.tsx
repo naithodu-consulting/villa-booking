@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Property, PricingRule, PricingBreakdown } from '@/types';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
-import { Calendar as CalendarIcon, Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
+import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface BookingWidgetProps {
   property: Property;
@@ -106,40 +107,37 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
       <div className="bg-white p-5 space-y-4">
         <form onSubmit={handleBookingSubmit} className="space-y-3">
           {/* Date Inputs */}
-          <div className="grid grid-cols-2 gap-2 bg-[#F0EBE0] p-2.5 rounded-xl border border-[rgba(0,0,0,0.09)]">
-            <div className="flex flex-col min-w-0">
-              <label htmlFor="widget-checkin" className="text-xs uppercase font-bold text-[#6B7A8A] flex items-center gap-1 mb-1">
-                <CalendarIcon className="w-3 h-3 text-[#A87432] flex-shrink-0" /> Check-In
-              </label>
-              <input
-                id="widget-checkin"
-                type="date"
-                value={checkIn}
-                min={todayStr}
-                onChange={(e) => {
-                  setCheckIn(e.target.value);
-                  if (e.target.value >= checkOut) {
-                    const next = new Date(e.target.value);
-                    next.setDate(next.getDate() + 1);
-                    setCheckOut(next.toISOString().split('T')[0]);
-                  }
-                }}
-                className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-lg px-2 py-1.5 text-[#1A1208] text-sm font-semibold focus:outline-none focus:border-[#A87432]"
-              />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <label htmlFor="widget-checkout" className="text-xs uppercase font-bold text-[#6B7A8A] flex items-center gap-1 mb-1">
-                <CalendarIcon className="w-3 h-3 text-[#A87432] flex-shrink-0" /> Check-Out
-              </label>
-              <input
-                id="widget-checkout"
-                type="date"
-                value={checkOut}
-                min={checkIn || todayStr}
-                onChange={(e) => setCheckOut(e.target.value)}
-                className="w-full bg-white border border-[rgba(0,0,0,0.12)] rounded-lg px-2 py-1.5 text-[#1A1208] text-sm font-semibold focus:outline-none focus:border-[#A87432]"
-              />
-            </div>
+          <div
+            className="space-y-2 p-3 rounded-xl border"
+            style={{ backgroundColor: '#F0EBE0', borderColor: 'rgba(0,0,0,0.09)' }}
+          >
+            <DatePicker
+              id="widget-checkin"
+              label="Check-In"
+              value={checkIn}
+              min={todayStr}
+              onChange={(v) => {
+                setCheckIn(v);
+                if (v >= checkOut) {
+                  const next = new Date(v);
+                  next.setDate(next.getDate() + 1);
+                  setCheckOut(next.toISOString().split('T')[0]);
+                }
+              }}
+              clearable={false}
+              compact
+              placeholder="Select check-in"
+            />
+            <DatePicker
+              id="widget-checkout"
+              label="Check-Out"
+              value={checkOut}
+              min={checkIn || todayStr}
+              onChange={setCheckOut}
+              clearable={false}
+              compact
+              placeholder="Select check-out"
+            />
           </div>
 
           {/* Guests Selector */}

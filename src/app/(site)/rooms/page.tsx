@@ -183,8 +183,7 @@ export default async function RoomsPage() {
           </p>
           <Link
             href="/book"
-            className="inline-block px-8 py-3.5 rounded-xl font-bold text-base mt-2 transition-all"
-            style={{ backgroundColor: 'var(--brass)', color: 'white' }}
+            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl text-base mt-2"
           >
             Check Availability & Rates
           </Link>

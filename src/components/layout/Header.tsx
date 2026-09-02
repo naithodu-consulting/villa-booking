@@ -19,19 +19,18 @@ interface HeaderProps {
 }
 
 const NAV_LINKS = [
-  { href: '/',           label: 'Overview' },
-  { href: '/the-villa',  label: 'The Villa' },
-  { href: '/rooms',      label: 'Rooms' },
-  { href: '/gallery',    label: 'Gallery' },
-  { href: '/events',     label: 'Events' },
-  { href: '/faq',        label: 'FAQ' },
+  { href: '/',            label: 'Home' },
+  { href: '/the-villa',   label: 'The Villa' },
+  { href: '/rooms',       label: 'Rooms' },
+  { href: '/gallery',     label: 'Gallery' },
+  { href: '/events',      label: 'Events' },
+  { href: '/stay-guide',  label: 'Stay Guide' },
 ];
 
 const DRAWER_EXTRA_LINKS = [
-  { href: '/guest-info', label: 'Guest Info' },
-  { href: '/reviews',    label: 'Reviews' },
-  { href: '/about',      label: 'About Us' },
-  { href: '/contact',    label: 'Contact' },
+  { href: '/testimonials', label: 'Testimonials' },
+  { href: '/about',        label: 'About Us' },
+  { href: '/contact',      label: 'Contact' },
 ];
 
 export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
@@ -202,7 +201,7 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-bold text-sm text-white transition-all"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-bold text-sm text-white transition-all hover:brightness-110 active:scale-95"
                 style={{ backgroundColor: '#25D366' }}
               >
                 <WhatsAppIcon className="w-4 h-4" />

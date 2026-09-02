@@ -217,7 +217,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     value={guestName}
                     onChange={(e) => setGuestName(e.target.value)}
                     placeholder="Full name as per ID"
-                    className="w-full rounded-xl px-4 py-3 text-base focus:outline-none"
+                    className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
                     style={{
                       backgroundColor: 'var(--paper)',
                       border: '1px solid var(--border-subtle)',
@@ -238,7 +238,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
                       placeholder="Your Email Address"
-                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none"
+                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
                       style={{
                         backgroundColor: 'var(--paper)',
                         border: '1px solid var(--border-subtle)',
@@ -258,7 +258,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                       value={guestPhone}
                       onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                       placeholder="10-digit mobile number"
-                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none"
+                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
                       style={{
                         backgroundColor: 'var(--paper)',
                         border: '1px solid var(--border-subtle)',
@@ -279,7 +279,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     placeholder="Early check-in, dietary restrictions, extra towels…"
-                    className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none resize-none"
+                    className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 resize-none transition-shadow"
                     style={{
                       backgroundColor: 'var(--paper)',
                       border: '1px solid var(--border-subtle)',

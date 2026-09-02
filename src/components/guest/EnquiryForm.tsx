@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import DatePicker from '@/components/ui/DatePicker';
 
 interface FormState {
   name: string;
@@ -133,14 +134,23 @@ export default function EnquiryForm() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div>
-          <label style={labelStyle}>Check-in</label>
-          <input type="date" value={form.checkIn} onChange={set('checkIn')} style={inputStyle} />
-        </div>
-        <div>
-          <label style={labelStyle}>Check-out</label>
-          <input type="date" value={form.checkOut} onChange={set('checkOut')} style={inputStyle} />
-        </div>
+        <DatePicker
+          label="Check-in"
+          value={form.checkIn}
+          onChange={v => setForm(prev => ({ ...prev, checkIn: v, checkOut: v && v >= prev.checkOut ? '' : prev.checkOut }))}
+          min={new Date().toISOString().split('T')[0]}
+          placeholder="dd mmm yyyy"
+          clearable
+        />
+        <DatePicker
+          label="Check-out"
+          value={form.checkOut}
+          onChange={v => setForm(prev => ({ ...prev, checkOut: v }))}
+          min={form.checkIn || new Date().toISOString().split('T')[0]}
+          placeholder="dd mmm yyyy"
+          clearable
+          dropdownAlign="right"
+        />
         <div>
           <label style={labelStyle}>Guests</label>
           <input
@@ -180,7 +190,7 @@ export default function EnquiryForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all disabled:opacity-60"
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold transition-all disabled:opacity-60 hover:brightness-90 active:scale-[0.98]"
         style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
       >
         {isSubmitting ? (

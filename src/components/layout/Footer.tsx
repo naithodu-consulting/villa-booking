@@ -57,16 +57,15 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
             <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Explore</p>
             <ul className="space-y-2 text-sm text-white/65">
               {[
-                ['/',            'Overview'],
-                ['/the-villa',   'The Villa'],
-                ['/rooms',       'Rooms'],
-                ['/gallery',     'Gallery'],
-                ['/events',      'Events'],
-                ['/faq',         'FAQ'],
-                ['/guest-info',  'Guest Info'],
-                ['/reviews',     'Reviews'],
-                ['/about',      'About Us'],
-                ['/contact',     'Contact'],
+                ['/',               'Home'],
+                ['/the-villa',      'The Villa'],
+                ['/rooms',          'Rooms'],
+                ['/gallery',        'Gallery'],
+                ['/events',         'Events'],
+                ['/stay-guide',     'Stay Guide'],
+                ['/testimonials',   'Testimonials'],
+                ['/about',          'About Us'],
+                ['/contact',        'Contact'],
               ].map(([href, label]) => (
                 <li key={href}>
                   <Link href={href} className="hover:text-[#C9944A] transition-colors">{label}</Link>

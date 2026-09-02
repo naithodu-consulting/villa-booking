@@ -93,8 +93,7 @@ export default async function TheVillaPage() {
           </p>
           <Link
             href="/book"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-bold text-base transition-all"
-            style={{ backgroundColor: 'var(--brass)', color: 'white' }}
+            className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-base"
           >
             Check Availability
           </Link>
@@ -256,14 +255,13 @@ export default async function TheVillaPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
             <Link
               href="/book"
-              className="px-8 py-3.5 rounded-xl font-bold text-base transition-all"
-              style={{ backgroundColor: 'var(--brass)', color: 'white' }}
+              className="btn-brass-filled px-8 py-3.5 rounded-xl text-base"
             >
               Check Availability
             </Link>
             <Link
               href="/"
-              className="px-6 py-3.5 rounded-xl font-bold text-base transition-all" style={{ backgroundColor: "rgba(255,255,255,0.12)", color: "white", border: "1px solid rgba(255,255,255,0.3)" }}
+              className="btn-frosted px-6 py-3.5 rounded-xl text-base"
             >
               Back to Overview
             </Link>

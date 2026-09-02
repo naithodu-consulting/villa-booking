@@ -406,18 +406,13 @@ export default async function LandingPage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
-                style={{
-                  backgroundColor: 'rgba(37,211,102,0.1)',
-                  border: '1px solid rgba(37,211,102,0.3)',
-                  color: '#1a9e55',
-                }}
+                className="btn-wa-ghost flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm"
               >
                 <WhatsAppIcon className="w-4 h-4" /> WhatsApp
               </a>
               <a
                 href={`tel:+${property.whatsapp_number ?? '919876543210'}`}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors hover:border-[var(--brass)] hover:text-[var(--ink)] active:scale-95"
                 style={{
                   backgroundColor: 'var(--paper-sunk)',
                   border: '1px solid var(--border-subtle)',
