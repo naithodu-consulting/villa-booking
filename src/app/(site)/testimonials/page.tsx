@@ -31,7 +31,7 @@ export default async function ReviewsPage() {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to know more about guest reviews for ${property?.name ?? 'Villa 19'}`)}`;
 
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
@@ -80,8 +80,7 @@ export default async function ReviewsPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-base transition-all hover:bg-[rgba(37,211,102,0.2)] active:scale-95"
-            style={{ backgroundColor: 'rgba(37,211,102,0.1)', border: '1px solid rgba(37,211,102,0.3)', color: '#1a9e55' }}
+            className="btn-wa-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base"
           >
             <WhatsAppIcon className="w-4 h-4" /> Ask for References
           </a>

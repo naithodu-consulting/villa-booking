@@ -11,7 +11,7 @@ const LAST_UPDATED = '1 September 2026';
 
 export default function PrivacyPage() {
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       <section
         className="py-8 sm:py-10"

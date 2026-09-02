@@ -71,7 +71,7 @@ export default async function TheVillaPage() {
   ];
 
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section

@@ -144,3 +144,53 @@ Three-environment Supabase setup, matching the Proptech project pattern.
 - Property slug corrected on staging DB via direct `UPDATE` (seed's `ON CONFLICT DO NOTHING` silently skipped the row because it already existed with the old slug `coastal-haven-mangalore`).
 
 *Next: Phase 1 — design system, component library, property-scoped routing, schema migrations (10 new tables), real content seeding.*
+
+---
+
+## v0.3.0 — UI Modernization & Responsive Design — 2026-09-02
+
+### Pages
+
+- `/stay-guide`: new merged page combining `/faq` (DB-driven FAQ accordion) and `/guest-info` (practical info cards: check-in/out, arrival, WiFi, parking, house rules, emergency contacts)
+- `/testimonials`: renamed from `/reviews`; honest "coming soon" state with trust signals
+- `/faq` and `/guest-info`: deleted (merged into stay-guide)
+- `/reviews`: deleted (renamed to testimonials)
+- Sitemap updated accordingly
+
+### Navigation
+
+- "About Us" removed from header nav and footer
+- "Contact" renamed to "Contact Us" in header
+- Footer Explore column: removed duplicate "Contact Us" link; renamed right column from "Contact Us" → "Get in Touch"
+- Header mobile "Book" button: was dead `href="#book"` anchor → fixed to `href="/book"`
+- Desktop nav: Stay Guide hidden at md breakpoint (only shows at lg+) to prevent overflow on 768px
+
+### Button Hover System
+
+Root cause fixed: Tailwind `hover:bg-*` cannot override inline `style={{ backgroundColor }}` (CSS specificity 1,0,0 vs 0,1,0). Fixed by moving all button styles into `@layer components` in `globals.css`.
+
+Five CSS button classes: `.btn-brass-filled`, `.btn-frosted`, `.btn-wa`, `.btn-wa-ghost`, `.btn-primary`.
+All CTA buttons across all pages migrated to use these classes.
+
+### Custom DatePicker
+
+`src/components/ui/DatePicker.tsx` — zero-dependency React calendar dropdown replacing all OS-native `<input type="date">` inputs. Used in EnquiryForm and BookingWidget. Features: month nav, today ring, branded colors, ESC/outside-click to close, full keyboard accessibility, `maxWidth: calc(100vw - 32px)` to prevent viewport overflow on mobile.
+
+### Contact Page
+
+- Email: corrected to `hello@habbaa.com` (was `bookings@habbaa.in`)
+- Phone: new `PROPERTY_PHONE` env var (`917760777876`) separate from `PROPERTY_WHATSAPP`
+- `.env.example` and `DEPLOYMENT.md` updated
+
+### Responsive Fixes
+
+- Homepage location grid: `grid-cols-2` → `grid-cols-1 sm:grid-cols-2`
+- Mobile sticky booking bar: `fixed bottom-0 md:hidden` on homepage with WhatsApp + Book Now
+- `pb-20 md:pb-0` removed from all inner pages (was leftover from deleted MobileNav)
+- DatePicker dropdown clamped to `max-width: calc(100vw - 32px)`
+- Booking confirmation WA link: was hardcoded `919876543210` → `process.env.PROPERTY_WHATSAPP`
+
+### Dead Code Removed
+
+- `src/components/layout/MobileNav.tsx`: deleted (was never imported anywhere)
+

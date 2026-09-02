@@ -20,6 +20,11 @@
 - [ ] Terms & Conditions page — placeholder text added; replace with real legal copy before launch
 
 ## Optional / Post-launch
-- [ ] Reviews page — wire real guest reviews once collected
+- [ ] Reviews page — wire real guest reviews once collected (page exists at /testimonials)
 - [ ] Homepage reviews section — replace placeholder comment with real reviews component
 - [ ] Admin: blocked-dates calendar — wire blocked_dates table (currently local state only)
+
+## Known UX gaps (post-launch nice-to-haves)
+- [ ] EnquiryForm "Send Enquiry" button — `enquiries` table missing from local Supabase; needs `supabase db reset` or manual CREATE TABLE on local
+- [ ] Mobile homepage booking widget: currently buried at bottom on mobile (sticky bar added as stopgap). Consider a dedicated /book landing optimised for mobile.
+- [ ] DatePicker: no keyboard arrow-key navigation within the calendar grid (ESC and click work; arrow nav would be ideal for a11y)

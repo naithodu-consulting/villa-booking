@@ -55,7 +55,7 @@ export default async function GalleryPage() {
   const hasImages = images.length > 0;
 
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section

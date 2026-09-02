@@ -18,18 +18,20 @@ interface HeaderProps {
   whatsappUrl: string;
 }
 
+// Shown in desktop nav (lg+) and mobile drawer
 const NAV_LINKS = [
-  { href: '/',            label: 'Home' },
-  { href: '/the-villa',   label: 'The Villa' },
-  { href: '/rooms',       label: 'Rooms' },
-  { href: '/gallery',     label: 'Gallery' },
-  { href: '/events',      label: 'Events' },
-  { href: '/stay-guide',  label: 'Stay Guide' },
+  { href: '/',            label: 'Home',       lgOnly: false },
+  { href: '/the-villa',   label: 'The Villa',  lgOnly: false },
+  { href: '/rooms',       label: 'Rooms',      lgOnly: false },
+  { href: '/gallery',     label: 'Gallery',    lgOnly: false },
+  { href: '/events',      label: 'Events',     lgOnly: false },
+  { href: '/stay-guide',  label: 'Stay Guide', lgOnly: true  },
+  { href: '/contact',     label: 'Contact Us', lgOnly: false },
 ];
 
+// Shown only in mobile drawer (below a divider)
 const DRAWER_EXTRA_LINKS = [
   { href: '/testimonials', label: 'Testimonials' },
-  { href: '/contact',      label: 'Contact Us' },
 ];
 
 export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
@@ -93,11 +95,11 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
           aria-label="Main navigation"
           style={{ color: 'rgba(255,255,255,0.75)' }}
         >
-          {NAV_LINKS.map(({ href, label }) => (
+          {NAV_LINKS.map(({ href, label, lgOnly }) => (
             <Link
               key={href}
               href={href}
-              className="hover:text-white transition-colors py-1"
+              className={`hover:text-white transition-colors py-1${lgOnly ? ' hidden lg:inline' : ''}`}
             >
               {label}
             </Link>
@@ -112,12 +114,12 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
 
         {/* Mobile: Book CTA + hamburger */}
         <div className="flex md:hidden items-center gap-2">
-          <a
-            href="#book"
+          <Link
+            href="/book"
             className="px-3.5 py-2 rounded-lg text-sm font-bold text-white border border-white/30 hover:bg-white/10 transition-all"
           >
             Book
-          </a>
+          </Link>
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Open navigation menu"

@@ -33,7 +33,7 @@ export default async function ContactPage() {
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about ${property?.name ?? 'Villa 19'}`)}`;
 
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section

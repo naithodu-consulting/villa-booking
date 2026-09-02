@@ -106,7 +106,7 @@ export default async function StayGuidePage() {
   ];
 
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section

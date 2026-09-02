@@ -197,6 +197,7 @@ export default function DatePicker({
             boxShadow: '0 12px 40px rgba(0,0,0,0.14)',
             padding: '16px',
             width: '280px',
+            maxWidth: 'calc(100vw - 32px)',
             userSelect: 'none',
           }}
         >

@@ -21,6 +21,7 @@ interface FooterProps {
 export default function Footer({ property, whatsappUrl }: FooterProps) {
   const year = new Date().getFullYear();
   const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.com';
+  const phoneNumber = process.env.PROPERTY_PHONE ?? property.whatsapp_number ?? '919876543210';
 
   return (
     <footer className="mt-12 border-t border-white/8 bg-[#562424]">
@@ -64,7 +65,6 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                 ['/events',         'Events'],
                 ['/stay-guide',     'Stay Guide'],
                 ['/testimonials',   'Testimonials'],
-                ['/contact',        'Contact Us'],
               ].map(([href, label]) => (
                 <li key={href}>
                   <Link href={href} className="hover:text-[#C9944A] transition-colors">{label}</Link>
@@ -75,7 +75,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
 
           {/* Contact */}
           <div className="space-y-3">
-            <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Contact Us</p>
+            <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Get in Touch</p>
             <div className="space-y-2.5 text-sm text-white/65">
               <a
                 href={whatsappUrl}
@@ -92,7 +92,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                 <Mail className="w-3.5 h-3.5 text-[#C9944A]" aria-hidden="true" /> {email}
               </a>
               <a
-                href={`tel:+${property.whatsapp_number ?? '919876543210'}`}
+                href={`tel:+${phoneNumber}`}
                 className="flex items-center gap-2 hover:text-[#C9944A] transition-colors"
               >
                 <Phone className="w-3.5 h-3.5 text-[#C9944A]" aria-hidden="true" /> Call Us

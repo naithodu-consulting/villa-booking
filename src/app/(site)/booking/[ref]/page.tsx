@@ -152,13 +152,11 @@ export default async function BookingConfirmationPage({ params }: Props) {
         {/* ── Contact quick links ───────────────────────── */}
         <div className="grid grid-cols-2 gap-3">
           <a
-            href="https://wa.me/919876543210"
+            href={`https://wa.me/${process.env.PROPERTY_WHATSAPP ?? '919876543210'}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold transition-all hover:opacity-90"
-            style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+            className="btn-wa flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base"
           >
-            <Phone className="w-4 h-4" />
             WhatsApp Us
           </a>
           <Link
