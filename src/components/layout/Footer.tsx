@@ -64,8 +64,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                 ['/events',         'Events'],
                 ['/stay-guide',     'Stay Guide'],
                 ['/testimonials',   'Testimonials'],
-                ['/about',          'About Us'],
-                ['/contact',        'Contact'],
+                ['/contact',        'Contact Us'],
               ].map(([href, label]) => (
                 <li key={href}>
                   <Link href={href} className="hover:text-[#C9944A] transition-colors">{label}</Link>

@@ -29,8 +29,7 @@ const NAV_LINKS = [
 
 const DRAWER_EXTRA_LINKS = [
   { href: '/testimonials', label: 'Testimonials' },
-  { href: '/about',        label: 'About Us' },
-  { href: '/contact',      label: 'Contact' },
+  { href: '/contact',      label: 'Contact Us' },
 ];
 
 export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
