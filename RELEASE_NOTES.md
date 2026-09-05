@@ -262,3 +262,25 @@ All CTA buttons across all pages migrated to use these classes.
 
 - `src/components/layout/MobileNav.tsx`: deleted (was never imported anywhere)
 
+---
+
+## v0.3.1 — Cookie Consent, Nav Polish & Safari Fix — 2026-09-05
+
+### Cookie Consent Bar
+
+- New `CookieConsent.tsx` component: fixed bottom bar with `localStorage` persistence (`villa19_cookie_consent`).
+- Accept / Decline buttons. Accept matches the Book Now button style (cream `#FBF7F1` bg, maroon text, hover inverts). Decline is a ghost button with sufficient contrast (`rgba(255,255,255,0.80)`).
+- Mounted in `(site)/layout.tsx` after Footer.
+- `overflow-x: clip` changed to `overflow-x: hidden` on `body` in `globals.css` — Safari treats `clip` as a containing block for `position: fixed`, causing the bar to anchor to the page instead of the viewport.
+
+### Header
+
+- Book Now button hover: inverts to maroon background + cream text (0.18s ease). Previous hover to plain white was imperceptible.
+- Cinzel applied to "Villa 19" property name spans (desktop, mobile, drawer header).
+- Desktop logo: 36px → 48px. Mobile logo: 30px → 48px.
+- Mobile "Villa 19" text: 16px → 20px. "By Habbaa": 8px → 10px.
+- WhatsApp removed from desktop nav (retained in mobile drawer).
+
+### Announcement Bar
+
+- `minHeight: 42px` changed to `height: 42px` (fixed) + `overflow: hidden` — variable content between carousel items was causing the navbar to shift up/down on each auto-advance.
