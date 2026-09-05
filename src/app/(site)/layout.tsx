@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import AnnouncementBar, { type Announcement } from '@/components/layout/AnnouncementBar';
+import CookieConsent from '@/components/layout/CookieConsent';
 import { getProperty } from '@/lib/data';
 
 const ANNOUNCEMENTS: Announcement[] = [
@@ -30,6 +31,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Header propertyName={property?.name ?? 'Villa 19'} whatsappUrl={whatsappUrl} />
       <main className="flex-1">{children}</main>
       {property && <Footer property={property} whatsappUrl={whatsappUrl} />}
+      <CookieConsent />
     </div>
   );
 }

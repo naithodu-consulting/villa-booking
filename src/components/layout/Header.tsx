@@ -115,15 +115,24 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
           <div className="flex items-center justify-end">
             <Link
               href="/book"
-              className="px-6 py-2.5 rounded text-[13px] font-bold uppercase transition-all duration-150"
+              className="px-6 py-2.5 rounded text-[13px] font-bold uppercase"
               style={{
                 background: '#FBF7F1',
                 color: 'var(--maroon)',
                 letterSpacing: '1.2px',
                 border: '1px solid rgba(251,247,241,0.9)',
+                transition: 'background 0.18s ease, color 0.18s ease',
               }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#fff'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#FBF7F1'; }}
+              onMouseEnter={e => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = 'var(--maroon)';
+                el.style.color = '#FBF7F1';
+              }}
+              onMouseLeave={e => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = '#FBF7F1';
+                el.style.color = 'var(--maroon)';
+              }}
             >
               Book Now
             </Link>
