@@ -143,7 +143,7 @@ export default async function GalleryPage() {
           <p className="text-white/70 text-base">Book directly. No platform fees, instant confirmation.</p>
           <Link
             href="/book"
-            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl text-base mt-2"
+            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
           >
             Check Availability
           </Link>

@@ -138,7 +138,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
             Invalid Booking Details
           </h1>
           <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>{paramError}</p>
-          <Link href="/" className="btn-primary block w-full text-sm">← Back to Villa</Link>
+          <Link href="/" className="btn-primary block w-full">← Back to Villa</Link>
         </div>
       </div>
     );
@@ -316,7 +316,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                 <button
                   type="submit"
                   disabled={isProcessing || !breakdown}
-                  className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 text-sm uppercase tracking-wider font-extrabold disabled:opacity-60"
+                  className="w-full btn-primary py-3.5 flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {isProcessing ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>

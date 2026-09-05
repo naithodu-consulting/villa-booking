@@ -287,7 +287,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
           <button
             type="submit"
             disabled={!!errorMsg || isSubmitting}
-            className="w-full btn-primary py-3 flex items-center justify-center gap-2 text-xs uppercase tracking-wider font-black"
+            className="w-full btn-primary py-3 flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Securing Dates…</>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react';
+import { X } from 'lucide-react';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -18,19 +18,22 @@ interface HeaderProps {
   whatsappUrl: string;
 }
 
-// Shown in desktop nav (lg+) and mobile drawer
+// Desktop nav — kept minimal for clean look
 const NAV_LINKS = [
-  { href: '/',            label: 'Home',       lgOnly: false },
-  { href: '/the-villa',   label: 'The Villa',  lgOnly: false },
-  { href: '/rooms',       label: 'Rooms',      lgOnly: false },
-  { href: '/gallery',     label: 'Gallery',    lgOnly: false },
-  { href: '/events',      label: 'Events',     lgOnly: false },
-  { href: '/stay-guide',  label: 'Stay Guide', lgOnly: true  },
-  { href: '/contact',     label: 'Contact Us', lgOnly: false },
+  { href: '/the-villa', label: 'The Villa' },
+  { href: '/events',    label: 'Events'    },
+  { href: '/contact',   label: 'Contact Us'},
 ];
 
-// Shown only in mobile drawer (below a divider)
-const DRAWER_EXTRA_LINKS = [
+// Mobile drawer — full sitemap
+const DRAWER_LINKS = [
+  { href: '/',           label: 'Home'       },
+  { href: '/the-villa',  label: 'The Villa'  },
+  { href: '/rooms',      label: 'Rooms'      },
+  { href: '/gallery',    label: 'Gallery'    },
+  { href: '/events',     label: 'Events'     },
+  { href: '/stay-guide', label: 'Stay Guide' },
+  { href: '/contact',    label: 'Contact Us' },
   { href: '/testimonials', label: 'Testimonials' },
 ];
 
@@ -44,14 +47,12 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on resize to desktop
   useEffect(() => {
     const onResize = () => { if (window.innerWidth >= 768) setMenuOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Prevent body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -60,81 +61,127 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
   return (
     <>
       <header
-        className="sticky top-0 z-40 px-4 sm:px-8 lg:px-12 py-3.5 flex items-center justify-between"
+        className="sticky top-0 z-40 px-6 sm:px-8 lg:px-12"
         style={{
-          backgroundColor: 'var(--maroon)',
-          boxShadow: scrolled ? '0 2px 16px rgba(0,0,0,0.18)' : 'none',
+          backgroundColor: 'var(--maroon-deep)',
+          borderBottom: '1px solid rgba(168,116,50,0.28)',
+          boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.22)' : 'none',
           transition: 'box-shadow 0.2s ease',
-          borderBottom: '1px solid rgba(255,255,255,0.08)',
+          height: '72px',
         }}
       >
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-3" aria-label={`${propertyName} home`}>
-          <Image
-            src="/habbaa-logo-white.svg"
-            alt="Habbaa"
-            width={44}
-            height={44}
-            className="rounded-full"
-            priority
-          />
-          <div className="flex flex-col leading-tight">
-            <span className="text-base font-bold tracking-tight text-white">{propertyName}</span>
-            <span
-              className="text-[11px] font-semibold tracking-widest uppercase mt-0.5"
-              style={{ color: 'var(--brass-light)' }}
-            >
-              By Habbaa
-            </span>
-          </div>
-        </Link>
+        {/* ── Desktop: 3-column grid — nav | logo | actions ── */}
+        <div className="hidden md:grid h-full" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
-        {/* Desktop nav */}
-        <nav
-          className="hidden md:flex items-center gap-6 text-[15px] font-semibold"
-          aria-label="Main navigation"
-          style={{ color: 'rgba(255,255,255,0.75)' }}
-        >
-          {NAV_LINKS.map(({ href, label, lgOnly }) => (
+          {/* Left — nav links */}
+          <nav className="flex items-center gap-1 h-full" aria-label="Main navigation">
+            {NAV_LINKS.map(({ href, label }) => (
+              <NavLink key={href} href={href}>{label}</NavLink>
+            ))}
+          </nav>
+
+          {/* Center — logo */}
+          <Link
+            href="/"
+            className="flex items-center gap-2.5 self-center"
+            aria-label={`${propertyName} home`}
+          >
+            <Image
+              src="/habbaa-logo-white.svg"
+              alt="Habbaa"
+              width={48}
+              height={48}
+              className="rounded-full"
+              style={{ border: '1px solid rgba(201,148,74,0.35)' }}
+              priority
+            />
+            <div className="flex flex-col leading-none gap-[3px]">
+              <span
+                className="text-[19px] text-white leading-none"
+                style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
+              >
+                {propertyName}
+              </span>
+              <span
+                className="text-[9px] font-bold uppercase leading-none"
+                style={{ color: 'var(--brass-light)', letterSpacing: '0.18em' }}
+              >
+                By Habbaa
+              </span>
+            </div>
+          </Link>
+
+          {/* Right — actions */}
+          <div className="flex items-center justify-end">
             <Link
-              key={href}
-              href={href}
-              className={`hover:text-white transition-colors py-1${lgOnly ? ' hidden lg:inline' : ''}`}
+              href="/book"
+              className="px-6 py-2.5 rounded text-[13px] font-bold uppercase transition-all duration-150"
+              style={{
+                background: '#FBF7F1',
+                color: 'var(--maroon)',
+                letterSpacing: '1.2px',
+                border: '1px solid rgba(251,247,241,0.9)',
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#fff'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#FBF7F1'; }}
             >
-              {label}
+              Book Now
             </Link>
-          ))}
-          <Link
-            href="/admin/login"
-            className="px-3.5 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/10 border border-white/20 transition-all"
-          >
-            Admin Login
-          </Link>
-        </nav>
+          </div>
+        </div>
 
-        {/* Mobile: Book CTA + hamburger */}
-        <div className="flex md:hidden items-center gap-2">
-          <Link
-            href="/book"
-            className="px-3.5 py-2 rounded-lg text-sm font-bold text-white border border-white/30 hover:bg-white/10 transition-all"
-          >
-            Book
-          </Link>
+        {/* ── Mobile: hamburger | logo (center) | book ── */}
+        <div className="flex md:hidden items-center justify-between h-full">
+
+          {/* Left — hamburger */}
           <button
             onClick={() => setMenuOpen(true)}
             aria-label="Open navigation menu"
             aria-expanded={menuOpen}
-            className="p-2 rounded-lg text-white hover:bg-white/10 transition-all"
+            className="flex flex-col items-center justify-center gap-[5px] w-9 h-9 rounded"
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}
           >
-            <Menu className="w-5 h-5" aria-hidden="true" />
+            <span className="block w-4 h-[1.5px] rounded-full" style={{ background: 'rgba(255,255,255,0.75)' }} />
+            <span className="block w-4 h-[1.5px] rounded-full" style={{ background: 'rgba(255,255,255,0.75)' }} />
+            <span className="block w-4 h-[1.5px] rounded-full" style={{ background: 'rgba(255,255,255,0.75)' }} />
           </button>
+
+          {/* Center — logo */}
+          <Link href="/" className="flex items-center gap-2" aria-label={`${propertyName} home`}>
+            <Image
+              src="/habbaa-logo-white.svg"
+              alt="Habbaa"
+              width={48}
+              height={48}
+              className="rounded-full"
+              style={{ border: '1px solid rgba(201,148,74,0.35)' }}
+              priority
+            />
+            <div className="flex flex-col leading-none gap-[2px]">
+              <span
+                className="text-[20px] text-white leading-none"
+                style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
+              >
+                {propertyName}
+              </span>
+              <span
+                className="text-[10px] font-bold uppercase leading-none"
+                style={{ color: 'var(--brass-light)', letterSpacing: '0.16em' }}
+              >
+                By Habbaa
+              </span>
+            </div>
+          </Link>
+
+          {/* Right — spacer to keep logo centered */}
+          <div className="w-9" />
         </div>
       </header>
 
       {/* Mobile drawer */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-50 flex flex-col"
+          className="fixed inset-0 z-50"
           role="dialog"
           aria-modal="true"
           aria-label="Navigation menu"
@@ -142,68 +189,92 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
           {/* Backdrop */}
           <div
             className="absolute inset-0"
-            style={{ backgroundColor: 'rgba(60,23,23,0.92)', backdropFilter: 'blur(8px)' }}
+            style={{ backgroundColor: 'rgba(30,10,10,0.55)', backdropFilter: 'blur(4px)' }}
             onClick={() => setMenuOpen(false)}
           />
 
           {/* Drawer panel */}
           <div
-            className="relative z-10 flex flex-col h-full max-w-xs w-full ml-auto shadow-2xl"
-            style={{ backgroundColor: 'var(--maroon-deep)' }}
+            className="absolute top-0 right-0 bottom-0 flex flex-col w-[85vw] max-w-sm shadow-2xl"
+            style={{ backgroundColor: 'var(--paper)' }}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-              <span className="text-white font-bold">{propertyName}</span>
+            {/* Drawer header — logo + close */}
+            <div
+              className="flex items-center justify-between px-5 py-4 shrink-0"
+              style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(168,116,50,0.28)' }}
+            >
+              <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5">
+                <Image
+                  src="/habbaa-logo-white.svg"
+                  alt="Habbaa"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                  style={{ border: '1px solid rgba(201,148,74,0.35)' }}
+                />
+                <div className="flex flex-col leading-none gap-[3px]">
+                  <span
+                    className="text-[17px] text-white leading-none"
+                    style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
+                  >
+                    {propertyName}
+                  </span>
+                  <span
+                    className="text-[8px] font-bold uppercase leading-none"
+                    style={{ color: 'var(--brass-light)', letterSpacing: '0.18em' }}
+                  >
+                    By Habbaa
+                  </span>
+                </div>
+              </Link>
               <button
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close navigation menu"
-                className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                className="flex items-center justify-center w-8 h-8 rounded"
+                style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}
               >
-                <X className="w-5 h-5" aria-hidden="true" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
 
-            {/* Links */}
-            <nav className="flex flex-col px-6 py-6 gap-1" aria-label="Mobile navigation">
-              {NAV_LINKS.map(({ href, label }) => (
+            {/* Nav links — full sitemap */}
+            <nav
+              className="flex flex-col px-3 py-3 flex-1 overflow-y-auto"
+              aria-label="Mobile navigation"
+            >
+              {DRAWER_LINKS.map(({ href, label }) => (
                 <Link
                   key={href}
                   href={href}
                   onClick={() => setMenuOpen(false)}
-                  className="px-3 py-3.5 rounded-lg text-white/85 text-base font-semibold hover:bg-white/10 hover:text-white transition-all"
+                  className="flex items-center px-3 py-3.5 text-[15px] font-semibold rounded-lg transition-colors duration-150"
+                  style={{ color: 'var(--ink)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'rgba(90,38,38,0.05)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = ''; }}
                 >
                   {label}
                 </Link>
               ))}
-              <div className="border-t border-white/10 my-3" />
-              {DRAWER_EXTRA_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMenuOpen(false)}
-                  className="px-3 py-2.5 rounded-lg text-white/60 text-sm font-semibold hover:bg-white/10 hover:text-white transition-all"
-                >
-                  {label}
-                </Link>
-              ))}
-              <div className="border-t border-white/10 my-3" />
-              <Link
-                href="/admin/login"
-                onClick={() => setMenuOpen(false)}
-                className="px-3 py-2.5 rounded-lg text-white/40 text-xs font-semibold hover:bg-white/10 hover:text-white transition-all"
-              >
-                Admin Login
-              </Link>
             </nav>
 
-            {/* WhatsApp CTA */}
-            <div className="px-6 pb-8 mt-auto">
+            {/* Bottom CTAs */}
+            <div
+              className="flex flex-col gap-2.5 px-4 pb-8 pt-4 shrink-0"
+              style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
+            >
+              <Link
+                href="/book"
+                onClick={() => setMenuOpen(false)}
+                className="btn-brass-filled flex items-center justify-center py-3.5 rounded-lg"
+              >
+                Book Now
+              </Link>
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-lg font-bold text-sm text-white transition-all hover:brightness-110 active:scale-95"
-                style={{ backgroundColor: '#25D366' }}
+                onClick={() => setMenuOpen(false)}
+                className="btn-wa flex items-center justify-center gap-2 py-3.5 rounded-lg"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 WhatsApp Enquiry
@@ -213,5 +284,28 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
         </div>
       )}
     </>
+  );
+}
+
+/* Extracted to avoid repeating inline hover logic in JSX */
+function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="flex items-center text-lg font-semibold px-3.5 h-full transition-colors duration-150"
+      style={{ color: 'var(--brass-light)', letterSpacing: '0.01em', borderBottom: '2px solid transparent' }}
+      onMouseEnter={e => {
+        const el = e.currentTarget as HTMLAnchorElement;
+        el.style.color = '#fff';
+        el.style.borderBottomColor = 'rgba(201,148,74,0.45)';
+      }}
+      onMouseLeave={e => {
+        const el = e.currentTarget as HTMLAnchorElement;
+        el.style.color = 'var(--brass-light)';
+        el.style.borderBottomColor = 'transparent';
+      }}
+    >
+      {children}
+    </Link>
   );
 }

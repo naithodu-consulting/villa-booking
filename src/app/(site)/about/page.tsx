@@ -134,13 +134,13 @@ export default function AboutPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
             <Link
               href="/book"
-              className="btn-brass-filled px-8 py-3.5 rounded-xl text-base"
+              className="btn-brass-filled px-8 py-3.5 rounded-xl"
             >
               Check Availability
             </Link>
             <Link
               href="/contact"
-              className="btn-frosted px-6 py-3.5 rounded-xl text-base"
+              className="btn-frosted px-6 py-3.5 rounded-xl"
             >
               Contact Us
             </Link>

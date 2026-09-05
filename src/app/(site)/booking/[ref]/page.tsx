@@ -56,7 +56,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
             {isPaid ? 'Booking Confirmed' : 'Booking Pending'}
           </h1>
           <p className="text-xl opacity-80">
-            Reference: <span className="font-bold tracking-wider">{booking.reference_number}</span>
+            Reference: <span className="font-bold" style={{ letterSpacing: '1.2px' }}>{booking.reference_number}</span>
           </p>
           {isPaid && (
             <p className="text-base mt-2 opacity-70">
@@ -155,7 +155,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
             href={`https://wa.me/${process.env.PROPERTY_WHATSAPP ?? '919876543210'}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-wa flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base"
+            className="btn-wa flex items-center justify-center gap-2 py-3.5 rounded-2xl"
           >
             WhatsApp Us
           </a>

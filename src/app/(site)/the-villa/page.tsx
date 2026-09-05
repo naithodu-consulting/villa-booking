@@ -93,7 +93,7 @@ export default async function TheVillaPage() {
           </p>
           <Link
             href="/book"
-            className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-base"
+            className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
           >
             Check Availability
           </Link>
@@ -130,7 +130,7 @@ export default async function TheVillaPage() {
                 >
                   <Icon className="w-5 h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
                 </div>
-                <p className="text-[11px] font-bold uppercase tracking-wider" style={{ color: 'var(--ink-faint)' }}>{label}</p>
+                <p className="text-[11px] font-bold uppercase" style={{ color: 'var(--ink-faint)', letterSpacing: '1.2px' }}>{label}</p>
                 <p className="text-sm font-bold mt-1" style={{ color: 'var(--maroon)' }}>{value}</p>
               </div>
             ))}
@@ -150,7 +150,7 @@ export default async function TheVillaPage() {
                 className="p-5 rounded-2xl shadow-sm"
                 style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
               >
-                <h3 className="text-xs font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--brass)' }}>{category}</h3>
+                <h3 className="text-xs font-bold uppercase mb-3" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>{category}</h3>
                 <ul className="space-y-2">
                   {items.map((item) => (
                     <li key={item} className="text-sm flex items-center gap-2.5" style={{ color: 'var(--ink-muted)' }}>
@@ -183,7 +183,7 @@ export default async function TheVillaPage() {
                   className="p-4 rounded-2xl"
                   style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
                 >
-                  <p className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--brass)' }}>{p.title}</p>
+                  <p className="text-xs font-bold uppercase mb-1" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>{p.title}</p>
                   <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{p.body}</p>
                 </div>
               ))}
@@ -222,7 +222,7 @@ export default async function TheVillaPage() {
           {/* Nearby by category */}
           {Object.entries(nearbyGroups).map(([category, places]) => (
             <div key={category}>
-              <p className="text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5" style={{ color: 'var(--ink-faint)' }}>
+              <p className="text-xs font-bold uppercase mb-2 flex items-center gap-1.5" style={{ color: 'var(--ink-faint)', letterSpacing: '1.2px' }}>
                 <span>{CATEGORY_ICON[category] ?? '📍'}</span> {category}
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -255,13 +255,13 @@ export default async function TheVillaPage() {
           <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
             <Link
               href="/book"
-              className="btn-brass-filled px-8 py-3.5 rounded-xl text-base"
+              className="btn-brass-filled px-8 py-3.5 rounded-xl"
             >
               Check Availability
             </Link>
             <Link
               href="/"
-              className="btn-frosted px-6 py-3.5 rounded-xl text-base"
+              className="btn-frosted px-6 py-3.5 rounded-xl"
             >
               Back to Overview
             </Link>

@@ -273,13 +273,13 @@ export default async function StayGuidePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-wa flex items-center gap-2 px-6 py-3 rounded-xl text-base"
+              className="btn-wa flex items-center gap-2 px-6 py-3 rounded-xl"
             >
               <WhatsAppIcon className="w-4 h-4" /> WhatsApp Us
             </a>
             <Link
               href="/book"
-              className="btn-frosted px-6 py-3 rounded-xl text-base"
+              className="btn-frosted px-6 py-3 rounded-xl"
             >
               Book Now
             </Link>

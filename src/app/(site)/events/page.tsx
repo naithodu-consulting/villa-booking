@@ -98,7 +98,7 @@ export default async function EventsPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-wa inline-flex items-center gap-2 px-8 py-3.5 rounded-xl text-base"
+            className="btn-wa inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
           >
             <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
           </a>
@@ -198,13 +198,13 @@ export default async function EventsPage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-wa flex items-center gap-2 px-8 py-3.5 rounded-xl text-base"
+              className="btn-wa flex items-center gap-2 px-8 py-3.5 rounded-xl"
             >
               <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
             </a>
             <Link
               href="/book"
-              className="btn-frosted px-6 py-3.5 rounded-xl text-sm"
+              className="btn-frosted px-6 py-3.5 rounded-xl"
             >
               Check Availability
             </Link>

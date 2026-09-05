@@ -55,7 +55,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Explore</p>
+            <p className="text-xs font-bold text-white/50 uppercase" style={{ letterSpacing: '1.2px' }}>Explore</p>
             <ul className="space-y-2 text-sm text-white/65">
               {[
                 ['/',               'Home'],
@@ -75,7 +75,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
 
           {/* Contact */}
           <div className="space-y-3">
-            <p className="text-xs font-bold text-white/50 uppercase tracking-wider">Get in Touch</p>
+            <p className="text-xs font-bold text-white/50 uppercase" style={{ letterSpacing: '1.2px' }}>Get in Touch</p>
             <div className="space-y-2.5 text-sm text-white/65">
               <a
                 href={whatsappUrl}
@@ -99,7 +99,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
               </a>
             </div>
             <div className="pt-2 space-y-1.5">
-              <p className="font-bold text-white/50 uppercase tracking-wider text-xs pt-2">Legal</p>
+              <p className="font-bold text-white/50 uppercase text-xs pt-2" style={{ letterSpacing: '1.2px' }}>Legal</p>
               <Link href="/terms" className="block text-sm text-white/65 hover:text-[#C9944A] transition-colors">
                 Terms &amp; Conditions
               </Link>

@@ -6,6 +6,10 @@ import { createServiceClient } from '@/lib/supabase/server';
  *
  * Returns whether the requested date range is available.
  * This is the authoritative server-side check — the UI never trusts its own state.
+ *
+ * The predicate lives in the check_availability() SQL function so this route and
+ * create_booking_atomic cannot drift apart. Unpaid pending holds stop blocking
+ * once hold_expires_at lapses (see 00010_booking_hold_expiry.sql).
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -27,33 +31,16 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createServiceClient();
 
-    // Check overlapping active bookings
-    const { count: bookingCount, error: bookingError } = await supabase
-      .from('bookings')
-      .select('id', { count: 'exact', head: true })
-      .eq('property_id', propertyId)
-      .in('status', ['pending', 'confirmed'])
-      .lt('check_in', checkOut)
-      .gt('check_out', checkIn);
+    const { data, error } = await supabase.rpc('check_availability', {
+      p_property_id: propertyId,
+      p_check_in: checkIn,
+      p_check_out: checkOut,
+    });
 
-    if (bookingError) throw bookingError;
+    if (error) throw error;
 
-    if ((bookingCount ?? 0) > 0) {
-      return NextResponse.json({ available: false, reason: 'DATE_UNAVAILABLE' });
-    }
-
-    // Check overlapping blocked dates
-    const { count: blockedCount, error: blockedError } = await supabase
-      .from('blocked_dates')
-      .select('id', { count: 'exact', head: true })
-      .eq('property_id', propertyId)
-      .lt('start_date', checkOut)
-      .gt('end_date', checkIn);
-
-    if (blockedError) throw blockedError;
-
-    if ((blockedCount ?? 0) > 0) {
-      return NextResponse.json({ available: false, reason: 'DATE_BLOCKED' });
+    if (data !== 'AVAILABLE') {
+      return NextResponse.json({ available: false, reason: data });
     }
 
     return NextResponse.json({ available: true, propertyId, checkIn, checkOut });

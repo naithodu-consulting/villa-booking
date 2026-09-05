@@ -89,7 +89,7 @@ export default async function RoomsPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[11px] font-bold uppercase tracking-wider block mb-1" style={{ color: 'var(--brass)' }}>
+                      <span className="text-[11px] font-bold uppercase block mb-1" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>
                         {room.room_type}
                       </span>
                       <h2 className="text-lg font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
@@ -183,7 +183,7 @@ export default async function RoomsPage() {
           </p>
           <Link
             href="/book"
-            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl text-base mt-2"
+            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
           >
             Check Availability & Rates
           </Link>

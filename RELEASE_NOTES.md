@@ -4,6 +4,74 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.4.0 — Booking hold expiry (the abandoned-checkout fix) — 2026-09-03
+
+### The bug
+
+`create_booking_atomic` writes a `pending` booking *before* the guest pays, and both
+`/api/availability` and `create_booking_atomic` counted every `pending` row as blocking.
+Nothing ever cleaned them up. **Every abandoned checkout blocked its dates permanently** —
+open the form, hit Pay, close the tab, and those nights were dead forever.
+
+### The fix — `00010_booking_hold_expiry.sql`
+
+- **`bookings.hold_expires_at`** — a pending booking now carries a 15-minute hold. It blocks
+  dates only while that hold is live. Expiry is therefore correct **at read time** and does
+  not depend on a sweeper having run — dates free themselves even if every job is down.
+- **`check_availability(property, check_in, check_out)`** — the overlap predicate now lives in
+  one SQL function. It was previously duplicated between `create_booking_atomic` and the
+  availability route, which is exactly how two copies drift apart. Both now call it.
+  `COALESCE(hold_expires_at, created_at + 15 min)` guards rows written by older code paths,
+  so a NULL can never silently unblock a live hold.
+- **`expire_stale_booking_holds()`** — housekeeping only, not load-bearing. Flips lapsed holds
+  to `expired` (and their `payments` rows from `created` to `expired`) so `pending` keeps
+  meaning "genuinely awaiting payment" in admin views.
+- **Existing pending rows backfilled** to `created_at + 15 min` — already in the past, so the
+  historical backlog releases immediately. That is the intended repair.
+- Partial index `idx_bookings_active_holds` on `(property_id, check_in, check_out)`.
+
+### Supporting changes
+
+- **`GET|POST /api/cron/expire-holds`** — runs the housekeeping sweep, gated on `CRON_SECRET`
+  via `Authorization: Bearer`. Returns 401 without it, 503 if the secret is unset.
+- **`vercel.json`** — schedules the sweep every 10 minutes.
+- **`/api/availability`** — now delegates to `check_availability` instead of carrying its own
+  copy of the predicate.
+- **`verify-payment`** — a guest can pay *after* their hold lapses (slow UPI, left the modal
+  open). The payment is always honoured and `hold_expires_at` is cleared, making the row
+  permanent. If the lapsed dates were meanwhile taken by someone else, the collision is logged
+  as `DOUBLE BOOKING` for manual resolution — refusing a guest who has already been charged
+  would be worse than flagging it.
+
+### Verified end to end
+
+Against local Supabase with live Razorpay **test** keys:
+
+| Check | Result |
+|---|---|
+| Razorpay Checkout opens with real order, correct branding and ₹44,840 | pass |
+| Booking written `pending` with a live 15-min hold, amount in integer paise | pass |
+| `verify-payment` with a genuine HMAC → `confirmed` / `paid`, hold cleared | pass |
+| Forged signature rejected with HTTP 400 | pass |
+| Live hold blocks the dates | pass |
+| Lapsed hold releases the dates **with no sweeper run** | pass |
+| A second guest can then actually book the released dates | pass |
+| Confirmed booking blocks dates regardless of a stale timestamp | pass |
+| Pending row with NULL `hold_expires_at` still blocks (no NULL-comparison leak) | pass |
+| Cron route: 401 unauthenticated, 401 wrong secret, sweeps when authorised | pass |
+
+### Still open (found during this review, not yet fixed)
+
+- `verify-payment` and the webhook both update `payments` unguarded and both send email. If
+  the webhook is ever enabled, **every guest gets two confirmations**. Needs a compare-and-swap
+  (`.eq('status','created')`) on the update so only the winner emails.
+- Webhook `payment.failed` cancels the booking unconditionally. Webhook delivery is unordered,
+  so a late `failed` from an earlier attempt can cancel an already-paid booking.
+- Webhook's `timingSafeEqual` sits outside its try/catch — a malformed non-hex signature throws
+  an unhandled 500 instead of a clean 400.
+
+---
+
 ## v0.1 — Phase 0: Critical Pre-Launch Fixes — 2026-09-02
 
 Nine blocking defects fixed before any public traffic is allowed. None of these are features — they are corrections to code that was actively broken, deceptive, or insecure.

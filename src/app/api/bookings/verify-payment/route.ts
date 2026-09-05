@@ -53,14 +53,37 @@ export async function POST(request: NextRequest) {
     }
 
     if (payment?.booking_id) {
+      // The guest has paid, so the booking is always honoured — including when the
+      // 15-minute hold lapsed while they were in the Razorpay modal. Clearing
+      // hold_expires_at makes the row permanent.
       const { data: booking } = await supabase
         .from('bookings')
-        .update({ status: 'confirmed', payment_status: 'paid' })
+        .update({ status: 'confirmed', payment_status: 'paid', hold_expires_at: null })
         .eq('id', payment.booking_id)
-        .select('reference_number, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
+        .select('property_id, reference_number, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
         .single();
 
       if (booking) {
+        // A lapsed hold can be re-taken by someone else before payment lands. That
+        // is a genuine double-booking needing a human, not something to resolve by
+        // refusing a guest who has already been charged.
+        const { count: clash } = await supabase
+          .from('bookings')
+          .select('id', { count: 'exact', head: true })
+          .eq('property_id', booking.property_id)
+          .eq('status', 'confirmed')
+          .neq('id', payment.booking_id)
+          .lt('check_in', booking.check_out)
+          .gt('check_out', booking.check_in);
+
+        if ((clash ?? 0) > 0) {
+          console.error(
+            `[verify-payment] DOUBLE BOOKING — ${booking.reference_number} was paid after its ` +
+            `hold lapsed and ${clash} confirmed booking(s) now overlap ${booking.check_in}→${booking.check_out}. ` +
+            `Payment honoured; needs manual resolution.`
+          );
+        }
+
         const fmt = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
         const emailParams = {
           guestEmail: booking.guest_email,

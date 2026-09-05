@@ -80,7 +80,7 @@ export default async function ReviewsPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-wa-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl text-base"
+            className="btn-wa-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl"
           >
             <WhatsAppIcon className="w-4 h-4" /> Ask for References
           </a>
@@ -123,7 +123,7 @@ export default async function ReviewsPage() {
           <p className="text-white/70 text-sm">Book now and help us build our review history.</p>
           <Link
             href="/book"
-            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl text-base mt-2"
+            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
           >
             Check Availability
           </Link>

@@ -31,18 +31,22 @@
   --border-medium:  rgba(0, 0, 0, 0.13);
   --border-brass:   rgba(168, 116, 50, 0.22);
 
-  /* Typography */
-  --font-display: var(--font-display, 'Georgia', serif);
-  --font-body:    var(--font-body, system-ui, sans-serif);
+  /* Typography
+     --font-sans and --font-display are injected by Next.js via className on <html>.
+     Reference with fallbacks here; do NOT duplicate fallbacks at usage sites. */
+  --font-display: var(--font-display, 'Cormorant Garamond', 'Georgia', serif);
+  --font-brand:   var(--font-brand, 'Cinzel', 'Trajan Pro', serif);
+  --font-body:    var(--font-sans, 'Nunito Sans', sans-serif);
 
-  /* Type scale (fluid via clamp) */
-  --text-display: clamp(2.5rem, 5vw + 1rem, 5.25rem);   /* 40→84px */
-  --text-h1:      clamp(2rem, 3.5vw + 0.5rem, 3.5rem);   /* 32→56px */
-  --text-h2:      clamp(1.625rem, 2vw + 0.5rem, 2.375rem); /* 26→38px */
-  --text-h3:      clamp(1.25rem, 1vw + 0.75rem, 1.5rem);  /* 20→24px */
-  --text-body-lg: clamp(1.0625rem, 0.5vw + 0.875rem, 1.1875rem); /* 17→19px */
-  --text-body:    clamp(1rem, 0.25vw + 0.9375rem, 1.0625rem); /* 16→17px */
-  --text-caption: clamp(0.8125rem, 0.1vw + 0.8rem, 0.875rem); /* 13→14px */
+  /* Type scale (fluid via clamp) — sized to match Ama's vw-based scale at 1440px */
+  --text-display: clamp(2.5rem, 5vw + 1rem, 5.25rem);       /* 40→84px */
+  --text-h1:      clamp(2rem, 3.5vw + 0.5rem, 3.5rem);       /* 32→56px  ≈ Ama h1 43px */
+  --text-h2:      clamp(1.625rem, 2vw + 0.5rem, 2.375rem);   /* 26→38px  ≈ Ama h2 37px */
+  --text-h3:      clamp(1.125rem, 0.5vw + 0.875rem, 1.25rem); /* 18→20px  ≈ Ama h3-card 18px */
+  --text-body-lg: clamp(1.0625rem, 0.25vw + 1rem, 1.125rem); /* 17→18px  ≈ Ama input 18px */
+  --text-body:    1rem;                                        /* 16px     = Ama body 16px */
+  --text-ui:      0.84375rem;                                  /* 13.5px   = Ama button/nav-sm */
+  --text-caption: 0.75rem;                                     /* 12px     = Ama small label */
 
   /* Radius */
   --radius-sm:   2px;
@@ -65,9 +69,11 @@
     background-color: var(--paper);
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
-    font-family: var(--font-body), system-ui, sans-serif;
+    font-family: var(--font-body);
     font-size: var(--text-body);
+    font-weight: 400;
     line-height: 1.6;
+    letter-spacing: normal;
   }
 
   body {
@@ -77,11 +83,51 @@
     color: var(--ink);
   }
 
+  /* Headings — Nunito Sans, weight/tracking matching Ama Stays exactly */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display), Georgia, serif;
-    font-weight: 600;
-    line-height: 1.15;
+    font-family: var(--font-body);
+    line-height: 1.1;
     color: inherit;
+  }
+
+  /* H1 display: 400 weight, no tracking — Ama's hero "MAGICAL EXPERIENCES…" */
+  h1 {
+    font-weight: 400;
+    letter-spacing: normal;
+  }
+
+  /* H2 section: 400 weight, −0.04em — Ama's "Private. Tailored. Unhurried." */
+  h2 {
+    font-weight: 400;
+    letter-spacing: -0.04em;
+  }
+
+  /* H3 card heading: 700 weight, −0.033em — Ama's listing card titles */
+  h3 {
+    font-weight: 700;
+    letter-spacing: -0.033em;
+    line-height: 1.2;
+  }
+
+  /* H4 subheading: 400 weight, slight positive tracking — Ama's h4 */
+  h4 {
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+  }
+
+  h5, h6 {
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  /* Inputs — 400 weight, 18px, normal tracking (Ama exact) */
+  input, textarea, select {
+    font-family: var(--font-body);
+    font-size: var(--text-body-lg);
+    font-weight: 400;
+    letter-spacing: normal;
   }
 
   /* Scrollbar */
@@ -98,22 +144,22 @@
 
 /* ── Components ──────────────────────────────────────────────────────── */
 @layer components {
-  /* Eyebrow label — small-caps, brass, tracked */
+
+  /* Eyebrow label — 700, uppercase, tracked (matches Ama's nav/UI treatment) */
   .eyebrow {
-    font-family: var(--font-body), system-ui, sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
+    font-family: var(--font-body);
+    font-size: var(--text-caption);  /* 12px */
+    font-weight: 700;
+    letter-spacing: 1.2px;         /* = Ama's 1.2px at 16px */
     text-transform: uppercase;
     color: var(--brass);
   }
 
-  /* Eyebrow at body-copy size — passes AA contrast */
   .eyebrow-lg {
-    font-family: var(--font-body), system-ui, sans-serif;
-    font-size: var(--text-body);
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-family: var(--font-body);
+    font-size: var(--text-ui);       /* 13.5px */
+    font-weight: 700;
+    letter-spacing: 1.2px;         /* = Ama's 1.2px at 13.5px */
     text-transform: uppercase;
     color: var(--brass);
   }
@@ -132,7 +178,7 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
-  /* legacy alias — keep until all pages are rewritten */
+  /* legacy alias */
   .glass-panel {
     background: var(--surface);
     border: 1px solid var(--border-subtle);
@@ -144,7 +190,8 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
   }
 
-  /* Buttons */
+  /* ── Buttons — 700 weight, uppercase, 0.089em tracking. Ama exact. ── */
+
   .btn-primary {
     display: inline-flex;
     align-items: center;
@@ -153,9 +200,11 @@
     padding: 0.75rem 1.5rem;
     background: var(--maroon);
     color: #FFFFFF;
-    font-family: var(--font-body), system-ui, sans-serif;
-    font-weight: 600;
-    font-size: var(--text-body);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-ui);       /* 13.5px = Ama CTA */
+    letter-spacing: 1.2px;         /* 1.2px/13.5px = Ama exact */
+    text-transform: uppercase;
     border-radius: var(--radius-sm);
     border: none;
     cursor: pointer;
@@ -185,9 +234,11 @@
     padding: 0.75rem 1.5rem;
     background: transparent;
     color: var(--ink);
-    font-family: var(--font-body), system-ui, sans-serif;
-    font-weight: 600;
-    font-size: var(--text-body);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-ui);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     border-radius: var(--radius-sm);
     border: 1px solid var(--border-medium);
     cursor: pointer;
@@ -208,9 +259,11 @@
     padding: 0.75rem 1.5rem;
     background: transparent;
     color: var(--maroon);
-    font-family: var(--font-body), system-ui, sans-serif;
-    font-weight: 600;
-    font-size: var(--text-body);
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: var(--text-ui);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     border-radius: var(--radius-sm);
     border: 1px solid var(--maroon);
     cursor: pointer;
@@ -237,7 +290,7 @@
     background-clip: text;
   }
 
-  /* Frosted-glass secondary button — used on dark (maroon) CTA sections */
+  /* Frosted-glass secondary button — dark (maroon) CTA sections */
   .btn-frosted {
     display: inline-flex;
     align-items: center;
@@ -245,7 +298,11 @@
     background-color: rgba(255, 255, 255, 0.12);
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.3);
+    font-family: var(--font-body);
     font-weight: 700;
+    font-size: var(--text-ui);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: background-color 0.18s ease, transform 0.12s ease;
   }
@@ -256,7 +313,7 @@
     transform: scale(0.95);
   }
 
-  /* WhatsApp ghost button — light bg variant */
+  /* WhatsApp ghost button */
   .btn-wa-ghost {
     display: inline-flex;
     align-items: center;
@@ -264,7 +321,11 @@
     background-color: rgba(37, 211, 102, 0.1);
     color: #1a9e55;
     border: 1px solid rgba(37, 211, 102, 0.3);
+    font-family: var(--font-body);
     font-weight: 700;
+    font-size: var(--text-ui);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: background-color 0.18s ease, transform 0.12s ease;
   }
@@ -282,7 +343,11 @@
     justify-content: center;
     background-color: #25D366;
     color: #ffffff;
+    font-family: var(--font-body);
     font-weight: 700;
+    font-size: var(--text-ui);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: filter 0.18s ease, transform 0.12s ease;
   }
@@ -293,14 +358,18 @@
     transform: scale(0.95);
   }
 
-  /* Brass-filled button — used on light/maroon sections */
+  /* Brass-filled button */
   .btn-brass-filled {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     background-color: var(--brass);
     color: #ffffff;
+    font-family: var(--font-body);
     font-weight: 700;
+    font-size: var(--text-ui);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
     cursor: pointer;
     transition: filter 0.18s ease, transform 0.12s ease;
   }
@@ -311,7 +380,7 @@
     transform: scale(0.98);
   }
 
-  /* Focus ring — visible, 3:1 minimum */
+  /* Focus ring */
   :focus-visible {
     outline: 2px solid var(--brass);
     outline-offset: 3px;

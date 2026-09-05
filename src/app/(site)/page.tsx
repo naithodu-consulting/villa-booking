@@ -65,11 +65,11 @@ export default async function LandingPage() {
 
       {/* ── Hero ──────────────────────────────────────── */}
       <section id="overview" className="pt-6 sm:pt-8">
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4 sm:mb-5">
+        <div className="max-w-[1440px] mx-auto">
+          <div className="px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4 sm:mb-5">
             <div>
               <div
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide mb-5"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-5"
                 style={{
                   backgroundColor: 'var(--maroon-tint)',
                   border: '1px solid var(--border-brass)',
@@ -79,8 +79,8 @@ export default async function LandingPage() {
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
               </div>
               <h1
-                className="text-5xl sm:text-6xl lg:text-7xl font-bold italic leading-tight mb-2"
-                style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
+                className="text-5xl sm:text-6xl lg:text-6xl leading-tight mb-2"
+                style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--maroon)' }}
               >
                 {property.name}
               </h1>
@@ -90,7 +90,10 @@ export default async function LandingPage() {
               </p>
             </div>
           </div>
-          <GalleryModal images={images} />
+          {/* Full-bleed on mobile, padded on sm+ */}
+          <div className="sm:px-6 lg:px-8">
+            <GalleryModal images={images} />
+          </div>
         </div>
       </section>
 
@@ -124,7 +127,7 @@ export default async function LandingPage() {
                 >
                   <Icon className="w-5 h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
                 </div>
-                <p className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--ink-faint)' }}>{label}</p>
+                <p className="text-xs font-bold uppercase" style={{ color: 'var(--ink-faint)', letterSpacing: '1.2px' }}>{label}</p>
                 <p className="text-base font-bold mt-1 leading-snug" style={{ color: 'var(--maroon)' }}>{value}</p>
               </div>
             ))}
@@ -160,7 +163,7 @@ export default async function LandingPage() {
                 >
                   <div>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--brass)' }}>{room.room_type}</span>
+                      <span className="text-xs font-bold uppercase" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>{room.room_type}</span>
                       <span
                         className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
                         style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon-deep)' }}
@@ -197,7 +200,7 @@ export default async function LandingPage() {
                   className="p-5 rounded-2xl shadow-sm"
                   style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
                 >
-                  <h3 className="text-sm font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--brass)' }}>{category}</h3>
+                  <h3 className="text-sm font-bold uppercase mb-3" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>{category}</h3>
                   <ul className="space-y-2.5">
                     {items.map((item) => (
                       <li key={item} className="text-sm flex items-center gap-2.5" style={{ color: 'var(--ink-muted)' }}>
@@ -407,7 +410,7 @@ export default async function LandingPage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-wa-ghost flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm"
+                className="btn-wa-ghost flex items-center gap-2 px-4 py-2.5 rounded-xl"
               >
                 <WhatsAppIcon className="w-4 h-4" /> WhatsApp
               </a>

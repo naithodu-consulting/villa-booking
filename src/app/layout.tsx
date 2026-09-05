@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
-import { Crimson_Text, Inter } from "next/font/google";
+import { Nunito_Sans, Cormorant_Garamond, Cinzel } from "next/font/google";
 import "./globals.css";
 
-const crimsonText = Crimson_Text({
-  variable: "--font-display",
+const nunitoSans = Nunito_Sans({
+  variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "600", "700"],
+  weight: ["300", "400", "600", "700", "800"],
   style: ["normal", "italic"],
   display: "swap",
 });
 
-const inter = Inter({
-  variable: "--font-body",
-  subsets: ["latin", "latin-ext"],
+const cormorant = Cormorant_Garamond({
+  variable: "--font-display",
+  subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const cinzel = Cinzel({
+  variable: "--font-brand",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
   display: "swap",
 });
 
@@ -53,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${crimsonText.variable} ${inter.variable} antialiased`}
+      className={`${nunitoSans.variable} ${cormorant.variable} ${cinzel.variable} antialiased`}
     >
       <body className="min-h-screen flex flex-col">{children}</body>
     </html>
