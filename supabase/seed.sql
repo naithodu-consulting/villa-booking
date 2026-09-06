@@ -90,7 +90,7 @@ INSERT INTO property_amenities (property_id, category, label, icon, is_available
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Safety & Hygiene',  'CCTV Security',                    'Camera',          TRUE, 41),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Safety & Hygiene',  '100% Power Backup Generator',      'Zap',             TRUE, 42),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Safety & Hygiene',  'First Aid Kit',                    'HeartPulse',      TRUE, 43)
-ON CONFLICT DO NOTHING;
+ON CONFLICT ON CONSTRAINT uq_amenity_property_label DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────
 -- House Policies
