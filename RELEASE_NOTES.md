@@ -281,6 +281,12 @@ All CTA buttons across all pages migrated to use these classes.
 - Mobile "Villa 19" text: 16px → 20px. "By Habbaa": 8px → 10px.
 - WhatsApp removed from desktop nav (retained in mobile drawer).
 
+### Bug Fix: Property Amenities Empty on The Villa Page
+
+- Root cause: migration `00007` granted `SELECT` on `property_amenities`, `property_policies`, `faqs`, and `nearby_places` only to `anon` and `authenticated` roles — not `service_role`. The service client used by server-side data fetching (`getAmenities`, `getPolicies`, etc.) hit a `permission denied` error that was silently swallowed, returning an empty array.
+- Fix: new migration `00011_grants_service_role.sql` adds `GRANT SELECT ... TO service_role` for all affected tables, applied to both local and staging.
+- Also added a `UNIQUE (property_id, label)` constraint on `property_amenities` to prevent duplicate rows if the seed runs more than once.
+
 ### Local Seed Consolidation
 
 - `supabase/seed.sql` now includes amenities, policies, FAQs, and nearby places (previously only in `seed_phase1.sql`, which had to be run manually after every local Supabase restart). Running `supabase db reset` now gives a fully populated local DB automatically. Remote DB unaffected.
