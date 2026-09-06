@@ -281,6 +281,10 @@ All CTA buttons across all pages migrated to use these classes.
 - Mobile "Villa 19" text: 16px → 20px. "By Habbaa": 8px → 10px.
 - WhatsApp removed from desktop nav (retained in mobile drawer).
 
+### Local Seed Consolidation
+
+- `supabase/seed.sql` now includes amenities, policies, FAQs, and nearby places (previously only in `seed_phase1.sql`, which had to be run manually after every local Supabase restart). Running `supabase db reset` now gives a fully populated local DB automatically. Remote DB unaffected.
+
 ### Announcement Bar
 
 - `minHeight: 42px` changed to `height: 42px` (fixed) + `overflow: hidden` — variable content between carousel items was causing the navbar to shift up/down on each auto-advance.
