@@ -34,7 +34,10 @@ open the form, hit Pay, close the tab, and those nights were dead forever.
 
 - **`GET|POST /api/cron/expire-holds`** — runs the housekeeping sweep, gated on `CRON_SECRET`
   via `Authorization: Bearer`. Returns 401 without it, 503 if the secret is unset.
-- **`vercel.json`** — schedules the sweep every 10 minutes.
+  *(Superseded in v0.4.1 — the route, `CRON_SECRET` and `vercel.json` were removed in favour
+  of pg_cron. See "Vercel deployment failure" below.)*
+- **`vercel.json`** — schedules the sweep every 10 minutes. *(Superseded in v0.4.1 — replaced by a
+  daily pg_cron job; the 10-minute schedule was what broke Vercel deployments.)*
 - **`/api/availability`** — now delegates to `check_availability` instead of carrying its own
   copy of the predicate.
 - **`verify-payment`** — a guest can pay *after* their hold lapses (slow UPI, left the modal
@@ -294,3 +297,74 @@ All CTA buttons across all pages migrated to use these classes.
 ### Announcement Bar
 
 - `minHeight: 42px` changed to `height: 42px` (fixed) + `overflow: hidden` — variable content between carousel items was causing the navbar to shift up/down on each auto-advance.
+
+---
+
+## v0.4.1 — Vercel Deployment Failure: Cron Moved Into the Database — 2026-09-06
+
+### The bug
+
+Every deployment since 2026-09-05 failed. The last successful deploy was `5a77f82` (2026-09-02);
+the first failure was `7273181`, which introduced `vercel.json`:
+
+```json
+{ "crons": [ { "path": "/api/cron/expire-holds", "schedule": "*/10 * * * *" } ] }
+```
+
+Vercel's Hobby plan permits cron jobs to run **at most once per day**. A `*/10 * * * *` schedule is
+rejected during deployment, before any build output is produced. This is why `npm run build` and
+`tsc --noEmit` both passed locally while every Vercel deploy failed: it is a plan-limit validation
+on `vercel.json`, not a compile error. Nothing in the application code was wrong.
+
+### The fix — `00012_expire_holds_cron.sql`
+
+The sweep now runs inside Postgres via `pg_cron` instead of being driven by an external HTTP call:
+
+```sql
+SELECT cron.schedule('expire-booking-holds', '30 21 * * *',
+    $$ SELECT public.expire_stale_booking_holds() $$);
+```
+
+`expire_stale_booking_holds()` was already a SQL function, so pg_cron invokes it directly. There is
+no HTTP hop, no Edge Function, and no shared secret. The migration unschedules any prior job of the
+same name first, so it is safe to re-run.
+
+**Cadence: daily at 3 AM IST (21:30 UTC), down from every 10 minutes.** This is a deliberate
+choice, not a constraint carried over from the Hobby limit — pg_cron has no frequency ceiling.
+Availability is already correct at read time, so the only consequence of a lapsed hold sitting
+unswept is that it still reads as `pending` in admin views until the next run. A 10-minute cadence
+would buy nothing for that and would write 144 rows/day into `cron.job_run_details`, which pg_cron
+never prunes and which nothing else in this project cleans up.
+
+This also aligns villa-booking with the scheduling pattern already used in PropTech
+(`20260806000002_reminder_cron.sql`), which schedules its daily jobs with pg_cron in a migration.
+No project in the group uses `vercel.json`.
+
+### Caveat on the diagnosis
+
+The Vercel build log was not readable from this session (the CLI was unauthenticated), so the
+Hobby-plan cron limit is an inference from strong circumstantial evidence: `vercel.json` first
+appears in the exact commit where deploys began failing, it is the only infrastructure-level change
+in that range (`next.config.ts` and `package.json` are untouched since the last good deploy), and
+the local build and typecheck both pass. The `*/10` schedule is a genuine Hobby-plan violation
+regardless, so removing it is correct either way — but **the next deployment should be watched to
+confirm it actually goes green.** If it still fails, the remaining suspect is a missing
+`SUPABASE_SERVICE_ROLE_KEY` in the Vercel project environment.
+
+### Removed
+
+- `vercel.json`
+- `src/app/api/cron/expire-holds/route.ts` (the HTTP wrapper the Vercel cron called)
+- `CRON_SECRET` from `.env.example` — it existed solely to authenticate that route
+
+### Verified
+
+| Check | Result |
+|---|---|
+| pg_cron job registered on local and staging, `active = true`, schedule `30 21 * * *` | pass |
+| Migration re-run leaves exactly one job (idempotent) | pass |
+| Scheduled command `SELECT public.expire_stale_booking_holds()` executes | pass |
+| Job observed actually firing on both local and staging (`cron.job_run_details` → `succeeded`) | pass |
+| `npm run build` — `/api/cron/expire-holds` absent from route list | pass |
+| `tsc --noEmit` clean | pass |
+| No dangling `CRON_SECRET` / `api/cron` references in code or config | pass |

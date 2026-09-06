@@ -48,8 +48,9 @@
       mobile-UPI browser drops. Fix the three items above first if enabling it.
 
 ## Production env
-- [ ] Set `CRON_SECRET` in Vercel env (generate with `openssl rand -hex 24`)
-- [ ] Confirm the `vercel.json` cron for `/api/cron/expire-holds` is firing after deploy
+- [ ] After pushing `00012_expire_holds_cron.sql`, confirm the sweep is registered on the remote:
+      `SELECT jobname, schedule, active FROM cron.job;` should list `expire-booking-holds`.
+      Check runs with `SELECT * FROM cron.job_run_details ORDER BY start_time DESC LIMIT 5;`
 
 ## Known UX gaps (post-launch nice-to-haves)
 - [ ] EnquiryForm "Send Enquiry" button — `enquiries` table missing from local Supabase; needs `supabase db reset` or manual CREATE TABLE on local
