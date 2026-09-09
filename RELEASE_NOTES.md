@@ -585,6 +585,23 @@ The banner wrote a string to localStorage and gated nothing, so "Decline" declin
   on every page. Now tied to the bar's presence via `body:has(#mobile-cta-bar)`, scoped below
   `md` so it cannot outrank `lg:pb-14`.
 
+### Two migrations that silently did nothing
+
+Verifying data after `db push`, rather than treating a recorded migration as proof, turned up
+two changes that never reached staging:
+
+- **`00016_property_coordinates.sql`** — the pin correction had only ever been applied to the
+  local database by hand and to `seed.sql`, never as a migration. 00015 then re-routed every
+  distance from the *new* coordinates and did ship, so staging held corrected distances against
+  the old pin.
+- **`00017_id_policy_em_dash.sql`** — `00009` carried the comment "Fix government ID rule
+  (em dash removal)" but targeted `WHERE key = 'government_id'`. The row's key is
+  `id_requirement`, so it matched zero rows, succeeded, and left an em dash live in guest-facing
+  policy copy on every environment. It looked fixed locally only because `db reset` re-seeds
+  from `seed.sql`, which has the corrected text — the seed was masking a broken migration.
+
+Both are keyed so they stay no-ops where the data is already correct.
+
 ### Testing
 
 `src/lib/__tests__/format.test.ts` covers `formatTime12` (midnight/noon, `HH:MM:SS`, unparseable
