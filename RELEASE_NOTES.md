@@ -352,8 +352,14 @@ mobile — so a live map was buying us that failure mode and nothing else.
 - **Coordinates corrected to Urwa Mariyamma Circle: `12.8892951, 74.8298580`** (was
   `12.8634, 74.8422`, roughly 3.2 km to the south-east). Taken from the `!3d…!4d…` place
   parameters of the Google Maps URL, which are the place itself rather than the `@…` viewport
-  centre. Updated in `supabase/seed.sql`, `scripts/make-map.py` and the local database;
-  **staging and production still need the same update.**
+  centre. Updated in `supabase/seed.sql`, `scripts/make-map.py` and
+  **`00016_property_coordinates.sql`**.
+
+  The coordinate change was first applied to the local database by hand and not captured as a
+  migration, so it never reached staging — while everything derived from it did, since 00015
+  re-routed every distance from the *new* pin. Staging therefore held corrected distances
+  against the old coordinates until 00016 was written. Caught by verifying the data after
+  `db push` rather than trusting that the migration had been recorded.
 
 ### Cancellation Policy and House Rules: the disclosure now earns its click
 
