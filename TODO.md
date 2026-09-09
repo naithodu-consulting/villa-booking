@@ -56,3 +56,40 @@
 - [ ] EnquiryForm "Send Enquiry" button — `enquiries` table missing from local Supabase; needs `supabase db reset` or manual CREATE TABLE on local
 - [ ] Mobile homepage booking widget: currently buried at bottom on mobile (sticky bar added as stopgap). Consider a dedicated /book landing optimised for mobile.
 - [ ] DatePicker: no keyboard arrow-key navigation within the calendar grid (ESC and click work; arrow nav would be ideal for a11y)
+
+## Email domain migration to habbaa.in (2026-09-09)
+The site now uses `hello@habbaa.in` everywhere in code and in `.env.local` /
+`.env.example` (`PROPERTY_EMAIL`, `ADMIN_EMAIL`). Two pieces are deliberately
+left on the old domain because changing them blind would break things:
+
+- [ ] **`RESEND_FROM_EMAIL` is still `hello@habbaa.com`.** Resend will only send
+      from a domain verified in its dashboard. Verify `habbaa.in` in Resend
+      (DNS: SPF + DKIM records), confirm it shows as verified, and only then set
+      `RESEND_FROM_EMAIL="Villa 19 by Habbaa <hello@habbaa.in>"`. Switching it
+      before verification makes every transactional email fail to send:
+      booking confirmations, refund notices, admin alerts.
+- [ ] **Update the environment variables on Vercel.** `.env.local` is not
+      deployed, so staging and production still resolve `PROPERTY_EMAIL` and
+      `ADMIN_EMAIL` to the `.com` address and will render it in the footer and
+      on /contact. Set both to `hello@habbaa.in` in the Vercel project settings
+      for each environment, then redeploy.
+- [ ] Confirm `hello@habbaa.in` actually exists and is monitored before the
+      change goes live: it is now the only address published on the site, and
+      it is where refund requests are directed from /terms.
+
+## Follow-ups from the 2026-09-09 review
+- [ ] **Privacy policy claims Google Analytics before it exists.** The Cookies
+      section now says "We also use Google Analytics", but `NEXT_PUBLIC_GA_ID` is
+      not set in any environment, so nothing loads. The consent gate and
+      `Analytics.tsx` are ready; set the GA4 measurement ID and the wording
+      becomes true. Until then the policy overstates collection, which is the
+      same defect the review flagged in the original copy. Either ship the ID
+      with this release or soften the wording to "we plan to use".
+- [ ] **Booking dates use the UTC calendar day, not IST.**
+      `new Date().toISOString().split('T')[0]` in `BookingWidget.tsx:21` and
+      `BookingCheckout.tsx:53` yields yesterday's date between 00:00 and 05:30
+      IST, so `min=` on the date pickers allows a check-in already in the past
+      locally, and the /book picker defaults to it. Pre-existing in the widget;
+      the checkout picker inherited it. Fix with an IST-aware helper in
+      `src/lib/format.ts` (e.g. `en-CA` formatting with `timeZone:
+      'Asia/Kolkata'`) and use it for both `min` and the defaults.

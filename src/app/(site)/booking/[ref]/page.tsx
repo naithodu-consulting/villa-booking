@@ -155,7 +155,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
             href={`https://wa.me/${process.env.PROPERTY_WHATSAPP ?? '919876543210'}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-wa flex items-center justify-center gap-2 py-3.5 rounded-2xl"
+            className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-2xl"
           >
             WhatsApp Us
           </a>

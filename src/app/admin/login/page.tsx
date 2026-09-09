@@ -36,7 +36,7 @@ function LoginForm() {
   return (
     <form onSubmit={handleLogin} className="space-y-4">
       <div>
-        <label className="text-xs font-bold text-[#4A5568] block mb-1" htmlFor="email">
+        <label className="text-xs font-bold text-[var(--ink-muted)] block mb-1" htmlFor="email">
           Admin Email
         </label>
         <input
@@ -52,7 +52,7 @@ function LoginForm() {
       </div>
 
       <div>
-        <label className="text-xs font-bold text-[#4A5568] block mb-1" htmlFor="password">
+        <label className="text-xs font-bold text-[var(--ink-muted)] block mb-1" htmlFor="password">
           Password
         </label>
         <input
@@ -96,8 +96,8 @@ export default function AdminLoginPage() {
           <div className="w-12 h-12 bg-amber-500 text-slate-950 font-black rounded-2xl flex items-center justify-center mx-auto text-xl shadow-xl shadow-amber-500/20">
             V
           </div>
-          <h1 className="text-2xl font-black text-[#562424]">Admin Portal</h1>
-          <p className="text-xs text-[#6B7A8A]">Villa Booking &amp; Property Management</p>
+          <h1 className="text-2xl font-black text-[var(--maroon)]">Admin Portal</h1>
+          <p className="text-xs text-[var(--ink-muted)]">Villa Booking &amp; Property Management</p>
         </div>
 
         <Suspense fallback={<div className="h-40 flex items-center justify-center text-slate-400 text-xs">Loading…</div>}>
@@ -105,7 +105,7 @@ export default function AdminLoginPage() {
         </Suspense>
 
         <div className="text-center pt-2 border-t border-[rgba(0,0,0,0.09)]">
-          <a href="/" className="text-xs font-semibold text-[#6B7A8A] hover:text-[#A87432] transition-colors">
+          <a href="/" className="text-xs font-semibold text-[var(--ink-muted)] hover:text-[var(--brass)] transition-colors">
             ← Return to Guest View
           </a>
         </div>

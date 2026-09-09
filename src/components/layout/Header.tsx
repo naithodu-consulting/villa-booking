@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import BookNowLink from '@/components/guest/BookNowLink';
 import Image from 'next/image';
 import { X } from 'lucide-react';
 
@@ -113,11 +114,10 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
 
           {/* Right — actions */}
           <div className="flex items-center justify-end">
-            <Link
-              href="/book"
+            <BookNowLink
               className="px-6 py-2.5 rounded text-[13px] font-bold uppercase"
               style={{
-                background: '#FBF7F1',
+                background: 'var(--paper)',
                 color: 'var(--maroon)',
                 letterSpacing: '1.2px',
                 border: '1px solid rgba(251,247,241,0.9)',
@@ -126,16 +126,16 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
               onMouseEnter={e => {
                 const el = e.currentTarget as HTMLAnchorElement;
                 el.style.background = 'var(--maroon)';
-                el.style.color = '#FBF7F1';
+                el.style.color = 'var(--paper)';
               }}
               onMouseLeave={e => {
                 const el = e.currentTarget as HTMLAnchorElement;
-                el.style.background = '#FBF7F1';
+                el.style.background = 'var(--paper)';
                 el.style.color = 'var(--maroon)';
               }}
             >
               Book Now
-            </Link>
+            </BookNowLink>
           </div>
         </div>
 
@@ -271,19 +271,18 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
               className="flex flex-col gap-2.5 px-4 pb-8 pt-4 shrink-0"
               style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
             >
-              <Link
-                href="/book"
-                onClick={() => setMenuOpen(false)}
+              <BookNowLink
+                onActivate={() => setMenuOpen(false)}
                 className="btn-brass-filled flex items-center justify-center py-3.5 rounded-lg"
               >
                 Book Now
-              </Link>
+              </BookNowLink>
               <a
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setMenuOpen(false)}
-                className="btn-wa flex items-center justify-center gap-2 py-3.5 rounded-lg"
+                className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-lg"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 WhatsApp Enquiry

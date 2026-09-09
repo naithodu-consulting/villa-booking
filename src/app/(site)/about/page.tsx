@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -49,7 +50,7 @@ export default function AboutPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <div className="flex justify-center mb-6">
@@ -79,7 +80,7 @@ export default function AboutPage() {
         <section className="space-y-4 max-w-2xl">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Our Story
             </h2>
           </div>
@@ -98,7 +99,7 @@ export default function AboutPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               What We Stand For
             </h2>
           </div>
@@ -127,17 +128,16 @@ export default function AboutPage() {
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-2xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
             Ready to experience it?
           </h2>
           <p className="text-white/70 text-base">Book Villa 19 directly. No platform fees, personal host service.</p>
           <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
-            <Link
-              href="/book"
+            <BookNowLink
               className="btn-brass-filled px-8 py-3.5 rounded-xl"
             >
               Check Availability
-            </Link>
+            </BookNowLink>
             <Link
               href="/contact"
               className="btn-frosted px-6 py-3.5 rounded-xl"

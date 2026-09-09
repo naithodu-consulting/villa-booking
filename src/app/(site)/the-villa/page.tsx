@@ -6,6 +6,7 @@ import {
   Waves, ShieldCheck, Check, Bed,
 } from 'lucide-react';
 import { getProperty, getAmenities, getPolicies, getNearbyPlaces } from '@/lib/data';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 export const metadata: Metadata = {
   title: 'The Villa',
@@ -62,7 +63,7 @@ export default async function TheVillaPage() {
   const highlights = [
     { icon: Bed,        label: 'Bedrooms',      value: '4 Bedrooms' },
     { icon: Users,      label: 'Capacity',       value: `Up to ${property.max_occupancy} Guests` },
-    { icon: Waves,      label: 'Beach',          value: '1.5 km' },
+    { icon: Waves,      label: 'Beach',          value: '7.6 km' },
     { icon: Wifi,       label: 'Internet',       value: 'High-Speed WiFi' },
     { icon: Car,        label: 'Parking',        value: 'Ample Parking' },
     { icon: Zap,        label: 'Power',          value: 'Power Backup' },
@@ -76,7 +77,7 @@ export default async function TheVillaPage() {
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-light)' }}>
@@ -91,12 +92,11 @@ export default async function TheVillaPage() {
           <p className="text-lg sm:text-xl text-white/75 leading-relaxed max-w-2xl mx-auto mb-8">
             {property.tagline}
           </p>
-          <Link
-            href="/book"
+          <BookNowLink
             className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
           >
             Check Availability
-          </Link>
+          </BookNowLink>
         </div>
       </section>
 
@@ -106,7 +106,7 @@ export default async function TheVillaPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>About the Villa</h2>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>About the Villa</h2>
           </div>
           <p className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{property.description}</p>
         </section>
@@ -115,7 +115,7 @@ export default async function TheVillaPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>At a Glance</h2>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>At a Glance</h2>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {highlights.map(({ icon: Icon, label, value }) => (
@@ -141,7 +141,7 @@ export default async function TheVillaPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Property Amenities</h2>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Property Amenities</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {Object.entries(amenityGroups).map(([category, items]) => (
@@ -169,12 +169,12 @@ export default async function TheVillaPage() {
           </div>
         </section>
 
-        {/* ── House Rules / Policies ───────────────────────── */}
+        {/* ── Villa Rules / Policies ───────────────────────── */}
         {policies.length > 0 && (
           <section className="space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>House Rules</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Villa Rules</h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {policies.map((p) => (
@@ -195,7 +195,7 @@ export default async function TheVillaPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Location & Nearby</h2>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Location & Nearby</h2>
           </div>
 
           {/* Address card */}
@@ -248,17 +248,16 @@ export default async function TheVillaPage() {
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-2xl sm:text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
             Ready to book your stay?
           </h2>
           <p className="text-white/70 text-sm">Direct booking. No platform fees, instant confirmation.</p>
           <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
-            <Link
-              href="/book"
+            <BookNowLink
               className="btn-brass-filled px-8 py-3.5 rounded-xl"
             >
               Check Availability
-            </Link>
+            </BookNowLink>
             <Link
               href="/"
               className="btn-frosted px-6 py-3.5 rounded-xl"

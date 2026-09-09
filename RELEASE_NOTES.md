@@ -300,6 +300,293 @@ All CTA buttons across all pages migrated to use these classes.
 
 ---
 
+## v0.5.0 — Site-wide Audit: Typography, Booking Flow, Legal Copy — 2026-09-09
+
+### Room Breakdown shelf
+
+- Replaced the bare scrollable row with a proper client component (`RoomShelf.tsx`) that carries
+  real prev/next chevron buttons on mobile. The old "swipe" label was instructional text standing
+  in for a missing control; the buttons are an affordance — pressable, state-aware (dimmed at
+  boundaries), operable without touch.
+- Fixed unreliable button navigation: the previous approach suspended `scroll-snap-type` and used
+  `scrollTo({behavior:'smooth'})`, which is silently cancelled by snap-mandatory in some engines.
+  Now uses direct `el.scrollLeft = target` with `scroll-behavior: smooth` on the container.
+  The two do not conflict because we land exactly on a snap point.
+
+### Footer desktop redesign
+
+Restructured to match the habbaa.com footer, which is the house pattern across both properties.
+
+- 4-column grid on large viewports: **Brand + registered entity**, **Explore**, **Get in Touch**,
+  **Essence of Habbaa** (social). Previously 3 columns with mismatched proportions.
+- Registered entity (HABBAA SOLUTIONS PVT LTD, address, CIN, GSTIN) is now the *first column*,
+  not a bottom strip. habbaa.com leads with it; the company details are structural, not fine print.
+- Legal links sit inline in the bottom bar with **no section heading**. A "Legal" column header
+  gives boilerplate the same visual rank as navigation, which it does not warrant.
+- Type scale raised throughout: column headings 10px → 12px, links 13px → 14px,
+  copyright and legal links → 13px. At the old sizes the columns read as fine print.
+- All column headings share one class constant, so they cannot drift apart.
+- Contact column on desktop shows icon + text for each method (WhatsApp, phone number, email),
+  replacing the cramped icon-only layout.
+- Mobile layout unchanged: 3-up tap-target buttons for WhatsApp / Call / Email, social icons
+  and legal links in the bottom bar.
+
+### Map: live embed replaced with a pre-rendered image
+
+The Location card showed "your browser does not support WebGL" instead of a map for some
+visitors. Cause: `openstreetmap.org/export/embed.html` now ships MapLibre GL and **requires
+WebGL even with `layer=mapnik`** (their embed bundle contains 156 `maplibre` references and the
+exact error string). Anyone with WebGL disabled or a blocklisted GPU got the error page.
+
+The embed was already `pointer-events: none` — deliberately inert so it could not trap scroll on
+mobile — so a live map was buying us that failure mode and nothing else.
+
+- **`public/villa-map.jpg`** — a 1600×960 map rendered once at build time from OSM raster tiles
+  and committed. No WebGL, no API key in the browser, no third-party JS, no runtime dependency,
+  and it paints immediately. Served through `next/image` (287KB source, ~90KB optimised).
+- **`scripts/make-map.py`** — regenerates the image; update `LAT`/`LON` if the property moves.
+  Tiles are fetched once by this script, never by a visitor.
+- Attribution ("© OpenStreetMap") rendered on the card, as the tile licence requires.
+- Click target now uses Google's documented URL form
+  (`google.com/maps/search/?api=1&query=<lat>,<lng>`) and opens the same location.
+- **Coordinates corrected to Urwa Mariyamma Circle: `12.8892951, 74.8298580`** (was
+  `12.8634, 74.8422`, roughly 3.2 km to the south-east). Taken from the `!3d…!4d…` place
+  parameters of the Google Maps URL, which are the place itself rather than the `@…` viewport
+  centre. Updated in `supabase/seed.sql`, `scripts/make-map.py` and the local database;
+  **staging and production still need the same update.**
+
+### Cancellation Policy and House Rules: the disclosure now earns its click
+
+Both cards paraphrased their own contents in the collapsed summary and then repeated the same
+facts when opened, so expanding added colour but no information and the chevron read as
+decoration. Both were also `p-6 sm:p-8` around a single line of text, and the summary label
+renamed itself on open.
+
+- **Cancellation** — the three refund tiers are now always visible as a 3-up grid
+  (90% / 50% / No refund against their windows). The disclosure holds only what the tiers do
+  not cover: deposit timing, inspection, refund method.
+- **House Rules** — the four most-asked facts (check-in, check-out, quiet hours, max guests)
+  are always visible as labelled values. The disclosure holds the five rules those four do not
+  already answer; the duplicated check-in/out, quiet-hours and occupancy entries were removed
+  from the expanded list.
+- Padding reduced to `p-5 sm:p-6`; summary labels are stable across toggle.
+
+### Cancellation policy: the day-30 boundary was ambiguous (content bug)
+
+`00009_content_fixes.sql` wrote "30 or more days before check-in: 90% refund. **15 to 30 days**
+before check-in: 50% refund." Both clauses claimed day 30, so a guest cancelling exactly 30 days
+out could read either figure, on `/terms`, in the FAQ, and on the homepage card. On a refund
+policy that is chargeback material.
+
+**Resolved in favour of the guest: day 30 pays 90%.** The middle tier now ends at day 29.
+Corrected in `00015_cancellation_boundary.sql` (`property_policies.cancellation` and the FAQ
+answer), in `seed.sql`, and in the homepage tiles. **Staging and production need 00015 applied.**
+
+### 12-hour clock across the application
+
+Times were rendered raw from the database, so the House Rules card showed "From 14:00" beside
+"11 PM to 7 AM" — two clock formats in one card — and Indian leisure guests read 12-hour.
+
+- **`src/lib/format.ts`** — new `formatTime12()`. Times stay stored as 24-hour `HH:MM`
+  (`getProperty` normalises to it and `<input type="time">` requires it); only the display is
+  converted. Handles `HH:MM:SS`, renders midnight and noon as 12 rather than 0, and passes
+  unparseable input through unchanged rather than inventing "12:00 AM". Covered by
+  `src/lib/__tests__/format.test.ts` (6 cases).
+- Applied to the homepage House Rules tiles and check-in/out rows, the Stay Guide, and
+  `BookingCheckout`. **Not** applied to the admin form, `create-order` payloads or `data.ts`,
+  which need the 24-hour value.
+- Two database rows had 24-hour times baked into their prose (the check-in FAQ answer and the
+  `checkin_time` policy body); both rewritten in `00015` and in `seed.sql`.
+
+### Cancellation and House Rules cards: review fixes
+
+- **Accessibility.** The small-caps tile labels used `--ink-faint` on `--paper-sunk`, measuring
+  **2.71:1** at 11px against a 4.5:1 floor. Now `--ink-muted` at **5.08:1**.
+- **Consistent tile structure.** The two adjacent cards used opposite layouts for the same kind
+  of content: Cancellation was value-first, House Rules label-first. Both are now label-first,
+  which also matches how a guest scans them (which window am I in, then what do I get).
+- **`0%` replaces `No`**, so 90% / 50% / 0% reads as one numeric series.
+- **Redundant words removed.** "refund" appeared three times under a heading already reading
+  *Cancellation Policy*; it is now stated once above the tiles. "12 guests" under a MAX GUESTS
+  label is now "12".
+- **Icons dropped** from the refund tiles. Check, warning triangle and circled-X restated what
+  the percentage and colour already said, and a warning triangle implied danger about a neutral
+  contractual tier. The percentages carry the information, so colour is not load-bearing.
+- **The "no refund" tier is neutral, not red.** A red fill read as an error state when nothing
+  had gone wrong, and three saturated tints made the card the loudest block on a maroon-and-brass
+  page, competing with the booking CTA.
+- **Both disclosure summaries now look like controls** (bordered pill, hover state, real hit
+  area) rather than captions.
+
+### Booking widget header
+
+- Background was `--maroon` (#5A2626) while the site header and footer are `--maroon-deep`
+  (#3C1717), putting three different maroons on one page. Now matches the site chrome.
+- **"Direct Booking" pill removed.** It asserted the same thing as the "Direct Lowest Guarantee"
+  label beside it, and its `rgba(30,138,122,0.2)` fill composited over maroon to **#4E3A37**, a
+  muddy brown-grey rather than the intended teal.
+- Header now carries one message: the rate. Price at `text-3xl`, with a single brass line
+  underneath reading "Lowest rate guaranteed · No platform fees".
+
+### Desktop type scale
+
+Card content was sized mobile-first and never stepped up, so at 1280px a room card title (16px)
+was the same size as running body text and card meta sat at 14px. Added `lg:` steps rather than
+raising the base, which would cost mobile density:
+
+| Element | Was | Now (lg+) |
+|---|---|---|
+| Room card title | 16px | 17px |
+| Room card meta, room type, guest badge | 14 / 12px | 15 / 13px |
+| Amenity items and group headings | 14px | 15px |
+| Location distance tiles | 14px | 15px |
+
+### Footer icon treatment
+
+Icons in the desktop columns used three unrelated colour systems side by side: WhatsApp green,
+brass for phone and mail, grey for the social marks. In a footer list an icon is a marker, not a
+brand mark, so all of them now share one muted tone and brighten to brass with their label on
+hover. WhatsApp green is retained where it is an actual CTA (sticky bar, enquiry card); in the
+footer the word "WhatsApp" already carries the recognition. The mobile 3-up buttons keep their
+tinted treatment, as those are buttons rather than list markers.
+
+### Colour system
+
+- Off-token hex values in `BookingWidget.tsx` replaced with design tokens (`--maroon`, `--ink-muted`,
+  `--paper-sunk`, `--cream`, `--paper-sunk-hover`, `--accent-verify`).
+- Two WCAG AA failures fixed: `#8A9AAA` (2.88:1) and `#6B7A8A` (4.40:1) both mapped to
+  `--ink-muted` (5.92:1 against `--surface`).
+
+### Other
+
+- Gallery orphan tiles: lone tiles in the last row now span the remaining columns at both 2-up
+  (mobile) and 3-up (sm+) breakpoints.
+- Cancellation Policy link fixed: was bare `#cancellation` fragment (only resolved on the homepage),
+  now `/terms#cancellation` which works from any page.
+- `terms/page.tsx`: `Section` component gains an `id` prop; cancellation section gets
+  `id="cancellation"` and `scroll-mt-24` for smooth in-page navigation.
+- Section headings for Cancellation Policy and Villa Rules moved outside their cards (matching
+  Guest Reviews pattern) for consistent vertical rhythm.
+- Seed files consolidated: `seed_phase1.sql` and `seed_rooms_images.sql` merged into `seed.sql`.
+
+### The font system was silently dead (the big one)
+
+`globals.css` declared `--font-display: var(--font-display, …)` and the same for `--font-brand`.
+next/font already injects those exact names onto `<html>`, so each declaration referenced
+**itself on the same element**. CSS treats that as a cycle: the property is invalid at
+computed-value time and resolves to nothing. Verified in the browser — both computed to an
+empty string.
+
+**Cormorant Garamond and Cinzel were downloaded on every page load and applied to nothing.**
+Every heading and the wordmark fell back to Nunito Sans. Fixed by deleting the two
+self-referential lines (next/font already provides them); `--font-body` is a genuine alias to a
+differently-named variable and was always fine.
+
+Because Cormorant has a much smaller x-height than Nunito, display headings were then stepped up
+one notch across 15 files so they read at the size originally intended.
+
+### Booking flow: every CTA was a dead end
+
+`/book` rendered "Invalid Booking Details" without query params, and **11 CTAs linked to a bare
+`/book`** — including the header BOOK NOW on every page. Only the homepage widget passed params,
+so the primary CTA site-wide led to an error screen.
+
+- **`/book` without dates is now a real entry point**, rendering a date and guest picker that
+  hands off to checkout. Direct links, bookmarks, refreshes and no-JS all land somewhere usable.
+- **`BookingDialog`** — BOOK NOW now opens a native `<dialog>` over the page you are already on,
+  so nobody loses their place. `showModal()` brings the focus trap, ESC handling and inert
+  background; the existing `html:has(dialog[open])` rule handles scroll lock.
+- **`BookNowLink`** is still an `<a href="/book">` and only preventDefaults when JS is running,
+  so the page remains the no-JS fallback. Modified clicks (⌘-click, middle-click) pass through.
+- **`DateSelectForm`** is shared by the dialog and the `/book` page so the two cannot drift.
+- The checkout route had no chrome on its picker step; a shared `CheckoutHeader` now covers all
+  three states, with the Razorpay badge shown only on the actual payment step.
+
+### Booking dates used the UTC day, not IST
+
+`new Date().toISOString().split('T')[0]` returns **yesterday in India between 00:00 and 05:30
+IST**, so the date pickers offered — and defaulted to — a check-in that had already passed
+locally. Replaced with `todayISO()` (`en-CA` + `timeZone: 'Asia/Kolkata'`, identical on server
+and client) and `addDaysISO()` (UTC date-part arithmetic, immune to offset drift). Applied to
+both pickers' defaults, both `min=` bounds, and both check-out auto-advance handlers.
+
+### Modal dialogs rendered in the top-left corner
+
+Tailwind v4's preflight resets `margin: 0` on every element, which strips the `margin: auto` the
+UA stylesheet uses to centre a `showModal()` dialog. Both native dialogs were affected — the new
+booking dialog and the pre-existing amenities sheet. Fixed once via `dialog:modal { margin: auto }`
+rather than per component. The `amenity-sheet` class was referenced but styled nowhere; it now
+anchors that sheet to the bottom edge below `sm`, matching its `rounded-t-3xl` intent.
+
+### Legal and privacy copy
+
+- **`/terms` refund tiers were hardcoded in JSX**, so `00015` fixed the database and left the
+  canonical Terms page contradicting it — day 30 read as 50% there and 90% everywhere else.
+  Now corrected and commented to stay in step with the migration.
+- **`/terms` reads check-in, check-out and occupancy from the property record** instead of
+  hardcoding them, so admin edits cannot silently leave the page stating old figures.
+- **Privacy names HABBAA SOLUTIONS PVT LTD as the data fiduciary** with CIN and registered
+  office, rather than the trading name.
+- **New WhatsApp section** — it is the main enquiry channel, so guest data reaches Meta, and
+  that was disclosed nowhere.
+- Removed "provided for informational purposes, consult an attorney" from both legal pages: a
+  privacy policy is a binding statement of practice, and the disclaimer undercut it.
+
+### Cookie consent now gates something
+
+The banner wrote a string to localStorage and gated nothing, so "Decline" declined nothing.
+
+- **`src/lib/consent.ts`** stores the choice and broadcasts it.
+- **`Analytics.tsx`** injects Google Analytics **only** after acceptance. Declining means no
+  request is ever made to Google. Set `NEXT_PUBLIC_GA_ID` to switch it on; until then it renders
+  nothing and the gate is already in place.
+
+### Identity, contact and content corrections
+
+- **Single mailbox: `hello@habbaa.in`.** The site previously mixed `hello@habbaa.com` and
+  `bookings@habbaa.in`. `RESEND_FROM_EMAIL` is deliberately unchanged pending domain
+  verification in Resend — see TODO.
+- **`formatPhone()`** — the Contact page, Stay Guide and footer printed `+917760777876` while
+  the announcement bar showed the grouped form.
+- **Distances re-routed** from the corrected coordinates. The beach was advertised at 1.5 km and
+  is **7.6 km** by road; that figure appeared in the location tile, the page description, OG
+  metadata, an FAQ and a featured amenity chip. 10 of the 18 `nearby_places` rows were updated;
+  8 are listed in `00015` as needing local verification rather than guessed at.
+- **No published response-time SLA.** "We respond within 30 minutes. Any time, any day" and
+  "Within 4 hours" are replaced with channel guidance.
+- **Testimonials** no longer offer to connect visitors with "past guests" on a page that states
+  there are none yet.
+- Two genuine em-dash violations fixed (an `/events` string and a `RoomShelf` `aria-label`).
+
+### Visual system
+
+- **Page heroes moved to `--maroon-deep`.** All 10 sat on `--maroon` directly below a
+  `--maroon-deep` header, producing a visible seam on every page.
+- **WhatsApp green retired as a button fill.** It fought the maroon/brass palette and, on
+  `/events`, made the lower-intent action the loudest element. Dark grounds use frosted, light
+  grounds the tinted ghost; the glyph and label carry recognition.
+- **`--radius-btn` (12px)** replaces the 2px `--radius-sm` on `.btn-primary`, `.btn-secondary`
+  and `.btn-ghost`. All 9 usages relied on that default, so square CTAs sat inside `rounded-xl`
+  inputs and `rounded-2xl` cards.
+- **Homepage gallery is inset at every width.** It was full-bleed below `sm` while every
+  surrounding block was `px-4`, so it read as a bug; its `shadow-2xl` also had no margin to fall
+  into. Now `px-4` + `rounded-2xl` + `shadow-lg`.
+- **House Rules renamed Villa Rules** site-wide; both policy cards' tiles are centred, with
+  expanded bodies explicitly left-aligned so prose and bulleted rules keep a left rail.
+- **Footer mobile bottom bar** — social icons and legal links were flex siblings in one wrapping
+  row, so they ran together and orphaned "Cancellation Policy". Each now has its own row below `lg`.
+- **Footer dead space** — the mobile CTA bar is homepage-only but the footer reserved 96px for it
+  on every page. Now tied to the bar's presence via `body:has(#mobile-cta-bar)`, scoped below
+  `md` so it cannot outrank `lg:pb-14`.
+
+### Testing
+
+`src/lib/__tests__/format.test.ts` covers `formatTime12` (midnight/noon, `HH:MM:SS`, unparseable
+passthrough), `formatPhone` (country code, bare 10-digit, idempotency, nullish) and
+`todayISO`/`addDaysISO` (the 01:30 IST case, month and year boundaries). 27 tests total.
+
+---
+
 ## v0.4.1 — Vercel Deployment Failure: Cron Moved Into the Database — 2026-09-06
 
 ### The bug

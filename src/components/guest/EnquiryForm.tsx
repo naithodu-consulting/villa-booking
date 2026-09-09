@@ -65,7 +65,7 @@ export default function EnquiryForm() {
         style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
       >
         <CheckCircle2 className="w-10 h-10 mx-auto" style={{ color: 'var(--ok)' }} />
-        <p className="font-bold text-base" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+        <p className="font-bold text-lg" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
           Enquiry Received
         </p>
         <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>

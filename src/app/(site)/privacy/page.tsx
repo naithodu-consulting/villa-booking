@@ -15,7 +15,7 @@ export default function PrivacyPage() {
 
       <section
         className="py-8 sm:py-10"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
@@ -35,9 +35,12 @@ export default function PrivacyPage() {
         >
           <Section title="1. Who we are">
             <p>
-              Villa 19 by Habbaa (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;) operates the website habbaa.in and manages bookings for
-              Villa 19, Urwa, Mangalore, Karnataka 575006. For privacy-related queries, email us at{' '}
-              <a href="mailto:hello@habbaa.com" style={{ color: 'var(--brass)' }}>hello@habbaa.com</a>.
+              HABBAA SOLUTIONS PVT LTD (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;), CIN U47711KA2025PTC207750, trading as
+              Villa 19 by Habbaa, operates the website habbaa.in and manages bookings for Villa 19, Urwa,
+              Mangalore, Karnataka 575006. Our registered office is 209, Citadel Prism, PVS Kalakunj Road,
+              Kodialbail, Mangalore 575003. We are the data fiduciary for the personal data described below.
+              For privacy-related queries, email us at{' '}
+              <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass)' }}>hello@habbaa.in</a>.
             </p>
           </Section>
 
@@ -61,7 +64,17 @@ export default function PrivacyPage() {
             <p className="mt-3">We do not sell, rent, or share your personal information with third parties for marketing purposes.</p>
           </Section>
 
-          <Section title="4. Payment processing">
+          <Section title="4. WhatsApp and messaging">
+            <p>
+              WhatsApp is our main enquiry and support channel. If you contact us there, your phone number,
+              WhatsApp profile name and message content are processed by WhatsApp Ireland Ltd (part of Meta)
+              under their own privacy policy, and are visible to us in the chat. We use that information only
+              to answer your enquiry and manage your booking. If you would rather not use WhatsApp, email or
+              call us instead and we will not contact you there.
+            </p>
+          </Section>
+
+          <Section title="5. Payment processing">
             <p>
               Payments are processed by Razorpay (razorpay.com). Your payment details are transmitted directly to Razorpay over
               an encrypted connection and are governed by their privacy policy. We store only the Razorpay order and payment IDs
@@ -69,7 +82,7 @@ export default function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="5. Data retention">
+          <Section title="6. Data retention">
             <p>
               We retain booking records for a minimum of 3 years as required by applicable tax and accounting regulations.
               Enquiry records are retained for 12 months. You may request deletion of your personal data by emailing us,
@@ -77,14 +90,20 @@ export default function PrivacyPage() {
             </p>
           </Section>
 
-          <Section title="6. Cookies">
+          <Section title="7. Cookies">
             <p>
-              We use only essential cookies required for the website to function (session state, security tokens).
-              We do not use advertising or tracking cookies.
+              We use essential cookies required for the website to function (session state, security tokens).
+              These are always active because the site cannot work without them.
+            </p>
+            <p className="mt-3">
+              We also use Google Analytics to understand how the site is used. Analytics cookies are loaded
+              only if you accept them in the cookie banner. If you decline, no analytics script is loaded and
+              no request is made to Google. We do not use advertising or ad-targeting cookies. You can change
+              your choice at any time by clearing this site&apos;s data in your browser.
             </p>
           </Section>
 
-          <Section title="7. Your rights">
+          <Section title="8. Your rights">
             <p>Under applicable Indian data protection law, you have the right to:</p>
             <ul className="list-disc list-inside space-y-1 mt-2">
               <li>Access the personal data we hold about you</li>
@@ -92,26 +111,23 @@ export default function PrivacyPage() {
               <li>Request deletion of your data (subject to legal obligations)</li>
               <li>Withdraw consent where processing is consent-based</li>
             </ul>
-            <p className="mt-3">To exercise any of these rights, email <a href="mailto:hello@habbaa.com" style={{ color: 'var(--brass)' }}>hello@habbaa.com</a>.</p>
+            <p className="mt-3">To exercise any of these rights, email <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass)' }}>hello@habbaa.in</a>.</p>
           </Section>
 
-          <Section title="8. Changes to this policy">
+          <Section title="9. Changes to this policy">
             <p>
               We may update this policy from time to time. The &quot;Last updated&quot; date at the top of this page will reflect
               any changes. Continued use of our website after changes constitutes acceptance of the updated policy.
             </p>
           </Section>
 
-          <Section title="9. Contact">
+          <Section title="10. Contact">
             <p>
-              For any privacy-related concerns: <a href="mailto:hello@habbaa.com" style={{ color: 'var(--brass)' }}>hello@habbaa.com</a><br />
-              Villa 19 by Habbaa, Urwa, Mangalore, Karnataka 575006
+              For any privacy-related concerns: <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass)' }}>hello@habbaa.in</a><br />
+              HABBAA SOLUTIONS PVT LTD, 209, Citadel Prism, PVS Kalakunj Road, Kodialbail, Mangalore 575003
             </p>
           </Section>
 
-          <p className="text-xs mt-8 pt-6" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-faint)' }}>
-            This privacy policy is provided for informational purposes. For legal advice, please consult a qualified attorney.
-          </p>
         </div>
       </div>
     </div>
@@ -122,7 +138,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <div>
       <h2
-        className="text-base font-bold mb-3"
+        className="text-xl sm:text-2xl font-bold mb-3"
         style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}
       >
         {title}

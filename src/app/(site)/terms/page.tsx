@@ -1,5 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { getProperty } from '@/lib/data';
+import { formatTime12 } from '@/lib/format';
 
 export const metadata: Metadata = {
   title: 'Terms & Conditions',
@@ -7,15 +9,23 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-const LAST_UPDATED = '1 September 2026';
+// Bumped when the cancellation tiers changed on 2026-09-09.
+const LAST_UPDATED = '9 September 2026';
 
-export default function TermsPage() {
+export default async function TermsPage() {
+  // Check-in/out times and occupancy were hardcoded here, so editing them in
+  // admin silently left the Terms page stating the old figures.
+  const property = await getProperty();
+  const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
+  const checkOut = formatTime12(property?.check_out_time ?? '11:00');
+  const maxGuests = property?.max_occupancy ?? 12;
+
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       <section
         className="py-8 sm:py-10"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
@@ -40,20 +50,27 @@ export default function TermsPage() {
             </ul>
           </Section>
 
-          <Section title="2. Cancellation and refund policy">
+          <Section id="cancellation" title="2. Cancellation and refund policy">
             <ul className="list-disc list-inside space-y-1">
-              <li><strong style={{ color: 'var(--ink)' }}>More than 30 days before check-in:</strong> 90% refund.</li>
-              <li><strong style={{ color: 'var(--ink)' }}>15 to 30 days before check-in:</strong> 50% refund.</li>
-              <li><strong style={{ color: 'var(--ink)' }}>Less than 15 days before check-in:</strong> No refund.</li>
-              <li>Refund requests must be submitted in writing to bookings@habbaa.in with your booking reference.</li>
+              {/* These tiers are hardcoded here rather than read from
+                  property_policies, so they must be kept in step with
+                  00015_cancellation_boundary.sql and the homepage card.
+                  The windows are exclusive: "more than 30" and "15 to 30" both
+                  used to claim day 30, and read together they put day 30 at 50%
+                  while every other surface put it at 90%. Day 30 pays 90%. */}
+              <li><strong style={{ color: 'var(--ink)' }}>30 or more days before check-in:</strong> 90% refund.</li>
+              <li><strong style={{ color: 'var(--ink)' }}>15 to 29 days before check-in:</strong> 50% refund.</li>
+              <li><strong style={{ color: 'var(--ink)' }}>Under 15 days before check-in:</strong> No refund.</li>
+              <li>The security deposit, if any, is refunded within 5 working days of check-out, subject to property inspection.</li>
+              <li>Refund requests must be submitted in writing to hello@habbaa.in with your booking reference.</li>
               <li>Approved refunds will be processed to the original payment method within 7 to 10 business days.</li>
             </ul>
           </Section>
 
           <Section title="3. Check-in and check-out">
             <ul className="list-disc list-inside space-y-1">
-              <li>Check-in time: 2:00 PM. Early check-in is subject to availability and prior arrangement.</li>
-              <li>Check-out time: 11:00 AM. Late check-out may incur additional charges.</li>
+              <li>Check-in time: {checkIn}. Early check-in is subject to availability and prior arrangement.</li>
+              <li>Check-out time: {checkOut}. Late check-out may incur additional charges.</li>
               <li>Exact address and access instructions will be provided 24 hours before check-in.</li>
               <li>A valid government-issued photo ID is required for all adult guests at check-in.</li>
             </ul>
@@ -61,7 +78,7 @@ export default function TermsPage() {
 
           <Section title="4. Guest conduct and property rules">
             <ul className="list-disc list-inside space-y-1">
-              <li>Maximum occupancy: 12 guests. Exceeding this limit is not permitted.</li>
+              <li>Maximum occupancy: {maxGuests} guests. Exceeding this limit is not permitted.</li>
               <li>No smoking inside the villa. Designated outdoor smoking areas are available.</li>
               <li>Pets are not permitted without prior written consent.</li>
               <li>Events or parties beyond the booked guest count require prior approval and may incur additional fees.</li>
@@ -95,13 +112,13 @@ export default function TermsPage() {
 
           <Section title="8. Contact">
             <p>
-              For any queries about these terms: <a href="mailto:bookings@habbaa.in" style={{ color: 'var(--brass)' }}>bookings@habbaa.in</a><br />
+              For any queries about these terms: <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass)' }}>hello@habbaa.in</a><br />
               Villa 19 by Habbaa, Urwa, Mangalore, Karnataka 575006
             </p>
           </Section>
 
-          <p className="text-xs mt-8 pt-6" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-faint)' }}>
-            By completing a booking, you agree to these Terms &amp; Conditions. For legal advice, please consult a qualified attorney.
+          <p className="text-sm mt-8 pt-6" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}>
+            By completing a booking, you agree to these Terms &amp; Conditions.
           </p>
         </div>
       </div>
@@ -109,11 +126,11 @@ export default function TermsPage() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ id, title, children }: { id?: string; title: string; children: React.ReactNode }) {
   return (
-    <div>
+    <div id={id} className={id ? 'scroll-mt-24' : undefined}>
       <h2
-        className="text-base font-bold mb-3"
+        className="text-xl sm:text-2xl font-bold mb-3"
         style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}
       >
         {title}

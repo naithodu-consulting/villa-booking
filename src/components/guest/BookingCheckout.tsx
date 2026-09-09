@@ -7,7 +7,9 @@ import Image from 'next/image';
 import Script from 'next/script';
 import type { Property, PricingRule } from '@/types';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
+import DateSelectForm from '@/components/guest/DateSelectForm';
 import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { formatTime12 } from '@/lib/format';
 
 declare global {
   interface Window {
@@ -44,6 +46,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [serverError,      setServerError]      = useState('');
 
   const hasValidParams = checkIn && checkOut && !isNaN(adults);
+  // No dates at all is not an error state: the header BOOK NOW button on every
+  // page links to a bare /book, so this is the commonest way in.
+  const needsDates = !checkIn && !checkOut;
 
   let breakdown = null;
   let paramError = '';
@@ -125,22 +130,58 @@ function CheckoutContent({ property, pricingRules }: Props) {
     }
   };
 
-  // ── Param error screen ────────────────────────────────────────────────
+  // ── Date selection: arrived without dates ─────────────────────────────
+  if (needsDates) {
+    return (
+      <>
+      <CheckoutHeader property={property} />
+      <div className="flex-1 flex items-start sm:items-center justify-center p-4 py-10 sm:py-4">
+        <div
+          className="max-w-md w-full p-7 sm:p-8 rounded-3xl space-y-5 shadow-lg"
+          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
+        >
+          <div className="space-y-1.5">
+            <h1 className="text-3xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+              Choose your dates
+            </h1>
+            <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
+              Tell us when you would like to stay and we will show you the total.
+            </p>
+          </div>
+
+          <DateSelectForm
+            maxOccupancy={property.max_occupancy}
+            onContinue={(query) => router.push(`/book?${query}`)}
+          />
+
+          <Link href="/" className="block text-center text-sm font-semibold" style={{ color: 'var(--maroon)' }}>
+            Back
+          </Link>
+        </div>
+      </div>
+      </>
+    );
+  }
+
+  // ── Param error screen: dates were supplied but do not make sense ─────
   if (paramError) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: 'var(--paper)' }}>
+      <>
+      <CheckoutHeader property={property} />
+      <div className="flex-1 flex items-center justify-center p-4">
         <div
           className="max-w-md w-full p-8 rounded-3xl text-center space-y-5 shadow-lg"
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
         >
           <AlertCircle className="w-12 h-12 mx-auto" style={{ color: 'var(--error)' }} />
-          <h1 className="text-xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
             Invalid Booking Details
           </h1>
           <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>{paramError}</p>
-          <Link href="/" className="btn-primary block w-full">← Back to Villa</Link>
+          <Link href="/" className="btn-primary block w-full">Back</Link>
         </div>
       </div>
+      </>
     );
   }
 
@@ -149,32 +190,13 @@ function CheckoutContent({ property, pricingRules }: Props) {
     <div className="min-h-screen flex flex-col" style={{ color: 'var(--ink)', backgroundColor: 'var(--paper)' }}>
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
 
-      {/* Minimal checkout header */}
-      <header
-        className="sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between"
-        style={{ backgroundColor: 'var(--maroon)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
-      >
-        <Link href="/" className="flex items-center gap-3" aria-label="Back to villa">
-          <Image src="/habbaa-logo-white.svg" alt="Habbaa" width={44} height={44} className="rounded-full flex-shrink-0" priority />
-          <div className="hidden sm:flex flex-col leading-tight">
-            <span className="text-base font-bold text-white">{property.name}</span>
-            <span className="text-xs font-medium tracking-widest uppercase mt-0.5" style={{ color: 'var(--brass-light)' }}>By Habbaa</span>
-          </div>
-        </Link>
-        <div
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm"
-          style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
-        >
-          <ShieldCheck className="w-3.5 h-3.5" style={{ color: 'var(--brass-light)' }} aria-hidden="true" />
-          <span className="font-semibold text-white/70">Secured by Razorpay</span>
-        </div>
-      </header>
+      <CheckoutHeader property={property} secured />
 
       <main className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-6">
 
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold transition-colors" style={{ color: 'var(--ink-muted)' }}>
-            <ArrowLeft className="w-4 h-4" /> Back to Villa Details
+            <ArrowLeft className="w-4 h-4" /> Back
           </Link>
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
@@ -196,7 +218,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     Guest Details
                   </span>
                 </div>
-                <h1 className="text-2xl font-black" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+                <h1 className="text-3xl font-black" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
                   Complete Your Booking
                 </h1>
                 <p className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
@@ -349,11 +371,11 @@ function CheckoutContent({ property, pricingRules }: Props) {
               <div className="text-sm space-y-2.5">
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--ink-muted)' }}>Check-in</span>
-                  <span className="font-semibold">{fmtDate(checkIn)} at {property.check_in_time}</span>
+                  <span className="font-semibold">{fmtDate(checkIn)} at {formatTime12(property.check_in_time)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--ink-muted)' }}>Check-out</span>
-                  <span className="font-semibold">{fmtDate(checkOut)} at {property.check_out_time}</span>
+                  <span className="font-semibold">{fmtDate(checkOut)} at {formatTime12(property.check_out_time)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--ink-muted)' }}>Guests</span>
@@ -401,6 +423,40 @@ function CheckoutContent({ property, pricingRules }: Props) {
         </div>
       </main>
     </div>
+  );
+}
+
+/**
+ * Shared chrome for every step of the checkout route.
+ *
+ * The date-picker step used to render with no header at all, which made it the
+ * only screen in the app floating on a bare background. The Razorpay badge is
+ * opt-in because nothing is being paid for on the picker step, and promising
+ * payment security before a price exists is noise.
+ */
+function CheckoutHeader({ property, secured = false }: { property: Property; secured?: boolean }) {
+  return (
+    <header
+      className="sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between"
+      style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+    >
+      <Link href="/" className="flex items-center gap-3" aria-label="Back to villa">
+        <Image src="/habbaa-logo-white.svg" alt="Habbaa" width={44} height={44} className="rounded-full flex-shrink-0" priority />
+        <div className="hidden sm:flex flex-col leading-tight">
+          <span className="text-base font-bold text-white">{property.name}</span>
+          <span className="text-xs font-medium tracking-widest uppercase mt-0.5" style={{ color: 'var(--brass-light)' }}>By Habbaa</span>
+        </div>
+      </Link>
+      {secured && (
+        <div
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm"
+          style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
+        >
+          <ShieldCheck className="w-3.5 h-3.5" style={{ color: 'var(--brass-light)' }} aria-hidden="true" />
+          <span className="font-semibold text-white/70">Secured by Razorpay</span>
+        </div>
+      )}
+    </header>
   );
 }
 

@@ -50,7 +50,7 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
   return (
     <div
       className="relative flex items-center justify-center text-center px-10 text-sm font-semibold select-none"
-      style={{ backgroundColor: '#fffcf0', color: 'var(--maroon)', height: '42px', overflow: 'hidden', borderBottom: '1px solid rgba(168,116,50,0.5)' }}
+      style={{ backgroundColor: 'var(--cream)', color: 'var(--maroon)', height: '42px', overflow: 'hidden', borderBottom: '1px solid rgba(168,116,50,0.5)' }}
       role="region"
       aria-label="Announcements"
       aria-live="polite"

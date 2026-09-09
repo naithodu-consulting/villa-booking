@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { MapPin, Mail, Phone, Clock } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import EnquiryForm from '@/components/guest/EnquiryForm';
+import { formatPhone } from '@/lib/format';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -13,15 +14,15 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Get in touch with Villa 19 by Habbaa. WhatsApp, email, or call. We respond within 30 minutes.',
+  description: 'Get in touch with Villa 19 by Habbaa. WhatsApp, email, or call. We reply as quickly as we can.',
   openGraph: {
     title: 'Contact | Villa 19 by Habbaa',
-    description: 'Reach us on WhatsApp, email, or phone. We respond within 30 minutes.',
+    description: 'Reach us on WhatsApp, email, or phone. We reply as quickly as we can.',
     url: 'https://habbaa.in/contact',
   },
   twitter: {
     title: 'Contact | Villa 19 by Habbaa',
-    description: 'WhatsApp, email, or call. We respond within 30 minutes.',
+    description: 'WhatsApp, email, or call. We reply as quickly as we can.',
   },
 };
 
@@ -29,7 +30,7 @@ export default async function ContactPage() {
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number ?? '919876543210';
   const phoneNumber = process.env.PROPERTY_PHONE ?? whatsappNumber;
-  const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.com';
+  const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about ${property?.name ?? 'Villa 19'}`)}`;
 
   return (
@@ -38,7 +39,7 @@ export default async function ContactPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
@@ -48,7 +49,7 @@ export default async function ContactPage() {
             Contact Us
           </h1>
           <p className="text-lg text-white/75 leading-relaxed">
-            We respond within 30 minutes on WhatsApp. Any time, any day.
+            WhatsApp is the fastest way to reach us. We reply as quickly as we can.
           </p>
         </div>
       </section>
@@ -75,7 +76,7 @@ export default async function ContactPage() {
             <div>
               <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>WhatsApp</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>Fastest response</p>
-              <p className="text-sm mt-1 font-semibold" style={{ color: '#1a9e55' }}>Message Us →</p>
+              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--wa-on-light)' }}>Message Us →</p>
             </div>
           </a>
 
@@ -112,7 +113,7 @@ export default async function ContactPage() {
             </div>
             <div>
               <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>Call Us</p>
-              <p className="text-base" style={{ color: 'var(--ink-muted)' }}>+{phoneNumber}</p>
+              <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{formatPhone(phoneNumber)}</p>
               <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass)' }}>Call Now →</p>
             </div>
           </a>
@@ -126,13 +127,13 @@ export default async function ContactPage() {
         >
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-4 h-4" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-            <p className="text-sm font-bold" style={{ color: 'var(--maroon)' }}>Response Times</p>
+            <p className="text-sm font-bold" style={{ color: 'var(--maroon)' }}>How to reach us</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
             {[
-              { channel: 'WhatsApp',  time: 'Within 30 min', note: 'Recommended' },
-              { channel: 'Email',     time: 'Within 4 hours', note: '' },
-              { channel: 'Phone',     time: 'During business hours', note: '9 AM to 9 PM IST' },
+              { channel: 'WhatsApp',  time: 'Fastest way to reach us',   note: 'Recommended' },
+              { channel: 'Email',     time: 'Best for detailed enquiries', note: '' },
+              { channel: 'Phone',     time: 'Available 9 AM to 9 PM IST',  note: '' },
             ].map(({ channel, time, note }) => (
               <div
                 key={channel}
@@ -171,7 +172,7 @@ export default async function ContactPage() {
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
         >
           <div>
-            <p className="font-bold text-base" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <p className="font-bold text-lg" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Send an Enquiry
             </p>
             <p className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>

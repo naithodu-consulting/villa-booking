@@ -3,21 +3,24 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const STORAGE_KEY = 'villa19_cookie_consent';
+import { CONSENT_KEY, setConsent } from '@/lib/consent';
 
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
+      if (!localStorage.getItem(CONSENT_KEY)) setVisible(true);
     } catch {
       setVisible(true);
     }
   }, []);
 
+  // setConsent persists the choice and broadcasts it, so <Analytics> can load
+  // or stay away without a page reload. The banner no longer records a
+  // preference it does not act on.
   const respond = (choice: 'accepted' | 'declined') => {
-    try { localStorage.setItem(STORAGE_KEY, choice); } catch {}
+    setConsent(choice);
     setVisible(false);
   };
 
@@ -51,7 +54,7 @@ export default function CookieConsent() {
             onClick={() => respond('accepted')}
             className="px-5 rounded font-bold transition-all duration-150"
             style={{
-              background: '#FBF7F1',
+              background: 'var(--paper)',
               color: 'var(--maroon)',
               letterSpacing: '1.1px',
               fontSize: '13px',
@@ -61,10 +64,10 @@ export default function CookieConsent() {
             }}
             onMouseEnter={e => {
               (e.currentTarget).style.background = 'var(--maroon)';
-              (e.currentTarget).style.color = '#FBF7F1';
+              (e.currentTarget).style.color = 'var(--paper)';
             }}
             onMouseLeave={e => {
-              (e.currentTarget).style.background = '#FBF7F1';
+              (e.currentTarget).style.background = 'var(--paper)';
               (e.currentTarget).style.color = 'var(--maroon)';
             }}
           >

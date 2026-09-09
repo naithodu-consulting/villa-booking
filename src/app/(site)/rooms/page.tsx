@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Users, Bed, Bath, Wind, Check } from 'lucide-react';
 import { getProperty, getRooms } from '@/lib/data';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 export const metadata: Metadata = {
   title: 'Rooms',
@@ -45,7 +46,7 @@ export default async function RoomsPage() {
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-light)' }}>
@@ -92,7 +93,7 @@ export default async function RoomsPage() {
                       <span className="text-[11px] font-bold uppercase block mb-1" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>
                         {room.room_type}
                       </span>
-                      <h2 className="text-lg font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+                      <h2 className="text-xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
                         {room.name}
                       </h2>
                     </div>
@@ -148,7 +149,7 @@ export default async function RoomsPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Shared Facilities
             </h2>
           </div>
@@ -175,18 +176,17 @@ export default async function RoomsPage() {
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-2xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
             Book the entire villa
           </h2>
           <p className="text-white/70 text-sm">
             Villa 19 is rented exclusively: all {rooms.length} bedrooms, for up to {property.max_occupancy} guests.
           </p>
-          <Link
-            href="/book"
+          <BookNowLink
             className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
           >
             Check Availability & Rates
-          </Link>
+          </BookNowLink>
         </section>
 
       </div>

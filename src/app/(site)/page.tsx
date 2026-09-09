@@ -1,13 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
+import AmenitiesSection from '@/components/guest/AmenitiesSection';
+import RoomShelf from '@/components/guest/RoomShelf';
 import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs } from '@/lib/data';
+import { formatTime12 } from '@/lib/format';
+import BookNowLink from '@/components/guest/BookNowLink';
 import {
-  ShieldCheck, MapPin, Users, Wifi, Waves, Home,
-  Check, Sparkles, Phone,
-  Clock, XCircle, AlertTriangle, ChevronDown,
+  ShieldCheck, MapPin, Users, Wifi, Bed, Home,
+  Sparkles, Phone,
+  Clock, ChevronDown, ArrowRight,
 } from 'lucide-react';
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -21,10 +26,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 export const metadata: Metadata = {
   title: 'Villa 19 | Private Villa in Urwa, Mangalore',
   description:
-    'Book a premium 4-bedroom private villa in Urwa, Mangalore, Karnataka. Lush lawns, private balconies, ample parking, beach 1.5 km away. Hosts up to 12 guests. Direct booking with no platform fees.',
+    'Book a premium 4-bedroom private villa in Urwa, Mangalore, Karnataka. Lush lawns, private balconies, ample parking, beach 8 km away. Hosts up to 12 guests. Direct booking with no platform fees.',
   openGraph: {
     title: 'Villa 19 | Private Villa in Urwa, Mangalore',
-    description: 'Premium 4-bedroom villa in Urwa, Mangalore. Sleeps 12. Lawn, WiFi, parking, beach 1.5 km. Direct booking at the best rate.',
+    description: 'Premium 4-bedroom villa in Urwa, Mangalore. Sleeps 12. Lawn, WiFi, parking, beach 8 km. Direct booking at the best rate.',
     url: 'https://habbaa.in',
   },
   twitter: {
@@ -58,10 +63,18 @@ export default async function LandingPage() {
     return acc;
   }, {});
 
+  // Curated highlights. Falls back to the first six only if nothing is flagged,
+  // so the section still renders against a database predating the is_featured column.
+  const flagged = amenities.filter((a) => a.is_featured);
+  const featuredAmenities = flagged.length > 0 ? flagged : amenities.slice(0, 6);
+
   const whatsappUrl = `https://wa.me/${property.whatsapp_number ?? '919876543210'}?text=${encodeURIComponent(`Hi, I'm interested in booking ${property.name}`)}`;
 
+  // No pb-20 on the wrapper below: the Footer carries the sticky-bar clearance
+  // now, and this wrapper ends before the footer, so the two stacked into
+  // ~128px of dead space between the last card and the footer.
   return (
-    <div className="pb-20 md:pb-0" style={{ color: 'var(--ink)' }}>
+    <div style={{ color: 'var(--ink)' }}>
 
       {/* ── Hero ──────────────────────────────────────── */}
       <section id="overview" className="pt-6 sm:pt-8">
@@ -69,7 +82,7 @@ export default async function LandingPage() {
           <div className="px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4 sm:mb-5">
             <div>
               <div
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-5"
+                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-3 sm:mb-5"
                 style={{
                   backgroundColor: 'var(--maroon-tint)',
                   border: '1px solid var(--border-brass)',
@@ -79,7 +92,7 @@ export default async function LandingPage() {
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
               </div>
               <h1
-                className="text-5xl sm:text-6xl lg:text-6xl leading-tight mb-2"
+                className="text-4xl sm:text-6xl lg:text-6xl leading-tight mb-1.5 sm:mb-2"
                 style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--maroon)' }}
               >
                 {property.name}
@@ -90,8 +103,12 @@ export default async function LandingPage() {
               </p>
             </div>
           </div>
-          {/* Full-bleed on mobile, padded on sm+ */}
-          <div className="sm:px-6 lg:px-8">
+          {/* Inset at every width. This was full-bleed below sm, but the badge,
+              the h1 and the location line above it are all px-4, so the gallery
+              was the only block breaking that margin and it read as a bug rather
+              than a deliberate bleed. Edge-to-edge hero imagery works when the
+              image is the first thing under the chrome; here it sits mid-flow. */}
+          <div className="px-4 sm:px-6 lg:px-8">
             <GalleryModal images={images} />
           </div>
         </div>
@@ -104,31 +121,44 @@ export default async function LandingPage() {
 
           {/* Highlights bar */}
           <div
-            className="p-5 sm:p-6 rounded-3xl grid grid-cols-2 sm:grid-cols-4 gap-0 text-center shadow-md"
+            className="p-3 sm:p-6 rounded-3xl grid grid-cols-2 sm:grid-cols-4 gap-0 text-left sm:text-center shadow-md"
             style={{
               backgroundColor: 'var(--surface)',
               border: '1px solid var(--border-subtle)',
             }}
           >
+            {/* No eyebrow labels: "Capacity / Up to 12 Guests" and
+                "Beach / 1.5 km to Beach" said the same thing twice. The value
+                alone is self-describing, which buys back readable type.
+                Bedrooms replaces the old beach entry — the beach distance is
+                already given under Location. */}
             {[
-              { icon: Users, label: 'Capacity', value: `Up to ${property.max_occupancy} Guests` },
-              { icon: Waves, label: 'Beach',    value: '1.5 km to Beach' },
-              { icon: Wifi,  label: 'WiFi',     value: 'High-Speed WiFi' },
-              { icon: Home,  label: 'Outdoors', value: 'Lawn & Balconies' },
-            ].map(({ icon: Icon, label, value }, i) => (
+              { icon: Users, value: `Up to ${property.max_occupancy} Guests` },
+              { icon: Bed,   value: `${property.bedroom_count ?? 4} Bedrooms` },
+              { icon: Wifi,  value: 'High-Speed WiFi' },
+              { icon: Home,  value: 'Lawn & Balconies' },
+            ].map(({ icon: Icon, value }, i) => (
+              /* Mobile: icon beside the text, so a cell is one line tall rather
+                 than three. sm+: the original stacked, centred treatment.
+                 Borders differ per breakpoint — at 2 columns only the even-indexed
+                 cells sit in column 2, so only they take a left rule. */
               <div
-                key={label}
-                className={`py-4 px-3 ${i > 0 ? 'border-l' : ''} ${i >= 2 ? 'border-t sm:border-t-0' : ''}`}
+                key={value}
+                className={
+                  'flex items-center gap-2.5 py-3 px-2.5 sm:block sm:py-4 sm:px-3 ' +
+                  (i % 2 === 1 ? 'border-l ' : '') +
+                  (i > 0 ? 'sm:border-l ' : 'sm:border-l-0 ') +
+                  (i >= 2 ? 'border-t sm:border-t-0' : '')
+                }
                 style={{ borderColor: 'var(--border-subtle)' }}
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center mx-auto mb-3"
+                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 sm:mx-auto sm:mb-3"
                   style={{ backgroundColor: 'var(--maroon-tint)' }}
                 >
-                  <Icon className="w-5 h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
                 </div>
-                <p className="text-xs font-bold uppercase" style={{ color: 'var(--ink-faint)', letterSpacing: '1.2px' }}>{label}</p>
-                <p className="text-base font-bold mt-1 leading-snug" style={{ color: 'var(--maroon)' }}>{value}</p>
+                <p className="text-sm sm:text-base font-bold leading-snug min-w-0" style={{ color: 'var(--maroon)' }}>{value}</p>
               </div>
             ))}
           </div>
@@ -141,89 +171,33 @@ export default async function LandingPage() {
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> About the Villa
               </span>
             </div>
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>{property.tagline}</h2>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>{property.tagline}</h2>
             <p className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{property.description}</p>
           </div>
 
           {/* Rooms */}
           <div id="rooms" className="scroll-mt-24 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Room Breakdown</h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {rooms.map((room) => (
-                <div
-                  key={room.id}
-                  className="p-5 rounded-2xl shadow-sm transition-all flex flex-col justify-between"
-                  style={{
-                    backgroundColor: 'var(--surface)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold uppercase" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>{room.room_type}</span>
-                      <span
-                        className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                        style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon-deep)' }}
-                      >
-                        {room.max_guests} Guests
-                      </span>
-                    </div>
-                    <h3 className="text-base font-bold mb-2" style={{ color: 'var(--ink)' }}>{room.name}</h3>
-                  </div>
-                  <div
-                    className="pt-3 text-sm flex items-center justify-between"
-                    style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
-                  >
-                    <span>{room.bed_count} × {room.bed_type}</span>
-                    {room.has_ensuite_bathroom && (
-                      <span className="font-semibold" style={{ color: 'var(--ok)' }}>Ensuite Bath</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+            <RoomShelf rooms={rooms} />
           </div>
 
           {/* Amenities from DB */}
           <div id="amenities" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Property Amenities</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Property Amenities</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {Object.entries(amenityGroups).map(([category, items]) => (
-                <div
-                  key={category}
-                  className="p-5 rounded-2xl shadow-sm"
-                  style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-                >
-                  <h3 className="text-sm font-bold uppercase mb-3" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>{category}</h3>
-                  <ul className="space-y-2.5">
-                    {items.map((item) => (
-                      <li key={item} className="text-sm flex items-center gap-2.5" style={{ color: 'var(--ink-muted)' }}>
-                        <span
-                          className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: 'var(--maroon-tint)' }}
-                        >
-                          <Check className="w-3 h-3" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
+            <AmenitiesSection
+              featured={featuredAmenities.map((a) => ({ id: a.id, label: a.label }))}
+              groups={amenityGroups}
+              total={amenities.length}
+            />
           </div>
 
           {/* Location */}
           <div id="location" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Location</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Location</h2>
             </div>
             <div
               className="p-6 rounded-3xl shadow-sm space-y-4"
@@ -239,38 +213,81 @@ export default async function LandingPage() {
                   </p>
                 </div>
               </div>
-              <div
-                className="w-full h-48 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
+              {/* A pre-rendered map image, not a live embed.
+                  The previous iframe pointed at openstreetmap.org/export/embed.html,
+                  which now ships MapLibre GL and therefore *requires WebGL* — anyone
+                  with WebGL disabled or a blocklisted GPU got a "your browser does not
+                  support WebGL" error page instead of a map. Since the embed was already
+                  inert (pointer-events: none) to stop it trapping mobile scroll, a live
+                  map bought us nothing but that failure mode. A static image renders
+                  everywhere, needs no API key in the browser, and paints immediately.
+                  Regenerate with scripts/make-map.py if the property ever moves.
+                  Deliberately an *area*, not a pin: the exact address is only shared
+                  after booking, so this follows the approximate-radius pattern. */}
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${property.geo_lat},${property.geo_lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative block w-full h-48 sm:h-56 lg:h-64 rounded-2xl overflow-hidden"
+                style={{ border: '1px solid var(--border-subtle)', backgroundColor: 'var(--paper-sunk)' }}
+                aria-label="Open this location in Google Maps"
               >
-                <div className="text-center space-y-2">
-                  <MapPin className="w-8 h-8 mx-auto" style={{ color: 'var(--border-brass)' }} aria-hidden="true" />
-                  <p className="text-sm" style={{ color: 'var(--ink-faint)' }}>Interactive map available after booking</p>
-                  <a
-                    href={`https://maps.google.com/?q=${property.geo_lat},${property.geo_lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm hover:underline"
-                    style={{ color: 'var(--brass)' }}
-                  >
-                    View approximate location →
-                  </a>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                <Image
+                  src="/villa-map.jpg"
+                  alt={`Map showing the approximate location of the villa in ${property.address}, ${property.city}`}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 640px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  style={{ filter: 'saturate(0.85) contrast(1.02)' }}
+                />
+
+                {/* Map data credit — required by the ODbL tile licence. */}
+                <span
+                  className="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[10px] leading-none"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.82)', color: 'var(--ink-muted)' }}
+                >
+                  &copy; OpenStreetMap
+                </span>
+
+                {/* Approximate-radius disc, brand-tinted */}
+                <span
+                  className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    width: '38%', aspectRatio: '1',
+                    backgroundColor: 'rgba(90,38,38,0.18)',
+                    border: '2px solid rgba(90,38,38,0.55)',
+                  }}
+                  aria-hidden="true"
+                />
+
+                <span
+                  className="absolute left-3 right-3 bottom-3 flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold shadow-sm"
+                  style={{ backgroundColor: 'rgba(255,255,255,0.94)', color: 'var(--maroon)' }}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                    Approximate area &middot; exact address after booking
+                  </span>
+                  <ArrowRight className="w-3.5 h-3.5 flex-shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </span>
+              </a>
+              {/* Two columns on mobile with the value stacked under the place —
+                  four rows of one become two rows of two, and no place name
+                  has to be truncated to fit beside its distance. */}
+              <div className="grid grid-cols-2 gap-2 text-sm lg:text-[15px]">
                 {[
-                  ['Mangalore Airport', '~20 min'],
-                  ['Nearest Beach', '~5 min / 1.5 km'],
+                  ['Mangalore Airport', '13 km · ~20 min'],
+                  ['Nearest Beach', '7.6 km · ~15 min'],
                   ['Main Road & Market', 'Walking distance'],
-                  ['City Centre', '~15 min'],
+                  ['City Centre', '3.7 km · ~10 min'],
                 ].map(([place, time]) => (
                   <div
                     key={place}
-                    className="flex items-center justify-between gap-2 p-2.5 rounded-xl"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 p-2.5 rounded-xl"
                     style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
                   >
-                    <span className="truncate" style={{ color: 'var(--ink-muted)' }}>{place}</span>
-                    <span className="font-semibold flex-shrink-0">{time}</span>
+                    <span className="text-xs sm:text-sm leading-tight sm:truncate" style={{ color: 'var(--ink-muted)' }}>{place}</span>
+                    <span className="font-semibold text-[13px] sm:text-sm leading-tight sm:flex-shrink-0">{time}</span>
                   </div>
                 ))}
               </div>
@@ -281,13 +298,13 @@ export default async function LandingPage() {
           <div id="reviews" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Guest Reviews</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Guest Reviews</h2>
             </div>
             <div
               className="p-6 rounded-2xl shadow-sm text-center space-y-3"
               style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
             >
-              <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
+              <p className="text-base" style={{ color: 'var(--ink)' }}>
                 We are gathering our first verified reviews. In the meantime, reach out on{' '}
                 <a href={whatsappUrl} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>WhatsApp</a>{' '}
                 and we will be happy to connect you with past guests.
@@ -295,73 +312,140 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* Cancellation Policy */}
-          <div
-            id="cancellation"
-            className="scroll-mt-24 p-6 sm:p-8 rounded-3xl shadow-sm space-y-5"
-            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-          >
+          {/* Cancellation Policy — heading sits above the card, matching Guest
+              Reviews and every other section. The card itself is the disclosure. */}
+          <div id="cancellation" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Cancellation Policy</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Cancellation Policy</h2>
             </div>
-            <div className="space-y-3">
-              {[
-                { icon: Check,         color: 'var(--ok)',    bg: 'rgba(46,125,91,0.07)',  border: 'rgba(46,125,91,0.2)',
-                  title: 'Full Refund',    body: '30+ days before check-in: 90% refund.' },
-                { icon: AlertTriangle, color: 'var(--warn)',  bg: 'rgba(169,112,26,0.07)', border: 'rgba(169,112,26,0.2)',
-                  title: 'Partial Refund', body: '15 to 30 days before check-in: 50% refund.' },
-                { icon: XCircle,       color: 'var(--error)', bg: 'rgba(179,38,30,0.07)',  border: 'rgba(179,38,30,0.2)',
-                  title: 'No Refund',      body: 'Less than 15 days before check-in: no refund.' },
-              ].map(({ icon: Icon, color, bg, border, title, body }) => (
-                <div
-                  key={title}
-                  className="flex items-start gap-3 p-4 rounded-2xl"
-                  style={{ backgroundColor: bg, border: `1px solid ${border}` }}
-                >
-                  <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color }} aria-hidden="true" />
-                  <div>
-                    <p className="text-base font-bold" style={{ color }}>{title}</p>
-                    <p className="text-sm mt-0.5" style={{ color: 'var(--ink-muted)' }}>{body}</p>
+            {/* The collapsed one-liner lives inside <summary>: a closed <details>
+                renders nothing but its summary, so anything after it would vanish. */}
+            {/* The refund tiers ARE the policy, so they live in the collapsed
+                state. Previously the summary paraphrased the same three numbers
+                the expanded panel then repeated, so opening the card added colour
+                but no information and the chevron read as decoration. Now the
+                disclosure holds only what the summary genuinely omits: deposit
+                timing, refund method, inspection terms. */}
+            <div
+              className="p-5 sm:p-6 rounded-3xl shadow-sm"
+              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
+            >
+              {/* One "refund" instead of three: the word belonged to the card, not
+                  to each tile, where it was repeated under a heading that already
+                  said Cancellation Policy. */}
+              <p className="text-sm lg:text-[16px] font-semibold mb-3" style={{ color: 'var(--ink)' }}>
+                Refund if you cancel
+              </p>
+
+              {/* Label above value, matching the Villa Rules tiles directly below:
+                  the two cards carry the same kind of content and previously used
+                  opposite structures. The window is also what a guest scans for
+                  first ("which bucket am I in?"), so it leads.
+                  Boundaries are exclusive — "30 or more" and "15 to 30" both used
+                  to claim day 30, so a guest cancelling exactly 30 days out could
+                  read either 90% or 50%. Day 30 pays 90%. */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { color: 'var(--ok)',    bg: 'rgba(46,125,91,0.07)',  border: 'rgba(46,125,91,0.22)',
+                    when: '30 or more days before', amount: '90%' },
+                  { color: 'var(--warn)',  bg: 'rgba(169,112,26,0.07)', border: 'rgba(169,112,26,0.22)',
+                    when: '15 to 29 days before',   amount: '50%' },
+                  { color: 'var(--ink-muted)', bg: 'var(--paper-sunk)', border: 'var(--border-subtle)',
+                    when: 'Under 15 days before',   amount: '0%'  },
+                ].map(({ color, bg, border, when, amount }) => (
+                  <div
+                    key={when}
+                    className="p-4 rounded-2xl text-center"
+                    style={{ backgroundColor: bg, border: `1px solid ${border}` }}
+                  >
+                    <p className="text-[11px] font-bold uppercase tracking-[1px]" style={{ color: 'var(--ink-muted)' }}>
+                      {when} check-in
+                    </p>
+                    <p className="text-xl lg:text-2xl font-black mt-1.5 leading-none" style={{ color }}>
+                      {amount}
+                    </p>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+
+              <details className="group mt-4 text-center">
+                <summary
+                  className="cursor-pointer list-none select-none inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm lg:text-[15px] font-semibold transition-colors hover:bg-[var(--paper-sunk)]"
+                  style={{ color: 'var(--maroon)', border: '1px solid var(--border-medium)' }}
+                >
+                  Deposit and refund terms
+                  <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" aria-hidden="true" />
+                </summary>
+                <p className="text-sm lg:text-[15px] pt-3 leading-relaxed text-left" style={{ color: 'var(--ink-muted)' }}>
+                  Security deposit (if any) is refunded within 5 working days of check-out, subject to property inspection. Refunds are processed to the original payment method.
+                </p>
+              </details>
             </div>
-            <p className="text-sm" style={{ color: 'var(--ink-faint)' }}>
-              Security deposit (if any) is refunded within 5 working days of check-out, subject to property inspection. Refunds are processed to the original payment method.
-            </p>
           </div>
 
-          {/* House Rules */}
-          <div
-            id="policies"
-            className="scroll-mt-24 p-6 sm:p-8 rounded-3xl shadow-sm space-y-4"
-            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-          >
+          {/* Villa Rules — heading above the card, same as every other section. */}
+          <div id="policies" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>House Rules</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Villa Rules</h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              {[
-                `Check-in: ${property.check_in_time} · Check-out: ${property.check_out_time}`,
-                'Government photo ID required at check-in for all adults',
-                'Quiet hours: 11 PM to 7 AM',
-                'No smoking indoors. Designated outdoor area available.',
-                'No pets',
-                'No outside guests without prior written approval',
-                'Events and celebrations require advance notice',
-                `Maximum occupancy: ${property.max_occupancy} guests`,
-              ].map((rule) => (
-                <div
-                  key={rule}
-                  className="flex items-center gap-2.5 p-2.5 rounded-xl"
-                  style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
+            {/* The four most-asked facts are always visible as labelled values;
+                the disclosure carries only the rules those four do not already
+                answer, so opening it earns its click. */}
+            <div
+              className="p-5 sm:p-6 rounded-3xl shadow-sm"
+              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
+            >
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {[
+                  ['Check-in',    `From ${formatTime12(property.check_in_time)}`],
+                  ['Check-out',   `By ${formatTime12(property.check_out_time)}`],
+                  ['Quiet hours', '11 PM to 7 AM'],
+                  ['Max guests',  `${property.max_occupancy}`],
+                ].map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="p-3.5 rounded-2xl text-center"
+                    style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
+                  >
+                    {/* --ink-faint measured 2.71:1 on --paper-sunk at 11px, well
+                        under the 4.5:1 AA floor. --ink-muted is 5.41:1. */}
+                    <p className="text-[11px] font-bold uppercase tracking-[1px]" style={{ color: 'var(--ink-muted)' }}>
+                      {label}
+                    </p>
+                    <p className="text-base lg:text-[17px] font-bold mt-1" style={{ color: 'var(--ink)' }}>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <details className="group mt-4 text-center">
+                <summary
+                  className="cursor-pointer list-none select-none inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm lg:text-[15px] font-semibold transition-colors hover:bg-[var(--paper-sunk)]"
+                  style={{ color: 'var(--maroon)', border: '1px solid var(--border-medium)' }}
                 >
-                  <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-                  <span>{rule}</span>
+                  All villa rules
+                  <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" aria-hidden="true" />
+                </summary>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm lg:text-[15px] pt-3 text-left">
+                  {[
+                    'Government photo ID required at check-in for all adults',
+                    'No smoking indoors. Designated outdoor area available.',
+                    'No pets',
+                    'No outside guests without prior written approval',
+                    'Events and celebrations require advance notice',
+                  ].map((rule) => (
+                    <div
+                      key={rule}
+                      className="flex items-start gap-2.5 p-2.5 rounded-xl"
+                      style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
+                    >
+                      <span className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
+                      <span>{rule}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </details>
             </div>
           </div>
 
@@ -369,10 +453,10 @@ export default async function LandingPage() {
           <div id="faq" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Frequently Asked Questions</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Frequently Asked Questions</h2>
             </div>
             <div className="space-y-2">
-              {faqs.map((faq) => (
+              {faqs.slice(0, 4).map((faq) => (
                 <details
                   key={faq.id}
                   className="rounded-2xl shadow-sm group"
@@ -394,6 +478,20 @@ export default async function LandingPage() {
                 </details>
               ))}
             </div>
+            {faqs.length > 4 && (
+              <Link
+                href="/stay-guide#faq"
+                className="flex items-center justify-center gap-2 p-4 rounded-2xl text-sm font-bold transition-colors"
+                style={{
+                  color: 'var(--maroon)',
+                  backgroundColor: 'var(--surface)',
+                  border: '1px solid var(--border-medium)',
+                }}
+              >
+                See all {faqs.length} questions
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
+            )}
           </div>
 
           {/* Contact strip */}
@@ -444,11 +542,11 @@ export default async function LandingPage() {
             >
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                <span>Check-in from <strong style={{ color: 'var(--ink)' }}>{property.check_in_time}</strong></span>
+                <span>Check-in from <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_in_time)}</strong></span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                <span>Check-out by <strong style={{ color: 'var(--ink)' }}>{property.check_out_time}</strong></span>
+                <span>Check-out by <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_out_time)}</strong></span>
               </div>
             </div>
           </div>
@@ -456,7 +554,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Mobile sticky booking bar ─────────────────── */}
-      <div className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t"
+      <div id="mobile-cta-bar" className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t"
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center gap-3 px-4 py-3">
           <a
@@ -464,20 +562,19 @@ export default async function LandingPage() {
             target="_blank"
             rel="noopener noreferrer"
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold"
-            style={{ backgroundColor: 'rgba(37,211,102,0.1)', color: '#1a9e55', border: '1px solid rgba(37,211,102,0.3)' }}
+            style={{ backgroundColor: 'rgba(37,211,102,0.1)', color: 'var(--wa-on-light)', border: '1px solid rgba(37,211,102,0.3)' }}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
             </svg>
             WhatsApp
           </a>
-          <Link
-            href="/book"
+          <BookNowLink
             className="flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-bold text-white"
             style={{ backgroundColor: 'var(--maroon)' }}
           >
             Book Now
-          </Link>
+          </BookNowLink>
         </div>
       </div>
 

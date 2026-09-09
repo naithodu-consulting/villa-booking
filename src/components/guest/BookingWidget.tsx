@@ -5,6 +5,7 @@ import { Property, PricingRule, PricingBreakdown } from '@/types';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
+import { todayISO, addDaysISO } from '@/lib/format';
 
 interface BookingWidgetProps {
   property: Property;
@@ -17,15 +18,12 @@ function inr(paise: number): string {
 }
 
 export default function BookingWidget({ property, pricingRules }: BookingWidgetProps) {
-  const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
-  const defaultIn = new Date(today);
-  defaultIn.setDate(today.getDate() + 3);
-  const defaultOut = new Date(today);
-  defaultOut.setDate(today.getDate() + 5);
+  // Calendar dates at the property, not UTC instants: toISOString() returns
+  // yesterday in India between 00:00 and 05:30 IST.
+  const todayStr = todayISO();
 
-  const [checkIn, setCheckIn] = useState<string>(defaultIn.toISOString().split('T')[0]);
-  const [checkOut, setCheckOut] = useState<string>(defaultOut.toISOString().split('T')[0]);
+  const [checkIn, setCheckIn] = useState<string>(addDaysISO(todayStr, 3));
+  const [checkOut, setCheckOut] = useState<string>(addDaysISO(todayStr, 5));
   const [adults, setAdults] = useState<number>(2);
   const [children, setChildren] = useState<number>(0);
   const [showGuestMenu, setShowGuestMenu] = useState(false);
@@ -85,22 +83,20 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
   return (
     <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg overflow-hidden">
-      {/* Dark crimson header — rate & guarantee */}
-      <div className="bg-[#562424] p-5">
-        <div className="flex items-baseline justify-between">
-          <div>
-            <span className="text-[11px] font-bold tracking-widest text-[#C9944A] uppercase block">
-              Direct Lowest Guarantee
-            </span>
-            <div className="flex items-baseline gap-1 mt-0.5">
-              <span className="text-2xl font-black text-white">₹{baseRateDisplay}</span>
-              <span className="text-white/50 text-xs font-semibold">/ night</span>
-            </div>
-          </div>
-          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[rgba(30,138,122,0.2)] text-[#5DB8AC] border border-[rgba(30,138,122,0.3)]">
-            Direct Booking
-          </span>
+      {/* Header carries one message: the nightly rate.
+          Was --maroon (#5A2626) while the site header and footer are --maroon-deep
+          (#3C1717), so the page showed three different maroons; now they agree.
+          The "Direct Booking" pill is gone: it made the same claim as the
+          guarantee line beside it, and its rgba(30,138,122,0.2) fill composited
+          over maroon to #4E3A37, a muddy brown-grey rather than the intended teal. */}
+      <div className="bg-[var(--maroon-deep)] p-5">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-3xl font-black text-white leading-none">₹{baseRateDisplay}</span>
+          <span className="text-white/60 text-sm font-semibold">/ night</span>
         </div>
+        <p className="text-[13px] font-semibold text-[var(--brass-light)] mt-2">
+          Lowest rate guaranteed &middot; No platform fees
+        </p>
       </div>
 
       {/* White body — form */}
@@ -109,7 +105,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
           {/* Date Inputs */}
           <div
             className="space-y-2 p-3 rounded-xl border"
-            style={{ backgroundColor: '#F0EBE0', borderColor: 'rgba(0,0,0,0.09)' }}
+            style={{ backgroundColor: 'var(--paper-sunk)', borderColor: 'rgba(0,0,0,0.09)' }}
           >
             <DatePicker
               id="widget-checkin"
@@ -118,11 +114,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               min={todayStr}
               onChange={(v) => {
                 setCheckIn(v);
-                if (v >= checkOut) {
-                  const next = new Date(v);
-                  next.setDate(next.getDate() + 1);
-                  setCheckOut(next.toISOString().split('T')[0]);
-                }
+                if (v >= checkOut) setCheckOut(addDaysISO(v, 1));
               }}
               clearable={false}
               compact
@@ -142,7 +134,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
           {/* Guests Selector */}
           <div className="relative" ref={guestMenuRef}>
-            <label className="text-xs uppercase font-bold text-[#6B7A8A] block mb-1">
+            <label className="text-xs uppercase font-bold text-[var(--ink-muted)] block mb-1">
               Guests & Capacity
             </label>
             <button
@@ -150,16 +142,16 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               aria-expanded={showGuestMenu}
               aria-haspopup="true"
               onClick={() => setShowGuestMenu((v) => !v)}
-              className="w-full bg-[#FFFCF0] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 rounded-xl text-left flex items-center justify-between text-[#1A1208] text-sm font-semibold hover:border-[rgba(0,0,0,0.2)] transition-colors"
+              className="w-full bg-[var(--cream)] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 rounded-xl text-left flex items-center justify-between text-[var(--ink)] text-sm font-semibold hover:border-[rgba(0,0,0,0.2)] transition-colors"
             >
               <div className="flex items-center gap-2">
-                <Users className="w-3.5 h-3.5 text-[#A87432]" />
+                <Users className="w-3.5 h-3.5 text-[var(--brass)]" />
                 <span>
                   {adults} Adult{adults !== 1 ? 's' : ''}
                   {children > 0 ? `, ${children} Child${children !== 1 ? 'ren' : ''}` : ''}
                 </span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-[#6B7A8A] transition-transform ${showGuestMenu ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-[var(--ink-muted)] transition-transform ${showGuestMenu ? 'rotate-180' : ''}`} />
             </button>
 
             {showGuestMenu && (
@@ -171,15 +163,15 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                 {/* Adults */}
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-[#1A1208]">Adults</p>
-                    <p className="text-xs text-[#6B7A8A]">Ages 13+</p>
+                    <p className="text-sm font-bold text-[var(--ink)]">Adults</p>
+                    <p className="text-xs text-[var(--ink-muted)]">Ages 13+</p>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <button
                       type="button"
                       aria-label="Remove one adult"
                       onClick={() => setAdults(Math.max(1, adults - 1))}
-                      className="w-7 h-7 rounded-lg bg-[#F0EBE0] text-[#1A1208] font-bold hover:bg-[#E8E2D5] text-sm flex items-center justify-center disabled:opacity-40"
+                      className="w-7 h-7 rounded-lg bg-[var(--paper-sunk)] text-[var(--ink)] font-bold hover:bg-[var(--paper-sunk-hover)] text-sm flex items-center justify-center disabled:opacity-40"
                       disabled={adults <= 1}
                     >
                       −
@@ -189,7 +181,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                       type="button"
                       aria-label="Add one adult"
                       onClick={() => setAdults(Math.min(maxAdults, adults + 1))}
-                      className="w-7 h-7 rounded-lg bg-[#F0EBE0] text-[#1A1208] font-bold hover:bg-[#E8E2D5] text-sm flex items-center justify-center disabled:opacity-40"
+                      className="w-7 h-7 rounded-lg bg-[var(--paper-sunk)] text-[var(--ink)] font-bold hover:bg-[var(--paper-sunk-hover)] text-sm flex items-center justify-center disabled:opacity-40"
                       disabled={adults >= maxAdults}
                     >
                       +
@@ -200,15 +192,15 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                 {/* Children */}
                 <div className="flex items-center justify-between border-t border-[rgba(0,0,0,0.09)] pt-2.5">
                   <div>
-                    <p className="text-sm font-bold text-[#1A1208]">Children</p>
-                    <p className="text-xs text-[#6B7A8A]">Ages 5 to 12</p>
+                    <p className="text-sm font-bold text-[var(--ink)]">Children</p>
+                    <p className="text-xs text-[var(--ink-muted)]">Ages 5 to 12</p>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <button
                       type="button"
                       aria-label="Remove one child"
                       onClick={() => setChildren(Math.max(0, children - 1))}
-                      className="w-7 h-7 rounded-lg bg-[#F0EBE0] text-[#1A1208] font-bold hover:bg-[#E8E2D5] text-sm flex items-center justify-center disabled:opacity-40"
+                      className="w-7 h-7 rounded-lg bg-[var(--paper-sunk)] text-[var(--ink)] font-bold hover:bg-[var(--paper-sunk-hover)] text-sm flex items-center justify-center disabled:opacity-40"
                       disabled={children <= 0}
                     >
                       −
@@ -218,7 +210,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                       type="button"
                       aria-label="Add one child"
                       onClick={() => setChildren(Math.min(maxChildren, children + 1))}
-                      className="w-7 h-7 rounded-lg bg-[#F0EBE0] text-[#1A1208] font-bold hover:bg-[#E8E2D5] text-sm flex items-center justify-center disabled:opacity-40"
+                      className="w-7 h-7 rounded-lg bg-[var(--paper-sunk)] text-[var(--ink)] font-bold hover:bg-[var(--paper-sunk-hover)] text-sm flex items-center justify-center disabled:opacity-40"
                       disabled={children >= maxChildren}
                     >
                       +
@@ -226,7 +218,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                   </div>
                 </div>
 
-                <p className="text-xs text-[#A87432] pt-2 border-t border-[rgba(0,0,0,0.09)]">
+                <p className="text-xs text-[var(--brass)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
                   Base rate includes up to {property.base_occupancy} guests.
                   ₹{extraRateDisplay}/night per additional guest.
                 </p>
@@ -242,17 +234,17 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
           ) : breakdown ? (
             <div className="space-y-1.5 py-2.5 border-t border-b border-[rgba(0,0,0,0.09)] text-sm">
               {breakdown.nightly_details.every(d => d.rate === breakdown!.nightly_details[0].rate) ? (
-                <div className="flex justify-between text-[#4A5568]">
+                <div className="flex justify-between text-[var(--ink-muted)]">
                   <span>₹{inr(breakdown.nightly_details[0].rate)} × {breakdown.num_nights} nights</span>
                   <span className="tabular-nums">₹{inr(breakdown.base_amount)}</span>
                 </div>
               ) : (
                 <>
                   {breakdown.nightly_details.map((d, i) => (
-                    <div key={i} className="flex justify-between text-[#4A5568]">
-                      <span className="text-[#6B7A8A] flex items-center gap-1">
+                    <div key={i} className="flex justify-between text-[var(--ink-muted)]">
+                      <span className="text-[var(--ink-muted)] flex items-center gap-1">
                         {new Date(d.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                        {d.is_weekend && <span className="text-[#A87432]/70 text-[10px] bg-[rgba(168,116,50,0.08)] px-1 rounded">wknd</span>}
+                        {d.is_weekend && <span className="text-[color-mix(in_srgb,var(--brass)_70%,transparent)] text-[10px] bg-[rgba(168,116,50,0.08)] px-1 rounded">wknd</span>}
                       </span>
                       <span className="tabular-nums">₹{inr(d.rate)}</span>
                     </div>
@@ -261,23 +253,23 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               )}
 
               {breakdown.extra_guest_amount > 0 && (
-                <div className="flex justify-between text-[#4A5568]">
+                <div className="flex justify-between text-[var(--ink-muted)]">
                   <span>Extra guests ({breakdown.extra_guests_count})</span>
                   <span className="tabular-nums">₹{inr(breakdown.extra_guest_amount)}</span>
                 </div>
               )}
 
-              <div className="flex justify-between text-[#4A5568]">
+              <div className="flex justify-between text-[var(--ink-muted)]">
                 <span className="flex items-center gap-1">
                   GST (18%)
-                  <Info className="w-3 h-3 text-[#8A9AAA]" aria-label="Goods & Services Tax applicable on accommodation above ₹7,500/night" />
+                  <Info className="w-3 h-3 text-[var(--ink-muted)]" aria-label="Goods & Services Tax applicable on accommodation above ₹7,500/night" />
                 </span>
                 <span className="tabular-nums">₹{inr(breakdown.tax_amount)}</span>
               </div>
 
-              <div className="flex justify-between text-sm font-black text-[#1A1208] pt-2 border-t border-[rgba(0,0,0,0.09)]">
+              <div className="flex justify-between text-sm font-black text-[var(--ink)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
                 <span>Total Payable</span>
-                <span className="text-[#A87432] font-extrabold text-sm tabular-nums">
+                <span className="text-[var(--brass)] font-extrabold text-sm tabular-nums">
                   ₹{inr(breakdown.total_amount)}
                 </span>
               </div>
@@ -292,11 +284,11 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
             {isSubmitting ? (
               <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Securing Dates…</>
             ) : (
-              <><Lock className="w-3.5 h-3.5" /> Reserve Direct Now</>
+              <><Lock className="w-3.5 h-3.5" /> Reserve Now</>
             )}
           </button>
 
-          <p className="text-center text-xs text-[#6B7A8A]">
+          <p className="text-center text-xs text-[var(--ink-muted)]">
             No platform fees · Best rate guaranteed
           </p>
         </form>

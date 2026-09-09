@@ -19,6 +19,7 @@ export interface Property {
   check_in_time: string;
   check_out_time: string;
   is_active: boolean;
+  bedroom_count?: number;
   whatsapp_number?: string;
 }
 
@@ -102,6 +103,7 @@ export interface PropertyAmenity {
   label: string;
   icon?: string;
   is_available: boolean;
+  is_featured: boolean;
   display_order: number;
 }
 

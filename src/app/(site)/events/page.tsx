@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Users, Music, Briefcase, Heart, Check } from 'lucide-react';
 import { getProperty } from '@/lib/data';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 export const metadata: Metadata = {
   title: 'Events & Celebrations',
@@ -36,7 +37,7 @@ const EVENT_TYPES = [
   {
     icon: Music,
     title: 'Milestone Celebrations',
-    body: 'Birthdays, anniversaries, graduations — celebrate the moments that matter in a private villa, away from crowded venues.',
+    body: 'Birthdays, anniversaries, graduations: celebrate the moments that matter in a private villa, away from crowded venues.',
   },
   {
     icon: Briefcase,
@@ -79,7 +80,7 @@ export default async function EventsPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-10 sm:py-14"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-light)' }}>
@@ -98,7 +99,7 @@ export default async function EventsPage() {
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-wa inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
+            className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
           >
             <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
           </a>
@@ -111,7 +112,7 @@ export default async function EventsPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               What We Host
             </h2>
           </div>
@@ -139,7 +140,7 @@ export default async function EventsPage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               What's Included
             </h2>
           </div>
@@ -187,7 +188,7 @@ export default async function EventsPage() {
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-2xl sm:text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
             Planning something special?
           </h2>
           <p className="text-white/70 text-base max-w-sm mx-auto">
@@ -198,16 +199,15 @@ export default async function EventsPage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-wa flex items-center gap-2 px-8 py-3.5 rounded-xl"
+              className="btn-frosted flex items-center gap-2 px-8 py-3.5 rounded-xl"
             >
               <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
             </a>
-            <Link
-              href="/book"
-              className="btn-frosted px-6 py-3.5 rounded-xl"
+            <BookNowLink
+              className="btn-brass-filled px-6 py-3.5 rounded-xl"
             >
               Check Availability
-            </Link>
+            </BookNowLink>
           </div>
         </section>
 

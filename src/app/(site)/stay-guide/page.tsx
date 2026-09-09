@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ChevronDown, Clock, Key, Luggage, Wifi, Car, ShieldCheck, Info } from 'lucide-react';
 import { getProperty, getFAQs } from '@/lib/data';
+import { formatTime12, formatPhone } from '@/lib/format';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 export const metadata: Metadata = {
   title: 'Stay Guide',
@@ -10,7 +12,7 @@ export const metadata: Metadata = {
     'Everything you need for your stay at Villa 19, Mangalore. Check-in, parking, WiFi, house rules, and answers to common questions.',
   openGraph: {
     title: 'Stay Guide | Villa 19 by Habbaa',
-    description: 'Check-in guide, house rules, FAQs, and emergency contacts for your stay at Villa 19, Mangalore.',
+    description: 'Check-in guide, villa rules, FAQs, and emergency contacts for your stay at Villa 19, Mangalore.',
     url: 'https://habbaa.in/stay-guide',
   },
   twitter: {
@@ -31,8 +33,8 @@ export default async function StayGuidePage() {
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number ?? '919876543210';
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I have a question about my stay at ${property?.name ?? 'Villa 19'}`)}`;
-  const checkIn  = property?.check_in_time  ?? '14:00';
-  const checkOut = property?.check_out_time ?? '11:00';
+  const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
+  const checkOut = formatTime12(property?.check_out_time ?? '11:00');
 
   const faqs = property ? await getFAQs(property.id) : [];
   const faqGroups = faqs.reduce<Record<string, typeof faqs>>((acc, f) => {
@@ -93,7 +95,7 @@ export default async function StayGuidePage() {
     },
     {
       icon: ShieldCheck,
-      title: 'House Rules',
+      title: 'Villa Rules',
       items: [
         `Maximum occupancy: ${property?.max_occupancy ?? 12} guests`,
         'Quiet hours: 11 PM to 7 AM',
@@ -111,7 +113,7 @@ export default async function StayGuidePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-10 sm:py-14"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-light)' }}>
@@ -154,7 +156,7 @@ export default async function StayGuidePage() {
         <section className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Before & During Your Stay
             </h2>
           </div>
@@ -195,7 +197,7 @@ export default async function StayGuidePage() {
           <h2 className="text-base font-bold" style={{ color: 'var(--maroon)' }}>Emergency Contacts</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             {[
-              { label: 'Your Host (WhatsApp)', value: `+${whatsappNumber}` },
+              { label: 'Your Host (WhatsApp)', value: formatPhone(whatsappNumber) },
               { label: 'Police',               value: '100' },
               { label: 'Ambulance',            value: '108' },
               { label: 'Nearest Hospital',     value: 'A.J. Hospital, Mangalore' },
@@ -214,10 +216,10 @@ export default async function StayGuidePage() {
 
         {/* ── FAQ ──────────────────────────────────────────── */}
         {Object.keys(faqGroups).length > 0 && (
-          <section className="space-y-6">
+          <section id="faq" className="scroll-mt-24 space-y-6">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
                 Frequently Asked Questions
               </h2>
             </div>
@@ -273,16 +275,15 @@ export default async function StayGuidePage() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-wa flex items-center gap-2 px-6 py-3 rounded-xl"
+              className="btn-frosted flex items-center gap-2 px-6 py-3 rounded-xl"
             >
               <WhatsAppIcon className="w-4 h-4" /> WhatsApp Us
             </a>
-            <Link
-              href="/book"
+            <BookNowLink
               className="btn-frosted px-6 py-3 rounded-xl"
             >
               Book Now
-            </Link>
+            </BookNowLink>
           </div>
         </div>
 

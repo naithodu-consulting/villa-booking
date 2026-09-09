@@ -5,6 +5,8 @@
   /* Ground */
   --paper:        #FBF8F3;
   --paper-sunk:   #F2EDE4;
+  --paper-sunk-hover: #E8E2D5;  /* hover state for sunk controls */
+  --cream:        #FFFCF0;      /* warm attention ground: announcement bar, inputs */
   --surface:      #FFFFFF;
 
   /* Brand */
@@ -21,6 +23,15 @@
   --ink-muted:    #6E6257;
   --ink-faint:    #9A8F84;
 
+  /* WhatsApp — brand green, plus the two tints that actually pass contrast.
+     One value cannot serve both grounds, hence three. */
+  --wa:           #25D366;  /* brand fill */
+  --wa-on-light:  #1A9E55;  /* text/icon on a light ground */
+  --wa-on-dark:   #3DDC84;  /* icon on maroon */
+
+  /* Verification badge accent */
+  --accent-verify: #5DB8AC;
+
   /* Functional */
   --ok:           #2E7D5B;
   --warn:         #A9701A;
@@ -32,10 +43,17 @@
   --border-brass:   rgba(168, 116, 50, 0.22);
 
   /* Typography
-     --font-sans and --font-display are injected by Next.js via className on <html>.
-     Reference with fallbacks here; do NOT duplicate fallbacks at usage sites. */
-  --font-display: var(--font-display, 'Cormorant Garamond', 'Georgia', serif);
-  --font-brand:   var(--font-brand, 'Cinzel', 'Trajan Pro', serif);
+     next/font injects --font-sans (Nunito Sans), --font-display (Cormorant
+     Garamond) and --font-brand (Cinzel) onto <html> via className in layout.tsx.
+
+     Do NOT redeclare --font-display or --font-brand here. Writing
+     `--font-display: var(--font-display, ...)` makes the property reference
+     itself on the same element, which CSS treats as a cycle: the declaration is
+     invalid at computed-value time and the variable resolves to nothing. Both
+     faces were being downloaded and then silently dropped, so every heading and
+     the wordmark fell back to Nunito Sans.
+
+     --font-body is a genuine alias (different name), so it is safe. */
   --font-body:    var(--font-sans, 'Nunito Sans', sans-serif);
 
   /* Type scale (fluid via clamp) — sized to match Ama's vw-based scale at 1440px */
@@ -50,6 +68,10 @@
 
   /* Radius */
   --radius-sm:   2px;
+  /* Buttons sit inside rounded-xl inputs and rounded-2xl cards, so a 2px CTA
+     read as a different design language. --radius-sm is kept for anything that
+     genuinely wants a hard corner. */
+  --radius-btn:  0.75rem;   /* = Tailwind rounded-xl, matches inputs and chips */
   --radius-card: 12px;
 
   /* Motion */
@@ -205,7 +227,7 @@
     font-size: var(--text-ui);       /* 13.5px = Ama CTA */
     letter-spacing: 1.2px;         /* 1.2px/13.5px = Ama exact */
     text-transform: uppercase;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     border: none;
     cursor: pointer;
     transition: background 0.2s var(--ease-out-expo),
@@ -239,7 +261,7 @@
     font-size: var(--text-ui);
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     border: 1px solid var(--border-medium);
     cursor: pointer;
     transition: background 0.2s var(--ease-out-expo),
@@ -264,7 +286,7 @@
     font-size: var(--text-ui);
     letter-spacing: 1.2px;
     text-transform: uppercase;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-btn);
     border: 1px solid var(--maroon);
     cursor: pointer;
     transition: background 0.2s var(--ease-out-expo);
@@ -379,6 +401,50 @@
   .btn-brass-filled:active {
     transform: scale(0.98);
   }
+
+  /* Centre modal dialogs.
+     The UA stylesheet centres a showModal() dialog with `margin: auto` against
+     `inset: 0`, but Tailwind's preflight resets margin to 0 on every element,
+     which strips that and pins the dialog to the top-left corner. Restoring it
+     here fixes every native dialog at once rather than per component. */
+  dialog:modal {
+    margin: auto;
+    max-height: calc(100dvh - 2rem);
+  }
+
+  /* The amenities dialog is a bottom sheet below sm: rounded-t-3xl gives it top
+     corners only, which only reads correctly when it is anchored to the bottom
+     edge. Auto top margin pushes it down; zero elsewhere keeps it full-bleed. */
+  @media (max-width: 639px) {
+    .amenity-sheet {
+      /* Only margin and max-height here: width is already set by the w-full /
+         max-w-lg utilities on the element, and a utility beats this layer, so
+         overriding it from here would silently do nothing.
+         auto top pushes the sheet down, auto sides keep it centred. */
+      margin: auto auto 0;
+      max-height: 85dvh;
+    }
+  }
+
+  /* Lock background scroll while any modal <dialog> is open. showModal() makes
+     the page inert but does not stop it scrolling. Keyed off the dialog's own
+     state so it cannot desync — ESC, backdrop and close button all "just work". */
+  html:has(dialog[open]) { overflow: hidden; }
+
+  /* Clear the fixed mobile CTA bar only on pages that actually render it.
+     The bar is homepage-only; reserving its height unconditionally left ~96px
+     of empty footer under the copyright on every other page.
+     Scoped below md because the bar itself is md:hidden. An unscoped rule
+     outranks Tailwind's lg:pb-14 (an id selector beats a class), which left
+     the homepage footer 1rem shorter than every other page on desktop. */
+  @media (max-width: 767px) {
+    body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem; }
+  }
+
+  /* Horizontal shelves: hide the scrollbar, keep the scrolling.
+     The peeking next card is the affordance, not the bar. */
+  .shelf-x::-webkit-scrollbar { display: none; }
+  .shelf-x { scrollbar-width: none; -ms-overflow-style: none; }
 
   /* Focus ring */
   :focus-visible {

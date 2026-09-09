@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getProperty, getImages } from '@/lib/data';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 export const metadata: Metadata = {
   title: 'Gallery',
@@ -60,7 +61,7 @@ export default async function GalleryPage() {
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-light)' }}>
@@ -110,22 +111,38 @@ export default async function GalleryPage() {
                 >
                   {CATEGORY_LABEL[category] ?? category}
                 </h2>
+                {/* A category whose count does not fill its last row left a lone
+                    tile hugging the left with half the row empty beside it — the
+                    grid is 2-up on mobile and 3-up at sm+, so "leftover" differs
+                    per breakpoint. The orphans stretch to close the row instead. */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {imgs.map((img) => (
-                    <div
-                      key={img.id}
-                      className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
-                      style={{ border: '1px solid var(--border-subtle)' }}
-                    >
-                      <Image
-                        src={img.url}
-                        alt={img.alt_text}
-                        fill
-                        className="object-cover hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                      />
-                    </div>
-                  ))}
+                  {imgs.map((img, i) => {
+                    const isLast = i === imgs.length - 1;
+                    // Widen the final tile by whatever the last row is short by:
+                    // 2-up leaves at most 1 slot, 3-up can leave 1 or 2.
+                    const short2 = imgs.length % 2;                 // 0 or 1
+                    const short3 = imgs.length % 3;                 // 0, 1 or 2
+                    const span =
+                      (isLast && short2 === 1 ? 'col-span-2 ' : '') +
+                      (isLast && short3 === 1 ? 'sm:col-span-3 '
+                        : isLast && short3 === 2 ? 'sm:col-span-2 '
+                        : 'sm:col-span-1 ');
+                    return (
+                      <div
+                        key={img.id}
+                        className={`relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm ${span}`}
+                        style={{ border: '1px solid var(--border-subtle)' }}
+                      >
+                        <Image
+                          src={img.url}
+                          alt={img.alt_text}
+                          fill
+                          className="object-cover hover:scale-105 transition-transform duration-300"
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
             ))}
@@ -137,16 +154,15 @@ export default async function GalleryPage() {
           className="mt-12 p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-2xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
             Like what you see?
           </h2>
           <p className="text-white/70 text-base">Book directly. No platform fees, instant confirmation.</p>
-          <Link
-            href="/book"
+          <BookNowLink
             className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
           >
             Check Availability
-          </Link>
+          </BookNowLink>
         </div>
       </div>
     </div>

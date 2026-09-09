@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { getProperty } from '@/lib/data';
+import BookNowLink from '@/components/guest/BookNowLink';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -36,7 +37,7 @@ export default async function ReviewsPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
@@ -69,11 +70,11 @@ export default async function ReviewsPage() {
             ))}
           </div>
           <div>
-            <p className="text-lg font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <p className="text-xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Testimonials coming soon
             </p>
             <p className="text-sm mt-2 max-w-sm mx-auto leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-              We are gathering our first verified guest reviews. In the meantime, reach out on WhatsApp and we will connect you with past guests directly.
+              We are gathering our first verified guest reviews. In the meantime, message us on WhatsApp and we will answer any question about the villa directly.
             </p>
           </div>
           <a
@@ -82,7 +83,7 @@ export default async function ReviewsPage() {
             rel="noopener noreferrer"
             className="btn-wa-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl"
           >
-            <WhatsAppIcon className="w-4 h-4" /> Ask for References
+            <WhatsAppIcon className="w-4 h-4" /> Ask Us Anything
           </a>
         </div>
 
@@ -90,7 +91,7 @@ export default async function ReviewsPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Why Book With Confidence
             </h2>
           </div>
@@ -117,16 +118,15 @@ export default async function ReviewsPage() {
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-2xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
             Be among our first guests
           </h2>
           <p className="text-white/70 text-sm">Book now and help us build our review history.</p>
-          <Link
-            href="/book"
+          <BookNowLink
             className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
           >
             Check Availability
-          </Link>
+          </BookNowLink>
         </div>
 
       </div>

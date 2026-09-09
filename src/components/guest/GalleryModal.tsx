@@ -60,7 +60,7 @@ export default function GalleryModal({ images }: GalleryProps) {
   return (
     <div className="w-full">
       {/* Thumbnail Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 sm:rounded-2xl overflow-hidden shadow-2xl relative">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 rounded-2xl overflow-hidden shadow-lg relative">
         {/* Hero image */}
         <div
           className="col-span-2 md:col-span-2 md:row-span-2 relative h-72 sm:h-80 md:h-[520px] cursor-pointer group overflow-hidden"
