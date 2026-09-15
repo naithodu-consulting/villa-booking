@@ -12,10 +12,12 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
 - [x] Delete the admin surface.
 - [x] Decided 2026-09-15: **Ooruda Villa** blocks dates, takes phone bookings, edits rates and
       issues refunds for Villa 19, writing to *this* site's Supabase project.
-- [ ] Write down the contract Ooruda Villa must follow so the booking engine here stays correct:
-      `blocked_dates` ranges are half-open `[start_date, end_date)`; manual bookings must go
-      through `create_booking_atomic` (never a raw INSERT) so double-booking protection applies;
-      rates are integer paise.
+- [x] Contract written 2026-09-15: `docs/OORUDA_VILLA_INTEGRATION.md`. Share it with the Ooruda
+      Villa developers.
+- [ ] **Decide the seasonal rule end dates.** The engine excludes `end_date`, but Summer Holidays
+      (ends 05-31) and Diwali Peak (ends 10-21) look like they meant to include that night. Either
+      move each `end_date` forward a day or confirm the current pricing is intended.
+- [ ] Push migrations `00019` and `00020` to the remote database (`scripts/db-push.sh`).
 
 ## Channel manager / OTAs (decided 2026-09-15)
 - [x] **Timing: after launch.** Launch is direct-booking only; this site's DB stays the source of
@@ -70,6 +72,8 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
 - [ ] EnquiryForm "Send Enquiry" button — `enquiries` table missing from local Supabase; needs `supabase db reset` or manual CREATE TABLE on local
 - [ ] Mobile homepage booking widget: currently buried at bottom on mobile (sticky bar added as stopgap). Consider a dedicated /book landing optimised for mobile.
 - [ ] DatePicker: no keyboard arrow-key navigation within the calendar grid (ESC and click work; arrow nav would be ideal for a11y)
+- [x] Guest availability calendar: booked and blocked nights struck out in every date picker (2026-09-15).
+- [ ] 12-month "from ₹X" rate chart (Master Plan 7.4) not built; the calendar shows availability only.
 
 ## Email domain migration to habbaa.in (2026-09-09)
 The site now uses `hello@habbaa.in` everywhere in code and in `.env.local` /

@@ -6,6 +6,8 @@ import { calculateBookingPrice } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
+import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
+import { useUnavailableNights } from '@/components/guest/useUnavailableNights';
 
 interface BookingWidgetProps {
   property: Property;
@@ -29,6 +31,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   const [showGuestMenu, setShowGuestMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const guestMenuRef = useRef<HTMLDivElement>(null);
+  const unavailable = useUnavailableNights(property.id, todayStr);
 
   // Reset loading state on mount AND on bfcache restore.
   // useEffect([]) only runs on real mounts; bfcache restores the frozen React tree
@@ -65,6 +68,11 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   } catch (err: unknown) {
     const raw = err instanceof Error ? err.message : 'Invalid dates selected';
     errorMsg = raw.includes(':') ? raw.split(':').slice(1).join(':').trim() : raw;
+  }
+
+  if (breakdown && !isRangeAvailable(unavailable, checkIn, checkOut)) {
+    breakdown = null;
+    errorMsg = 'Some of those nights are already booked. Please choose different dates.';
   }
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -112,9 +120,10 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               label="Check-In"
               value={checkIn}
               min={todayStr}
+              isDateUnavailable={(iso) => unavailable.has(iso)}
               onChange={(v) => {
                 setCheckIn(v);
-                if (v >= checkOut) setCheckOut(addDaysISO(v, 1));
+                if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setCheckOut(addDaysISO(v, 1));
               }}
               clearable={false}
               compact
@@ -125,6 +134,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               label="Check-Out"
               value={checkOut}
               min={checkIn || todayStr}
+              max={latestCheckOut(unavailable, checkIn) ?? undefined}
               onChange={setCheckOut}
               clearable={false}
               compact

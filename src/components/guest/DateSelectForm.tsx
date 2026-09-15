@@ -4,9 +4,13 @@ import React, { useState } from 'react';
 
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
+import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
+import { useUnavailableNights } from '@/components/guest/useUnavailableNights';
 
 interface Props {
   maxOccupancy: number;
+  /** When given, booked and blocked nights are struck out and cannot be chosen. */
+  propertyId?: string;
   /** Receives the query string for /book, e.g. "checkIn=…&checkOut=…&adults=2&children=0". */
   onContinue: (query: string) => void;
 }
@@ -18,16 +22,19 @@ interface Props {
  * Dates are calendar dates at the property (see todayISO): using the UTC day
  * here would offer a check-in that has already passed between 00:00 and 05:30 IST.
  */
-export default function DateSelectForm({ maxOccupancy, onContinue }: Props) {
+export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }: Props) {
   const todayStr = todayISO();
   const [checkIn, setCheckIn] = useState(todayStr);
   const [checkOut, setCheckOut] = useState(addDaysISO(todayStr, 1));
   const [adults, setAdults] = useState(2);
+  const unavailable = useUnavailableNights(propertyId, todayStr);
+  const datesAvailable = isRangeAvailable(unavailable, checkIn, checkOut);
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        if (!datesAvailable) return;
         onContinue(`checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=0`);
       }}
       className="space-y-5"
@@ -42,9 +49,10 @@ export default function DateSelectForm({ maxOccupancy, onContinue }: Props) {
           value={checkIn}
           min={todayStr}
           clearable={false}
+          isDateUnavailable={(iso) => unavailable.has(iso)}
           onChange={(v) => {
             setCheckIn(v);
-            if (v >= checkOut) setCheckOut(addDaysISO(v, 1));
+            if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setCheckOut(addDaysISO(v, 1));
           }}
         />
         <DatePicker
@@ -52,6 +60,7 @@ export default function DateSelectForm({ maxOccupancy, onContinue }: Props) {
           label="Check-Out"
           value={checkOut}
           min={addDaysISO(checkIn, 1)}
+          max={latestCheckOut(unavailable, checkIn) ?? undefined}
           clearable={false}
           onChange={setCheckOut}
         />
@@ -93,7 +102,13 @@ export default function DateSelectForm({ maxOccupancy, onContinue }: Props) {
         </div>
       </div>
 
-      <button type="submit" className="btn-primary block w-full">
+      {!datesAvailable && (
+        <p role="alert" className="text-sm font-medium text-red-600">
+          Some of those nights are already booked. Please choose different dates.
+        </p>
+      )}
+
+      <button type="submit" disabled={!datesAvailable} className="btn-primary block w-full disabled:opacity-50">
         Continue
       </button>
     </form>

@@ -14,6 +14,8 @@ interface DatePickerProps {
   clearable?: boolean;
   dropdownAlign?: 'left' | 'right';
   compact?: boolean; // smaller trigger, used inside BookingWidget
+  /** Dates that exist in range but cannot be chosen (e.g. already booked). Rendered struck through. */
+  isDateUnavailable?: (iso: string) => boolean;
 }
 
 const MONTHS = [
@@ -44,6 +46,7 @@ export default function DatePicker({
   clearable = true,
   dropdownAlign = 'left',
   compact = false,
+  isDateUnavailable,
 }: DatePickerProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -103,12 +106,15 @@ export default function DatePicker({
     setIsOpen(false);
   }, [viewYear, viewMonth, onChange]);
 
+  const isDayUnavailable = (day: number) =>
+    !!isDateUnavailable?.(toIso(new Date(viewYear, viewMonth, day)));
+
   const isDayDisabled = (day: number) => {
     const d = new Date(viewYear, viewMonth, day);
     d.setHours(0, 0, 0, 0);
     if (d < minDate) return true;
     if (maxDate && d > maxDate) return true;
-    return false;
+    return isDayUnavailable(day);
   };
 
   const isDaySelected = (day: number) =>
@@ -271,6 +277,7 @@ export default function DatePicker({
 
             {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(day => {
               const disabled = isDayDisabled(day);
+              const unavailable = isDayUnavailable(day);
               const sel = isDaySelected(day);
               const isToday = isDayToday(day);
 
@@ -291,6 +298,7 @@ export default function DatePicker({
                     backgroundColor: sel ? 'var(--maroon)' : 'transparent',
                     color: sel ? 'white' : disabled ? 'var(--ink-faint)' : isToday ? 'var(--brass)' : 'var(--ink)',
                     opacity: disabled ? 0.38 : 1,
+                    textDecoration: unavailable ? 'line-through' : 'none',
                     transition: 'background-color 0.1s',
                     outline: 'none',
                     display: 'flex',
@@ -307,7 +315,7 @@ export default function DatePicker({
                       (e.currentTarget as HTMLElement).style.backgroundColor = 'transparent';
                     }
                   }}
-                  aria-label={`${day} ${MONTHS[viewMonth]} ${viewYear}${isToday ? ', today' : ''}${sel ? ', selected' : ''}`}
+                  aria-label={`${day} ${MONTHS[viewMonth]} ${viewYear}${isToday ? ', today' : ''}${sel ? ', selected' : ''}${unavailable ? ', unavailable' : ''}`}
                   aria-pressed={sel}
                 >
                   {day}

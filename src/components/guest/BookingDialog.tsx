@@ -22,7 +22,7 @@ export const OPEN_BOOKING_EVENT = 'villa19:open-booking';
  * ::backdrop pseudo-element for free. globals.css already locks page scroll via
  * html:has(dialog[open]).
  */
-export default function BookingDialog({ maxOccupancy }: { maxOccupancy: number }) {
+export default function BookingDialog({ maxOccupancy, propertyId }: { maxOccupancy: number; propertyId?: string }) {
   const ref = useRef<HTMLDialogElement>(null);
   const router = useRouter();
 
@@ -77,6 +77,7 @@ export default function BookingDialog({ maxOccupancy }: { maxOccupancy: number }
 
         <DateSelectForm
           maxOccupancy={maxOccupancy}
+          propertyId={propertyId}
           onContinue={(query) => {
             close();
             router.push(`/book?${query}`);

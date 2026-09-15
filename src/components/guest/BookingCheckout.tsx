@@ -8,6 +8,9 @@ import Script from 'next/script';
 import type { Property, PricingRule } from '@/types';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import DateSelectForm from '@/components/guest/DateSelectForm';
+import { isRangeAvailable } from '@/lib/availability';
+import { useUnavailableNights } from '@/components/guest/useUnavailableNights';
+import { todayISO } from '@/lib/format';
 import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { formatTime12 } from '@/lib/format';
 
@@ -44,6 +47,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [specialRequests,  setSpecialRequests]  = useState('');
   const [isProcessing,     setIsProcessing]     = useState(false);
   const [serverError,      setServerError]      = useState('');
+  // Catches a stale link or a night taken since the guest picked dates, before
+  // they fill in the form. create-order still re-checks under a lock at payment.
+  const unavailable = useUnavailableNights(property.id, todayISO());
 
   const hasValidParams = checkIn && checkOut && !isNaN(adults);
   // No dates at all is not an error state: the header BOOK NOW button on every
@@ -58,6 +64,10 @@ function CheckoutContent({ property, pricingRules }: Props) {
   } else {
     try {
       breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults, children);
+      if (!isRangeAvailable(unavailable, checkIn, checkOut)) {
+        breakdown = null;
+        paramError = 'Some of those nights are already booked. Please choose different dates.';
+      }
     } catch (err) {
       paramError = err instanceof Error ? err.message : 'Invalid date range. Please go back and reselect.';
     }
@@ -151,6 +161,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
 
           <DateSelectForm
             maxOccupancy={property.max_occupancy}
+            propertyId={property.id}
             onContinue={(query) => router.push(`/book?${query}`)}
           />
 

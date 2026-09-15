@@ -4,6 +4,65 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.6.0 — Guest availability calendar, concurrency tests, Ooruda Villa contract — 2026-09-15
+
+### Guest availability calendar
+
+Guests could previously pick any dates and only found out at payment that a night was taken.
+
+- **`get_unavailable_nights(property, from, to)`** (migration `00019`) returns the taken nights in a
+  window. It calls `check_availability()` for each night instead of copying its overlap rule, so the
+  calendar, `/api/availability` and `create_booking_atomic` cannot disagree.
+- **`GET /api/availability/calendar`** serves it, capped at 186 nights. Cached at Vercel's edge for
+  60 seconds (`CDN-Cache-Control`) but `no-store` in the browser: browsers honour
+  `stale-while-revalidate` too, and the first version of this route let a guest's browser show a
+  just-blocked night as free for minutes. Caught in browser testing.
+- **Date pickers** (homepage widget, booking dialog, `/book`) strike out booked and blocked nights for
+  check-in, and cap check-out at the first taken night, since checking out on the morning someone else
+  arrives is allowed. Choosing a new check-in that would span a taken night resets check-out.
+- **Stale links** to `/book` with dates that are now taken show "Some of those nights are already
+  booked" before the guest fills in the form.
+- If the calendar request fails, every date stays selectable and checkout still re-checks under a
+  lock. It degrades to the old behaviour rather than blocking bookings.
+- Range rules live in `src/lib/availability.ts` with unit tests.
+
+### Double-booking protection, proven under load
+
+`src/lib/__tests__/booking-concurrency.test.ts` runs against local Supabase with real concurrent
+requests:
+
+| Check | Result |
+|---|---|
+| 50 simultaneous requests for the same dates | exactly 1 booking, 49 clean `DATE_UNAVAILABLE` |
+| 20 staggered overlapping stays fired at once | no two winners share a night; no crashes or deadlocks |
+| Back-to-back stays (check-out day = next check-in) | both succeed |
+| Blocked night | refuses stays that include it, allows a stay checking out that morning |
+| Lapsed 15-minute hold | dates released to the next guest |
+| `get_unavailable_nights` | lists booked and blocked nights, never check-out days |
+
+It refuses any non-localhost Supabase URL, skips when the local stack is down, and cleans up after
+itself.
+
+### Ooruda Villa integration contract
+
+`docs/OORUDA_VILLA_INTEGRATION.md`: the rules Ooruda Villa must follow when it writes blocked dates,
+bookings and rates into this database. Covers half-open date ranges, IST dates, creating bookings only
+through `create_booking_atomic`, status values, cancellations, rate formulas, and mirroring Razorpay
+refunds (the webhook is off).
+
+It also flags existing data: the seeded seasonal pricing rules read as if their end dates were
+inclusive, but the engine treats them as exclusive, so the last night of Summer Holidays (31 May) and
+Diwali Peak (21 Oct) is priced at the normal rate.
+
+### Database
+
+- `00019_unavailable_nights.sql`: the function above, service_role only.
+- `00020_service_role_write_grants.sql`: service_role can write `blocked_dates`, `pricing_rules` and
+  `properties`. Hosted Supabase already allowed this; a local stack built from migrations did not, which
+  the concurrency tests exposed.
+
+---
+
 ## v0.5.1 — Payment hardening & admin removal — 2026-09-12
 
 ### Payments (Razorpay)
