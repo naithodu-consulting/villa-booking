@@ -17,6 +17,14 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
       through `create_booking_atomic` (never a raw INSERT) so double-booking protection applies;
       rates are integer paise.
 
+## Channel manager / OTAs (decided 2026-09-15)
+- [x] **Timing: after launch.** Launch is direct-booking only; this site's DB stays the source of
+      truth for availability until then.
+- [x] **Sold only as the whole villa** on every platform, never room by room. Availability stays
+      one calendar per property; no per-room inventory model needed.
+- [ ] Post-launch: shortlist STAAH / Beds24 on live two-way MMT + Goibibo connectivity and webhooks
+      (Master Plan section 7.2).
+
 ## Production
 - [ ] Fill in `PROD_REF` in `scripts/db-push.sh` once prod Supabase project is created
 - [ ] Set `NEXT_PUBLIC_SITE_URL` to `https://habbaa.in` in prod env
