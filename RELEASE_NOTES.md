@@ -4,6 +4,59 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.5.1 — Payment hardening & admin removal — 2026-09-12
+
+### Payments (Razorpay)
+
+- **Compare-and-swap on `payments.status`** in `verify-payment` and the webhook. Only the first
+  caller to move a payment to `captured` confirms the booking and sends email, so enabling the
+  webhook no longer means every guest gets two confirmations, and a double-submit no longer
+  re-sends them. A resubmit on an already-captured payment returns `verified: true`.
+- **Late `payment.failed` can no longer cancel a paid booking.** It only moves `created`/`expired`
+  payments and only cancels a booking that is still `pending`.
+- **`refund.processed` redelivery** no longer re-sends the refund email.
+- **Malformed signatures return 400, not 500.** New `hexSignatureMatches()` (`src/lib/signature.ts`)
+  never throws; used by both routes. Unit-tested.
+- **No more orphan Razorpay orders.** `create-order` now takes the booking hold first; if the
+  Razorpay order then fails, the hold is released immediately instead of blocking the dates for
+  15 minutes.
+
+### Admin surface removed
+
+Admin belongs to the Ooruda Villa project (separate repo and Supabase project), so the whole
+surface is deleted here: `src/app/admin/`, `src/app/api/admin/`, `src/components/admin/`,
+`src/middleware.ts`, `src/lib/supabase/client.ts`, and the cookie-session helper in
+`src/lib/supabase/server.ts`. `/admin/` is dropped from robots.txt.
+
+This also closes the hole it was hiding: `/api/admin/*` required **no authentication at all**
+(the middleware matched `/admin/:path*` only), so anyone could change nightly rates or create
+confirmed bookings. Those endpoints no longer exist.
+
+### Security
+
+- **Anyone could become an admin.** `profiles.role` defaulted to `'admin'` and email sign-up was
+  open, so any account created through the public auth API landed with the admin role. Migration
+  `00018` changes the default to `'guest'`; local `config.toml` disables sign-up. `00003` still
+  has RLS policies keyed on `role = 'admin'`, so this matters even with no admin UI here.
+  **Remote:** turn sign-up off in the Supabase dashboard and review existing `profiles` rows.
+
+### Other
+
+- `EnquiryForm` date pickers use the IST calendar day (`todayISO()`).
+- `.claude/launch.json`: `autoPort: true`, because port 3000 is often held by another project.
+
+### Verified
+
+Against local Supabase and this app's dev server: webhook 400 on
+a non-hex signature; captured replay, late failed and refund replay all leave state unchanged;
+`verify-payment` 400 / 200 (idempotent) / 409 for bad signature / resubmit / unknown order.
+`tsc`, eslint and 32 unit tests pass. Not covered: a first-time capture end to end (it sends real
+email via Resend).
+
+`npm run build` passes with no admin routes and no middleware.
+
+---
+
 ## v0.4.0 — Booking hold expiry (the abandoned-checkout fix) — 2026-09-03
 
 ### The bug

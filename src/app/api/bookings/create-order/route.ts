@@ -65,22 +65,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Razorpay order — amount is already in paise (integer)
-    const razorpayOrder = await getRazorpay().orders.create({
-      amount: breakdown.total_amount,
-      currency: 'INR',
-      notes: {
-        property_id: propertyId,
-        check_in: checkIn,
-        check_out: checkOut,
-        guest_name: guestName,
-        guest_email: guestEmail,
-      },
-    });
-
-    // Persist booking as 'pending' via atomic DB function (advisory lock prevents double-booking)
-    let bookingReference: string;
-    let bookingId: string;
+    // Persist booking as 'pending' via atomic DB function (advisory lock prevents
+    // double-booking). This runs before the Razorpay order so unavailable dates
+    // are rejected without leaving an orphan order behind.
     const { data, error: dbError } = await supabase.rpc('create_booking_atomic', {
       p_property_id: propertyId,
       p_guest_name: guestName,
@@ -109,8 +96,35 @@ export async function POST(request: NextRequest) {
     }
 
     const row = (data as { reference_number: string; booking_id: string }[])[0];
-    bookingReference = row.reference_number;
-    bookingId = row.booking_id;
+    const bookingReference = row.reference_number;
+    const bookingId = row.booking_id;
+
+    // Create Razorpay order — amount is already in paise (integer). If this
+    // fails, release the hold at once rather than blocking the dates for 15 min.
+    let razorpayOrder;
+    try {
+      razorpayOrder = await getRazorpay().orders.create({
+        amount: breakdown.total_amount,
+        currency: 'INR',
+        receipt: bookingReference,
+        notes: {
+          property_id: propertyId,
+          booking_reference: bookingReference,
+          check_in: checkIn,
+          check_out: checkOut,
+          guest_name: guestName,
+          guest_email: guestEmail,
+        },
+      });
+    } catch (err) {
+      console.error('[create-order] Razorpay order failed, releasing hold:', err);
+      await supabase
+        .from('bookings')
+        .update({ status: 'expired', hold_expires_at: null })
+        .eq('id', bookingId)
+        .eq('status', 'pending');
+      return NextResponse.json({ error: 'Payment could not be started. Please try again.' }, { status: 503 });
+    }
 
     // Insert payments row so the webhook can find it by razorpay_order_id
     const { error: paymentError } = await supabase.from('payments').insert({

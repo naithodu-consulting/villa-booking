@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServiceClient } from '@/lib/supabase/server';
+import { hexSignatureMatches } from '@/lib/signature';
 import { sendBookingConfirmation, sendAdminNewBookingNotification } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
@@ -22,20 +23,16 @@ export async function POST(request: NextRequest) {
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
       .digest('hex');
 
-    const signaturesMatch =
-      expected.length === razorpay_signature.length &&
-      crypto.timingSafeEqual(
-        Buffer.from(expected, 'hex'),
-        Buffer.from(razorpay_signature, 'hex'),
-      );
-
-    if (!signaturesMatch) {
+    if (!hexSignatureMatches(expected, razorpay_signature)) {
       return NextResponse.json({ error: 'Payment signature invalid.' }, { status: 400 });
     }
 
     const supabase = createServiceClient();
 
-    // Update payment and fetch booking_id in one round trip
+    // Compare-and-swap: only the first caller (this route or the webhook) moves
+    // the payment to captured, and only that caller sends the emails. 'expired'
+    // covers a guest who paid after the hold lapsed; 'failed' a retry that
+    // succeeded after an earlier failed attempt on the same order.
     const { data: payment, error: updateError } = await supabase
       .from('payments')
       .update({
@@ -44,15 +41,32 @@ export async function POST(request: NextRequest) {
         status: 'captured',
       })
       .eq('razorpay_order_id', razorpay_order_id)
+      .in('status', ['created', 'expired', 'failed'])
       .select('booking_id')
-      .single();
+      .maybeSingle();
 
     if (updateError) {
       console.error('[verify-payment] Failed to update payment:', updateError.message);
       return NextResponse.json({ error: 'Could not confirm payment. Contact support.' }, { status: 503 });
     }
 
-    if (payment?.booking_id) {
+    if (!payment) {
+      // Already captured (double-submit, or the webhook got there first) is a
+      // success for the guest. Anything else means no such order.
+      const { data: existing } = await supabase
+        .from('payments')
+        .select('status')
+        .eq('razorpay_order_id', razorpay_order_id)
+        .maybeSingle();
+
+      if (existing?.status === 'captured') {
+        return NextResponse.json({ verified: true });
+      }
+      console.error(`[verify-payment] No payable payment row for order ${razorpay_order_id} (status: ${existing?.status ?? 'missing'})`);
+      return NextResponse.json({ error: 'Could not confirm payment. Contact support.' }, { status: 409 });
+    }
+
+    if (payment.booking_id) {
       // The guest has paid, so the booking is always honoured — including when the
       // 15-minute hold lapsed while they were in the Razorpay modal. Clearing
       // hold_expires_at makes the row permanent.

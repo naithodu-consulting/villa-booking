@@ -4,9 +4,18 @@
 - [ ] Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to `.env.local` and Supabase secrets
 - [ ] Refund confirmation email — wire in `POST /api/bookings/webhook` `refund.processed` handler once Resend is live (see `src/lib/email.ts`)
 
-## Admin
-- [ ] Wire pricing edit form to `PATCH /api/admin/properties/[id]/pricing` (route exists, form needs wiring)
-- [ ] Wire manual booking form to `POST /api/admin/bookings/manual` (route exists, form needs wiring)
+## Admin — removed from this repo (2026-09-11)
+Admin login and all admin tooling belong to the **Ooruda Villa** project (separate repo, separate
+Supabase project). Deleted here: `src/app/admin/`, `src/app/api/admin/`, `src/components/admin/`,
+`src/middleware.ts` (it existed only to guard /admin), `src/lib/supabase/client.ts` and the
+cookie-session helper in `src/lib/supabase/server.ts` (both only used by the admin login).
+- [x] Delete the admin surface.
+- [x] Decided 2026-09-15: **Ooruda Villa** blocks dates, takes phone bookings, edits rates and
+      issues refunds for Villa 19, writing to *this* site's Supabase project.
+- [ ] Write down the contract Ooruda Villa must follow so the booking engine here stays correct:
+      `blocked_dates` ranges are half-open `[start_date, end_date)`; manual bookings must go
+      through `create_booking_atomic` (never a raw INSERT) so double-booking protection applies;
+      rates are integer paise.
 
 ## Production
 - [ ] Fill in `PROD_REF` in `scripts/db-push.sh` once prod Supabase project is created
@@ -22,30 +31,27 @@
 ## Optional / Post-launch
 - [ ] Reviews page — wire real guest reviews once collected (page exists at /testimonials)
 - [ ] Homepage reviews section — replace placeholder comment with real reviews component
-- [ ] Admin: blocked-dates calendar — wire blocked_dates table (currently local state only)
+- [ ] ~~Admin: blocked-dates calendar~~ — belongs to Ooruda Villa (see Admin section)
 
 ## Razorpay hardening (found in the 2026-09-03 flow review)
-- [ ] **Duplicate confirmation emails** — `verify-payment` and `webhook` both update `payments`
-      unguarded and both send email. Enabling the webhook today sends every guest two
-      confirmations. Fix: add `.eq('status','created')` to both updates so it is a
-      compare-and-swap, and only email when a row is actually returned.
-- [ ] **`payment.failed` can cancel a paid booking** — webhook delivery is unordered, so a late
-      `failed` event from an earlier attempt can flip a `confirmed` booking to `cancelled` and
-      release the dates. Guard with `.neq('status','captured')`.
-- [ ] **Webhook 500 on malformed signature** — `timingSafeEqual` is outside the try/catch
-      (try starts after it). A 64-char non-hex signature makes `Buffer.from(x,'hex')` truncate,
-      which throws. Should return a clean 400.
-- [ ] **`verify-payment` idempotency** — no guard, so a double-submit re-sends emails even
-      without the webhook. Same compare-and-swap fixes it.
-- [ ] Confirm the Razorpay account is on **auto-capture**. Checkout's `handler` fires on
+- [x] **Duplicate confirmation emails** — fixed 2026-09-11: compare-and-swap on
+      `payments.status` in both `verify-payment` and the webhook; only the winner emails.
+- [x] **`payment.failed` can cancel a paid booking** — fixed 2026-09-11: only moves
+      `created`/`expired` payments, and only cancels a booking still `pending`.
+- [x] **Webhook 500 on malformed signature** — fixed 2026-09-11: `hexSignatureMatches()` in
+      `src/lib/signature.ts` never throws; returns 400.
+- [x] **`verify-payment` idempotency** — fixed 2026-09-11: a resubmit on an already-captured
+      payment returns `verified: true` without re-sending email.
+- [x] `refund.processed` redelivery re-sent the refund email — fixed 2026-09-11 (same CAS).
+- [ ] **Owner checking (2026-09-15):** confirm the Razorpay account is on **auto-capture**. Checkout's `handler` fires on
       *authorization*; under manual capture this code marks the payment `captured` and confirms
       a booking whose money was never actually taken.
-- [ ] `create-order` creates the Razorpay order *before* `create_booking_atomic` checks
-      availability, so a `DATE_UNAVAILABLE` leaves an orphan order. Harmless, but backwards.
-- [ ] Decide on the webhook. It is **not** needed to confirm bookings — `verify-payment` already
-      does that with `RAZORPAY_KEY_SECRET`. It is only needed for (a) syncing dashboard-issued
-      refunds, which has no other path since there is no refund API route, and (b) recovering
-      mobile-UPI browser drops. Fix the three items above first if enabling it.
+- [x] `create-order` orphan orders — fixed 2026-09-11: booking hold is taken first; if the
+      Razorpay order then fails, the hold is released immediately.
+- [x] Webhook decision 2026-09-15: **keep it off.** Consequences to accept: (a) refunds issued
+      from the Razorpay dashboard are not recorded here, so Ooruda Villa must also mark the
+      booking cancelled/refunded; (b) if a guest's browser closes after paying but before the
+      checkout page confirms, the booking stays `pending`, expires, and needs manual recovery.
 
 ## Production env
 - [ ] After pushing `00012_expire_holds_cron.sql`, confirm the sweep is registered on the remote:
@@ -85,7 +91,8 @@ left on the old domain because changing them blind would break things:
       becomes true. Until then the policy overstates collection, which is the
       same defect the review flagged in the original copy. Either ship the ID
       with this release or soften the wording to "we plan to use".
-- [ ] **Booking dates use the UTC calendar day, not IST.**
+- [x] **Booking dates use the UTC calendar day, not IST.** Fixed in BookingWidget,
+      BookingCheckout and (2026-09-11) EnquiryForm, all via `todayISO()`.
       `new Date().toISOString().split('T')[0]` in `BookingWidget.tsx:21` and
       `BookingCheckout.tsx:53` yields yesterday's date between 00:00 and 05:30
       IST, so `min=` on the date pickers allows a check-in already in the past

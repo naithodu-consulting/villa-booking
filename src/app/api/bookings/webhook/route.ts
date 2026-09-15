@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServiceClient } from '@/lib/supabase/server';
+import { hexSignatureMatches } from '@/lib/signature';
 import { sendBookingConfirmation, sendAdminNewBookingNotification, sendRefundConfirmation } from '@/lib/email';
 
 interface PaymentEntity {
@@ -27,6 +28,11 @@ interface RefundEntity {
  *   payment.failed   — release booking hold (cancelled + unpaid)
  *   refund.processed — mark payment refunded, booking cancelled
  *
+ * Every state change is a compare-and-swap on payments.status, so a retried
+ * event, or a capture that verify-payment already recorded, updates zero rows
+ * and sends no email. Delivery order is not guaranteed, which is why a late
+ * payment.failed can never undo a capture.
+ *
  * All other events acknowledged with 200 to suppress Razorpay retries.
  * Errors are logged but always return 200 for the same reason.
  */
@@ -45,15 +51,7 @@ export async function POST(request: NextRequest) {
     .update(rawBody)
     .digest('hex');
 
-  // timingSafeEqual prevents HMAC timing attacks
-  const signaturesMatch =
-    expected.length === signature.length &&
-    crypto.timingSafeEqual(
-      Buffer.from(expected, 'hex'),
-      Buffer.from(signature, 'hex'),
-    );
-
-  if (!signaturesMatch) {
+  if (!hexSignatureMatches(expected, signature)) {
     console.warn('[webhook] Invalid signature — rejecting event');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
@@ -79,6 +77,8 @@ export async function POST(request: NextRequest) {
 
         if (!orderId || !paymentId) break;
 
+        // 'expired' and 'failed' are included: a guest can pay after the hold
+        // lapses, or succeed on a retry after a failed attempt on the same order.
         const { data: payment, error } = await supabase
           .from('payments')
           .update({
@@ -87,18 +87,24 @@ export async function POST(request: NextRequest) {
             raw_payload: entity,
           })
           .eq('razorpay_order_id', orderId)
+          .in('status', ['created', 'expired', 'failed'])
           .select('booking_id')
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('[webhook] payment.captured — update failed:', error.message);
           break;
         }
 
-        if (payment?.booking_id) {
+        if (!payment) {
+          console.info(`[webhook] payment.captured — order ${orderId} already processed, skipping`);
+          break;
+        }
+
+        if (payment.booking_id) {
           const { data: booking } = await supabase
             .from('bookings')
-            .update({ status: 'confirmed', payment_status: 'paid' })
+            .update({ status: 'confirmed', payment_status: 'paid', hold_expires_at: null })
             .eq('id', payment.booking_id)
             .select('reference_number, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
             .single();
@@ -142,12 +148,15 @@ export async function POST(request: NextRequest) {
 
         if (!orderId) break;
 
+        // Never touch a captured or refunded payment: a late failed event from an
+        // earlier attempt must not cancel a booking that has since been paid.
         const { data: payment, error } = await supabase
           .from('payments')
           .update({ status: 'failed', raw_payload: entity })
           .eq('razorpay_order_id', orderId)
+          .in('status', ['created', 'expired'])
           .select('booking_id')
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('[webhook] payment.failed — update failed:', error.message);
@@ -158,10 +167,11 @@ export async function POST(request: NextRequest) {
           await supabase
             .from('bookings')
             .update({ status: 'cancelled', payment_status: 'unpaid' })
-            .eq('id', payment.booking_id);
+            .eq('id', payment.booking_id)
+            .eq('status', 'pending');
         }
 
-        console.warn(`[webhook] payment.failed — order: ${orderId}`);
+        console.warn(`[webhook] payment.failed — order: ${orderId}${payment ? '' : ' (ignored, payment already settled)'}`);
         break;
       }
 
@@ -171,44 +181,32 @@ export async function POST(request: NextRequest) {
 
         if (!paymentId) break;
 
-        // Look up payment row by razorpay_payment_id
-        const { data: payment, error: lookupError } = await supabase
+        // Compare-and-swap from captured, so a redelivered event sends no second
+        // refund email. Zero rows also covers payments not made through this app.
+        const { data: payment, error } = await supabase
           .from('payments')
-          .select('booking_id')
+          .update({ status: 'refunded', raw_payload: entity })
           .eq('razorpay_payment_id', paymentId)
+          .eq('status', 'captured')
+          .select('booking_id')
           .maybeSingle();
 
-        if (lookupError) {
-          console.error('[webhook] refund.processed — lookup failed:', lookupError.message);
+        if (error) {
+          console.error('[webhook] refund.processed — update failed:', error.message);
           break;
         }
 
         if (!payment) {
-          // Payment not from this app — ignore silently
-          console.info(`[webhook] refund.processed — payment ${paymentId} not found, ignoring`);
+          console.info(`[webhook] refund.processed — payment ${paymentId} unknown or already refunded, ignoring`);
           break;
         }
 
-        // Mark payment refunded
-        await supabase
-          .from('payments')
-          .update({ status: 'refunded', raw_payload: entity })
-          .eq('razorpay_payment_id', paymentId);
-
-        // Mark booking cancelled with refunded payment status
-        if (payment.booking_id) {
-          await supabase
-            .from('bookings')
-            .update({ status: 'cancelled', payment_status: 'refunded' })
-            .eq('id', payment.booking_id);
-        }
-
-        // Fetch booking ref + guest details for the refund email
         if (payment.booking_id) {
           const { data: booking } = await supabase
             .from('bookings')
-            .select('reference_number, guest_name, guest_email, total_amount')
+            .update({ status: 'cancelled', payment_status: 'refunded' })
             .eq('id', payment.booking_id)
+            .select('reference_number, guest_name, guest_email, total_amount')
             .single();
 
           if (booking) {

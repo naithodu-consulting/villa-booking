@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
+import { todayISO } from '@/lib/format';
 
 interface FormState {
   name: string;
@@ -138,7 +139,7 @@ export default function EnquiryForm() {
           label="Check-in"
           value={form.checkIn}
           onChange={v => setForm(prev => ({ ...prev, checkIn: v, checkOut: v && v >= prev.checkOut ? '' : prev.checkOut }))}
-          min={new Date().toISOString().split('T')[0]}
+          min={todayISO()}
           placeholder="dd mmm yyyy"
           clearable
         />
@@ -146,7 +147,7 @@ export default function EnquiryForm() {
           label="Check-out"
           value={form.checkOut}
           onChange={v => setForm(prev => ({ ...prev, checkOut: v }))}
-          min={form.checkIn || new Date().toISOString().split('T')[0]}
+          min={form.checkIn || todayISO()}
           placeholder="dd mmm yyyy"
           clearable
           dropdownAlign="right"

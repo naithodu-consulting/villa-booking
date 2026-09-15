@@ -1,0 +1,11 @@
+-- 00018: new auth users no longer default to the admin role.
+--
+-- profiles.role defaulted to 'admin', and handle_new_user() inserts a profile
+-- for every new auth user without setting a role. With email sign-up open,
+-- anyone calling the public auth API with the anon key got the admin role,
+-- which the RLS policies in 00003 trust (e.g. writing reviews).
+-- New users start as 'guest'; promote deliberately if ever needed:
+--   UPDATE profiles SET role = 'admin' WHERE id = '<auth user id>';
+-- Existing rows are untouched. Review them on each environment:
+--   SELECT p.id, u.email, p.role FROM profiles p JOIN auth.users u ON u.id = p.id;
+ALTER TABLE profiles ALTER COLUMN role SET DEFAULT 'guest';
