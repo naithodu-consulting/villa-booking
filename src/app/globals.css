@@ -15,8 +15,9 @@
   --maroon-tint:  rgba(90, 38, 38, 0.06);
 
   /* Accent — rules, small caps, active states only */
-  --brass:        #A87432;
-  --brass-light:  #C9944A;
+  --brass:        #A87432;  /* icons, stars, rules, borders. 3.8:1 on paper: NOT for text */
+  --brass-light:  #C9944A;  /* accent text on dark grounds (5.9:1 on --maroon-deep) */
+  --brass-ink:    #8A5E22;  /* accent text on light grounds (5.4:1 on --paper) */
 
   /* Ink */
   --ink:          #1A1208;
@@ -41,6 +42,29 @@
   --border-subtle:  rgba(0, 0, 0, 0.08);
   --border-medium:  rgba(0, 0, 0, 0.13);
   --border-brass:   rgba(168, 116, 50, 0.22);
+
+  /* ── Colour roles ────────────────────────────────────────────────────
+     Pick by role and ground, never by taste. Contrast figures are WCAG ratios.
+
+     Light ground (--paper, --surface, --paper-sunk)
+       Headings, section and card titles ....... --maroon      (11.4)
+       Body text ................................ --ink         (17.5)
+       Secondary text, meta, captions ........... --ink-muted   (5.6)
+       Eyebrows, small uppercase labels,
+       accent numbers, inline links ............. --brass-ink   (5.4)
+       Icons, stars, rules, borders ............. --brass       (non-text only)
+       Placeholders, disabled ................... --ink-faint   (3.0, never for readable text)
+       Availability, success, "included" ........ --ok          (status only)
+       Errors ................................... --error
+       WhatsApp CTAs ............................ --wa-on-light / --wa (WhatsApp only)
+
+     Dark ground (--maroon-deep, --maroon: header, footer, CTA bands)
+       Wordmark, primary text, headings ......... #FFFFFF
+       Brand descriptor ("By Habbaa"), nav links,
+       eyebrows, column headings, icons ......... --brass-light (5.9)
+       Links and body ........................... rgba(255,255,255,0.75)
+       Secondary and fine print ................. rgba(255,255,255,0.60) minimum (0.45 fails)
+  */
 
   /* Typography
      next/font injects --font-sans (Nunito Sans), --font-display (Cormorant
@@ -174,7 +198,7 @@
     font-weight: 700;
     letter-spacing: 1.2px;         /* = Ama's 1.2px at 16px */
     text-transform: uppercase;
-    color: var(--brass);
+    color: var(--brass-ink);
   }
 
   .eyebrow-lg {
@@ -183,7 +207,7 @@
     font-weight: 700;
     letter-spacing: 1.2px;         /* = Ama's 1.2px at 13.5px */
     text-transform: uppercase;
-    color: var(--brass);
+    color: var(--brass-ink);
   }
 
   /* Card */

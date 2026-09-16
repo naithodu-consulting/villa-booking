@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,8 +9,7 @@ import type { Property, PricingRule } from '@/types';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import DateSelectForm from '@/components/guest/DateSelectForm';
 import { isRangeAvailable } from '@/lib/availability';
-import { useUnavailableNights } from '@/components/guest/useUnavailableNights';
-import { todayISO } from '@/lib/format';
+import { useNightCalendar } from '@/components/guest/useNightCalendar';
 import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { formatTime12 } from '@/lib/format';
 
@@ -49,7 +48,8 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [serverError,      setServerError]      = useState('');
   // Catches a stale link or a night taken since the guest picked dates, before
   // they fill in the form. create-order still re-checks under a lock at payment.
-  const unavailable = useUnavailableNights(property.id, todayISO());
+  const { unavailable, loadRange } = useNightCalendar(property.id);
+  useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
 
   const hasValidParams = checkIn && checkOut && !isNaN(adults);
   // No dates at all is not an error state: the header BOOK NOW button on every
@@ -234,7 +234,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                 </h1>
                 <p className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
                   Enter the primary guest details. Confirmation goes to your email and WhatsApp.{' '}
-                  <span style={{ color: 'var(--brass)' }}>* Required</span>
+                  <span style={{ color: 'var(--brass-ink)' }}>* Required</span>
                 </p>
               </div>
 
@@ -298,13 +298,13 @@ function CheckoutContent({ property, pricingRules }: Props) {
                         color: 'var(--ink)',
                       }}
                     />
-                    <p className="text-xs mt-1" style={{ color: 'var(--ink-faint)' }}>10-digit Indian mobile number</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--ink-muted)' }}>10-digit Indian mobile number</p>
                   </div>
                 </div>
 
                 <div>
                   <label htmlFor="specialRequests" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
-                    Special Requests <span className="font-normal" style={{ color: 'var(--ink-faint)' }}>(Optional)</span>
+                    Special Requests <span className="font-normal" style={{ color: 'var(--ink-muted)' }}>(Optional)</span>
                   </label>
                   <textarea
                     id="specialRequests"
@@ -375,7 +375,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                 </div>
                 <div>
                   <p className="text-sm font-bold" style={{ color: 'var(--ink)' }}>{property.name}</p>
-                  <p className="text-xs font-medium tracking-widest uppercase" style={{ color: 'var(--brass)' }}>By Habbaa</p>
+                  <p className="text-xs font-medium tracking-widest uppercase" style={{ color: 'var(--brass-ink)' }}>By Habbaa</p>
                 </div>
               </div>
 
@@ -395,7 +395,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                 {breakdown && (
                   <div className="flex justify-between">
                     <span style={{ color: 'var(--ink-muted)' }}>Duration</span>
-                    <span className="font-semibold">{breakdown.num_nights} nights</span>
+                    <span className="font-semibold">{breakdown.num_nights} night{breakdown.num_nights === 1 ? '' : 's'}</span>
                   </div>
                 )}
               </div>
@@ -403,7 +403,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
               {breakdown && (
                 <div className="pt-3 text-sm space-y-2.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                   <div className="flex justify-between" style={{ color: 'var(--ink-muted)' }}>
-                    <span>Base stay ({breakdown.num_nights} nights)</span>
+                    <span>Base stay ({breakdown.num_nights} night{breakdown.num_nights === 1 ? '' : 's'})</span>
                     <span>₹{(breakdown.base_amount / 100).toLocaleString('en-IN')}</span>
                   </div>
                   {breakdown.extra_guest_amount > 0 && (
@@ -421,9 +421,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     <span style={{ color: 'var(--ink)' }}>Total Payable</span>
-                    <span style={{ color: 'var(--brass)' }}>₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
+                    <span style={{ color: 'var(--brass-ink)' }}>₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
                   </div>
-                  <p className="text-sm" style={{ color: 'var(--ink-faint)' }}>
+                  <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
                     All prices in INR incl. 18% GST. Security deposit (if any) collected at check-in.
                   </p>
                 </div>

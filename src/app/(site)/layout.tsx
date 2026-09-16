@@ -33,7 +33,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Header propertyName={property?.name ?? 'Villa 19'} whatsappUrl={whatsappUrl} />
       <main className="flex-1">{children}</main>
       {property && <Footer property={property} whatsappUrl={whatsappUrl} />}
-      <BookingDialog maxOccupancy={property?.max_occupancy ?? 12} propertyId={property?.id} />
+      <BookingDialog maxOccupancy={property?.max_occupancy ?? 15} propertyId={property?.id} />
       <CookieConsent />
       <Analytics />
     </div>

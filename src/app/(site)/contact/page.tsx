@@ -43,7 +43,7 @@ export default async function ContactPage() {
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-5"
+            className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             Contact Us
@@ -95,7 +95,7 @@ export default async function ContactPage() {
             <div>
               <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>Email</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{email}</p>
-              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass)' }}>Send Email →</p>
+              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass-ink)' }}>Send Email →</p>
             </div>
           </a>
 
@@ -114,7 +114,7 @@ export default async function ContactPage() {
             <div>
               <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>Call Us</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{formatPhone(phoneNumber)}</p>
-              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass)' }}>Call Now →</p>
+              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass-ink)' }}>Call Now →</p>
             </div>
           </a>
 
@@ -142,7 +142,7 @@ export default async function ContactPage() {
               >
                 <p className="font-bold" style={{ color: 'var(--ink)' }}>{channel}</p>
                 <p style={{ color: 'var(--ink-muted)' }}>{time}</p>
-                {note && <p className="font-semibold mt-0.5" style={{ color: 'var(--brass)' }}>{note}</p>}
+                {note && <p className="font-semibold mt-0.5" style={{ color: 'var(--brass-ink)' }}>{note}</p>}
               </div>
             ))}
           </div>
@@ -159,7 +159,7 @@ export default async function ContactPage() {
               <p className="text-base font-bold mb-0.5" style={{ color: 'var(--maroon)' }}>Property Address</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{property.address}</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{property.city}, {property.state} {property.pincode}</p>
-              <p className="text-sm mt-2" style={{ color: 'var(--ink-faint)' }}>
+              <p className="text-sm mt-2" style={{ color: 'var(--ink-muted)' }}>
                 Exact address and directions shared after booking confirmation.
               </p>
             </div>

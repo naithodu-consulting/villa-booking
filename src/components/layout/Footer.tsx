@@ -74,10 +74,12 @@ const LEGAL_LINKS: [string, string][] = [
 ];
 
 // Shared heading style for every column — keeps them locked to one baseline.
-const COL_HEADING = 'text-xs font-bold uppercase tracking-[1.2px] text-white/50 mb-5';
+// Column headings are eyebrows on a dark ground: --brass-light, same as the header nav
+// and the "By Habbaa" descriptor (see the colour roles in globals.css).
+const COL_HEADING = 'text-xs font-bold uppercase tracking-[1.2px] text-[var(--brass-light)] mb-5';
 
 // Shared link style. 14px, not 13: at 13 the columns read as fine print.
-const COL_LINK = 'text-sm text-white/70 hover:text-white transition-colors';
+const COL_LINK = 'text-sm text-white/75 hover:text-white transition-colors';
 
 interface FooterProps {
   property: Property;
@@ -122,24 +124,24 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                 >
                   {property.name}
                 </span>
-                <span className="text-[10px] font-bold tracking-[0.22em] text-white/50 uppercase mt-1">
+                <span className="text-[10px] font-bold tracking-[0.22em] text-[var(--brass-light)] uppercase mt-1">
                   By Habbaa
                 </span>
               </div>
             </div>
 
             {/* Tagline — desktop only to avoid repeating what guest just read */}
-            <p className="hidden lg:block text-sm leading-relaxed text-white/55 max-w-[300px]">
+            <p className="hidden lg:block text-sm leading-relaxed text-white/75 max-w-[300px]">
               A premium private villa on the Karnataka coast. Direct booking, no platform fees, no middlemen.
             </p>
 
             <div className="space-y-1.5 pt-1">
               <p className="text-[13px] font-bold tracking-wide text-white/75">{ENTITY.name}</p>
-              <p className="text-[13px] text-white/50 leading-snug max-w-[300px] mx-auto lg:mx-0">
+              <p className="text-[13px] text-white/60 leading-snug max-w-[300px] mx-auto lg:mx-0">
                 {ENTITY.address}
               </p>
-              <p className="text-xs text-white/45 tabular-nums pt-0.5">CIN: {ENTITY.cin}</p>
-              <p className="text-xs text-white/45 tabular-nums">GSTIN: {ENTITY.gstin}</p>
+              <p className="text-xs text-white/60 tabular-nums pt-0.5">CIN: {ENTITY.cin}</p>
+              <p className="text-xs text-white/60 tabular-nums">GSTIN: {ENTITY.gstin}</p>
             </div>
           </div>
 
@@ -202,8 +204,8 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                     {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className="flex items-start gap-2.5 group"
                   >
-                    <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-white/50 group-hover:text-[var(--brass-light)] transition-colors" />
-                    <span className="text-sm text-white/70 group-hover:text-white transition-colors leading-tight break-all">
+                    <Icon className="w-4 h-4 mt-0.5 flex-shrink-0 text-[var(--brass-light)] group-hover:text-white transition-colors" />
+                    <span className="text-sm text-white/75 group-hover:text-white transition-colors leading-tight break-all">
                       {text}
                     </span>
                   </a>
@@ -224,7 +226,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-2.5 group"
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0 text-white/50 group-hover:text-[var(--brass-light)] transition-colors" />
+                    <Icon className="w-4 h-4 flex-shrink-0 text-[var(--brass-light)] group-hover:text-white transition-colors" />
                     <span className={COL_LINK}>{label}</span>
                   </a>
                 </li>
@@ -245,7 +247,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
           className="mt-10 lg:mt-12 pt-6 border-t flex flex-col-reverse lg:flex-row lg:items-center lg:justify-between gap-4"
           style={{ borderColor: 'rgba(255,255,255,0.10)' }}
         >
-          <p className="text-[13px] text-white/45 text-center lg:text-left">
+          <p className="text-[13px] text-white/60 text-center lg:text-left">
             &copy; {year} {property.name} by Habbaa. All rights reserved.
           </p>
 
@@ -266,7 +268,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                   className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-white/20"
                   style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)' }}
                 >
-                  <Icon className="w-4 h-4 text-white/60" />
+                  <Icon className="w-4 h-4 text-[var(--brass-light)]" />
                 </a>
               ))}
             </div>
@@ -276,7 +278,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                 <Link
                   key={href}
                   href={href}
-                  className="text-[13px] text-white/55 hover:text-white transition-colors"
+                  className="text-[13px] text-white/60 hover:text-white transition-colors"
                 >
                   {label}
                 </Link>

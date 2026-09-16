@@ -68,7 +68,7 @@ export default async function GalleryPage() {
             {property.name}
           </p>
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-5"
+            className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             Gallery
@@ -94,7 +94,7 @@ export default async function GalleryPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline"
-                style={{ color: 'var(--brass)' }}
+                style={{ color: 'var(--brass-ink)' }}
               >
                 WhatsApp us
               </a>{' '}
@@ -107,7 +107,7 @@ export default async function GalleryPage() {
               <section key={category} className="space-y-4">
                 <h2
                   className="text-sm font-bold uppercase tracking-widest pb-2"
-                  style={{ color: 'var(--brass)', borderBottom: '1px solid var(--border-subtle)' }}
+                  style={{ color: 'var(--brass-ink)', borderBottom: '1px solid var(--border-subtle)' }}
                 >
                   {CATEGORY_LABEL[category] ?? category}
                 </h2>
@@ -154,7 +154,7 @@ export default async function GalleryPage() {
           className="mt-12 p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Like what you see?
           </h2>
           <p className="text-white/70 text-base">Book directly. No platform fees, instant confirmation.</p>

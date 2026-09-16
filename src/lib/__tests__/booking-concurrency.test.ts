@@ -59,7 +59,10 @@ async function cleanup() {
   await db!.from('blocked_dates').delete().eq('notes', TEST_NOTE);
 }
 
-describe.skipIf(!db)('create_booking_atomic under concurrency (local Supabase)', () => {
+// 30s per test: 50 concurrent requests through a shared local stack can exceed
+// Vitest's 5s default when other test files run alongside. The assertions, not
+// the timing, are what these tests prove.
+describe.skipIf(!db)('create_booking_atomic under concurrency (local Supabase)', { timeout: 30_000 }, () => {
   beforeAll(cleanup);
   afterAll(cleanup);
 

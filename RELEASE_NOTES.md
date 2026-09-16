@@ -4,6 +4,150 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.6.4 — Colour system, clearer calendar, no italic headings — 2026-09-15
+
+### A single colour system
+
+Text colours had been chosen page by page: "By Habbaa" was brass in the header and 50% white in the
+footer, small brass labels failed contrast, and green was used both for "available" and as decoration.
+`globals.css` now documents one role table, and every page follows it:
+
+| Ground | Role | Colour | Contrast |
+|---|---|---|---|
+| Light | Headings, titles | `--maroon` | 11.4 |
+| Light | Body / secondary text | `--ink` / `--ink-muted` | 17.5 / 5.6 |
+| Light | Eyebrows, small labels, accent numbers, inline links | **`--brass-ink` #8A5E22 (new)** | 5.4 |
+| Light | Icons, stars, rules, borders | `--brass` | non-text only (3.8) |
+| Light | Placeholders, disabled | `--ink-faint` | never readable text (3.0) |
+| Light | Availability, success | `--ok` | status only |
+| Dark | Wordmark, headings | white | |
+| Dark | "By Habbaa", nav, eyebrows, column headings, icons | `--brass-light` | 5.9 |
+| Dark | Links / fine print | white 75% / 60% minimum | 8.3 / 6.5 |
+
+Changes that follow from it:
+- Footer "By Habbaa", column headings and icons now `--brass-light`, matching the header. Footer
+  fine print raised from 45% white (4.2, fails) to 60%.
+- ~30 small accent texts moved from `--brass` to `--brass-ink` (eyebrows, category headings, inline
+  email/WhatsApp links, the verified-booking badge, booking step numbers, totals).
+- Readable text in `--ink-faint` moved to `--ink-muted` (captions, helper text, "Optional").
+- Green removed from decoration ("Ensuite Bath" is now muted); green now means availability or success.
+- Gallery lightbox moved off Tailwind slate/amber to a warm near-black with brass-light accents; an em
+  dash in its caption replaced.
+- Error text uses `--error` instead of Tailwind red.
+
+### Calendar
+
+- "Booked" renamed **"Not available"** in cells, legend and screen-reader labels (it also covers
+  blocked dates, which are not bookings).
+- The first tints were about 1.15:1 against the white popup and hard to tell apart. States now have a
+  solid fill and a border: **green** available, **gold + star** special price, **rose, hatched, struck
+  through** not available. Label inks are 5.6:1 or better.
+- Cells enlarged from ~40px to 48×54px, day numbers 14px, labels 10px; popup 392px.
+- **Fix:** the calendar popup was clipped or covered in three places. It is now positioned against
+  its field (`position: fixed`) and rendered outside its container: under `<body>` on normal pages,
+  and inside the `<dialog>` for the booking pop-up, which the browser draws in its top layer.
+  - the homepage booking card's `overflow-hidden` cut off the legend and GST note;
+  - the booking pop-up is a scrolling `<dialog>`, which cut the calendar off;
+  - the booking column is `position: sticky`, a stacking context, so the popup's `z-index: 200` only
+    ranked it within that column and the cookie banner (`z-50`) drew over its lower rows.
+
+  It re-places after every render while open, follows scrolling (including inside the dialog), flips
+  above the field when there is no room below, and is clamped to the viewport. Verified at 1024x768,
+  768x1024 and 375x812, in the widget and the pop-up, with the cookie banner showing.
+- "1 nights" now reads "1 night" in the widget and checkout.
+
+### Italic headings removed
+
+Page titles and closing CTA headings on About, Contact, Events, Gallery, Rooms, Stay Guide,
+Testimonials, The Villa and the booking confirmation page were set in italic (15 headings). All are
+upright now, and the italic variants of Nunito Sans and Cormorant Garamond are no longer downloaded.
+
+---
+
+## v0.6.3 — Colour-coded availability calendar — 2026-09-15
+
+Guests could not tell at a glance which nights were free: every day looked the same apart from a
+small price. Each date picker now reads like a hotel availability calendar.
+
+| Night | Cell | Also shown by |
+|---|---|---|
+| Available | light green, price in green | price label, "₹12,000 per night" to screen readers |
+| Special price (a `pricing_rules` night) | light brass, darker brass price | ★ icon, rule name read out |
+| Booked or blocked | grey hatched, day number struck through | the word "Booked" |
+| Past, or beyond the latest check-out | faded | "not available" to screen readers |
+| Selected | maroon | — |
+| Today | brass outline | — |
+
+- Status never relies on colour alone (text, strike-through, star and aria-label all carry it).
+  Special-price text uses `#8A5E22` because site brass (`#A87432`) fails AA at 9px; "Booked" uses
+  `--ink-muted` for the same reason on the hatch.
+- **Legend** under the grid: Available / Special price / Booked, and "Prices are per night, before
+  18% GST". While a month loads it reads "Checking availability and prices…"; if it fails it says so
+  and explains dates can still be chosen, instead of silently showing no prices.
+- **Check-out calendar:** booked nights appear booked, except the morning of the first booked night,
+  which is a valid check-out and shows as open. Nights beyond it fade out.
+- **Fix:** the homepage widget let check-out equal check-in (a zero-night stay that only produced an
+  error). Check-out now starts the day after check-in, as the booking pop-up already did.
+- The calendar API adds `special` (the pricing rule name, or null) to each night. DatePicker takes one
+  `getDayInfo` prop in place of the separate unavailable/price props, plus `getMonthStatus`.
+
+**Verified** in the browser via computed styles: 30 Sep green tint + green ₹12k; 6 Oct hatched,
+struck, "Booked", disabled; 31 Dec brass tint, star, ₹16k, rule name in the label; legend text present;
+check-in 5 Oct moves check-out to 6 Oct, with 7 Oct faded. No console errors. 56 tests pass.
+
+---
+
+## v0.6.2 — Prices in the date picker — 2026-09-15
+
+Every date picker (homepage widget, booking pop-up, `/book`) now shows the nightly price under each
+available day, alongside the booked and blocked nights already struck out.
+
+- **All from the database.** `GET /api/availability/calendar` now returns every night in the window
+  with `{ date, rate, available }`, built from the property's weekday/weekend rates, `pricing_rules`,
+  and `get_unavailable_nights()`. Nothing about prices lives in the component.
+- **Same price as checkout.** The per-night rule (pricing rule, else Friday/Saturday weekend rate, else
+  weekday rate) moved out of `calculateBookingPrice` into `nightlyRate()` in `pricing-engine.ts`. The
+  calendar API and checkout both call it, so the figure on a date is the figure charged.
+- **Loaded month by month** (`useNightCalendar`) as the guest pages through the calendar, instead of
+  one fixed 180-day window, so prices and availability appear for any month. Every month a chosen stay
+  touches is loaded so the "already booked" check sees all its nights.
+- **Display:** a short label under the day (`₹12k`, `₹16k`), full amount in the screen-reader label
+  ("31 December 2026, ₹16,000 per night"). Taken nights show no price. The popup widens from 280px to
+  320px when prices are shown.
+- If a month fails to load, its dates stay selectable without prices; checkout still prices the stay
+  and re-checks availability on the server.
+
+**Verified** against local Supabase in the browser: 17 Dec ₹12k, 18 Dec (Fri) ₹14k, 31 Dec and 1 Jan
+₹16k, 2 Jan (Sat) ₹14k, 6 Oct (booked) struck out with no price, in both the widget and the booking
+pop-up; API returns 404 for an unknown property and 400 for bad input. 56 tests pass, including new
+tests for `nightlyRate`, `addMonthsISO` and `formatCompactINR`.
+
+---
+
+## v0.6.1 — Pricing and occupancy update — 2026-09-15
+
+Operator decisions, applied by migration `00021` (local and hosted):
+
+| | Before | After |
+|---|---|---|
+| Guests included in the nightly rate | 8 | **12** |
+| Maximum guests | 12 | **15** (12 + up to 3 extra) |
+| Extra guest charge | ₹750 per person per night | **₹1,000** per person per night |
+| Weekday / weekend nightly rate | ₹12,000 / ₹14,000 | unchanged |
+| Seasonal rules | Diwali ₹18,000 (min 2), New Year ₹20,000 (min 3), Summer ₹15,000 (min 2) | **Removed** |
+| New Year | ₹20,000, 29 Dec to 1 Jan, 3-night minimum | **₹16,000** on 31 Dec and 1 Jan only, no minimum |
+
+- Future seasonal prices are set by the operator in Ooruda Villa. Minimum stay remains supported per
+  rule, but no rule sets one.
+- **Advertised capacity stays "up to 12 guests"**: homepage, rooms, the-villa and events now read
+  `base_occupancy` instead of `max_occupancy`, which became 15. House rules (stay guide, terms,
+  homepage "Max guests") and the booking form use the real maximum of 15.
+- `seed.sql` updated so a local reset does not restore the old rules and rates.
+- New pricing tests cover the live configuration, including 1 Jan (a Friday) taking the ₹16,000 rule
+  over the weekend rate.
+
+---
+
 ## v0.6.0 — Guest availability calendar, concurrency tests, Ooruda Villa contract — 2026-09-15
 
 ### Guest availability calendar

@@ -62,12 +62,14 @@ const IMPORTANT_NOTES = [
 export default async function EventsPage() {
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number ?? '919876543210';
-  const maxOccupancy = property?.max_occupancy ?? 12;
+  // Advertised capacity is the guests included in the rate; up to 3 more can book
+  // at extra cost (see property.max_occupancy).
+  const includedGuests = property?.base_occupancy ?? 12;
   const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about hosting an event at ${property?.name ?? 'Villa 19'}`)}`;
 
   const INCLUDED = [
     'Exclusive use of the entire villa and grounds',
-    `Up to ${maxOccupancy} guests across 4 bedrooms`,
+    `Up to ${includedGuests} guests across 4 bedrooms`,
     'Full access to kitchen and all outdoor spaces',
     'Dedicated host contact throughout your stay',
     'Flexible check-in time subject to availability',
@@ -87,13 +89,13 @@ export default async function EventsPage() {
             Private Villa Exclusively Yours
           </p>
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-4"
+            className="text-5xl sm:text-6xl font-bold mb-4"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             Events & Celebrations
           </h1>
           <p className="text-lg text-white/75 leading-relaxed max-w-xl mx-auto mb-6">
-            Make your celebration memorable with a private villa stay for up to {maxOccupancy} guests.
+            Make your celebration memorable with a private villa stay for up to {includedGuests} guests.
           </p>
           <a
             href={whatsappUrl}
@@ -188,7 +190,7 @@ export default async function EventsPage() {
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Planning something special?
           </h2>
           <p className="text-white/70 text-base max-w-sm mx-auto">

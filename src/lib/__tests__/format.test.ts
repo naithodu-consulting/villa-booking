@@ -93,3 +93,22 @@ describe('todayISO / addDaysISO', () => {
     expect(addDaysISO('2026-09-09', 0)).toBe('2026-09-09');
   });
 });
+
+import { addMonthsISO, formatCompactINR } from '../format';
+
+describe('addMonthsISO', () => {
+  it('returns the first of the following month, across year end', () => {
+    expect(addMonthsISO('2026-12-15', 1)).toBe('2027-01-01');
+    expect(addMonthsISO('2026-01-31', 1)).toBe('2026-02-01');
+    expect(addMonthsISO('2026-09-01', 0)).toBe('2026-09-01');
+  });
+});
+
+describe('formatCompactINR', () => {
+  it('shortens thousands for calendar cells', () => {
+    expect(formatCompactINR(1_200_000)).toBe('₹12k');
+    expect(formatCompactINR(1_450_000)).toBe('₹14.5k');
+    expect(formatCompactINR(1_600_000)).toBe('₹16k');
+    expect(formatCompactINR(50_000)).toBe('₹500');
+  });
+});

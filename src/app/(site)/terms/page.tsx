@@ -18,7 +18,7 @@ export default async function TermsPage() {
   const property = await getProperty();
   const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
   const checkOut = formatTime12(property?.check_out_time ?? '11:00');
-  const maxGuests = property?.max_occupancy ?? 12;
+  const maxGuests = property?.max_occupancy ?? 15;
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
@@ -112,7 +112,7 @@ export default async function TermsPage() {
 
           <Section title="8. Contact">
             <p>
-              For any queries about these terms: <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass)' }}>hello@habbaa.in</a><br />
+              For any queries about these terms: <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass-ink)' }}>hello@habbaa.in</a><br />
               Villa 19 by Habbaa, Urwa, Mangalore, Karnataka 575006
             </p>
           </Section>

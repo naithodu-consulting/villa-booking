@@ -6,7 +6,6 @@ const nunitoSans = Nunito_Sans({
   variable: "--font-sans",
   subsets: ["latin", "latin-ext"],
   weight: ["300", "400", "600", "700", "800"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -14,7 +13,6 @@ const cormorant = Cormorant_Garamond({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
   display: "swap",
 });
 

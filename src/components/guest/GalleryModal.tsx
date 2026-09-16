@@ -78,7 +78,7 @@ export default function GalleryModal({ images }: GalleryProps) {
             priority
             className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
 
         </div>
 
@@ -100,13 +100,13 @@ export default function GalleryModal({ images }: GalleryProps) {
               sizes="(max-width: 768px) 50vw, 25vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-transparent transition-colors" />
+            <div className="absolute inset-0 bg-black/15 group-hover:bg-transparent transition-colors" />
           </div>
         ))}
 
         <button
           onClick={() => openLightbox(0)}
-          className="absolute bottom-3 right-3 bg-slate-900/90 backdrop-blur-md hover:bg-amber-500 hover:text-slate-950 text-white px-3.5 py-2 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition-all shadow-xl"
+          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-3.5 py-2 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
           aria-label={`Show all ${images.length} photos`}
         >
           <Grid className="w-3.5 h-3.5" aria-hidden="true" />
@@ -117,7 +117,7 @@ export default function GalleryModal({ images }: GalleryProps) {
       {/* Fullscreen Lightbox */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-xl flex flex-col justify-between p-4 md:p-8"
+          className="fixed inset-0 z-50 bg-[rgba(20,10,8,0.96)] backdrop-blur-xl flex flex-col justify-between p-4 md:p-8"
           role="dialog"
           aria-modal="true"
           aria-label="Photo gallery"
@@ -131,8 +131,8 @@ export default function GalleryModal({ images }: GalleryProps) {
                   onClick={() => { setActiveCategory(cat); setCurrentIndex(0); }}
                   className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all whitespace-nowrap ${
                     activeCategory === cat
-                      ? 'bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20'
-                      : 'bg-slate-800/80 text-slate-300 hover:bg-slate-700'
+                      ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
+                      : 'bg-white/10 text-white/80 hover:bg-white/20'
                   }`}
                   aria-pressed={activeCategory === cat}
                 >
@@ -142,7 +142,7 @@ export default function GalleryModal({ images }: GalleryProps) {
             </div>
             <button
               onClick={closeLightbox}
-              className="p-2 rounded-full bg-slate-800/80 text-slate-300 hover:bg-red-500 hover:text-white transition-all ml-4 flex-shrink-0"
+              className="p-2 rounded-full bg-white/10 text-white/80 hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] transition-all ml-4 flex-shrink-0"
               aria-label="Close gallery"
             >
               <X className="w-6 h-6" aria-hidden="true" />
@@ -153,7 +153,7 @@ export default function GalleryModal({ images }: GalleryProps) {
           <div className="relative flex-1 flex items-center justify-center my-4">
             <button
               onClick={goPrev}
-              className="absolute left-2 md:left-6 z-10 p-3 rounded-full bg-slate-900/80 text-white hover:bg-amber-500 hover:text-slate-950 transition-all border border-slate-700"
+              className="absolute left-2 md:left-6 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] transition-all border border-white/15"
               aria-label="Previous photo"
             >
               <ChevronLeft className="w-6 h-6" aria-hidden="true" />
@@ -171,8 +171,8 @@ export default function GalleryModal({ images }: GalleryProps) {
                     priority
                   />
                 </div>
-                <p className="mt-3 text-slate-400 text-sm font-medium text-center">
-                  {filteredImages[currentIndex].alt_text} &mdash;{' '}
+                <p className="mt-3 text-white/75 text-sm font-medium text-center">
+                  {filteredImages[currentIndex].alt_text} ·{' '}
                   <span className="tabular-nums">{currentIndex + 1}</span> of{' '}
                   <span className="tabular-nums">{filteredImages.length}</span>
                 </p>
@@ -181,14 +181,14 @@ export default function GalleryModal({ images }: GalleryProps) {
 
             <button
               onClick={goNext}
-              className="absolute right-2 md:right-6 z-10 p-3 rounded-full bg-slate-900/80 text-white hover:bg-amber-500 hover:text-slate-950 transition-all border border-slate-700"
+              className="absolute right-2 md:right-6 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] transition-all border border-white/15"
               aria-label="Next photo"
             >
               <ChevronRight className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
 
-          <p className="text-center text-xs text-slate-500">
+          <p className="text-center text-xs text-white/60">
             Use ← → arrow keys to navigate · ESC to close
           </p>
         </div>

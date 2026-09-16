@@ -81,13 +81,13 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
               letterSpacing: '1.2px',
               backgroundColor: 'rgba(168,116,50,0.10)',
               border: '1px solid rgba(168,116,50,0.35)',
-              color: 'var(--brass)',
+              color: 'var(--brass-ink)',
             }}
             aria-label={`Copy code ${current.code}`}
           >
             {current.code}
             {copied
-              ? <Check className="w-3 h-3 text-green-400" />
+              ? <Check className="w-3 h-3" style={{ color: 'var(--ok)' }} />
               : <Copy className="w-3 h-3 opacity-60" />
             }
           </button>
@@ -113,9 +113,9 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
         onClick={() => setDismissed(true)}
         aria-label="Dismiss announcements"
         className="absolute right-3 p-1.5 rounded transition-colors"
-        style={{ color: 'var(--ink-faint)' }}
+        style={{ color: 'var(--ink-muted)' }}
         onMouseEnter={e => (e.currentTarget.style.color = 'var(--maroon)')}
-        onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-faint)')}
+        onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-muted)')}
       >
         <X className="w-4 h-4" />
       </button>

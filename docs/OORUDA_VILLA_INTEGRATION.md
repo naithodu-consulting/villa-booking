@@ -209,9 +209,9 @@ created for that exact figure.
 |---|---|
 | `base_nightly_rate` | Sunday to Thursday nights, paise |
 | `weekend_nightly_rate` | **Friday and Saturday nights**, paise |
-| `extra_guest_rate` | Per guest, per night, above `base_occupancy`, paise |
-| `base_occupancy` | Guests included in the nightly rate (children count; infants do not) |
-| `max_occupancy` | Hard cap. The guest site refuses anything above it. |
+| `extra_guest_rate` | Per guest, per night, above `base_occupancy`, paise. Currently **100000** (₹1,000). |
+| `base_occupancy` | Guests included in the nightly rate (children count; infants do not). Currently **12**, and the number the site advertises ("up to 12 guests"). |
+| `max_occupancy` | Hard cap. The guest site refuses anything above it. Currently **15** (12 included + 3 extra). |
 
 Changes apply to **new** bookings at once. Existing bookings keep their stored amounts.
 
@@ -232,16 +232,15 @@ Changes apply to **new** bookings at once. Existing bookings keep their stored a
    WHERE property_id = '<property_id>'
      AND '<new_start>' < end_date AND '<new_end>' > start_date;
   ```
-- **Existing data needs a decision.** The rules currently on dev read as if the end date were
-  included, but the engine excludes it:
+- **Current data (2026-09-15, migration `00021`).** One rule only:
 
-  | Rule | Stored | Nights actually priced |
-  |---|---|---|
-  | Summer Holidays | 2026-05-01 to 2026-05-31 | 1 to 30 May (**31 May at normal rate**) |
-  | Diwali Peak | 2026-10-17 to 2026-10-21 | 17 to 20 Oct (**21 Oct at normal rate**) |
-  | New Year Peak | 2026-12-29 to 2027-01-02 | 29 Dec to 1 Jan |
+  | Rule | `start_date` | `end_date` | Nights priced | Rate | Min stay |
+  |---|---|---|---|---|---|
+  | New Year's Eve and New Year's Day | 2026-12-31 | 2027-01-02 | 31 Dec, 1 Jan | ₹16,000 | none |
 
-  If the last nights were meant to be included, move each `end_date` forward one day.
+  The earlier Diwali, New Year and Summer rules and their minimum stays were removed. Every other
+  night uses the weekday/weekend rates until Ooruda Villa adds a rule. Minimum stay is still
+  supported per rule; set `min_stay_nights = 1` for none.
 
 ### 6.3 Computing a booking's amounts
 

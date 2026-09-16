@@ -137,7 +137,7 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs lg:text-[13px] font-bold uppercase" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>
+                  <span className="text-xs lg:text-[13px] font-bold uppercase" style={{ color: 'var(--brass-ink)', letterSpacing: '1.2px' }}>
                     {room.room_type}
                   </span>
                   <span
@@ -155,7 +155,7 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
               >
                 <span>{room.bed_count} × {room.bed_type}</span>
                 {room.has_ensuite_bathroom && (
-                  <span className="font-semibold" style={{ color: 'var(--ok)' }}>Ensuite Bath</span>
+                  <span className="font-semibold" style={{ color: 'var(--ink-muted)' }}>Ensuite Bath</span>
                 )}
               </div>
             </div>

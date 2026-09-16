@@ -11,6 +11,31 @@ function toInt(value: number): number {
   return Math.round(value); // guard against any fractional paise reaching here
 }
 
+/**
+ * The rate for a single night, in paise: a pricing rule covering that night
+ * (start_date inclusive, end_date exclusive), else the weekend rate for Friday
+ * and Saturday nights, else the weekday rate.
+ *
+ * Shared by calculateBookingPrice and the price calendar, so the price a guest
+ * sees on a date is the price checkout charges for it.
+ */
+export function nightlyRate(
+  property: Pick<Property, 'base_nightly_rate' | 'weekend_nightly_rate'>,
+  pricingRules: PricingRule[],
+  dateStr: string
+): { rate: number; isWeekend: boolean; rule?: PricingRule } {
+  const dayOfWeek = new Date(dateStr + 'T00:00:00Z').getUTCDay(); // 0=Sun, 5=Fri, 6=Sat
+  const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
+  const rule = pricingRules.find((r) => dateStr >= r.start_date && dateStr < r.end_date);
+  // All rates are stored in paise; toInt() guards against DB DECIMAL → JS float drift
+  const rate = rule
+    ? toInt(rule.nightly_rate)
+    : isWeekend
+    ? toInt(property.weekend_nightly_rate)
+    : toInt(property.base_nightly_rate);
+  return { rate, isWeekend, rule };
+}
+
 export function calculateBookingPrice(
   property: Property,
   pricingRules: PricingRule[],
@@ -57,21 +82,7 @@ export function calculateBookingPrice(
   const curr = new Date(checkIn);
   while (curr < checkOut) {
     const dateStr = curr.toISOString().split('T')[0];
-    const dayOfWeek = curr.getUTCDay(); // 0=Sun, 5=Fri, 6=Sat
-    const isWeekend = dayOfWeek === 5 || dayOfWeek === 6;
-
-    const matchedRule = pricingRules.find((rule) => {
-      const rStart = new Date(rule.start_date + 'T00:00:00Z');
-      const rEnd = new Date(rule.end_date + 'T00:00:00Z');
-      return curr >= rStart && curr < rEnd;
-    });
-
-    // All rates are stored in paise; toInt() guards against DB DECIMAL → JS float drift
-    const ratePaise = matchedRule
-      ? toInt(matchedRule.nightly_rate)
-      : isWeekend
-      ? toInt(property.weekend_nightly_rate)
-      : toInt(property.base_nightly_rate);
+    const { rate: ratePaise, isWeekend, rule: matchedRule } = nightlyRate(property, pricingRules, dateStr);
 
     baseAmountPaise += ratePaise;
     nightlyDetails.push({

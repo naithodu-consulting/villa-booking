@@ -53,13 +53,13 @@ export default async function RoomsPage() {
             Sleeping Arrangements
           </p>
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-5"
+            className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             Rooms
           </h1>
           <p className="text-lg text-white/75 leading-relaxed">
-            {rooms.length} bedrooms sleeping up to {property.max_occupancy} guests. Each space thoughtfully appointed for comfort and privacy.
+            {rooms.length} bedrooms sleeping up to {property.base_occupancy} guests. Each space thoughtfully appointed for comfort and privacy.
           </p>
         </div>
       </section>
@@ -82,7 +82,7 @@ export default async function RoomsPage() {
                 >
                   <div className="text-center space-y-2">
                     <Bed className="w-10 h-10 mx-auto" style={{ color: 'var(--border-brass)' }} aria-hidden="true" />
-                    <p className="text-xs" style={{ color: 'var(--ink-faint)' }}>Room {idx + 1}</p>
+                    <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>Room {idx + 1}</p>
                   </div>
                 </div>
 
@@ -90,7 +90,7 @@ export default async function RoomsPage() {
                   {/* Header */}
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <span className="text-[11px] font-bold uppercase block mb-1" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>
+                      <span className="text-[11px] font-bold uppercase block mb-1" style={{ color: 'var(--brass-ink)', letterSpacing: '1.2px' }}>
                         {room.room_type}
                       </span>
                       <h2 className="text-xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
@@ -125,7 +125,7 @@ export default async function RoomsPage() {
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     {room.has_ensuite_bathroom && (
-                      <div className="flex items-center gap-2" style={{ color: 'var(--ok)' }}>
+                      <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
                         <Bath className="w-3.5 h-3.5" aria-hidden="true" />
                         <span className="font-semibold">Private Ensuite Bathroom</span>
                       </div>
@@ -176,11 +176,11 @@ export default async function RoomsPage() {
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Book the entire villa
           </h2>
           <p className="text-white/70 text-sm">
-            Villa 19 is rented exclusively: all {rooms.length} bedrooms, for up to {property.max_occupancy} guests.
+            Villa 19 is rented exclusively: all {rooms.length} bedrooms, for up to {property.base_occupancy} guests.
           </p>
           <BookNowLink
             className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"

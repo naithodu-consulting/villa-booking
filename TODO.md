@@ -14,10 +14,11 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
       issues refunds for Villa 19, writing to *this* site's Supabase project.
 - [x] Contract written 2026-09-15: `docs/OORUDA_VILLA_INTEGRATION.md`. Share it with the Ooruda
       Villa developers.
-- [ ] **Decide the seasonal rule end dates.** The engine excludes `end_date`, but Summer Holidays
-      (ends 05-31) and Diwali Peak (ends 10-21) look like they meant to include that night. Either
-      move each `end_date` forward a day or confirm the current pricing is intended.
-- [ ] Push migrations `00019` and `00020` to the remote database (`scripts/db-push.sh`).
+- [x] Seasonal pricing decided 2026-09-15 (`00021`): festival rules and minimum stays removed;
+      only 31 Dec and 1 Jan at ₹16,000. Future seasonal prices are set in Ooruda Villa.
+- [ ] Share the updated section 6 of the integration doc with Ooruda Villa (occupancy now
+      12 included / 15 max, extra ₹1,000 per person per night).
+- [x] Migrations `00019`–`00021` pushed to the remote database (2026-09-15).
 
 ## Channel manager / OTAs (decided 2026-09-15)
 - [x] **Timing: after launch.** Launch is direct-booking only; this site's DB stays the source of
@@ -73,7 +74,14 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
 - [ ] Mobile homepage booking widget: currently buried at bottom on mobile (sticky bar added as stopgap). Consider a dedicated /book landing optimised for mobile.
 - [ ] DatePicker: no keyboard arrow-key navigation within the calendar grid (ESC and click work; arrow nav would be ideal for a11y)
 - [x] Guest availability calendar: booked and blocked nights struck out in every date picker (2026-09-15).
-- [ ] 12-month "from ₹X" rate chart (Master Plan 7.4) not built; the calendar shows availability only.
+- [x] Nightly prices shown in every date picker, from the database (2026-09-15).
+- [x] Colour-coded availability with legend: available / special price / not available (2026-09-15).
+- [x] Site-wide colour roles documented in `globals.css` and applied (2026-09-15).
+- [x] Italic page titles removed (2026-09-15).
+- [ ] Pre-existing lint errors to clean up: unescaped apostrophe in `events/page.tsx` ("What's
+      Included"), and setState-inside-effect in BookingWidget, Analytics, CookieConsent, DatePicker.
+- [ ] Optional: a 12-month "from ₹X" rate summary (Master Plan 7.4). The date pickers now show every
+      night's price, so this is a nice-to-have rather than a gap.
 
 ## Email domain migration to habbaa.in (2026-09-09)
 The site now uses `hello@habbaa.in` everywhere in code and in `.env.local` /

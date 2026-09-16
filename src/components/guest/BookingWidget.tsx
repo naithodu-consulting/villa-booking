@@ -7,7 +7,7 @@ import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
-import { useUnavailableNights } from '@/components/guest/useUnavailableNights';
+import { useNightCalendar } from '@/components/guest/useNightCalendar';
 
 interface BookingWidgetProps {
   property: Property;
@@ -31,7 +31,12 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   const [showGuestMenu, setShowGuestMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const guestMenuRef = useRef<HTMLDivElement>(null);
-  const unavailable = useUnavailableNights(property.id, todayStr);
+  const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(property.id);
+  useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
+  // The morning of the first taken night is a valid check-out, so the check-out
+  // calendar shows it as open rather than booked.
+  const checkOutMax = latestCheckOut(unavailable, checkIn) ?? undefined;
+  const checkOutInfo = (iso: string) => (iso === checkOutMax ? { available: true } : infoFor(iso));
 
   // Reset loading state on mount AND on bfcache restore.
   // useEffect([]) only runs on real mounts; bfcache restores the frozen React tree
@@ -90,14 +95,16 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   const extraRateDisplay = inr(property.extra_guest_rate);
 
   return (
-    <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg overflow-hidden">
+    <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg">
+      {/* No overflow-hidden on the card: it clipped the date picker popup. The header
+          and body round their own corners instead. */}
       {/* Header carries one message: the nightly rate.
           Was --maroon (#5A2626) while the site header and footer are --maroon-deep
           (#3C1717), so the page showed three different maroons; now they agree.
           The "Direct Booking" pill is gone: it made the same claim as the
           guarantee line beside it, and its rgba(30,138,122,0.2) fill composited
           over maroon to #4E3A37, a muddy brown-grey rather than the intended teal. */}
-      <div className="bg-[var(--maroon-deep)] p-5">
+      <div className="bg-[var(--maroon-deep)] p-5 rounded-t-2xl">
         <div className="flex items-baseline gap-1.5">
           <span className="text-3xl font-black text-white leading-none">₹{baseRateDisplay}</span>
           <span className="text-white/60 text-sm font-semibold">/ night</span>
@@ -108,7 +115,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
       </div>
 
       {/* White body — form */}
-      <div className="bg-white p-5 space-y-4">
+      <div className="bg-white p-5 space-y-4 rounded-b-2xl">
         <form onSubmit={handleBookingSubmit} className="space-y-3">
           {/* Date Inputs */}
           <div
@@ -120,7 +127,9 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               label="Check-In"
               value={checkIn}
               min={todayStr}
-              isDateUnavailable={(iso) => unavailable.has(iso)}
+              getDayInfo={infoFor}
+              getMonthStatus={monthStatus}
+              onViewMonthChange={loadMonth}
               onChange={(v) => {
                 setCheckIn(v);
                 if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setCheckOut(addDaysISO(v, 1));
@@ -133,8 +142,11 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
               id="widget-checkout"
               label="Check-Out"
               value={checkOut}
-              min={checkIn || todayStr}
-              max={latestCheckOut(unavailable, checkIn) ?? undefined}
+              min={addDaysISO(checkIn || todayStr, 1)}
+              max={checkOutMax}
+              getDayInfo={checkOutInfo}
+              getMonthStatus={monthStatus}
+              onViewMonthChange={loadMonth}
               onChange={setCheckOut}
               clearable={false}
               compact
@@ -228,7 +240,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                   </div>
                 </div>
 
-                <p className="text-xs text-[var(--brass)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
+                <p className="text-xs text-[var(--brass-ink)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
                   Base rate includes up to {property.base_occupancy} guests.
                   ₹{extraRateDisplay}/night per additional guest.
                 </p>
@@ -238,14 +250,14 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
           {/* Pricing Summary */}
           {errorMsg ? (
-            <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-600 text-xs font-medium">
+            <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-[var(--error)] text-xs font-medium">
               {errorMsg}
             </div>
           ) : breakdown ? (
             <div className="space-y-1.5 py-2.5 border-t border-b border-[rgba(0,0,0,0.09)] text-sm">
               {breakdown.nightly_details.every(d => d.rate === breakdown!.nightly_details[0].rate) ? (
                 <div className="flex justify-between text-[var(--ink-muted)]">
-                  <span>₹{inr(breakdown.nightly_details[0].rate)} × {breakdown.num_nights} nights</span>
+                  <span>₹{inr(breakdown.nightly_details[0].rate)} × {breakdown.num_nights} night{breakdown.num_nights === 1 ? '' : 's'}</span>
                   <span className="tabular-nums">₹{inr(breakdown.base_amount)}</span>
                 </div>
               ) : (
@@ -279,7 +291,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
               <div className="flex justify-between text-sm font-black text-[var(--ink)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
                 <span>Total Payable</span>
-                <span className="text-[var(--brass)] font-extrabold text-sm tabular-nums">
+                <span className="text-[var(--brass-ink)] font-extrabold text-sm tabular-nums">
                   ₹{inr(breakdown.total_amount)}
                 </span>
               </div>

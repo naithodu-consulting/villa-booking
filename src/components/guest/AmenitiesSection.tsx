@@ -32,7 +32,7 @@ function CategoryCards({ groups }: { groups: Record<string, string[]> }) {
           className="p-5 rounded-2xl shadow-sm"
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
         >
-          <h3 className="text-sm lg:text-[15px] font-bold uppercase mb-3" style={{ color: 'var(--brass)', letterSpacing: '1.2px' }}>
+          <h3 className="text-sm lg:text-[15px] font-bold uppercase mb-3" style={{ color: 'var(--brass-ink)', letterSpacing: '1.2px' }}>
             {category}
           </h3>
           <ul className="space-y-2.5">

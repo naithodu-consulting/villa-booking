@@ -41,7 +41,7 @@ export default async function ReviewsPage() {
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-5"
+            className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             Guest Testimonials
@@ -118,7 +118,7 @@ export default async function ReviewsPage() {
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Be among our first guests
           </h2>
           <p className="text-white/70 text-sm">Book now and help us build our review history.</p>

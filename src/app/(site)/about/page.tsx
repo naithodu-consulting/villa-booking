@@ -63,7 +63,7 @@ export default function AboutPage() {
             />
           </div>
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-5"
+            className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             About Us
@@ -128,7 +128,7 @@ export default function AboutPage() {
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
         >
-          <h2 className="text-3xl font-bold italic" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Ready to experience it?
           </h2>
           <p className="text-white/70 text-base">Book Villa 19 directly. No platform fees, personal host service.</p>

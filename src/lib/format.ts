@@ -68,6 +68,24 @@ export function todayISO(timeZone: string = PROPERTY_TZ): string {
   return new Date().toLocaleDateString('en-CA', { timeZone });
 }
 
+/** First day of the month `months` after the month containing `iso`, as "YYYY-MM-DD". */
+export function addMonthsISO(iso: string, months: number): string {
+  const [y, m] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1 + months, 1)).toISOString().split('T')[0];
+}
+
+/**
+ * Short rupee label for a calendar cell: 1200000 paise to "₹12k", 1450000 to
+ * "₹14.5k". Calendar cells are about 48px wide, so the full "₹12,000" does not
+ * fit; screen readers get the full amount from the cell's aria-label instead.
+ */
+export function formatCompactINR(paise: number): string {
+  const rupees = paise / 100;
+  if (rupees < 1000) return `₹${Math.round(rupees)}`;
+  const thousands = Math.round(rupees / 100) / 10;
+  return `₹${Number.isInteger(thousands) ? thousands : thousands.toFixed(1)}k`;
+}
+
 /**
  * Shift a "YYYY-MM-DD" date by whole days.
  *

@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
-import { useUnavailableNights } from '@/components/guest/useUnavailableNights';
+import { useNightCalendar } from '@/components/guest/useNightCalendar';
 
 interface Props {
   maxOccupancy: number;
@@ -27,7 +27,12 @@ export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }:
   const [checkIn, setCheckIn] = useState(todayStr);
   const [checkOut, setCheckOut] = useState(addDaysISO(todayStr, 1));
   const [adults, setAdults] = useState(2);
-  const unavailable = useUnavailableNights(propertyId, todayStr);
+  const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(propertyId);
+  useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
+  // The morning of the first taken night is a valid check-out, so the check-out
+  // calendar shows it as open rather than booked.
+  const checkOutMax = latestCheckOut(unavailable, checkIn) ?? undefined;
+  const checkOutInfo = (iso: string) => (iso === checkOutMax ? { available: true } : infoFor(iso));
   const datesAvailable = isRangeAvailable(unavailable, checkIn, checkOut);
 
   return (
@@ -49,7 +54,9 @@ export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }:
           value={checkIn}
           min={todayStr}
           clearable={false}
-          isDateUnavailable={(iso) => unavailable.has(iso)}
+          getDayInfo={propertyId ? infoFor : undefined}
+          getMonthStatus={monthStatus}
+          onViewMonthChange={loadMonth}
           onChange={(v) => {
             setCheckIn(v);
             if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setCheckOut(addDaysISO(v, 1));
@@ -60,7 +67,10 @@ export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }:
           label="Check-Out"
           value={checkOut}
           min={addDaysISO(checkIn, 1)}
-          max={latestCheckOut(unavailable, checkIn) ?? undefined}
+          max={checkOutMax}
+          getDayInfo={propertyId ? checkOutInfo : undefined}
+          getMonthStatus={monthStatus}
+          onViewMonthChange={loadMonth}
           clearable={false}
           onChange={setCheckOut}
         />
@@ -103,7 +113,7 @@ export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }:
       </div>
 
       {!datesAvailable && (
-        <p role="alert" className="text-sm font-medium text-red-600">
+        <p role="alert" className="text-sm font-medium text-[var(--error)]">
           Some of those nights are already booked. Please choose different dates.
         </p>
       )}

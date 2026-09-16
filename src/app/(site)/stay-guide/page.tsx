@@ -97,7 +97,7 @@ export default async function StayGuidePage() {
       icon: ShieldCheck,
       title: 'Villa Rules',
       items: [
-        `Maximum occupancy: ${property?.max_occupancy ?? 12} guests`,
+        `Maximum occupancy: ${property?.max_occupancy ?? 15} guests`,
         'Quiet hours: 11 PM to 7 AM',
         'No smoking indoors. Designated outdoor area available.',
         'No pets allowed',
@@ -120,7 +120,7 @@ export default async function StayGuidePage() {
             Before You Arrive
           </p>
           <h1
-            className="text-5xl sm:text-6xl font-bold italic mb-4"
+            className="text-5xl sm:text-6xl font-bold mb-4"
             style={{ fontFamily: 'var(--font-display)', color: 'white' }}
           >
             Stay Guide
@@ -145,7 +145,7 @@ export default async function StayGuidePage() {
             </p>
             <p className="text-base" style={{ color: 'var(--ink-muted)' }}>
               Your host responds within 30 minutes.{' '}
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass-ink)' }}>
                 Message us
               </a>
             </p>
@@ -227,7 +227,7 @@ export default async function StayGuidePage() {
               <div key={category} className="space-y-2">
                 <h3
                   className="text-xs font-bold uppercase tracking-widest pb-2"
-                  style={{ color: 'var(--brass)', borderBottom: '1px solid var(--border-subtle)' }}
+                  style={{ color: 'var(--brass-ink)', borderBottom: '1px solid var(--border-subtle)' }}
                 >
                   {category}
                 </h3>

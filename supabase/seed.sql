@@ -21,8 +21,8 @@ INSERT INTO properties (
   'Villa 19 is a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is about 8 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
   'Urwa', 'Mangalore', 'Karnataka', '575006',
   12.8892951, 74.8298580,
-  8, 12,
-  75000,    -- ₹750/extra guest
+  12, 15,   -- 12 guests included, up to 3 more
+  100000,   -- ₹1,000/extra guest per night
   1200000,  -- ₹12,000/night base
   1400000,  -- ₹14,000/night weekend
   '14:00:00', '11:00:00',
@@ -59,12 +59,11 @@ INSERT INTO property_images (id, property_id, url, alt_text, category, display_o
 ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id;
 
 -- ─────────────────────────────────────────────────────────
--- Pricing Rules (Diwali & New Year seasonal examples)
+-- Pricing Rules (see 00021). end_date is exclusive: the last priced night is 1 Jan.
+-- Other seasonal prices are set by the operator in Ooruda Villa, not seeded.
 -- ─────────────────────────────────────────────────────────
 INSERT INTO pricing_rules (property_id, rule_name, start_date, end_date, nightly_rate, min_stay_nights) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Diwali Peak',      '2026-10-17', '2026-10-21', 1800000, 2),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'New Year Peak',    '2026-12-29', '2027-01-02', 2000000, 3),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Summer Holidays',  '2026-05-01', '2026-05-31', 1500000, 2)
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'New Year''s Eve and New Year''s Day', '2026-12-31', '2027-01-02', 1600000, 1)
 ON CONFLICT ON CONSTRAINT uq_pricing_property_rule DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────

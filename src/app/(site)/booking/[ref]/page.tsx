@@ -50,7 +50,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
             </div>
           )}
           <h1
-            className="text-4xl sm:text-5xl font-bold italic mb-3"
+            className="text-4xl sm:text-5xl font-bold mb-3"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             {isPaid ? 'Booking Confirmed' : 'Booking Pending'}
@@ -135,15 +135,15 @@ export default async function BookingConfirmationPage({ params }: Props) {
           <p className="font-bold" style={{ color: 'var(--maroon)' }}>What happens next</p>
           <ul className="space-y-2" style={{ color: 'var(--ink-muted)' }}>
             <li className="flex items-start gap-2">
-              <span className="font-bold mt-0.5" style={{ color: 'var(--brass)' }}>1.</span>
+              <span className="font-bold mt-0.5" style={{ color: 'var(--brass-ink)' }}>1.</span>
               Check your inbox. A confirmation email has been sent to {booking.guest_email}.
             </li>
             <li className="flex items-start gap-2">
-              <span className="font-bold mt-0.5" style={{ color: 'var(--brass)' }}>2.</span>
+              <span className="font-bold mt-0.5" style={{ color: 'var(--brass-ink)' }}>2.</span>
               24 hours before check-in, we will share the exact address and access instructions on WhatsApp.
             </li>
             <li className="flex items-start gap-2">
-              <span className="font-bold mt-0.5" style={{ color: 'var(--brass)' }}>3.</span>
+              <span className="font-bold mt-0.5" style={{ color: 'var(--brass-ink)' }}>3.</span>
               Questions? WhatsApp us. We respond within 30 minutes.
             </li>
           </ul>
