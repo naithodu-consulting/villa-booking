@@ -49,7 +49,7 @@ export default function AboutPage() {
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
-        className="py-16 sm:py-20"
+        className="py-12 sm:py-16"
         style={{
           backgroundColor: 'var(--paper-sunk)',
           color: 'var(--ink)',
@@ -58,13 +58,17 @@ export default function AboutPage() {
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <div className="flex justify-center mb-6">
-            <Image
-              src="/habbaa-logo.png"
-              alt="Habbaa"
-              width={72}
-              height={72}
-              className="rounded-full"
-            />
+            <div
+              className="w-20 h-20 rounded-full flex items-center justify-center"
+              style={{ backgroundColor: 'var(--maroon-deep)', border: '2px solid rgba(168,116,50,0.35)' }}
+            >
+              <Image
+                src="/habbaa-logo-white.svg"
+                alt="Habbaa"
+                width={52}
+                height={52}
+              />
+            </div>
           </div>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
@@ -130,7 +134,7 @@ export default function AboutPage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <section
           className="p-8 rounded-3xl text-center space-y-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Ready to experience it?

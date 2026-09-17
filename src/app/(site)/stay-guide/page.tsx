@@ -274,7 +274,7 @@ export default async function StayGuidePage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <div
           className="p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <div>
             <p className="font-bold">Still have questions?</p>

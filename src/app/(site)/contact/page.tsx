@@ -41,7 +41,7 @@ export default async function ContactPage() {
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
-        className="py-16 sm:py-20"
+        className="py-10 sm:py-14"
         style={{
           backgroundColor: 'var(--paper-sunk)',
           color: 'var(--ink)',
@@ -79,14 +79,14 @@ export default async function ContactPage() {
           >
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center"
-              style={{ backgroundColor: 'rgba(37,211,102,0.1)' }}
+              style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--brass)' }}
             >
               <WhatsAppIcon className="w-6 h-6" />
             </div>
             <div>
               <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>WhatsApp</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>Fastest response</p>
-              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--wa-on-light)' }}>Message Us →</p>
+              <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass-ink)' }}>Message Us →</p>
             </div>
           </a>
           )}

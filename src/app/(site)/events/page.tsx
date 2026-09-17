@@ -196,7 +196,7 @@ export default async function EventsPage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <section
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Planning something special?

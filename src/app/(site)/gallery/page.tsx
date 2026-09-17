@@ -60,7 +60,7 @@ export default async function GalleryPage() {
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
-        className="py-16 sm:py-20"
+        className="py-10 sm:py-14"
         style={{
           backgroundColor: 'var(--paper-sunk)',
           color: 'var(--ink)',
@@ -78,7 +78,7 @@ export default async function GalleryPage() {
             Gallery
           </h1>
           <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            A visual tour of the villa and its surroundings.
+            Bedrooms, common areas, the lawn, and the neighbourhood. Everything you want to see before you book.
           </p>
         </div>
       </section>
@@ -119,38 +119,22 @@ export default async function GalleryPage() {
                 >
                   {CATEGORY_LABEL[category] ?? category}
                 </h2>
-                {/* A category whose count does not fill its last row left a lone
-                    tile hugging the left with half the row empty beside it — the
-                    grid is 2-up on mobile and 3-up at sm+, so "leftover" differs
-                    per breakpoint. The orphans stretch to close the row instead. */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {imgs.map((img, i) => {
-                    const isLast = i === imgs.length - 1;
-                    // Widen the final tile by whatever the last row is short by:
-                    // 2-up leaves at most 1 slot, 3-up can leave 1 or 2.
-                    const short2 = imgs.length % 2;                 // 0 or 1
-                    const short3 = imgs.length % 3;                 // 0, 1 or 2
-                    const span =
-                      (isLast && short2 === 1 ? 'col-span-2 ' : '') +
-                      (isLast && short3 === 1 ? 'sm:col-span-3 '
-                        : isLast && short3 === 2 ? 'sm:col-span-2 '
-                        : 'sm:col-span-1 ');
-                    return (
-                      <div
-                        key={img.id}
-                        className={`relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm ${span}`}
-                        style={{ border: '1px solid var(--border-subtle)' }}
-                      >
-                        <Image
-                          src={img.url}
-                          alt={img.alt_text}
-                          fill
-                          className="object-cover hover:scale-105 transition-transform duration-300"
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw"
-                        />
-                      </div>
-                    );
-                  })}
+                  {imgs.map((img) => (
+                    <div
+                      key={img.id}
+                      className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
+                      style={{ border: '1px solid var(--border-subtle)' }}
+                    >
+                      <Image
+                        src={img.url}
+                        alt={img.alt_text}
+                        fill
+                        className="object-cover hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 50vw, 33vw"
+                      />
+                    </div>
+                  ))}
                 </div>
               </section>
             ))}
@@ -160,7 +144,7 @@ export default async function GalleryPage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <div
           className="mt-12 p-8 rounded-3xl text-center space-y-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Like what you see?

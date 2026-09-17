@@ -45,7 +45,7 @@ export default async function RoomsPage() {
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
-        className="py-16 sm:py-20"
+        className="py-10 sm:py-14"
         style={{
           backgroundColor: 'var(--paper-sunk)',
           color: 'var(--ink)',
@@ -178,7 +178,7 @@ export default async function RoomsPage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <section
           className="p-8 rounded-3xl text-center space-y-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Book the entire villa

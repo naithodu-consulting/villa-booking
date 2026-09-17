@@ -4,6 +4,79 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.6.9 — Nav active state, logo fix, title bands, gallery grid — 2026-09-17
+
+### Desktop and mobile nav active state
+
+`NavLink` (desktop) and the mobile drawer links now track the current pathname via `usePathname`.
+Active item shows white text and a brass underline (desktop) or maroon text with a faint maroon
+background tint (drawer). `aria-current="page"` added for screen readers. Hover is suppressed on
+the active item to avoid conflicting visual signals.
+
+### About page logo
+
+The hero section used `habbaa-logo.png` which has a dark navy background baked into the PNG.
+Replaced with `habbaa-logo-white.svg` inside a `--maroon-deep` circle with a brass border — the
+same treatment used in the header and drawer. Looks intentional rather than broken.
+
+### VILLA 19 casing consistency
+
+The Villa page h1 now renders `{property.name}` with `textTransform: uppercase`, matching the
+homepage hero. Both pages now show "VILLA 19".
+
+### WhatsApp contact card — brass palette
+
+The WhatsApp card in the contact page used WhatsApp green for the icon background and the
+"Message Us" link text. All three contact cards (WhatsApp, Email, Call) now use the site's
+brass/maroon palette consistently.
+
+### Title band padding reduced
+
+Interior page title bands were set to `py-16 sm:py-20` (64/80px) with 2-3 lines of content —
+visibly empty. Tightened to reflect content density:
+- Gallery, Rooms, Contact: `py-10 sm:py-14`
+- About, The Villa (more content): `py-12 sm:py-16`
+- Events, Stay Guide: already at `py-10 sm:py-14`, unchanged
+
+### Gallery subtitle improved
+
+Replaced the placeholder "A visual tour of the villa and its surroundings" with copy that is
+specific and useful to a prospective guest.
+
+### Gallery grid — orphan stretching removed
+
+The previous logic widened lone orphan tiles to fill their row (1 image → full-width banner,
+2 images → double-wide tile). This made portrait photos appear as stretched landscape banners.
+Removed entirely. All tiles use a consistent `aspect-[4/3]` at their natural column width.
+`sizes` hint corrected to `50vw / 33vw` to match actual rendered column widths.
+
+**tsc clean.**
+
+---
+
+## v0.6.8 — Consistent dark backgrounds, drawer direction fix — 2026-09-17
+
+### CTA card backgrounds unified to `--maroon-deep`
+
+Seven closing CTA cards (About, Rooms, Events, Gallery, Stay Guide, Testimonials, The Villa) used
+`--maroon` (#5A2626) while the header, footer and checkout header bar use `--maroon-deep` (#3C1717).
+On each page, the lighter card sits close to the darker footer — a two-tone dark that reads as a
+mistake rather than a deliberate design choice. All seven changed to `--maroon-deep`.
+
+Buttons and small UI elements (`EnquiryForm` send button, mobile sticky "Book Now") keep `--maroon`
+— the contrast distinction is intentional at button scale.
+
+### Mobile drawer now opens from the left
+
+The hamburger button was on the left; the drawer slid in from the right. Mismatched direction breaks
+the visual causality of the tap — Fitts's Law says the control and the surface it opens should be on
+the same side. The drawer panel changed from `right-0` to `left-0`. The hamburger, drawer and close
+button are now all on the left side of the screen.
+
+**tsc clean.**
+
+---
+
 ## v0.6.7 — Lining numerals, hero uppercase, nav audit — 2026-09-17
 
 ### Lining numerals in headings

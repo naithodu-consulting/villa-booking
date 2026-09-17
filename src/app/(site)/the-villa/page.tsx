@@ -76,7 +76,7 @@ export default async function TheVillaPage() {
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
-        className="py-16 sm:py-20"
+        className="py-12 sm:py-16"
         style={{
           backgroundColor: 'var(--paper-sunk)',
           color: 'var(--ink)',
@@ -89,7 +89,7 @@ export default async function TheVillaPage() {
           </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)', textTransform: 'uppercase' }}
           >
             {property.name}
           </h1>
@@ -250,7 +250,7 @@ export default async function TheVillaPage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <section
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Ready to book your stay?

@@ -124,7 +124,7 @@ export default async function ReviewsPage() {
         {/* ── CTA ──────────────────────────────────────────── */}
         <div
           className="p-8 rounded-3xl text-center space-y-4"
-          style={{ backgroundColor: 'var(--maroon)', color: 'white' }}
+          style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Be among our first guests

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import BookNowLink from '@/components/guest/BookNowLink';
 import Image from 'next/image';
 import { X } from 'lucide-react';
@@ -42,6 +43,7 @@ const DRAWER_LINKS = [
 export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -78,7 +80,7 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
           {/* Left — nav links */}
           <nav className="flex items-center gap-1 h-full" aria-label="Main navigation">
             {NAV_LINKS.map(({ href, label }) => (
-              <NavLink key={href} href={href}>{label}</NavLink>
+              <NavLink key={href} href={href} label={label} />
             ))}
           </nav>
 
@@ -203,9 +205,9 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
             onClick={() => setMenuOpen(false)}
           />
 
-          {/* Drawer panel */}
+          {/* Drawer panel — left side, matching the hamburger button position */}
           <div
-            className="absolute top-0 right-0 bottom-0 flex flex-col w-[85vw] max-w-sm shadow-2xl"
+            className="absolute top-0 left-0 bottom-0 flex flex-col w-[85vw] max-w-sm shadow-2xl"
             style={{ backgroundColor: 'var(--paper)' }}
           >
             {/* Drawer header — logo + close */}
@@ -252,19 +254,27 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
               className="flex flex-col px-3 py-3 flex-1 overflow-y-auto"
               aria-label="Mobile navigation"
             >
-              {DRAWER_LINKS.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center px-3 py-3.5 text-[15px] font-semibold rounded-lg transition-colors duration-150"
-                  style={{ color: 'var(--ink)', borderBottom: '1px solid rgba(0,0,0,0.05)' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'rgba(90,38,38,0.05)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = ''; }}
-                >
-                  {label}
-                </Link>
-              ))}
+              {DRAWER_LINKS.map(({ href, label }) => {
+                const active = pathname === href || (href !== '/' && pathname.startsWith(href));
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setMenuOpen(false)}
+                    aria-current={active ? 'page' : undefined}
+                    className="flex items-center px-3 py-3.5 text-[15px] font-semibold rounded-lg transition-colors duration-150"
+                    style={{
+                      color: active ? 'var(--maroon)' : 'var(--ink)',
+                      backgroundColor: active ? 'rgba(90,38,38,0.07)' : '',
+                      borderBottom: '1px solid rgba(0,0,0,0.05)',
+                    }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'rgba(90,38,38,0.05)'; }}
+                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = ''; }}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
             </nav>
 
             {/* Bottom CTAs */}
@@ -298,25 +308,33 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
   );
 }
 
-/* Extracted to avoid repeating inline hover logic in JSX */
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ href, label }: { href: string; label: string }) {
+  const pathname = usePathname();
+  const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
   return (
     <Link
       href={href}
+      aria-current={isActive ? 'page' : undefined}
       className="flex items-center text-lg font-semibold px-3.5 h-full transition-colors duration-150"
-      style={{ color: 'var(--brass-light)', letterSpacing: '0.01em', borderBottom: '2px solid transparent' }}
+      style={{
+        color: isActive ? '#fff' : 'var(--brass-light)',
+        letterSpacing: '0.01em',
+        borderBottom: isActive ? '2px solid rgba(201,148,74,0.75)' : '2px solid transparent',
+      }}
       onMouseEnter={e => {
+        if (isActive) return;
         const el = e.currentTarget as HTMLAnchorElement;
         el.style.color = '#fff';
         el.style.borderBottomColor = 'rgba(201,148,74,0.45)';
       }}
       onMouseLeave={e => {
+        if (isActive) return;
         const el = e.currentTarget as HTMLAnchorElement;
         el.style.color = 'var(--brass-light)';
         el.style.borderBottomColor = 'transparent';
       }}
     >
-      {children}
+      {label}
     </Link>
   );
 }
