@@ -16,7 +16,8 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 interface HeaderProps {
   propertyName: string;
-  whatsappUrl: string;
+  /** Absent when no WhatsApp number is configured: the enquiry button is then hidden. */
+  whatsappUrl?: string;
 }
 
 // Desktop nav — kept minimal for clean look
@@ -34,8 +35,8 @@ const DRAWER_LINKS = [
   { href: '/gallery',    label: 'Gallery'    },
   { href: '/events',     label: 'Events'     },
   { href: '/stay-guide', label: 'Stay Guide' },
+  { href: '/about',      label: 'About Us'   },
   { href: '/contact',    label: 'Contact Us' },
-  { href: '/testimonials', label: 'Testimonials' },
 ];
 
 export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
@@ -277,16 +278,18 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
               >
                 Book Now
               </BookNowLink>
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() => setMenuOpen(false)}
-                className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-lg"
-              >
-                <WhatsAppIcon className="w-4 h-4" />
-                WhatsApp Enquiry
-              </a>
+              {whatsappUrl && (
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-lg"
+                >
+                  <WhatsAppIcon className="w-4 h-4" />
+                  WhatsApp Enquiry
+                </a>
+              )}
             </div>
           </div>
         </div>

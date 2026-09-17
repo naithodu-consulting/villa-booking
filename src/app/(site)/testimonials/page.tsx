@@ -28,8 +28,10 @@ export const metadata: Metadata = {
 
 export default async function ReviewsPage() {
   const property = await getProperty();
-  const whatsappNumber = property?.whatsapp_number ?? '919876543210';
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to know more about guest reviews for ${property?.name ?? 'Villa 19'}`)}`;
+  const whatsappNumber = property?.whatsapp_number;
+  const whatsappUrl = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to know more about guest reviews for ${property?.name ?? 'Villa 19'}`)}`
+    : undefined;
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
@@ -37,16 +39,20 @@ export default async function ReviewsPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Guest Testimonials
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed">
+          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
             Verified guest reviews will appear here once we open our doors.
           </p>
         </div>
@@ -70,21 +76,23 @@ export default async function ReviewsPage() {
             ))}
           </div>
           <div>
-            <p className="text-xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <p className="text-xl font-bold" style={{ color: 'var(--maroon)' }}>
               Testimonials coming soon
             </p>
             <p className="text-sm mt-2 max-w-sm mx-auto leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
               We are gathering our first verified guest reviews. In the meantime, message us on WhatsApp and we will answer any question about the villa directly.
             </p>
           </div>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-wa-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl"
-          >
-            <WhatsAppIcon className="w-4 h-4" /> Ask Us Anything
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-wa-ghost inline-flex items-center gap-2 px-6 py-3 rounded-xl"
+            >
+              <WhatsAppIcon className="w-4 h-4" /> Ask Us Anything
+            </a>
+          )}
         </div>
 
         {/* ── Why trust us ─────────────────────────────────── */}

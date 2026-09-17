@@ -28,10 +28,13 @@ export const metadata: Metadata = {
 
 export default async function ContactPage() {
   const property = await getProperty();
-  const whatsappNumber = property?.whatsapp_number ?? '919876543210';
+  // Nothing here invents a number: a card is shown only when its value is set.
+  const whatsappNumber = property?.whatsapp_number;
   const phoneNumber = process.env.PROPERTY_PHONE ?? whatsappNumber;
   const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in';
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about ${property?.name ?? 'Villa 19'}`)}`;
+  const whatsappUrl = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about ${property?.name ?? 'Villa 19'}`)}`
+    : undefined;
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
@@ -39,16 +42,20 @@ export default async function ContactPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Contact Us
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed">
+          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
             WhatsApp is the fastest way to reach us. We reply as quickly as we can.
           </p>
         </div>
@@ -57,9 +64,12 @@ export default async function ContactPage() {
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
 
         {/* ── Contact options ──────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Columns follow the number of channels actually configured, so a missing
+            WhatsApp or phone number leaves a balanced row rather than a gap. */}
+        <div className={`grid grid-cols-1 gap-4 ${[whatsappUrl, phoneNumber].filter(Boolean).length === 2 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
 
           {/* WhatsApp */}
+          {whatsappUrl && (
           <a
             href={whatsappUrl}
             target="_blank"
@@ -79,6 +89,7 @@ export default async function ContactPage() {
               <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--wa-on-light)' }}>Message Us →</p>
             </div>
           </a>
+          )}
 
           {/* Email */}
           <a
@@ -100,6 +111,7 @@ export default async function ContactPage() {
           </a>
 
           {/* Call */}
+          {phoneNumber && (
           <a
             href={`tel:+${phoneNumber}`}
             className="flex flex-col items-center gap-3 p-6 rounded-2xl text-center transition-all hover:shadow-md"
@@ -117,6 +129,7 @@ export default async function ContactPage() {
               <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass-ink)' }}>Call Now →</p>
             </div>
           </a>
+          )}
 
         </div>
 
@@ -172,14 +185,14 @@ export default async function ContactPage() {
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
         >
           <div>
-            <p className="font-bold text-lg" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <p className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>
               Send an Enquiry
             </p>
             <p className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
               Not ready to book yet? Ask us anything: dates, availability, group requirements.
             </p>
           </div>
-          <EnquiryForm />
+          <EnquiryForm maxGuests={property?.max_occupancy ?? 15} />
         </div>
 
       </div>

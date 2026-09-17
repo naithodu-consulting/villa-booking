@@ -39,11 +39,15 @@ export default async function BookingConfirmationPage({ params }: Props) {
       {/* ── Header ────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20 text-center"
-        style={{ backgroundColor: isPaid ? 'var(--maroon)' : 'var(--paper-sunk)', color: isPaid ? 'white' : 'var(--ink)' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           {isPaid ? (
-            <CheckCircle className="w-14 h-14 mx-auto mb-5 opacity-90" style={{ color: 'var(--brass-light)' }} />
+            <CheckCircle className="w-14 h-14 mx-auto mb-5" style={{ color: 'var(--ok)' }} />
           ) : (
             <div className="w-14 h-14 mx-auto mb-5 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--border-subtle)' }}>
               <span className="text-2xl">⏳</span>
@@ -51,7 +55,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
           )}
           <h1
             className="text-4xl sm:text-5xl font-bold mb-3"
-            style={{ fontFamily: 'var(--font-display)' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             {isPaid ? 'Booking Confirmed' : 'Booking Pending'}
           </h1>
@@ -151,14 +155,16 @@ export default async function BookingConfirmationPage({ params }: Props) {
 
         {/* ── Contact quick links ───────────────────────── */}
         <div className="grid grid-cols-2 gap-3">
-          <a
-            href={`https://wa.me/${process.env.PROPERTY_WHATSAPP ?? '919876543210'}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-2xl"
-          >
-            WhatsApp Us
-          </a>
+          {process.env.PROPERTY_WHATSAPP && (
+            <a
+              href={`https://wa.me/${process.env.PROPERTY_WHATSAPP}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-2xl"
+            >
+              WhatsApp Us
+            </a>
+          )}
           <Link
             href="/"
             className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold transition-all hover:opacity-90"

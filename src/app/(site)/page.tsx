@@ -86,14 +86,14 @@ export default async function LandingPage() {
                 style={{
                   backgroundColor: 'var(--maroon-tint)',
                   border: '1px solid var(--border-brass)',
-                  color: 'var(--brass-ink)',
+                  color: 'var(--brass)',
                 }}
               >
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
               </div>
               <h1
                 className="text-4xl sm:text-6xl lg:text-6xl leading-tight mb-1.5 sm:mb-2"
-                style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--maroon)' }}
+                style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--maroon)', textTransform: 'uppercase' }}
               >
                 {property.name}
               </h1>
@@ -167,7 +167,7 @@ export default async function LandingPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <span className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5" style={{ color: 'var(--brass-ink)' }}>
+              <span className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5" style={{ color: 'var(--brass)' }}>
                 <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> About the Villa
               </span>
             </div>
@@ -208,7 +208,7 @@ export default async function LandingPage() {
                 <div>
                   <p className="text-base font-semibold">{property.address}</p>
                   <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>{property.city}, {property.state} {property.pincode}</p>
-                  <p className="text-sm mt-1" style={{ color: 'var(--ink-muted)' }}>
+                  <p className="text-sm mt-1" style={{ color: 'var(--ink-faint)' }}>
                     Exact address and directions shared after booking confirmation.
                   </p>
                 </div>
@@ -306,7 +306,7 @@ export default async function LandingPage() {
             >
               <p className="text-base" style={{ color: 'var(--ink)' }}>
                 We are gathering our first verified reviews. In the meantime, reach out on{' '}
-                <a href={whatsappUrl} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass-ink)' }}>WhatsApp</a>{' '}
+                <a href={whatsappUrl} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>WhatsApp</a>{' '}
                 and we will be happy to connect you with past guests.
               </p>
             </div>

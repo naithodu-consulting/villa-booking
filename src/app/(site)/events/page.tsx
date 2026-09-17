@@ -61,11 +61,13 @@ const IMPORTANT_NOTES = [
 
 export default async function EventsPage() {
   const property = await getProperty();
-  const whatsappNumber = property?.whatsapp_number ?? '919876543210';
+  const whatsappNumber = property?.whatsapp_number;
   // Advertised capacity is the guests included in the rate; up to 3 more can book
   // at extra cost (see property.max_occupancy).
   const includedGuests = property?.base_occupancy ?? 12;
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about hosting an event at ${property?.name ?? 'Villa 19'}`)}`;
+  const whatsappUrl = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about hosting an event at ${property?.name ?? 'Villa 19'}`)}`
+    : undefined;
 
   const INCLUDED = [
     'Exclusive use of the entire villa and grounds',
@@ -82,29 +84,35 @@ export default async function EventsPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-10 sm:py-14"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-light)' }}>
+          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-ink)' }}>
             Private Villa Exclusively Yours
           </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-4"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Events & Celebrations
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed max-w-xl mx-auto mb-6">
+          <p className="text-lg leading-relaxed max-w-xl mx-auto mb-6 text-[var(--ink-muted)]">
             Make your celebration memorable with a private villa stay for up to {includedGuests} guests.
           </p>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
-          >
-            <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
-          </a>
+          {whatsappUrl && (
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-brass-filled inline-flex items-center gap-2 px-8 py-3.5 rounded-xl"
+            >
+              <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
+            </a>
+          )}
         </div>
       </section>
 
@@ -197,14 +205,16 @@ export default async function EventsPage() {
             Tell us about your event and we will work out the details together.
           </p>
           <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-frosted flex items-center gap-2 px-8 py-3.5 rounded-xl"
-            >
-              <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
-            </a>
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-frosted flex items-center gap-2 px-8 py-3.5 rounded-xl"
+              >
+                <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
+              </a>
+            )}
             <BookNowLink
               className="btn-brass-filled px-6 py-3.5 rounded-xl"
             >

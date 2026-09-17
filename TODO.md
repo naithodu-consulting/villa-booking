@@ -78,6 +78,10 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
 - [x] Colour-coded availability with legend: available / special price / not available (2026-09-15).
 - [x] Site-wide colour roles documented in `globals.css` and applied (2026-09-15).
 - [x] Italic page titles removed (2026-09-15).
+- [x] Font roles fixed: Cinzel for the wordmark only, Cormorant for page/section titles, Nunito for
+      card titles, labels and body (2026-09-16).
+- [x] Booking form: one field style for dates and guests, 44px minimum height (2026-09-16).
+- [x] Announcement bar close button removed (2026-09-16).
 - [ ] Pre-existing lint errors to clean up: unescaped apostrophe in `events/page.tsx` ("What's
       Included"), and setState-inside-effect in BookingWidget, Analytics, CookieConsent, DatePicker.
 - [ ] Optional: a 12-month "from ₹X" rate summary (Master Plan 7.4). The date pickers now show every

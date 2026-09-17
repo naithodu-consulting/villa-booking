@@ -281,7 +281,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                   </div>
                   <div>
                     <label htmlFor="guestPhone" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
-                      Mobile (WhatsApp) *
+                      Mobile Number *
                     </label>
                     <input
                       id="guestPhone"
@@ -458,15 +458,6 @@ function CheckoutHeader({ property, secured = false }: { property: Property; sec
           <span className="text-xs font-medium tracking-widest uppercase mt-0.5" style={{ color: 'var(--brass-light)' }}>By Habbaa</span>
         </div>
       </Link>
-      {secured && (
-        <div
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm"
-          style={{ backgroundColor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
-        >
-          <ShieldCheck className="w-3.5 h-3.5" style={{ color: 'var(--brass-light)' }} aria-hidden="true" />
-          <span className="font-semibold text-white/70">Secured by Razorpay</span>
-        </div>
-      )}
     </header>
   );
 }

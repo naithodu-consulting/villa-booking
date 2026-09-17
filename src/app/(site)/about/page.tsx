@@ -50,12 +50,16 @@ export default function AboutPage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <div className="flex justify-center mb-6">
             <Image
-              src="/habbaa-logo-white.svg"
+              src="/habbaa-logo.png"
               alt="Habbaa"
               width={72}
               height={72}
@@ -64,11 +68,11 @@ export default function AboutPage() {
           </div>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             About Us
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed max-w-xl mx-auto">
+          <p className="text-lg leading-relaxed max-w-xl mx-auto text-[var(--ink-muted)]">
             A boutique hospitality brand born on the Karnataka coast.
           </p>
         </div>

@@ -134,6 +134,10 @@
     font-family: var(--font-body);
     line-height: 1.1;
     color: inherit;
+    /* Cormorant Garamond defaults to old-style numerals (3, 4, 5, 7, 9 drop
+       below the baseline). At display and heading sizes this looks broken.
+       Lining numerals sit uniformly on the baseline at all sizes. */
+    font-variant-numeric: lining-nums;
   }
 
   /* H1 display: 400 weight, no tracking — Ama's hero "MAGICAL EXPERIENCES…" */

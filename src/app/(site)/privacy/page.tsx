@@ -15,16 +15,20 @@ export default function PrivacyPage() {
 
       <section
         className="py-8 sm:py-10"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
             className="text-4xl sm:text-5xl font-bold mb-3"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Privacy Policy
           </h1>
-          <p className="text-base" style={{ color: 'rgba(255,255,255,0.6)' }}>Last updated: {LAST_UPDATED}</p>
+          <p className="text-base" style={{ color: 'var(--ink-muted)' }}>Last updated: {LAST_UPDATED}</p>
         </div>
       </section>
 
@@ -96,10 +100,8 @@ export default function PrivacyPage() {
               These are always active because the site cannot work without them.
             </p>
             <p className="mt-3">
-              We also use Google Analytics to understand how the site is used. Analytics cookies are loaded
-              only if you accept them in the cookie banner. If you decline, no analytics script is loaded and
-              no request is made to Google. We do not use advertising or ad-targeting cookies. You can change
-              your choice at any time by clearing this site&apos;s data in your browser.
+              We do not use advertising or ad-targeting cookies. You can change your cookie preferences at
+              any time by clearing this site&apos;s data in your browser.
             </p>
           </Section>
 

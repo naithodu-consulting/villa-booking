@@ -15,7 +15,9 @@ interface FormState {
   message: string;
 }
 
-export default function EnquiryForm() {
+/** Capacity comes from the property so the form cannot contradict the booking
+ *  limit (12 guests included, up to 15 with the extra-guest charge). */
+export default function EnquiryForm({ maxGuests = 15 }: { maxGuests?: number }) {
   const [form, setForm] = useState<FormState>({
     name: '', email: '', phone: '', checkIn: '', checkOut: '', guestCount: '', message: '',
   });
@@ -66,7 +68,7 @@ export default function EnquiryForm() {
         style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
       >
         <CheckCircle2 className="w-10 h-10 mx-auto" style={{ color: 'var(--ok)' }} />
-        <p className="font-bold text-lg" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+        <p className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>
           Enquiry Received
         </p>
         <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
@@ -159,8 +161,8 @@ export default function EnquiryForm() {
             value={form.guestCount}
             onChange={set('guestCount')}
             min={1}
-            max={12}
-            placeholder="1 to 12"
+            max={maxGuests}
+            placeholder={`1 to ${maxGuests}`}
             style={inputStyle}
           />
         </div>

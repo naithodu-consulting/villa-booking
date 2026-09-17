@@ -117,11 +117,11 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
       {/* White body — form */}
       <div className="bg-white p-5 space-y-4 rounded-b-2xl">
         <form onSubmit={handleBookingSubmit} className="space-y-3">
-          {/* Date Inputs */}
-          <div
-            className="space-y-2 p-3 rounded-xl border"
-            style={{ backgroundColor: 'var(--paper-sunk)', borderColor: 'rgba(0,0,0,0.09)' }}
-          >
+          {/* Dates and guests share one field treatment: same fill, border, radius
+              and label style. The dates used to sit in an extra sunk panel (a box
+              inside a box) while the guest control used --cream, the announcement
+              bar's attention ground, so one form showed two different field fills. */}
+          <div className="space-y-3">
             <DatePicker
               id="widget-checkin"
               label="Check-In"
@@ -156,15 +156,31 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
           {/* Guests Selector */}
           <div className="relative" ref={guestMenuRef}>
-            <label className="text-xs uppercase font-bold text-[var(--ink-muted)] block mb-1">
-              Guests & Capacity
+            <label
+              className="block"
+              style={{
+                fontSize: '12px',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--ink-muted)',
+                marginBottom: '6px',
+              }}
+            >
+              Guests &amp; Capacity
             </label>
             <button
               type="button"
               aria-expanded={showGuestMenu}
               aria-haspopup="true"
               onClick={() => setShowGuestMenu((v) => !v)}
-              className="w-full bg-[var(--cream)] border border-[rgba(0,0,0,0.12)] px-3 py-2.5 rounded-xl text-left flex items-center justify-between text-[var(--ink)] text-sm font-semibold hover:border-[rgba(0,0,0,0.2)] transition-colors"
+              className="w-full rounded-xl text-left flex items-center justify-between text-[var(--ink)] text-sm font-semibold transition-colors"
+              style={{
+                backgroundColor: 'var(--paper-sunk)',
+                border: '1px solid var(--border-subtle)',
+                padding: '10px 12px',
+                minHeight: '44px',
+              }}
             >
               <div className="flex items-center gap-2">
                 <Users className="w-3.5 h-3.5 text-[var(--brass)]" />

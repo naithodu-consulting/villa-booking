@@ -31,8 +31,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 
 export default async function StayGuidePage() {
   const property = await getProperty();
-  const whatsappNumber = property?.whatsapp_number ?? '919876543210';
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I have a question about my stay at ${property?.name ?? 'Villa 19'}`)}`;
+  const whatsappNumber = property?.whatsapp_number;
+  const whatsappUrl = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I have a question about my stay at ${property?.name ?? 'Villa 19'}`)}`
+    : undefined;
   const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
   const checkOut = formatTime12(property?.check_out_time ?? '11:00');
 
@@ -113,19 +115,23 @@ export default async function StayGuidePage() {
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
         className="py-10 sm:py-14"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-light)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-ink)' }}>
             Before You Arrive
           </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-4"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Stay Guide
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed">
+          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
             Everything you need for a smooth, enjoyable stay at Villa 19.
           </p>
         </div>
@@ -144,10 +150,14 @@ export default async function StayGuidePage() {
               Questions? We are on WhatsApp.
             </p>
             <p className="text-base" style={{ color: 'var(--ink-muted)' }}>
-              Your host responds within 30 minutes.{' '}
-              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass-ink)' }}>
-                Message us
-              </a>
+              Your host responds within 30 minutes.{whatsappUrl && (
+                <>
+                  {' '}
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass-ink)' }}>
+                    Message us
+                  </a>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -197,7 +207,7 @@ export default async function StayGuidePage() {
           <h2 className="text-base font-bold" style={{ color: 'var(--maroon)' }}>Emergency Contacts</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
             {[
-              { label: 'Your Host (WhatsApp)', value: formatPhone(whatsappNumber) },
+              ...(whatsappNumber ? [{ label: 'Your Host (WhatsApp)', value: formatPhone(whatsappNumber) }] : []),
               { label: 'Police',               value: '100' },
               { label: 'Ambulance',            value: '108' },
               { label: 'Nearest Hospital',     value: 'A.J. Hospital, Mangalore' },
@@ -271,14 +281,16 @@ export default async function StayGuidePage() {
             <p className="text-sm text-white/70 mt-0.5">We are happy to help before and during your stay.</p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-frosted flex items-center gap-2 px-6 py-3 rounded-xl"
-            >
-              <WhatsAppIcon className="w-4 h-4" /> WhatsApp Us
-            </a>
+            {whatsappUrl && (
+              <a
+                href={whatsappUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-frosted flex items-center gap-2 px-6 py-3 rounded-xl"
+              >
+                <WhatsAppIcon className="w-4 h-4" /> WhatsApp Us
+              </a>
+            )}
             <BookNowLink
               className="btn-frosted px-6 py-3 rounded-xl"
             >

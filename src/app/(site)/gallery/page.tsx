@@ -61,19 +61,23 @@ export default async function GalleryPage() {
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-light)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
             {property.name}
           </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Gallery
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed">
+          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
             A visual tour of the villa and its surroundings.
           </p>
         </div>
@@ -89,15 +93,19 @@ export default async function GalleryPage() {
             <p className="font-semibold" style={{ color: 'var(--maroon)' }}>Photos coming soon</p>
             <p className="text-base" style={{ color: 'var(--ink-muted)' }}>
               We are adding professional photos. In the meantime,{' '}
-              <a
-                href={`https://wa.me/${property.whatsapp_number ?? '919876543210'}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-                style={{ color: 'var(--brass-ink)' }}
-              >
-                WhatsApp us
-              </a>{' '}
+              {property.whatsapp_number && (
+                <>
+                  <a
+                    href={`https://wa.me/${property.whatsapp_number}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline"
+                    style={{ color: 'var(--brass-ink)' }}
+                  >
+                    WhatsApp us
+                  </a>{' '}
+                </>
+              )}
               and we will share a full media pack.
             </p>
           </div>

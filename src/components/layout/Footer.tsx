@@ -14,32 +14,6 @@ function WhatsAppIcon({ className, style }: { className?: string; style?: React.
   );
 }
 
-function FacebookIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-    </svg>
-  );
-}
-
-function InstagramIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="2" y="2" width="20" height="20" rx="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-function LinkedInIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM10 9h3.8v1.7h.05c.53-1 1.83-2.05 3.76-2.05 4.02 0 4.76 2.64 4.76 6.08V21h-4v-5.4c0-1.29-.02-2.95-1.8-2.95-1.8 0-2.07 1.4-2.07 2.85V21h-4z"/>
-    </svg>
-  );
-}
-
 /** Registered entity behind Villa 19. Confirmed by the operator 2026-09-08. */
 const ENTITY = {
   name: 'HABBAA SOLUTIONS PVT LTD',
@@ -48,25 +22,16 @@ const ENTITY = {
   gstin: '29AAICH1682G1ZD',
 };
 
-const SOCIALS = [
-  { label: 'Facebook',  href: 'https://www.facebook.com/',  Icon: FacebookIcon  },
-  { label: 'Instagram', href: 'https://www.instagram.com/', Icon: InstagramIcon },
-  { label: 'LinkedIn',  href: 'https://www.linkedin.com/',  Icon: LinkedInIcon  },
-];
-
 const EXPLORE_LINKS: [string, string][] = [
-  ['/',             'Home'],
-  ['/the-villa',    'The Villa'],
-  ['/rooms',        'Rooms'],
-  ['/gallery',      'Gallery'],
-  ['/events',       'Events'],
-  ['/stay-guide',   'Stay Guide'],
-  ['/testimonials', 'Testimonials'],
+  ['/',           'Home'],
+  ['/the-villa',  'The Villa'],
+  ['/rooms',      'Rooms'],
+  ['/gallery',    'Gallery'],
+  ['/events',     'Events'],
+  ['/stay-guide', 'Stay Guide'],
+  ['/about',      'About Us'],
 ];
 
-/* Cancellation points at /terms, which holds the canonical policy. The bare
-   fragment "#cancellation" only resolves on the homepage — broken from every
-   other page the footer renders on. */
 const LEGAL_LINKS: [string, string][] = [
   ['/privacy',            'Privacy Policy'],
   ['/terms',              'Terms of Service'],
@@ -83,13 +48,15 @@ const COL_LINK = 'text-sm text-white/75 hover:text-white transition-colors';
 
 interface FooterProps {
   property: Property;
-  whatsappUrl: string;
+  /** Absent when no WhatsApp number is configured. */
+  whatsappUrl?: string;
 }
 
 export default function Footer({ property, whatsappUrl }: FooterProps) {
   const year = new Date().getFullYear();
   const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in';
-  const phoneNumber = process.env.PROPERTY_PHONE ?? property.whatsapp_number ?? '919876543210';
+  // No invented number: each contact row renders only if its value is configured.
+  const phoneNumber = process.env.PROPERTY_PHONE ?? property.whatsapp_number;
 
   return (
     <footer className="mt-12 border-t border-white/8" style={{ backgroundColor: 'var(--maroon-deep)' }}>
@@ -132,7 +99,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
 
             {/* Tagline — desktop only to avoid repeating what guest just read */}
             <p className="hidden lg:block text-sm leading-relaxed text-white/75 max-w-[300px]">
-              A premium private villa on the Karnataka coast. Direct booking, no platform fees, no middlemen.
+              A premium private villa on the Karnataka coast.
             </p>
 
             <div className="space-y-1.5 pt-1">
@@ -164,10 +131,10 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
             {/* Mobile: 3-up tap-target buttons */}
             <div className="grid grid-cols-3 gap-2 lg:hidden">
               {[
-                { label: 'WhatsApp', href: whatsappUrl, Icon: WhatsAppIcon, external: true,
-                  bg: 'rgba(37,211,102,0.14)', border: 'rgba(37,211,102,0.34)', color: 'var(--wa-on-dark)' },
-                { label: 'Call', href: `tel:+${phoneNumber}`, Icon: Phone, external: false,
-                  bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', color: 'var(--brass-light)' },
+                ...(whatsappUrl ? [{ label: 'WhatsApp', href: whatsappUrl, Icon: WhatsAppIcon, external: true,
+                  bg: 'rgba(37,211,102,0.14)', border: 'rgba(37,211,102,0.34)', color: 'var(--wa-on-dark)' }] : []),
+                ...(phoneNumber ? [{ label: 'Call', href: `tel:+${phoneNumber}`, Icon: Phone, external: false,
+                  bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', color: 'var(--brass-light)' }] : []),
                 { label: 'Email', href: `mailto:${email}`, Icon: Mail, external: false,
                   bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)', color: 'var(--brass-light)' },
               ].map(({ label, href, Icon, external, bg, border, color }) => (
@@ -194,8 +161,8 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
                   used where it is a real CTA (sticky bar, enquiry card); here the
                   word "WhatsApp" already carries the recognition. */}
               {[
-                { href: whatsappUrl, Icon: WhatsAppIcon, text: 'WhatsApp',           external: true  },
-                { href: `tel:+${phoneNumber}`, Icon: Phone, text: formatPhone(phoneNumber),  external: false },
+                ...(whatsappUrl ? [{ href: whatsappUrl, Icon: WhatsAppIcon, text: 'WhatsApp', external: true }] : []),
+                ...(phoneNumber ? [{ href: `tel:+${phoneNumber}`, Icon: Phone, text: formatPhone(phoneNumber), external: false }] : []),
                 { href: `mailto:${email}`, Icon: Mail, text: email,                  external: false },
               ].map(({ href, Icon, text, external }) => (
                 <li key={text}>
@@ -214,25 +181,6 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
             </ul>
           </div>
 
-          {/* ── Col 4: Social — desktop only ──────────────────────────────── */}
-          <div className="hidden lg:block">
-            <p className={COL_HEADING}>Quick Links</p>
-            <ul className="space-y-3">
-              {SOCIALS.map(({ label, href, Icon }) => (
-                <li key={label}>
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 group"
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0 text-[var(--brass-light)] group-hover:text-white transition-colors" />
-                    <span className={COL_LINK}>{label}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
 
         {/* ── Registered entity + copyright ─────────────────────────────────── */}
@@ -251,28 +199,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
             &copy; {year} {property.name} by Habbaa. All rights reserved.
           </p>
 
-          {/* The icons and the legal links were flex siblings in one wrapping
-              row, so on a phone they ran together on a single line and pushed
-              "Cancellation Policy" onto a line of its own. They are separate
-              kinds of thing, so each gets its own row below lg. */}
-          <div className="flex flex-col items-center gap-4 lg:flex-row lg:items-center lg:justify-end lg:gap-5">
-            {/* Social icons ride here on mobile; on desktop they have a column */}
-            <div className="flex lg:hidden items-center gap-3">
-              {SOCIALS.map(({ label, href, Icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-white/20"
-                  style={{ backgroundColor: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)' }}
-                >
-                  <Icon className="w-4 h-4 text-[var(--brass-light)]" />
-                </a>
-              ))}
-            </div>
-
+          <div className="flex items-center justify-center lg:justify-end">
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               {LEGAL_LINKS.map(([href, label]) => (
                 <Link

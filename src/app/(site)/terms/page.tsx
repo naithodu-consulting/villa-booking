@@ -25,16 +25,20 @@ export default async function TermsPage() {
 
       <section
         className="py-8 sm:py-10"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h1
             className="text-4xl sm:text-5xl font-bold mb-3"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Terms &amp; Conditions
           </h1>
-          <p className="text-base" style={{ color: 'rgba(255,255,255,0.6)' }}>Last updated: {LAST_UPDATED}</p>
+          <p className="text-base" style={{ color: 'var(--ink-muted)' }}>Last updated: {LAST_UPDATED}</p>
         </div>
       </section>
 

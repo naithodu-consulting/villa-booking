@@ -16,8 +16,10 @@ export async function getProperty(): Promise<Property | null> {
 
   return {
     ...data,
-    // whatsapp_number is not a DB column — pull from env
-    whatsapp_number: process.env.PROPERTY_WHATSAPP ?? '919876543210',
+    // whatsapp_number is not a DB column — pull from env. No placeholder
+    // fallback: a working link to a stranger's number is worse than no button,
+    // and a fake default hides a missing setting until a guest messages it.
+    whatsapp_number: process.env.PROPERTY_WHATSAPP || undefined,
     // Normalize time format (DB stores HH:MM:SS, UI uses HH:MM)
     check_in_time: data.check_in_time?.slice(0, 5) ?? '14:00',
     check_out_time: data.check_out_time?.slice(0, 5) ?? '11:00',

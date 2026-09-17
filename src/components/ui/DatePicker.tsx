@@ -270,7 +270,7 @@ export default function DatePicker({
     : '';
 
   // ── Trigger ──────────────────────────────────────────────────────────
-  const triggerPad = compact ? '8px 12px' : '10px 14px';
+  const triggerPad = compact ? '10px 12px' : '10px 14px';
   const triggerFontSize = compact ? '14px' : '16px';
 
   return (
@@ -304,6 +304,7 @@ export default function DatePicker({
         aria-expanded={isOpen}
         style={{
           width: '100%',
+          minHeight: '44px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',

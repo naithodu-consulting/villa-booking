@@ -22,10 +22,12 @@ const ANNOUNCEMENTS: Announcement[] = [
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const property = await getProperty();
 
-  const whatsappNumber = property?.whatsapp_number ?? '919876543210';
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-    `Hi, I'm interested in booking ${property?.name ?? 'Villa 19'}`
-  )}`;
+  const whatsappNumber = property?.whatsapp_number;
+  const whatsappUrl = whatsappNumber
+    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+        `Hi, I'm interested in booking ${property?.name ?? 'Villa 19'}`
+      )}`
+    : undefined;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--paper)' }}>

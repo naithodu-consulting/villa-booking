@@ -46,19 +46,23 @@ export default async function RoomsPage() {
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-light)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
             Sleeping Arrangements
           </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             Rooms
           </h1>
-          <p className="text-lg text-white/75 leading-relaxed">
+          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
             {rooms.length} bedrooms sleeping up to {property.base_occupancy} guests. Each space thoughtfully appointed for comfort and privacy.
           </p>
         </div>
@@ -93,7 +97,7 @@ export default async function RoomsPage() {
                       <span className="text-[11px] font-bold uppercase block mb-1" style={{ color: 'var(--brass-ink)', letterSpacing: '1.2px' }}>
                         {room.room_type}
                       </span>
-                      <h2 className="text-xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+                      <h2 className="text-xl font-bold" style={{ color: 'var(--maroon)' }}>
                         {room.name}
                       </h2>
                     </div>

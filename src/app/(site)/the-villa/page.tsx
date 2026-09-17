@@ -77,19 +77,23 @@ export default async function TheVillaPage() {
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
         className="py-16 sm:py-20"
-        style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
+        style={{
+          backgroundColor: 'var(--paper-sunk)',
+          color: 'var(--ink)',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-light)' }}>
+          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
             Urwa, Mangalore, Karnataka
           </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'white' }}
+            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
           >
             {property.name}
           </h1>
-          <p className="text-lg sm:text-xl text-white/75 leading-relaxed max-w-2xl mx-auto mb-8">
+          <p className="text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-8 text-[var(--ink-muted)]">
             {property.tagline}
           </p>
           <BookNowLink

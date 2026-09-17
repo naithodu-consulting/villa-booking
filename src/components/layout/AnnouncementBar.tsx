@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, X, Copy, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 
 export interface Announcement {
   id: string;
@@ -18,7 +18,6 @@ interface AnnouncementBarProps {
 
 export default function AnnouncementBar({ announcements }: AnnouncementBarProps) {
   const [index, setIndex] = useState(0);
-  const [dismissed, setDismissed] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const total = announcements.length;
@@ -43,7 +42,7 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
     }
   };
 
-  if (dismissed || total === 0) return null;
+  if (total === 0) return null;
 
   const current = announcements[index];
 
@@ -99,7 +98,7 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
         <button
           onClick={next}
           aria-label="Next announcement"
-          className="absolute right-10 p-1.5 rounded transition-colors"
+          className="absolute right-3 p-1.5 rounded transition-colors"
           style={{ color: 'var(--ink-muted)' }}
           onMouseEnter={e => (e.currentTarget.style.color = 'var(--maroon)')}
           onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-muted)')}
@@ -107,18 +106,6 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
           <ChevronRight className="w-4 h-4" />
         </button>
       )}
-
-      {/* Dismiss */}
-      <button
-        onClick={() => setDismissed(true)}
-        aria-label="Dismiss announcements"
-        className="absolute right-3 p-1.5 rounded transition-colors"
-        style={{ color: 'var(--ink-muted)' }}
-        onMouseEnter={e => (e.currentTarget.style.color = 'var(--maroon)')}
-        onMouseLeave={e => (e.currentTarget.style.color = 'var(--ink-muted)')}
-      >
-        <X className="w-4 h-4" />
-      </button>
 
       {/* Dot indicators */}
       {total > 1 && (

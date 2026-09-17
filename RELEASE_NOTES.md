@@ -4,6 +4,134 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.6.7 — Lining numerals, hero uppercase, nav audit — 2026-09-17
+
+### Lining numerals in headings
+
+Cormorant Garamond ships with old-style numerals by default: digits 3, 4, 5, 7 and 9 drop below
+the text baseline, which at display and heading sizes reads as a rendering bug. A single CSS rule
+(`font-variant-numeric: lining-nums` on `h1–h6`) switches all headings to lining numerals — uniform
+height, all sitting on the baseline. Body text is unaffected and keeps old-style figures, which is
+typographically correct in prose. Verified on "Villa 19" hero title and "4-Bedroom" subtitle.
+
+### Hero title uppercased via CSS
+
+The homepage `h1` previously hardcoded the string `'VILLA 19'`. It now uses `{property.name}` with
+`textTransform: 'uppercase'` so the visual rendering stays the same but the data stays clean:
+metadata, WhatsApp pre-fills and booking refs all continue to use the correctly-cased property name.
+
+### Navigation and footer audit
+
+A site-wide audit of every page against every navigation surface found several issues, now fixed:
+
+**`/about` restored to nav:**
+- Added to footer Explore column (replacing Testimonials)
+- Added to mobile drawer (before Contact Us, replacing Testimonials)
+- Added to sitemap.ts at priority 0.6
+- Was removed in commit `48bd955`; page and content were always complete
+
+**Testimonials removed from nav until reviews exist:**
+- "Testimonials coming soon" landing after a nav click undermines trust more than no link
+- Page stays live and will be re-added when real reviews are collected
+
+**Social media icons removed:**
+- All three (Facebook, Instagram, LinkedIn) linked to platform homepages, not Habbaa accounts
+- Removed from desktop footer column and mobile icon row; dead links are worse than no links
+- SVG components, `SOCIALS` array and layout blocks deleted; footer bottom bar simplified
+
+**Privacy policy — Google Analytics claim removed:**
+- Policy stated "We also use Google Analytics" but `NEXT_PUBLIC_GA_ID` is not configured
+- Removed the false statement; wording replaced with a neutral no-ad-targeting note
+
+**Stale code comment removed:**
+- Footer had a comment claiming `/terms#cancellation` was broken; the link works correctly
+  (`terms/page.tsx` has `id="cancellation"` on the Section). Comment deleted.
+
+**`tsc` clean. 56 tests pass.**
+
+---
+
+## v0.6.6 — WhatsApp number fix, light title bands — 2026-09-16
+
+### WhatsApp number corrected and fallback removed
+
+`.env.local` had the sample number `919876543210` (copied from `.env.example`) instead of the real
+number. It is now `917760777876`. More importantly, a fake fallback number was hardcoded in 11 places
+across the codebase: a missing env var silently produced a working link to a stranger's number.
+
+- The hardcoded fallback is removed from every file.
+- If no number is configured, every WhatsApp button, card and link simply does not render.
+- All nine link sites (contact card, call card, events hero, events CTA, testimonials CTA, stay-guide
+  inline link, stay-guide CTA, homepage reviews, homepage mobile sticky bar) are guarded and verified.
+- `.env.example` now ships blank with a comment explaining why a sample number is dangerous.
+- **TODO added:** set `PROPERTY_WHATSAPP` in Vercel for staging and production.
+
+### Light page title bands (10 pages + booking confirmation)
+
+Every page opened with a dark maroon title band directly under the dark maroon header: two stacked
+dark blocks made every page top-heavy and the title text was maroon on maroon (illegible).
+
+All ten site pages and the booking confirmation page now use a warm off-white band (`--paper-sunk`):
+- Title in maroon serif (Cormorant), small eyebrow label in darker gold, subtitle in muted grey
+- A hairline border separates the light band from the dark header
+- The dark header, footer and maroon closing CTA bands are deliberately unchanged
+- The About page dark logo swapped to the dark-on-light version (`habbaa-logo.png`)
+- Booking confirmation tick changed from gold to green (`--ok`)
+
+Pages changed: About, Contact, Events, Gallery, Privacy, Rooms, Stay Guide, Terms, Testimonials,
+The Villa, Booking confirmation.
+
+**Verified** in browser at 1280x900 across all pages. tsc clean. 56 tests pass.
+
+---
+
+## v0.6.5 — Type roles, one form-field style, announcement bar — 2026-09-16
+
+### Fonts now follow a role, not a tag
+
+Three faces are loaded, and they were applied inconsistently: the homepage title used Cinzel (the
+wordmark face) while every other page title used Cormorant, and a room name was serif on `/rooms` but
+sans on the homepage. The rule now:
+
+| Role | Face |
+|---|---|
+| Wordmark lockup ("Villa 19 by Habbaa": header, footer, checkout header) | **Cinzel** |
+| Page titles, major section titles, dialog titles | **Cormorant Garamond** |
+| Card and item titles (room names, card headings), labels, body, controls | **Nunito Sans** |
+
+- Homepage title moved off Cinzel onto Cormorant, so every page title matches.
+- Room names are sans in both places; "Send an Enquiry", "Testimonials coming soon" and "Enquiry
+  Received" moved to sans as card titles.
+- Unchanged and confirmed correct: "Room Breakdown" and the amenities dialog title stay serif; gallery
+  category labels, "Stay Details", "Stay Summary", "Emergency Contacts" and "Important Notes" stay sans.
+
+### One field style in the booking form
+
+The two date fields sat inside an extra sunk panel while the guest selector used `--cream`, the
+announcement bar's attention ground: one form, two field fills, and a box inside a box. All three
+controls now share `--paper-sunk`, a hairline border, 12px radius, the same padding and a 44px minimum
+height (WCAG 2.2 target size), with identical labels. The nested panel is gone.
+
+### Announcement bar
+
+- The close (X) button is removed, with its dismiss state and icon import; the next arrow moves back to
+  the right edge.
+
+### Other
+
+- The enquiry form's guest field read "1 to 12" against a real maximum of 15. It now takes the limit
+  from the property.
+
+**Verified** in the browser at 1280x900: the three booking-widget controls are 44px tall with matching
+fill, border, radius and width; homepage title renders in Cormorant; room names match across pages; the
+announcement bar has only previous/copy/next. tsc, 56 tests and lint (no new errors) pass.
+
+*Note: an earlier measurement pass in this round reported nonsense sizes (26px-wide fields). The
+preview pane had rendered the app with a zero-width body; the figures above come from a re-run with a
+confirmed 1272x900 viewport.*
+
+---
+
 ## v0.6.4 — Colour system, clearer calendar, no italic headings — 2026-09-15
 
 ### A single colour system
