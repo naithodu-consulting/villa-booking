@@ -1,13 +1,15 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { getProperty } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Terms & Conditions',
-  description: 'Terms and Conditions for booking Villa 19 by Habbaa, Mangalore.',
-  robots: { index: true, follow: true },
-};
+  path: '/terms',
+  description:
+    'Booking terms for Villa 19 by Habbaa, Mangalore: payments, cancellations and refunds, house rules and the responsibilities of guests during a stay.',
+});
 
 // Bumped when the cancellation tiers changed on 2026-09-09.
 const LAST_UPDATED = '9 September 2026';

@@ -1,24 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getProperty, getImages } from '@/lib/data';
 import BookNowLink from '@/components/guest/BookNowLink';
 
-export const metadata: Metadata = {
-  title: 'Gallery',
+export const metadata: Metadata = pageMetadata({
+  title: 'Villa Photos & Gallery',
+  path: '/gallery',
   description:
-    'Photo gallery of Villa 19, Mangalore. Interiors, bedrooms, outdoor spaces and surrounding views.',
-  openGraph: {
-    title: 'Gallery | Villa 19 by Habbaa',
-    description: 'A visual tour of Villa 19: interiors, bedrooms, outdoor lawns and the Karnataka coast.',
-    url: 'https://habbaa.in/gallery',
-  },
-  twitter: {
-    title: 'Gallery | Villa 19 by Habbaa',
-    description: 'A visual tour of Villa 19, Mangalore.',
-  },
-};
+    'Photos of Villa 19 in Urwa, Mangalore: bedrooms, living and dining spaces, the private lawn and the villa exterior. See the whole house before you book.',
+});
 
 const CATEGORY_ORDER = ['hero', 'exterior', 'living', 'bedroom', 'dining', 'kitchen', 'bathroom', 'outdoor', 'surroundings'];
 
@@ -57,6 +51,7 @@ export default async function GalleryPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Gallery', path: '/gallery' }])} />
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section

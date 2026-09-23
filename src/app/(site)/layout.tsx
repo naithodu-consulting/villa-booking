@@ -7,6 +7,8 @@ import CookieConsent from '@/components/layout/CookieConsent';
 import Analytics from '@/components/layout/Analytics';
 import { getProperty } from '@/lib/data';
 import { isJournalLive } from '@/lib/journal';
+import JsonLd from '@/components/seo/JsonLd';
+import { organizationJsonLd } from '@/lib/seo';
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
@@ -32,6 +34,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--paper)' }}>
+      <JsonLd data={organizationJsonLd()} />
       <AnnouncementBar announcements={ANNOUNCEMENTS} />
       <Header propertyName={property?.name ?? 'Villa 19'} whatsappUrl={whatsappUrl} showJournal={showJournal} />
       <main className="flex-1">{children}</main>

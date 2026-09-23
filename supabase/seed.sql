@@ -169,7 +169,7 @@ ON CONFLICT ON CONSTRAINT uq_faq_property_question DO NOTHING;
 -- Nearby Places
 -- ─────────────────────────────────────────────────────────
 INSERT INTO nearby_places (property_id, name, category, distance_km, travel_minutes, note, display_order, is_published) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Panambur Beach',              'beach',       7.6,  10,  'Popular sandy beach, clean and family-friendly',              10, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Panambur Beach',              'beach',       7.6,  15,  'Popular sandy beach, clean and family-friendly',              10, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Tannirbhavi Beach',           'beach',       8.8,  20, 'Quieter, less crowded: good for morning walks',               11, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Someshwar Beach',             'beach',       24.0, 45, 'Scenic and rocky; near Someshwar temple. Best as a half-day trip', 12, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Kadri Manjunath Temple',      'temple',      3.5,  10, '11th century temple, one of Mangalore''s oldest',            20, TRUE),

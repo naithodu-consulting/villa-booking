@@ -1,27 +1,34 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd, lodgingJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import {
   MapPin, Users, Wifi, Car, Zap, Home,
   Waves, ShieldCheck, Check, Bed,
 } from 'lucide-react';
-import { getProperty, getAmenities, getPolicies, getNearbyPlaces } from '@/lib/data';
+import { getProperty, getAmenities, getPolicies, getNearbyPlaces, getImages, nearestPlace } from '@/lib/data';
 import BookNowLink from '@/components/guest/BookNowLink';
 
-export const metadata: Metadata = {
-  title: 'The Villa',
+export const metadata: Metadata = pageMetadata({
+  title: 'Private 4-Bedroom Villa in Mangalore',
+  path: '/the-villa',
   description:
-    'Explore Villa 19: a premium 4-bedroom private retreat in Urwa, Mangalore. Full amenity list, house rules, and everything you need to know before booking.',
-  openGraph: {
-    title: 'The Villa | Villa 19 by Habbaa',
-    description: 'A premium 4-bedroom private villa in Urwa, Mangalore. Lush lawn, high-speed WiFi, sleeps 12. Everything you need to know.',
-    url: 'https://habbaa.in/the-villa',
+    'Explore Villa 19, a private 4-bedroom villa in Urwa, Mangalore: amenities, house rules, nearby places and everything to know before you book directly.',
+});
+
+/** What the villa does not have. Shared with the structured data on this page. */
+const GOOD_TO_KNOW = (beachKm?: number) => [
+  { title: 'No swimming pool', body: 'The outdoor space is a private lawn with balconies on every floor.' },
+  { title: 'Self-catering', body: 'There is no in-house cook. The fully equipped kitchen is yours to use, and the local market is a short walk away.' },
+  {
+    title: 'Not on the beach',
+    body: beachKm
+      ? `The villa is in a quiet residential area. The nearest beach is about ${Number(beachKm)} km away by car.`
+      : 'The villa is in a quiet residential area, a short drive from the nearest beach.',
   },
-  twitter: {
-    title: 'The Villa | Villa 19 by Habbaa',
-    description: 'A premium 4-bedroom private villa in Urwa, Mangalore. Lush lawn, high-speed WiFi, sleeps 12.',
-  },
-};
+  { title: 'No pets', body: 'Pets are not allowed at the villa.' },
+];
 
 const CATEGORY_ICON: Record<string, string> = {
   beach: '🏖️',
@@ -42,10 +49,11 @@ export default async function TheVillaPage() {
     );
   }
 
-  const [amenities, policies, nearbyPlaces] = await Promise.all([
+  const [amenities, policies, nearbyPlaces, images] = await Promise.all([
     getAmenities(property.id),
     getPolicies(property.id),
     getNearbyPlaces(property.id),
+    getImages(property.id),
   ]);
 
   const amenityGroups = amenities.reduce<Record<string, string[]>>((acc, a) => {
@@ -60,10 +68,12 @@ export default async function TheVillaPage() {
     return acc;
   }, {});
 
+  const nearestBeach = nearestPlace(nearbyPlaces, 'beach');
+
   const highlights = [
     { icon: Bed,        label: 'Bedrooms',      value: '4 Bedrooms' },
     { icon: Users,      label: 'Capacity',       value: `Up to ${property.base_occupancy} Guests` },
-    { icon: Waves,      label: 'Beach',          value: '7.6 km' },
+    { icon: Waves,      label: 'Beach',          value: nearestBeach?.distance_km ? `${Number(nearestBeach.distance_km)} km` : 'Short drive' },
     { icon: Wifi,       label: 'Internet',       value: 'High-Speed WiFi' },
     { icon: Car,        label: 'Parking',        value: 'Ample Parking' },
     { icon: Zap,        label: 'Power',          value: 'Power Backup' },
@@ -73,6 +83,7 @@ export default async function TheVillaPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={[breadcrumbJsonLd([{ name: 'The Villa', path: '/the-villa' }]), lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })]} />
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section
@@ -171,6 +182,26 @@ export default async function TheVillaPage() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* ── Good to know ─────────────────────────────────── */}
+        {/* Stated plainly because guests (and AI assistants) tend to assume a
+            private villa has a pool and staff. Wrong assumptions become bad reviews. */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Good to Know</h2>
+          </div>
+          <ul
+            className="p-5 rounded-2xl space-y-3 text-base"
+            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
+          >
+            {GOOD_TO_KNOW(nearestBeach?.distance_km).map(({ title, body }) => (
+              <li key={title}>
+                <strong style={{ color: 'var(--ink)' }}>{title}.</strong> {body}
+              </li>
+            ))}
+          </ul>
         </section>
 
         {/* ── Villa Rules / Policies ───────────────────────── */}

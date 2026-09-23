@@ -1,25 +1,19 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd, faqJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import { ChevronDown, Clock, Key, Luggage, Wifi, Car, ShieldCheck, Info } from 'lucide-react';
 import { getProperty, getFAQs } from '@/lib/data';
 import { formatTime12, formatPhone } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 
-export const metadata: Metadata = {
-  title: 'Stay Guide',
+export const metadata: Metadata = pageMetadata({
+  title: 'Stay Guide: Check-in, Rules & FAQs',
+  path: '/stay-guide',
   description:
-    'Everything you need for your stay at Villa 19, Mangalore. Check-in, parking, WiFi, house rules, and answers to common questions.',
-  openGraph: {
-    title: 'Stay Guide | Villa 19 by Habbaa',
-    description: 'Check-in guide, villa rules, FAQs, and emergency contacts for your stay at Villa 19, Mangalore.',
-    url: 'https://habbaa.in/stay-guide',
-  },
-  twitter: {
-    title: 'Stay Guide | Villa 19 by Habbaa',
-    description: 'Everything you need before and during your stay at Villa 19, Mangalore.',
-  },
-};
+    'Everything for your stay at Villa 19, Mangalore: check-in and check-out times, parking, WiFi, house rules, emergency contacts and answers to common questions.',
+});
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -111,6 +105,7 @@ export default async function StayGuidePage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={[breadcrumbJsonLd([{ name: 'Stay Guide', path: '/stay-guide' }]), ...(faqs.length ? [faqJsonLd(faqs)] : [])]} />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section

@@ -1,24 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
 import BookNowLink from '@/components/guest/BookNowLink';
 
-export const metadata: Metadata = {
-  title: 'About Us',
+export const metadata: Metadata = pageMetadata({
+  title: 'About Habbaa',
+  path: '/about',
   description:
-    'Habbaa is a boutique hospitality brand offering curated private villa stays on the Karnataka coast. No middlemen, no platform fees. Just direct, personal hospitality.',
-  openGraph: {
-    title: 'About Us | Villa 19',
-    description: 'Boutique hospitality on the Karnataka coast. Direct booking, personal hosts, no OTA fees.',
-    url: 'https://habbaa.in/about',
-  },
-  twitter: {
-    title: 'About Us',
-    description: 'Boutique hospitality on the Karnataka coast. Direct booking, no platform fees.',
-  },
-};
+    'Habbaa is a boutique hospitality brand offering private villa stays on the Karnataka coast. Direct booking, personal hosts and no platform fees.',
+});
 
 const VALUES = [
   {
@@ -46,6 +40,7 @@ const VALUES = [
 export default function AboutPage() {
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'About Us', path: '/about' }])} />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section

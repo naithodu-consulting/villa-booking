@@ -48,7 +48,7 @@ export const JOURNAL_LAUNCH_MIN_POSTS = 3;
 const SHOW_DRAFTS = process.env.NODE_ENV !== 'production';
 const PROPERTY_SLUG = 'villa-19';
 
-export const SITE_URL = (process.env.APP_URL ?? 'https://habbaa.in').replace(/\/$/, '');
+export { SITE_URL } from '@/lib/seo';
 
 function minutesFor(text: string): number {
   return Math.max(1, Math.round(text.split(/\s+/).filter(Boolean).length / 220));

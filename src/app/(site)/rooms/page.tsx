@@ -1,24 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import { Users, Bed, Bath, Wind, Check } from 'lucide-react';
 import { getProperty, getRooms } from '@/lib/data';
 import BookNowLink from '@/components/guest/BookNowLink';
 
-export const metadata: Metadata = {
-  title: 'Rooms',
+export const metadata: Metadata = pageMetadata({
+  title: 'Bedrooms & Sleeping Arrangements',
+  path: '/rooms',
   description:
-    'Four well-appointed bedrooms at Villa 19, Mangalore. Each room detailed with bed type, capacity, and bathroom info.',
-  openGraph: {
-    title: 'Rooms | Villa 19 by Habbaa',
-    description: '4 bedrooms sleeping up to 12 guests. Master suite, luxury bedrooms, each with bed type, capacity and bathroom details.',
-    url: 'https://habbaa.in/rooms',
-  },
-  twitter: {
-    title: 'Rooms | Villa 19 by Habbaa',
-    description: '4 bedrooms sleeping up to 12 guests at Villa 19, Mangalore.',
-  },
-};
+    'Four bedrooms at Villa 19, Mangalore, sleeping up to 12 guests. See bed types, room capacity and bathrooms for each room before you book the whole villa.',
+});
 
 const BED_TYPE_LABEL: Record<string, string> = {
   'King':   'King Bed',
@@ -42,6 +36,7 @@ export default async function RoomsPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Rooms', path: '/rooms' }])} />
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section

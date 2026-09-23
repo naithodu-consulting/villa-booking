@@ -1,12 +1,14 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, lodgingJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import Image from 'next/image';
 import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
 import AmenitiesSection from '@/components/guest/AmenitiesSection';
 import RoomShelf from '@/components/guest/RoomShelf';
-import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs } from '@/lib/data';
+import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, nearestPlace, formatDistance } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 import {
@@ -23,20 +25,13 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export const metadata: Metadata = {
-  title: 'Villa 19 | Private Villa in Urwa, Mangalore',
+export const metadata: Metadata = pageMetadata({
+  title: 'Villa 19 | Private Holiday Villa in Mangalore by Habbaa',
+  path: '/',
   description:
-    'Book a premium 4-bedroom private villa in Urwa, Mangalore, Karnataka. Lush lawns, private balconies, ample parking, beach 8 km away. Hosts up to 12 guests. Direct booking with no platform fees.',
-  openGraph: {
-    title: 'Villa 19 | Private Villa in Urwa, Mangalore',
-    description: 'Premium 4-bedroom villa in Urwa, Mangalore. Sleeps 12. Lawn, WiFi, parking, beach 8 km. Direct booking at the best rate.',
-    url: 'https://habbaa.in',
-  },
-  twitter: {
-    title: 'Villa 19 | Private Villa in Mangalore',
-    description: 'Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking.',
-  },
-};
+    'Villa 19 is a private 4-bedroom holiday villa in Urwa, Mangalore for up to 12 guests: private lawn, balconies, parking and power backup. Book direct, no fees.',
+  absoluteTitle: true,
+});
 
 export default async function LandingPage() {
   const property = await getProperty();
@@ -48,13 +43,16 @@ export default async function LandingPage() {
     );
   }
 
-  const [rooms, images, pricingRules, amenities, faqs] = await Promise.all([
+  const [rooms, images, pricingRules, amenities, faqs, nearby] = await Promise.all([
     getRooms(property.id),
     getImages(property.id),
     getPricingRules(property.id),
     getAmenities(property.id),
     getFAQs(property.id),
+    getNearbyPlaces(property.id),
   ]);
+  const beachDistance = formatDistance(nearestPlace(nearby, 'beach'));
+  const airportDistance = formatDistance(nearby.find((p) => /airport/i.test(p.name)));
 
   // Group amenities by category (preserving display_order within each group)
   const amenityGroups = amenities.reduce<Record<string, string[]>>((acc, a) => {
@@ -68,13 +66,18 @@ export default async function LandingPage() {
   const flagged = amenities.filter((a) => a.is_featured);
   const featuredAmenities = flagged.length > 0 ? flagged : amenities.slice(0, 6);
 
-  const whatsappUrl = `https://wa.me/${property.whatsapp_number ?? '919876543210'}?text=${encodeURIComponent(`Hi, I'm interested in booking ${property.name}`)}`;
+  // No placeholder fallback: a link to a stranger's number is worse than no link.
+  const whatsappUrl = property.whatsapp_number
+    ? `https://wa.me/${property.whatsapp_number}?text=${encodeURIComponent(`Hi, I'm interested in booking ${property.name}`)}`
+    : undefined;
+  const phoneNumber = process.env.PROPERTY_PHONE ?? property.whatsapp_number;
 
   // No pb-20 on the wrapper below: the Footer carries the sticky-bar clearance
   // now, and this wrapper ends before the footer, so the two stacked into
   // ~128px of dead space between the last card and the footer.
   return (
     <div style={{ color: 'var(--ink)' }}>
+      <JsonLd data={lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })} />
 
       {/* ── Hero ──────────────────────────────────────── */}
       <section id="overview" className="pt-6 sm:pt-8">
@@ -275,12 +278,12 @@ export default async function LandingPage() {
                   four rows of one become two rows of two, and no place name
                   has to be truncated to fit beside its distance. */}
               <div className="grid grid-cols-2 gap-2 text-sm lg:text-[15px]">
-                {[
-                  ['Mangalore Airport', '13 km · ~20 min'],
-                  ['Nearest Beach', '7.6 km · ~15 min'],
+                {([
+                  ['Mangalore Airport', airportDistance],
+                  ['Nearest Beach', beachDistance],
                   ['Main Road & Market', 'Walking distance'],
                   ['City Centre', '3.7 km · ~10 min'],
-                ].map(([place, time]) => (
+                ] as [string, string | undefined][]).filter(([, time]) => time).map(([place, time]) => (
                   <div
                     key={place}
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 p-2.5 rounded-xl"
@@ -305,8 +308,10 @@ export default async function LandingPage() {
               style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
             >
               <p className="text-base" style={{ color: 'var(--ink)' }}>
-                We are gathering our first verified reviews. In the meantime, reach out on{' '}
-                <a href={whatsappUrl} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>WhatsApp</a>{' '}
+                We are gathering our first verified reviews. In the meantime,{' '}
+                <a href={whatsappUrl ?? '/contact'} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>
+                  {whatsappUrl ? 'message us on WhatsApp' : 'get in touch'}
+                </a>{' '}
                 and we will be happy to connect you with past guests.
               </p>
             </div>
@@ -504,6 +509,7 @@ export default async function LandingPage() {
               <p className="text-base mt-0.5" style={{ color: 'var(--ink-muted)' }}>We typically respond within 30 minutes on WhatsApp.</p>
             </div>
             <div className="flex items-center gap-3">
+              {whatsappUrl && (
               <a
                 href={whatsappUrl}
                 target="_blank"
@@ -512,8 +518,10 @@ export default async function LandingPage() {
               >
                 <WhatsAppIcon className="w-4 h-4" /> WhatsApp
               </a>
+              )}
+              {phoneNumber && (
               <a
-                href={`tel:+${property.whatsapp_number ?? '919876543210'}`}
+                href={`tel:+${phoneNumber}`}
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors hover:border-[var(--brass)] hover:text-[var(--ink)] active:scale-95"
                 style={{
                   backgroundColor: 'var(--paper-sunk)',
@@ -523,6 +531,7 @@ export default async function LandingPage() {
               >
                 <Phone className="w-4 h-4" aria-hidden="true" /> Call Us
               </a>
+              )}
             </div>
           </div>
 
@@ -557,6 +566,7 @@ export default async function LandingPage() {
       <div id="mobile-cta-bar" className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t"
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center gap-3 px-4 py-3">
+          {whatsappUrl && (
           <a
             href={whatsappUrl}
             target="_blank"
@@ -569,6 +579,7 @@ export default async function LandingPage() {
             </svg>
             WhatsApp
           </a>
+          )}
           <BookNowLink
             className="flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-bold text-white"
             style={{ backgroundColor: 'var(--maroon)' }}

@@ -40,12 +40,23 @@ async function send(
   return { ok: false, error: err };
 }
 
+/** Guest-supplied text (name, email, phone) must not become markup in an email. */
+function esc(value: string | number): string {
+  return String(value)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
 // ── Public helpers ────────────────────────────────────────────────────
 
 export interface BookingConfirmationParams {
   guestEmail: string;
   guestName: string;
   bookingRef: string;
+  /** Private link to the guest's confirmation page. */
+  bookingUrl: string;
+  /** Prefilled WhatsApp link for sending ID documents; omitted when no number is configured. */
+  idShareUrl?: string;
   propertyName: string;
   checkIn: string;   // e.g. "14 Sep 2026"
   checkOut: string;
@@ -64,23 +75,23 @@ export async function sendBookingConfirmation(p: BookingConfirmationParams) {
   <div style="max-width:580px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5ddd5;">
     <div style="background:#6b1c1c;padding:32px 40px;text-align:center;">
       <h1 style="margin:0;color:#fff;font-size:28px;font-style:italic;">Booking Confirmed</h1>
-      <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:14px;">${p.propertyName}</p>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.75);font-size:14px;">${esc(p.propertyName)}</p>
     </div>
     <div style="padding:32px 40px;">
-      <p style="color:#333;font-size:15px;">Dear ${p.guestName},</p>
+      <p style="color:#333;font-size:15px;">Dear ${esc(p.guestName)},</p>
       <p style="color:#555;font-size:14px;line-height:1.7;">Your booking is confirmed. Here are your details:</p>
       <table style="width:100%;border-collapse:collapse;margin:20px 0;font-size:14px;">
         <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:10px 0;color:#888;width:50%;">Booking Reference</td>
-          <td style="padding:10px 0;color:#333;font-weight:bold;">${p.bookingRef}</td>
+          <td style="padding:10px 0;color:#888;width:50%;">Booking Number</td>
+          <td style="padding:10px 0;color:#333;font-weight:bold;">${esc(p.bookingRef)}</td>
         </tr>
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:10px 0;color:#888;">Check-in</td>
-          <td style="padding:10px 0;color:#333;">${p.checkIn} from 2:00 PM</td>
+          <td style="padding:10px 0;color:#333;">${esc(p.checkIn)} from 2:00 PM</td>
         </tr>
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:10px 0;color:#888;">Check-out</td>
-          <td style="padding:10px 0;color:#333;">${p.checkOut} by 11:00 AM</td>
+          <td style="padding:10px 0;color:#333;">${esc(p.checkOut)} by 11:00 AM</td>
         </tr>
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:10px 0;color:#888;">Guests</td>
@@ -91,7 +102,12 @@ export async function sendBookingConfirmation(p: BookingConfirmationParams) {
           <td style="padding:10px 0;color:#6b1c1c;font-weight:bold;">₹${totalRupees}</td>
         </tr>
       </table>
+      <p style="text-align:center;margin:24px 0;">
+        <a href="${esc(p.bookingUrl)}" style="display:inline-block;background:#3C1717;color:#fff;text-decoration:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:bold;">View your booking</a>
+      </p>
       <p style="color:#555;font-size:13px;line-height:1.7;">
+        ${p.idShareUrl ? `<strong>Please share a photo ID for every adult guest</strong> (Aadhaar, passport or driving licence)
+        on <a href="${esc(p.idShareUrl)}" style="color:#6b1c1c;">WhatsApp</a> before you arrive. Please do not reply to this email with ID documents.<br><br>` : ''}
         We will send you the exact address and check-in instructions 24 hours before your arrival.
         If you have any questions, WhatsApp us. We respond within 30 minutes.
       </p>
@@ -130,29 +146,29 @@ export async function sendAdminNewBookingNotification(p: AdminNewBookingParams) 
 <body style="margin:0;padding:0;background:#f9f6f1;font-family:Georgia,serif;">
   <div style="max-width:580px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5ddd5;">
     <div style="background:#6b1c1c;padding:24px 40px;">
-      <h1 style="margin:0;color:#fff;font-size:20px;">New Booking: ${p.bookingRef}</h1>
+      <h1 style="margin:0;color:#fff;font-size:20px;">New Booking: ${esc(p.bookingRef)}</h1>
     </div>
     <div style="padding:28px 40px;font-size:14px;color:#333;">
       <table style="width:100%;border-collapse:collapse;">
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:8px 0;color:#888;width:40%;">Guest</td>
-          <td style="padding:8px 0;">${p.guestName}</td>
+          <td style="padding:8px 0;">${esc(p.guestName)}</td>
         </tr>
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:8px 0;color:#888;">Email</td>
-          <td style="padding:8px 0;">${p.guestEmail}</td>
+          <td style="padding:8px 0;">${esc(p.guestEmail)}</td>
         </tr>
         ${p.guestPhone ? `<tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:8px 0;color:#888;">Phone</td>
-          <td style="padding:8px 0;">${p.guestPhone}</td>
+          <td style="padding:8px 0;">${esc(p.guestPhone)}</td>
         </tr>` : ''}
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:8px 0;color:#888;">Check-in</td>
-          <td style="padding:8px 0;">${p.checkIn}</td>
+          <td style="padding:8px 0;">${esc(p.checkIn)}</td>
         </tr>
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:8px 0;color:#888;">Check-out</td>
-          <td style="padding:8px 0;">${p.checkOut}</td>
+          <td style="padding:8px 0;">${esc(p.checkOut)}</td>
         </tr>
         <tr style="border-bottom:1px solid #f0ebe4;">
           <td style="padding:8px 0;color:#888;">Guests</td>
@@ -164,7 +180,7 @@ export async function sendAdminNewBookingNotification(p: AdminNewBookingParams) 
         </tr>
         <tr>
           <td style="padding:8px 0;color:#888;">Channel</td>
-          <td style="padding:8px 0;">${p.channel}</td>
+          <td style="padding:8px 0;">${esc(p.channel)}</td>
         </tr>
       </table>
     </div>
@@ -195,8 +211,8 @@ export async function sendRefundConfirmation(p: RefundProcessedParams) {
       <h1 style="margin:0;color:#fff;font-size:24px;font-style:italic;">Refund Processed</h1>
     </div>
     <div style="padding:32px 40px;font-size:14px;color:#555;line-height:1.7;">
-      <p>Dear ${p.guestName},</p>
-      <p>Your refund of <strong style="color:#6b1c1c;">₹${refundRupees}</strong> for booking <strong>${p.bookingRef}</strong> has been processed by Razorpay.</p>
+      <p>Dear ${esc(p.guestName)},</p>
+      <p>Your refund of <strong style="color:#6b1c1c;">₹${refundRupees}</strong> for booking <strong>${esc(p.bookingRef)}</strong> has been processed by Razorpay.</p>
       <p>Refunds typically appear in your account within 5 to 7 business days depending on your bank.</p>
       <p style="margin-top:24px;">Warm regards,<br>The Habbaa Team</p>
     </div>

@@ -140,8 +140,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Booking could not be created. Please try again.' }, { status: 503 });
     }
 
+    // The private link the guest lands on after paying. Only this browser, which
+    // created the booking, receives it.
+    const { data: tokenRow, error: tokenError } = await supabase
+      .from('bookings').select('access_token').eq('id', bookingId).single();
+    if (tokenError || !tokenRow) {
+      console.error('[create-order] Could not read booking token:', tokenError?.message);
+      return NextResponse.json({ error: 'Booking could not be created. Please try again.' }, { status: 503 });
+    }
+
     return NextResponse.json({
-      bookingReference,
+      bookingToken: tokenRow.access_token,
       razorpayOrderId: razorpayOrder.id,
       razorpayKeyId: process.env.RAZORPAY_KEY_ID,
       amount: breakdown.total_amount,

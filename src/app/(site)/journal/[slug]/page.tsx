@@ -6,6 +6,8 @@ import { ChevronLeft } from 'lucide-react';
 import BookNowLink from '@/components/guest/BookNowLink';
 import JournalCover from '@/components/guest/JournalCover';
 import JournalBody from '@/components/guest/JournalBody';
+import JsonLd from '@/components/seo/JsonLd';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import {
   getJournalPost, getJournalPosts, formatJournalDate, JOURNAL_CATEGORIES, SITE_URL,
 } from '@/lib/journal';
@@ -19,20 +21,21 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = await getJournalPost(slug);
   if (!post) return {};
-  const url = `${SITE_URL}/journal/${post.slug}`;
-  return {
+  const base = pageMetadata({
     title: post.title,
     description: post.excerpt,
-    alternates: { canonical: url },
-    robots: post.draft ? { index: false, follow: false } : undefined,
+    path: `/journal/${post.slug}`,
+    noindex: post.draft,
+    ogType: 'article',
+  });
+  return {
+    ...base,
     openGraph: {
+      ...base.openGraph,
       type: 'article',
-      title: post.title,
-      description: post.excerpt,
-      url,
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt ?? post.publishedAt,
-      images: post.coverImage ? [post.coverImage] : undefined,
+      ...(post.coverImage ? { images: [{ url: post.coverImage, alt: post.coverAlt ?? '' }] } : {}),
     },
   };
 }
@@ -58,26 +61,18 @@ export default async function JournalPostPage({ params }: { params: Promise<{ sl
       dateModified: post.updatedAt ?? post.publishedAt,
       mainEntityOfPage: url,
       image: post.coverImage ? [post.coverImage] : undefined,
-      author: { '@type': 'Organization', name: 'Habbaa', url: SITE_URL },
-      publisher: { '@type': 'Organization', name: 'Habbaa', url: SITE_URL },
+      author: { '@id': `${SITE_URL}/#organization` },
+      publisher: { '@id': `${SITE_URL}/#organization` },
     },
-    {
-      '@context': 'https://schema.org',
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-        { '@type': 'ListItem', position: 2, name: 'Journal', item: `${SITE_URL}/journal` },
-        { '@type': 'ListItem', position: 3, name: post.title, item: url },
-      ],
-    },
+    breadcrumbJsonLd([
+      { name: 'Journal', path: '/journal' },
+      { name: post.title, path: `/journal/${post.slug}` },
+    ]),
   ];
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
-      />
+      <JsonLd data={jsonLd} />
 
       {/* ── Title band ────────────────────────────────────── */}
       <section

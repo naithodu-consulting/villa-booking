@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import { createServiceClient } from '@/lib/supabase/server';
 import { hexSignatureMatches } from '@/lib/signature';
 import { sendBookingConfirmation, sendAdminNewBookingNotification } from '@/lib/email';
+import { SITE_URL } from '@/lib/seo';
+import { idShareWhatsAppUrl } from '@/lib/whatsapp';
 
 export async function POST(request: NextRequest) {
   try {
@@ -74,7 +76,7 @@ export async function POST(request: NextRequest) {
         .from('bookings')
         .update({ status: 'confirmed', payment_status: 'paid', hold_expires_at: null })
         .eq('id', payment.booking_id)
-        .select('property_id, reference_number, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
+        .select('property_id, reference_number, booking_code, access_token, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
         .single();
 
       if (booking) {
@@ -92,7 +94,7 @@ export async function POST(request: NextRequest) {
 
         if ((clash ?? 0) > 0) {
           console.error(
-            `[verify-payment] DOUBLE BOOKING — ${booking.reference_number} was paid after its ` +
+            `[verify-payment] DOUBLE BOOKING — ${booking.booking_code} (${booking.reference_number}) was paid after its ` +
             `hold lapsed and ${clash} confirmed booking(s) now overlap ${booking.check_in}→${booking.check_out}. ` +
             `Payment honoured; needs manual resolution.`
           );
@@ -102,7 +104,11 @@ export async function POST(request: NextRequest) {
         const emailParams = {
           guestEmail: booking.guest_email,
           guestName: booking.guest_name,
-          bookingRef: booking.reference_number,
+          bookingRef: booking.booking_code ?? booking.reference_number,
+          bookingUrl: `${SITE_URL}/booking/${booking.access_token}`,
+          idShareUrl: process.env.PROPERTY_WHATSAPP && booking.booking_code
+            ? idShareWhatsAppUrl(process.env.PROPERTY_WHATSAPP, booking.booking_code, booking.num_adults ?? 1)
+            : undefined,
           propertyName: 'Villa 19 by Habbaa',
           checkIn: fmt(booking.check_in),
           checkOut: fmt(booking.check_out),
@@ -112,7 +118,7 @@ export async function POST(request: NextRequest) {
         await Promise.all([
           sendBookingConfirmation(emailParams),
           sendAdminNewBookingNotification({
-            bookingRef: booking.reference_number,
+            bookingRef: booking.booking_code ?? booking.reference_number,
             guestName: booking.guest_name,
             guestEmail: booking.guest_email,
             guestPhone: booking.guest_phone ?? undefined,

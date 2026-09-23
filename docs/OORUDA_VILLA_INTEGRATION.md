@@ -152,6 +152,9 @@ UPDATE bookings
 If that update touches **0 rows**, the hold lapsed before you confirmed and someone else may have
 taken the dates. Call `create_booking_atomic` again rather than resurrecting the row.
 
+Add `RETURNING booking_code, access_token` to the update: confirming assigns the booking number
+(5.7), and you will want it straight away for the guest's WhatsApp message.
+
 ### 5.2 Status values
 
 | `status` | Meaning | Blocks dates? | Who sets it |
@@ -196,9 +199,63 @@ has been sent to the guest.
 
 ### 5.6 Columns Ooruda Villa must not write
 
-`reference_number` (generated, unique, already emailed), `hold_expires_at` (except clearing it on
-confirm), `id`, `created_at`. Do not change amounts on a booking paid online; the Razorpay order was
+`booking_code`, `confirmed_at` and `access_token` (set by the database), `reference_number`
+(generated, unique), `hold_expires_at` (except clearing it on confirm), `id`, `created_at`. Do not change amounts on a booking paid online; the Razorpay order was
 created for that exact figure.
+
+### 5.7 Booking numbers, private links and IDs
+
+Every booking has three identifiers. Use the right one for each job:
+
+| Column | Example | What it is | Who sees it |
+|---|---|---|---|
+| `booking_code` | `V19-7KQ-M4X` | **The booking number.** Assigned automatically by a database trigger the first time `status` becomes `'confirmed'`, however that happens (website payment, this app, an OTA import). Never changes, never reused, and unique across all villas. | Guests, staff, emails, WhatsApp |
+| `access_token` | 64 hex characters | The private key to the guest's booking page, `https://habbaa.in/booking/<access_token>`. Created with the row. | Only the guest (by email or WhatsApp) |
+| `reference_number` | `MNG-3F9A2C` | Internal hold reference, also the Razorpay receipt. Exists before payment. | Nobody outside the system |
+
+- **Format:** villa prefix (`properties.booking_code_prefix`, e.g. `V19`), 5 random Crockford Base32
+  characters and 1 check character, displayed as `V19-7KQ-M4X`. The alphabet has no `I`, `L`, `O` or
+  `U`, so it reads cleanly over the phone.
+- **Staff search:** people will type it in any case, without hyphens, or with `O` for zero. Normalise
+  before searching: uppercase, strip spaces and hyphens, then `O`→`0` and `I`/`L`→`1`. The guest
+  site's version is `normalizeBookingCode` in `src/lib/booking-code.ts`; it also rejects typos using
+  the check character. Port it, do not reinvent it.
+- **A booking code is a label, not a password.** Never show booking details to someone who only
+  gives you a code. Ask for the guest's phone or email too. Only `access_token` opens the booking
+  page, so never share it with anyone except the guest it belongs to.
+- **OTA bookings** (Airbnb, Booking.com and so on) get their own `V19-…` code like any other
+  confirmed booking. Keep the OTA's confirmation code in `external_reservations.channel_reservation_id`
+  (with `channel` and `booking_id`), and let staff search by either. Do not put the OTA code in
+  `booking_code`.
+- **Not an invoice number.** GST invoices need their own gapless series per financial year; that is a
+  separate table when invoicing is built.
+- **New villas:** set `booking_code_prefix` when you create the property: 2 to 4 characters, starting
+  with a letter (`^[A-Z][A-Z0-9]{1,3}$`). Without it, codes fall back to the prefix `HB`.
+
+**Guest IDs (`id_status`).** Guests send a photo ID for every adult on WhatsApp, using the link on
+their booking page and in the confirmation email. Nothing is uploaded to or stored in this database.
+Ooruda Villa tracks where each booking stands:
+
+| `id_status` | Set when | Guest's booking page shows |
+|---|---|---|
+| `pending` (default) | Nothing received yet | "Share ID documents" with the WhatsApp button |
+| `received` | Documents arrived on WhatsApp | "ID documents received", button to send more |
+| `verified` | Checked against the guest list | "ID documents received and checked" |
+
+`id_status_updated_at` is stamped automatically. Accepted IDs: Aadhaar (masked copy preferred),
+passport, driving licence. To resend the link to a guest, use this exact message format so the guest
+site and Ooruda Villa stay consistent (replace the booking code and adult count, then URL-encode):
+
+```
+https://wa.me/<business number>?text=Hi, sharing ID documents for booking V19-7KQ-M4X (6 adults). Attaching one photo per adult guest: Aadhaar, passport or driving licence.
+```
+
+Keep guest names, dates and phone numbers out of the message.
+
+**Retention (internal policy, decided 2026-09-23):** staff delete guest ID photos from WhatsApp, and
+from any phone or computer they were saved to, **one week after check-out**. This is not yet stated on
+the Privacy page; add it there once the process is in place. Ooruda Villa should remind staff when a
+booking passes the one-week mark.
 
 ---
 
@@ -365,6 +422,9 @@ Authorization: Bearer <CONTENT_REVALIDATE_SECRET>
 - [ ] "Today" computed in `Asia/Kolkata`
 - [ ] Every range written as `[start, end)` with `end > start`
 - [ ] New bookings go through `create_booking_atomic` and are confirmed with the guarded update
+- [ ] Staff see and search `booking_code` (normalised); OTA codes stay in `external_reservations`
+- [ ] Booking details are never revealed on a booking code alone
+- [ ] `id_status` updated as WhatsApp ID documents arrive and are checked
 - [ ] Cancellations update status, never delete
 - [ ] Amounts in integer paise, computed per section 6.3
 - [ ] Blocks and rate rules checked for overlaps first

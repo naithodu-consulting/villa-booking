@@ -2,8 +2,9 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { CheckCircle, Calendar, Users, MapPin, Phone, Mail } from 'lucide-react';
+import { CheckCircle, Calendar, Users, MapPin, IdCard, ShieldCheck } from 'lucide-react';
 import { createServiceClient } from '@/lib/supabase/server';
+import { idShareWhatsAppUrl, ACCEPTED_ID_TYPES } from '@/lib/whatsapp';
 
 export const metadata: Metadata = {
   title: 'Booking Confirmed',
@@ -11,17 +12,20 @@ export const metadata: Metadata = {
 };
 
 interface Props {
-  params: Promise<{ ref: string }>;
+  params: Promise<{ token: string }>;
 }
 
 export default async function BookingConfirmationPage({ params }: Props) {
-  const { ref } = await params;
+  const { token } = await params;
+  // The token is the only key to this page. Reject anything that is not one
+  // before touching the database.
+  if (!/^[0-9a-f]{64}$/.test(token)) notFound();
   const supabase = createServiceClient();
 
   const { data: booking, error } = await supabase
     .from('bookings')
-    .select('reference_number, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount, status, payment_status, special_requests')
-    .eq('reference_number', ref)
+    .select('booking_code, id_status, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount, status, payment_status, special_requests')
+    .eq('access_token', token)
     .maybeSingle();
 
   if (error || !booking) notFound();
@@ -32,6 +36,12 @@ export default async function BookingConfirmationPage({ params }: Props) {
   const totalRupees = (booking.total_amount / 100).toLocaleString('en-IN');
   const guests = (booking.num_adults ?? 0) + (booking.num_children ?? 0);
   const isPaid = booking.payment_status === 'paid';
+  const whatsapp = process.env.PROPERTY_WHATSAPP;
+  const adults = booking.num_adults ?? 1;
+  const idShareUrl = whatsapp && booking.booking_code
+    ? idShareWhatsAppUrl(whatsapp, booking.booking_code, adults)
+    : undefined;
+  const showIdCard = isPaid && booking.booking_code;
 
   return (
     <div className="pb-24 md:pb-12" style={{ color: 'var(--ink)' }}>
@@ -60,7 +70,9 @@ export default async function BookingConfirmationPage({ params }: Props) {
             {isPaid ? 'Booking Confirmed' : 'Booking Pending'}
           </h1>
           <p className="text-xl opacity-80">
-            Reference: <span className="font-bold" style={{ letterSpacing: '1.2px' }}>{booking.reference_number}</span>
+            {booking.booking_code
+              ? <>Booking number: <span className="font-bold" style={{ letterSpacing: '1.2px' }}>{booking.booking_code}</span></>
+              : 'Your booking number will appear here once payment is confirmed.'}
           </p>
           {isPaid && (
             <p className="text-base mt-2 opacity-70">
@@ -72,6 +84,62 @@ export default async function BookingConfirmationPage({ params }: Props) {
 
       {/* ── Booking Details ───────────────────────────────── */}
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-5">
+
+        {/* ── Guest IDs ─────────────────────────────────── */}
+        {showIdCard && (
+          booking.id_status === 'verified' ? (
+            <div
+              className="flex items-center gap-3 p-5 rounded-3xl"
+              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
+            >
+              <ShieldCheck className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--ok)' }} aria-hidden="true" />
+              <p className="text-base font-semibold" style={{ color: 'var(--ink)' }}>
+                ID documents received and checked. You are all set for check-in.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="p-6 rounded-3xl space-y-4"
+              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--brass)' }}
+            >
+              <div className="flex items-start gap-3">
+                <IdCard className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                <div className="space-y-1.5">
+                  <h2 className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>
+                    {booking.id_status === 'received' ? 'ID documents received' : 'Share ID documents before you arrive'}
+                  </h2>
+                  <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                    {booking.id_status === 'received'
+                      ? 'Thank you. We are checking them and will confirm on WhatsApp. If someone was missed, send theirs the same way.'
+                      : `Government photo ID is required for every adult guest (${adults} for this booking). Send a photo of each on WhatsApp. It takes a minute and saves time at check-in.`}
+                  </p>
+                </div>
+              </div>
+              <ul className="flex flex-wrap gap-2 text-sm" aria-label="Accepted ID documents">
+                {ACCEPTED_ID_TYPES.map((t) => (
+                  <li key={t} className="px-3 py-1.5 rounded-full" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--ink)' }}>{t}</li>
+                ))}
+              </ul>
+              {idShareUrl ? (
+                <a
+                  href={idShareUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-brass-filled flex items-center justify-center gap-2 py-3.5 rounded-2xl"
+                >
+                  {booking.id_status === 'received' ? 'Send more IDs on WhatsApp' : 'Send IDs on WhatsApp'}
+                </a>
+              ) : (
+                <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
+                  We will message you on WhatsApp to collect them before your stay.
+                </p>
+              )}
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                Please do not email ID documents. We do not store copies on this website.
+              </p>
+            </div>
+          )
+        )}
 
         <div
           className="rounded-3xl overflow-hidden"
@@ -144,10 +212,14 @@ export default async function BookingConfirmationPage({ params }: Props) {
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold mt-0.5" style={{ color: 'var(--brass-ink)' }}>2.</span>
-              24 hours before check-in, we will share the exact address and access instructions on WhatsApp.
+              Share a photo ID for every adult guest on WhatsApp before you arrive.
             </li>
             <li className="flex items-start gap-2">
               <span className="font-bold mt-0.5" style={{ color: 'var(--brass-ink)' }}>3.</span>
+              24 hours before check-in, we will share the exact address and access instructions on WhatsApp.
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold mt-0.5" style={{ color: 'var(--brass-ink)' }}>4.</span>
               Questions? WhatsApp us. We respond within 30 minutes.
             </li>
           </ul>

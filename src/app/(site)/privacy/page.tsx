@@ -1,13 +1,15 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Privacy Policy',
-  description: 'Privacy Policy for Villa 19 by Habbaa. How we collect, use and protect your personal information.',
-  robots: { index: true, follow: true },
-};
+  path: '/privacy',
+  description:
+    'How Villa 19 by Habbaa collects, uses and protects your personal information when you enquire, book or stay with us, and the choices you have about it.',
+});
 
-const LAST_UPDATED = '1 September 2026';
+const LAST_UPDATED = '23 September 2026';
 
 export default function PrivacyPage() {
   return (
@@ -75,6 +77,14 @@ export default function PrivacyPage() {
               under their own privacy policy, and are visible to us in the chat. We use that information only
               to answer your enquiry and manage your booking. If you would rather not use WhatsApp, email or
               call us instead and we will not contact you there.
+            </p>
+            <p className="mt-3">
+              <strong>Guest ID documents.</strong> Local regulations require us to see government photo ID for every
+              adult guest. We accept Aadhaar (a masked copy, showing only the last four digits, is enough), passport or
+              driving licence. After you book, you can send photos of these on WhatsApp using the link on your booking
+              page. This website does not upload or store ID documents. They are seen only by our staff on WhatsApp,
+              used only to register your stay, and never shared except where the law requires it. Please do not send
+              ID documents by email.
             </p>
           </Section>
 

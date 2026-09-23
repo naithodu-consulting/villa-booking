@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Nunito_Sans, Cormorant_Garamond, Cinzel } from "next/font/google";
+import { SITE_URL, SITE_NAME, DEFAULT_SHARE_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
 const nunitoSans = Nunito_Sans({
@@ -24,33 +25,36 @@ const cinzel = Cinzel({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Villa 19 | Private Villa in Mangalore by Habbaa",
     template: "%s | Villa 19 by Habbaa",
   },
   description:
     "Villa 19 is a premium 4-bedroom private villa in Urwa, Mangalore. Private lawn, 12-guest capacity, direct booking at the best rate. By Habbaa.",
-  keywords: [
-    "villa mangalore",
-    "luxury villa mangalore",
-    "private villa mangalore",
-    "4 bedroom villa mangalore",
-    "villa stay karnataka",
-    "group stay mangalore",
-  ],
+  applicationName: SITE_NAME,
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "Villa 19 by Habbaa",
+    siteName: SITE_NAME,
     title: "Villa 19 | Private Villa in Mangalore",
     description: "Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking at the best rate.",
+    images: [DEFAULT_SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "Villa 19 | Private Villa in Mangalore",
     description: "Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking at the best rate.",
+    images: [DEFAULT_SHARE_IMAGE.url],
   },
   robots: { index: true, follow: true },
+  // Set in Vercel once Search Console and Bing Webmaster Tools are verified.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.BING_SITE_VERIFICATION }
+      : undefined,
+  },
 };
 
 export default function RootLayout({

@@ -94,7 +94,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
       const orderData = await orderRes.json();
       if (!orderRes.ok) throw new Error(orderData.error ?? 'Could not create booking order. Please try again.');
 
-      const { bookingReference, razorpayOrderId, razorpayKeyId, amount } = orderData;
+      const { bookingToken, razorpayOrderId, razorpayKeyId, amount } = orderData;
 
       await new Promise<void>((resolve, reject) => {
         const rzp = new window.Razorpay({
@@ -132,7 +132,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
         rzp.open();
       });
 
-      router.replace(`/booking/${bookingReference}`);
+      router.replace(`/booking/${bookingToken}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
       if (msg !== 'DISMISSED') setServerError(msg);

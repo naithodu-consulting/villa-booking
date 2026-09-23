@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { getProperty } from '@/lib/data';
@@ -12,19 +13,13 @@ function WhatsAppIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Testimonials',
-  description: 'Guest testimonials for Villa 19, Mangalore. Read what our guests say about their stay.',
-  openGraph: {
-    title: 'Testimonials | Villa 19 by Habbaa',
-    description: 'Real guest testimonials at Villa 19, Mangalore. Direct booking, personal host service.',
-    url: 'https://habbaa.in/testimonials',
-  },
-  twitter: {
-    title: 'Testimonials | Villa 19 by Habbaa',
-    description: 'Guest testimonials for Villa 19, Mangalore.',
-  },
-};
+  path: '/testimonials',
+  description:
+    'Guest testimonials for Villa 19, Mangalore. Read what our guests say about their stay.',
+  noindex: true,
+});
 
 export default async function ReviewsPage() {
   const property = await getProperty();

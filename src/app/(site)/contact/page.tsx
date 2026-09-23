@@ -1,5 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import { MapPin, Mail, Phone, Clock } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import EnquiryForm from '@/components/guest/EnquiryForm';
@@ -12,19 +14,12 @@ function WhatsAppIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Get in touch with Villa 19 by Habbaa. WhatsApp, email, or call. We reply as quickly as we can.',
-  openGraph: {
-    title: 'Contact | Villa 19 by Habbaa',
-    description: 'Reach us on WhatsApp, email, or phone. We reply as quickly as we can.',
-    url: 'https://habbaa.in/contact',
-  },
-  twitter: {
-    title: 'Contact | Villa 19 by Habbaa',
-    description: 'WhatsApp, email, or call. We reply as quickly as we can.',
-  },
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Contact & Enquiries',
+  path: '/contact',
+  description:
+    'Contact Villa 19 by Habbaa in Mangalore by WhatsApp, email or phone. Ask about dates, group stays or celebrations, and get a quick reply from your host.',
+});
 
 export default async function ContactPage() {
   const property = await getProperty();
@@ -38,6 +33,7 @@ export default async function ContactPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Contact Us', path: '/contact' }])} />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section

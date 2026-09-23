@@ -121,3 +121,20 @@ export async function getNearbyPlaces(propertyId: string, category?: string): Pr
   if (error || !data) return [];
   return data as NearbyPlace[];
 }
+
+/**
+ * The closest published place in a category. Headline facts such as "nearest
+ * beach" come from here so the homepage, The Villa and structured data can
+ * never disagree with the nearby-places list Ooruda Villa maintains.
+ */
+export function nearestPlace(places: NearbyPlace[], category: string): NearbyPlace | undefined {
+  return places
+    .filter((p) => p.category === category && p.distance_km != null)
+    .sort((a, b) => Number(a.distance_km) - Number(b.distance_km))[0];
+}
+
+export function formatDistance(place: NearbyPlace | undefined): string | undefined {
+  if (!place?.distance_km) return undefined;
+  const km = `${Number(place.distance_km)} km`;
+  return place.travel_minutes ? `${km} · ~${place.travel_minutes} min` : km;
+}

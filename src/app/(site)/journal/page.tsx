@@ -1,23 +1,20 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import JournalCover from '@/components/guest/JournalCover';
 import {
-  getJournalPosts, isJournalLive, formatJournalDate, JOURNAL_CATEGORIES, SITE_URL, type JournalPost,
+  getJournalPosts, isJournalLive, formatJournalDate, JOURNAL_CATEGORIES, type JournalPost,
 } from '@/lib/journal';
 
-export const metadata: Metadata = {
-  title: 'Journal',
+export const metadata: Metadata = pageMetadata({
+  title: 'Journal: Mangalore Guides & Stay Tips',
+  path: '/journal',
   description:
-    'Local guides to Mangalore and practical advice for planning your stay at Villa 19: seasons, beaches, food and group trips.',
-  alternates: { canonical: `${SITE_URL}/journal` },
-  openGraph: {
-    title: 'Journal | Villa 19 by Habbaa',
-    description: 'Mangalore guides and stay planning advice from the hosts of Villa 19.',
-    url: `${SITE_URL}/journal`,
-  },
-};
+    'Local guides to Mangalore and practical advice for planning a stay at Villa 19: the best seasons, beaches near Urwa, food, and planning group trips.',
+});
 
 function PostMeta({ post }: { post: JournalPost }) {
   return (
@@ -44,6 +41,7 @@ export default async function JournalPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Journal', path: '/journal' }])} />
 
       {/* ── Page Hero ─────────────────────────────────────── */}
       <section

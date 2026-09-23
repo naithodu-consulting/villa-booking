@@ -156,6 +156,19 @@ feature-branch  →  develop locally (local DB or Staging)
 
 ---
 
+## Analytics (Google Analytics 4)
+
+Analytics loads only after a guest accepts cookies (`src/components/layout/Analytics.tsx`).
+
+1. Create a GA4 property for habbaa.in and a **Web** data stream for `https://habbaa.in`.
+2. Copy the stream's **Measurement ID** (`G-XXXXXXXXXX`) into Vercel as `NEXT_PUBLIC_GA_ID`
+   (Production, and Preview if you want staging traffic counted separately). Redeploy.
+3. **To do once analytics is live:** add an "AI assistants" channel group so visits from AI answers
+   are reported separately. In GA4: Admin, Data display, Channel groups, Create new channel group.
+   Add a channel named `AI assistants` with the condition *Source matches regex*:
+   `chatgpt\.com|chat\.openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|copilot\.microsoft\.com`
+   and move it above "Referral" so these visits are not counted as ordinary referrals.
+
 ## Pre-Push Checklist
 
 - [ ] `npx tsc --noEmit` — no type errors

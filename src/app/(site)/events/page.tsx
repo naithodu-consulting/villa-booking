@@ -1,24 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import { Users, Music, Briefcase, Heart, Check } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import BookNowLink from '@/components/guest/BookNowLink';
 
-export const metadata: Metadata = {
-  title: 'Events & Celebrations',
+export const metadata: Metadata = pageMetadata({
+  title: 'Celebrations & Group Events in Mangalore',
+  path: '/events',
   description:
-    'Host your celebration, reunion, or corporate retreat at Villa 19, Mangalore. Private villa exclusively yours for up to 12 guests.',
-  openGraph: {
-    title: 'Events & Celebrations | Villa 19 by Habbaa',
-    description: 'Birthday parties, family reunions, corporate retreats. Villa 19 is exclusively yours for up to 12 guests.',
-    url: 'https://habbaa.in/events',
-  },
-  twitter: {
-    title: 'Events & Celebrations | Villa 19 by Habbaa',
-    description: 'Private villa exclusively yours for events. Up to 12 guests, Mangalore.',
-  },
-};
+    'Host a family reunion, milestone celebration or small corporate retreat at Villa 19, Mangalore. The whole private villa and lawn for up to 12 guests.',
+});
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -80,6 +74,7 @@ export default async function EventsPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Events', path: '/events' }])} />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
