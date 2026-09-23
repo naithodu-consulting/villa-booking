@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next';
+import { getJournalPosts, isJournalLive } from '@/lib/journal';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = (process.env.APP_URL ?? 'https://habbaa.in').replace(/\/$/, '');
   const now = new Date();
 
@@ -19,10 +20,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/terms',       priority: 0.3,  changeFrequency: 'yearly' },
   ];
 
-  return routes.map(({ path, priority, changeFrequency }) => ({
+  const pages: MetadataRoute.Sitemap = routes.map(({ path, priority, changeFrequency }) => ({
     url: `${baseUrl}${path}`,
     lastModified: now,
     changeFrequency,
     priority,
   }));
+
+  if (!(await isJournalLive())) return pages;
+
+  const journal: MetadataRoute.Sitemap = [
+    { url: `${baseUrl}/journal`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    ...(await getJournalPosts()).filter((p) => !p.draft).map((p) => ({
+      url: `${baseUrl}/journal/${p.slug}`,
+      lastModified: new Date(p.updatedAt ?? p.publishedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
+  ];
+  return [...pages, ...journal];
 }

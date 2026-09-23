@@ -2,7 +2,7 @@
 
 **Audience:** developers of the Ooruda Villa operator app.
 **Applies to:** the villa-booking Supabase project (dev/staging `hlmqcdzazbrztfovixjk`; production not yet created).
-**Last reviewed:** 2026-09-15
+**Last reviewed:** 2026-09-23
 
 Villa 19's guest site (habbaa.in) has no admin of its own. Ooruda Villa blocks dates, records
 phone/WhatsApp bookings, changes rates and processes cancellations and refunds by writing directly
@@ -29,6 +29,7 @@ constraints, unless it says otherwise.
 | 8 | **Pricing rules must not overlap** each other. |
 | 9 | When you refund or cancel anything in Razorpay, **update this database too**. The guest site's webhook is switched off. |
 | 10 | Changes appear on the guest site's calendar within about **60 seconds** (edge cache). Checkout itself always reads live data. |
+| 11 | After changing **content** (journal posts, nearby places, policies, FAQs), call **`POST /api/revalidate`** (section 9). Content pages are cached and will not change until you do. |
 
 ---
 
@@ -291,7 +292,62 @@ disagree. Do not re-implement the overlap logic.
 
 ---
 
-## 9. Do not
+## 9. Content: journal posts and refreshing the site
+
+### 9.1 Journal posts (`journal_posts`)
+
+The guest site's Journal (`/journal`) shows posts from this table alongside a few posts that ship
+as files in the villa-booking repo. Ooruda Villa writes posts here.
+
+| Column | Rules |
+|---|---|
+| `property_id` | Villa 19's property id. |
+| `slug` | The URL: `/journal/<slug>`. Lowercase letters, digits and single hyphens, up to 100 characters (`best-time-to-visit`). Unique per property. **Do not change a slug after publishing**: the old URL will 404 and lose its search ranking. |
+| `title` | 1 to 160 characters. Used as the page title and in search results. |
+| `excerpt` | 1 to 320 characters. One or two sentences shown on cards and as the search description. |
+| `category` | `'mangalore-guides'` or `'plan-your-stay'`. Anything else fails the insert. |
+| `body` | **Plain Markdown.** Supported: `##` and `###` headings, paragraphs, `**bold**`, lists, `>` quotes, `---` rules and links. Links starting with `/` stay on the site; others open in a new tab. Raw HTML and inline images are **dropped**, and a `#` heading is shown as `##` (the page title is the only top-level heading). Do not send MDX or JSX. |
+| `cover_image_url` | Optional. A public URL in this project's Supabase Storage (`https://<project>.supabase.co/storage/v1/object/public/...`); other hosts will not load. Landscape, at least 1600 px wide. Without one the site shows a branded cover. |
+| `cover_alt` | **Required when there is a cover image** (the database enforces this). Describe what the photo shows. |
+| `status` | `'draft'` or `'published'`. Only published rows are shown. Drafts are private to Ooruda Villa. |
+| `published_at` | Indian calendar date. **Required when `status = 'published'`** (enforced). Posts are sorted newest first by this date. |
+| `created_at`, `updated_at` | Set by the database. Do not write. `updated_at` is shown to search engines as the modified date. |
+
+- **Unpublish** by setting `status = 'draft'`. Deleting a published post also works, but its URL
+  then 404s.
+- If a row uses the same slug as one of the repo's file-based posts, **the row wins**. That is how a
+  file-based post is moved into Ooruda Villa: copy it into a row with the same slug.
+- The Journal only appears in the site's footer, menu and sitemap once there are **at least 3
+  published posts** in total.
+- The guest site never writes to this table.
+
+### 9.2 Refreshing the site after a change
+
+Content pages (journal, The Villa, Stay Guide and others) are rendered once and cached. After you
+publish, edit or unpublish a post, or change nearby places, policies or FAQs, call:
+
+```http
+POST https://habbaa.in/api/revalidate
+Authorization: Bearer <CONTENT_REVALIDATE_SECRET>
+```
+
+> **Setup still to do in Ooruda Villa (when the Journal editor is built):** add
+> `CONTENT_REVALIDATE_SECRET` to Ooruda Villa's server environment, with the **same value** already
+> set in the guest site's Vercel project (set 2026-09-23). Copy it from Vercel (villa-booking
+> project, Settings, Environment Variables); never paste it into code, tickets or chat. Until
+> Ooruda Villa has it, publishing works but the site will not show the change until the next
+> deploy. If the secret is ever rotated, update it in both apps at the same time.
+
+- Keep the secret server-side, like the service role key.
+- Responses: `200 {"revalidated": true}`, `401` for a missing or wrong secret, `503` if the guest
+  site has no secret configured.
+- It refreshes every page, not a single path, so one call covers any combination of changes. Pages
+  re-render on their next visit, usually within seconds.
+- If the call fails, retry. The data is already saved; only the cached pages are stale.
+
+---
+
+## 10. Do not
 
 - Insert into `bookings` directly, or update `check_in`/`check_out` in place.
 - Delete bookings or payments.
@@ -303,7 +359,7 @@ disagree. Do not re-implement the overlap logic.
 
 ---
 
-## 10. Before shipping an Ooruda Villa change that writes here
+## 11. Before shipping an Ooruda Villa change that writes here
 
 - [ ] Uses the service role key server-side only
 - [ ] "Today" computed in `Asia/Kolkata`
@@ -313,4 +369,6 @@ disagree. Do not re-implement the overlap logic.
 - [ ] Amounts in integer paise, computed per section 6.3
 - [ ] Blocks and rate rules checked for overlaps first
 - [ ] Razorpay refunds mirrored into `payments` and `bookings`
+- [ ] Journal bodies saved as plain Markdown, with `published_at` set on publish
+- [ ] `POST /api/revalidate` called after every content change
 - [ ] Tested against the dev project, never production first

@@ -6,6 +6,7 @@ import AnnouncementBar, { type Announcement } from '@/components/layout/Announce
 import CookieConsent from '@/components/layout/CookieConsent';
 import Analytics from '@/components/layout/Analytics';
 import { getProperty } from '@/lib/data';
+import { isJournalLive } from '@/lib/journal';
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
@@ -20,7 +21,7 @@ const ANNOUNCEMENTS: Announcement[] = [
 ];
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const property = await getProperty();
+  const [property, showJournal] = await Promise.all([getProperty(), isJournalLive()]);
 
   const whatsappNumber = property?.whatsapp_number;
   const whatsappUrl = whatsappNumber
@@ -32,9 +33,9 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--paper)' }}>
       <AnnouncementBar announcements={ANNOUNCEMENTS} />
-      <Header propertyName={property?.name ?? 'Villa 19'} whatsappUrl={whatsappUrl} />
+      <Header propertyName={property?.name ?? 'Villa 19'} whatsappUrl={whatsappUrl} showJournal={showJournal} />
       <main className="flex-1">{children}</main>
-      {property && <Footer property={property} whatsappUrl={whatsappUrl} />}
+      {property && <Footer property={property} whatsappUrl={whatsappUrl} showJournal={showJournal} />}
       <BookingDialog maxOccupancy={property?.max_occupancy ?? 15} propertyId={property?.id} />
       <CookieConsent />
       <Analytics />

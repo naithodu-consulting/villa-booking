@@ -19,6 +19,7 @@ interface HeaderProps {
   propertyName: string;
   /** Absent when no WhatsApp number is configured: the enquiry button is then hidden. */
   whatsappUrl?: string;
+  showJournal?: boolean;
 }
 
 // Desktop nav — kept minimal for clean look
@@ -40,7 +41,7 @@ const DRAWER_LINKS = [
   { href: '/contact',    label: 'Contact Us' },
 ];
 
-export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
+export default function Header({ propertyName, whatsappUrl, showJournal = false }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
@@ -254,7 +255,10 @@ export default function Header({ propertyName, whatsappUrl }: HeaderProps) {
               className="flex flex-col px-3 py-3 flex-1 overflow-y-auto"
               aria-label="Mobile navigation"
             >
-              {DRAWER_LINKS.map(({ href, label }) => {
+              {(showJournal
+                ? [...DRAWER_LINKS.slice(0, -2), { href: '/journal', label: 'Journal' }, ...DRAWER_LINKS.slice(-2)]
+                : DRAWER_LINKS
+              ).map(({ href, label }) => {
                 const active = pathname === href || (href !== '/' && pathname.startsWith(href));
                 return (
                   <Link

@@ -4,6 +4,60 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.7.0 — Journal, content refresh endpoint, Someshwar distance fix — 2026-09-23
+
+### Journal (`/journal`)
+
+A new editorial section for guests who are still deciding: Mangalore guides and stay planning
+advice, aimed at longer search phrases the main pages cannot target. Named "Journal" rather than
+"Blog".
+
+- **Index:** latest post as a featured card, the rest in a 2-column grid. Category, date and
+  reading time on every card.
+- **Post page:** title band, body limited to about 68 characters per line, 2 related posts, and
+  the standard "Check Availability" card. `Article` and `BreadcrumbList` structured data,
+  canonical URL and Open Graph tags per post.
+- **Typography matches the site:** Cormorant headings (`text-3xl font-black tracking-tight`),
+  Nunito body at the site's `--text-body-lg` size for long reading, Cormorant card titles.
+- **Covers:** a real photo when a post has one; otherwise a maroon panel with the Habbaa logo. A
+  compact logo-only version is used for small thumbnails. No stock photos.
+- **Launch rule:** the footer, mobile drawer and sitemap only link to the Journal once at least 3
+  posts are published. The desktop nav is unchanged. Draft posts are visible in development only,
+  return 404 in production, and are marked noindex.
+- **First 3 posts** (MDX files in `src/content/journal/`): best time to visit Mangalore, beaches
+  near Villa 19, and planning a group getaway. Facts come from the site's own data.
+
+### Two post sources: MDX files and Ooruda Villa
+
+- MDX files in the repo, compiled with `@next/mdx`.
+- New `journal_posts` table (migration 00022) for posts written in Ooruda Villa. Body is plain
+  Markdown, rendered with `react-markdown`; raw HTML, inline images and unsafe links are dropped,
+  and a stray `#` heading cannot add a second h1. The database enforces slug format, category,
+  a publish date on published posts, and alt text on cover images. Visitors can read published
+  rows only.
+- A database post with the same slug as an MDX post replaces it, so file posts can be moved into
+  Ooruda Villa later by copying. If the database is unreachable, the MDX posts still render.
+
+### Content refresh endpoint (`POST /api/revalidate`)
+
+Content pages are rendered once and cached, so edits Ooruda Villa made to nearby places, policies
+or FAQs only appeared after a redeploy. The new endpoint refreshes every page and the sitemap. It
+requires `Authorization: Bearer <CONTENT_REVALIDATE_SECRET>`, compared in constant time
+(`bearerSecretMatches`, with unit tests), and returns 503 when the secret is not configured. The
+secret is set in Vercel; Ooruda Villa will add it when its Journal editor is built.
+
+`docs/OORUDA_VILLA_INTEGRATION.md` gains section 9 (journal columns, Markdown rules, publishing,
+the refresh call, and the pending Ooruda Villa setup) plus two checklist items.
+
+### Someshwar Beach distance
+
+Nearby places listed Someshwar Beach at 6 km and 18 minutes. It is about 24 km away. Corrected
+to 24 km and about 45 minutes in `seed.sql`, staging and the local database.
+
+**tsc clean, lint clean, 60 tests pass, production build verified.**
+
+---
+
 ## v0.6.9 — Nav active state, logo fix, title bands, gallery grid — 2026-09-17
 
 ### Desktop and mobile nav active state

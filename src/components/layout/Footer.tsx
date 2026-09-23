@@ -50,9 +50,10 @@ interface FooterProps {
   property: Property;
   /** Absent when no WhatsApp number is configured. */
   whatsappUrl?: string;
+  showJournal?: boolean;
 }
 
-export default function Footer({ property, whatsappUrl }: FooterProps) {
+export default function Footer({ property, whatsappUrl, showJournal = false }: FooterProps) {
   const year = new Date().getFullYear();
   const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in';
   // No invented number: each contact row renders only if its value is configured.
@@ -116,7 +117,7 @@ export default function Footer({ property, whatsappUrl }: FooterProps) {
           <div className="hidden lg:block">
             <p className={COL_HEADING}>Explore</p>
             <ul className="space-y-3">
-              {EXPLORE_LINKS.map(([href, label]) => (
+              {(showJournal ? [...EXPLORE_LINKS, ['/journal', 'Journal'] as [string, string]] : EXPLORE_LINKS).map(([href, label]) => (
                 <li key={href}>
                   <Link href={href} className={COL_LINK}>{label}</Link>
                 </li>

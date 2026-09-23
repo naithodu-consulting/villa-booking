@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import crypto from 'crypto';
-import { hexSignatureMatches } from '../signature';
+import { hexSignatureMatches, bearerSecretMatches } from '../signature';
 
 const expected = crypto.createHmac('sha256', 'secret').update('body').digest('hex');
 
@@ -29,5 +29,30 @@ describe('hexSignatureMatches', () => {
     expect(hexSignatureMatches(expected, '')).toBe(false);
     expect(hexSignatureMatches(expected, undefined)).toBe(false);
     expect(hexSignatureMatches(expected, 12345)).toBe(false);
+  });
+});
+
+describe('bearerSecretMatches', () => {
+  const secret = 's3cret-value-for-tests';
+
+  it('accepts the right secret', () => {
+    expect(bearerSecretMatches(secret, `Bearer ${secret}`)).toBe(true);
+  });
+
+  it('rejects a wrong or partial secret', () => {
+    expect(bearerSecretMatches(secret, 'Bearer wrong')).toBe(false);
+    expect(bearerSecretMatches(secret, `Bearer ${secret.slice(0, -1)}`)).toBe(false);
+    expect(bearerSecretMatches(secret, `Bearer ${secret} `)).toBe(false);
+  });
+
+  it('rejects a missing header or a header without the Bearer scheme', () => {
+    expect(bearerSecretMatches(secret, null)).toBe(false);
+    expect(bearerSecretMatches(secret, secret)).toBe(false);
+    expect(bearerSecretMatches(secret, `Basic ${secret}`)).toBe(false);
+  });
+
+  it('rejects everything when no secret is configured', () => {
+    expect(bearerSecretMatches(undefined, 'Bearer ')).toBe(false);
+    expect(bearerSecretMatches('', 'Bearer ')).toBe(false);
   });
 });

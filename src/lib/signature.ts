@@ -17,3 +17,14 @@ export function hexSignatureMatches(expected: string, received: unknown): boolea
     return false;
   }
 }
+
+/**
+ * Constant-time comparison of a shared secret sent as a bearer token.
+ * Both sides are hashed first so their lengths always match and the length of
+ * the real secret does not leak through timing.
+ */
+export function bearerSecretMatches(secret: string | undefined, authorization: string | null): boolean {
+  if (!secret || !authorization?.startsWith('Bearer ')) return false;
+  const digest = (v: string) => crypto.createHash('sha256').update(v).digest();
+  return crypto.timingSafeEqual(digest(secret), digest(authorization.slice('Bearer '.length)));
+}
