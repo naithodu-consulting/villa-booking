@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Celebrations & Group Events in Mangalore',
   path: '/events',
   description:
-    'Host a family reunion, milestone celebration or small corporate retreat at Villa 19, Mangalore. The whole private villa and lawn for up to 12 guests.',
+    'Host a family reunion, milestone celebration or small corporate retreat at Villa 19, Mangalore. The whole private villa and lawn for up to 14 guests.',
 });
 
 function WhatsAppIcon({ className }: { className?: string }) {

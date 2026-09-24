@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Bedrooms & Sleeping Arrangements',
   path: '/rooms',
   description:
-    'Four bedrooms at Villa 19, Mangalore, sleeping up to 12 guests. See bed types, room capacity and bathrooms for each room before you book the whole villa.',
+    'Four bedrooms at Villa 19, Mangalore, sleeping up to 14 guests. See bed types, room capacity and bathrooms for each room before you book the whole villa.',
 });
 
 const BED_TYPE_LABEL: Record<string, string> = {

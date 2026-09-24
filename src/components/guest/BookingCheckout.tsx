@@ -20,6 +20,26 @@ declare global {
   }
 }
 
+const RAZORPAY_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
+
+/** Resolves once Razorpay's checkout script is on the page, injecting it if needed. */
+function loadRazorpay(): Promise<void> {
+  if (typeof window.Razorpay === 'function') return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    let script = document.querySelector<HTMLScriptElement>(`script[src="${RAZORPAY_SRC}"]`);
+    if (!script) {
+      script = document.createElement('script');
+      script.src = RAZORPAY_SRC;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+    script.addEventListener('load', () => resolve());
+    script.addEventListener('error', () => reject(new Error('Payment gateway could not be loaded. Check your connection and try again.')));
+    // The script may have finished loading between the check above and the listeners.
+    if (typeof window.Razorpay === 'function') resolve();
+  });
+}
+
 interface Props {
   property: Property;
   pricingRules: PricingRule[];
@@ -31,7 +51,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
 
   const checkIn  = searchParams.get('checkIn')  ?? '';
   const checkOut = searchParams.get('checkOut') ?? '';
-  const adults   = parseInt(searchParams.get('adults')   ?? '2', 10);
+  const adults   = parseInt(searchParams.get('adults')   ?? '8', 10);
 
   const fmtDate = (iso: string) => {
     if (!iso) return '';
@@ -81,6 +101,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
     setIsProcessing(true);
 
     try {
+      // Load the gateway first so a failure never leaves a pending hold on the dates.
+      await loadRazorpay();
+
       const orderRes = await fetch('/api/bookings/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -199,7 +222,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
   // ── Checkout form ─────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col" style={{ color: 'var(--ink)', backgroundColor: 'var(--paper)' }}>
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="beforeInteractive" />
+      <Script src={RAZORPAY_SRC} strategy="afterInteractive" />
 
       <CheckoutHeader property={property} secured />
 

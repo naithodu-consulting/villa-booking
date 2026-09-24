@@ -123,7 +123,9 @@ export default async function TheVillaPage() {
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
             <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>About the Villa</h2>
           </div>
-          <p className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{property.description}</p>
+          {property.description?.split(/\n\s*\n/).map((para) => (
+            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{para}</p>
+          ))}
         </section>
 
         {/* ── Quick Highlights ─────────────────────────────── */}

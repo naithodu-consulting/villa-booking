@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     let breakdown;
     try {
-      breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults ?? 2, children ?? 0);
+      breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults ?? 8, children ?? 0);
     } catch (err) {
       return NextResponse.json(
         { error: err instanceof Error ? err.message : 'Invalid booking dates.' },
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       p_guest_name: guestName,
       p_guest_email: guestEmail,
       p_guest_phone: guestPhone,
-      p_num_adults: adults ?? 2,
+      p_num_adults: adults ?? 8,
       p_num_children: children ?? 0,
       p_num_infants: 0,
       p_check_in: checkIn,

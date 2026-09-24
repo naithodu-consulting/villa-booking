@@ -29,7 +29,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Villa 19 | Private Holiday Villa in Mangalore by Habbaa',
   path: '/',
   description:
-    'Villa 19 is a private 4-bedroom holiday villa in Urwa, Mangalore for up to 12 guests: private lawn, balconies, parking and power backup. Book direct, no fees.',
+    'Villa 19 is a private 4-bedroom holiday villa in Urwa, Mangalore for up to 14 guests: private lawn, balconies, parking and power backup. Book direct, no fees.',
   absoluteTitle: true,
 });
 
@@ -175,7 +175,9 @@ export default async function LandingPage() {
               </span>
             </div>
             <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>{property.tagline}</h2>
-            <p className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{property.description}</p>
+            {property.description?.split(/\n\s*\n/).map((para) => (
+            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{para}</p>
+          ))}
           </div>
 
           {/* Rooms */}

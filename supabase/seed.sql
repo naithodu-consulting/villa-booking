@@ -18,17 +18,17 @@ INSERT INTO properties (
   'villa-19',
   'Villa 19',
   'Premium 4-Bedroom Private Villa in Urwa, Mangalore',
-  'Villa 19 is a premium 4-bedroom private villa nestled in lush green surroundings in Urwa, Mangalore. Spread across a spacious property with a manicured lawn, private balconies on every floor, and ample covered parking, this villa comfortably hosts up to 12 guests. The beach is about 8 km away. Main road, local market and shops are within easy reach. Perfect for family reunions, group getaways and milestone celebrations.',
+  E'Villa 19 by Habbaa is a spacious 4-bedroom private urban villa set amidst lush greenery in Urwa, Mangalore. Spread across 5,000 sq. ft., it offers generous living spaces, a manicured lawn, balconies across every floor, and ample private parking.\n\nTucked away in a peaceful setting yet close to the heart of the city, the villa is just minutes from the main road, local markets, shops, and everyday conveniences. Its location makes it easy to explore Mangalore while giving you a quiet space to return to at the end of the day.\n\nDesigned with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.\n\nComfortably accommodating up to 14 guests, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore.\n\nWhether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
   'Urwa', 'Mangalore', 'Karnataka', '575006',
   12.8892951, 74.8298580,
-  12, 15,   -- 12 guests included, up to 3 more
+  12, 14,   -- 12 guests included, up to 2 more
   100000,   -- ₹1,000/extra guest per night
   1200000,  -- ₹12,000/night base
   1400000,  -- ₹14,000/night weekend
   '14:00:00', '11:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
-  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, is_active = EXCLUDED.is_active;
+  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, is_active = EXCLUDED.is_active;
 
 -- ─────────────────────────────────────────────────────────
 -- Rooms (4 bedrooms)

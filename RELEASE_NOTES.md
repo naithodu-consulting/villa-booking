@@ -4,6 +4,33 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.8.1 — Checkout fixes, 14-guest cap, new villa write-up — 2026-09-24
+
+### Fixes
+
+- **"window.Razorpay is not a constructor" on live checkout.** The checkout script was loaded with
+  `strategy="beforeInteractive"` from a client component, which production builds do not honour.
+  It now loads `afterInteractive`, and `loadRazorpay()` awaits the script before the booking order
+  is created, so a gateway that fails to load never leaves a pending hold on the dates.
+
+### Changes
+
+- **Guests default to 8 adults** (capped at the villa maximum) in the date picker, the checkout
+  page and the create-order API.
+- **Max guests 14** (was 15). Migration 00025 sets `max_occupancy = 14`; the nightly rate still
+  covers 12, so guests 13 and 14 pay the extra-guest rate. Fallbacks, meta descriptions and two
+  journal posts now say 14.
+- **New "About the Villa" write-up** (migration 00025 and seed). The description is stored as
+  paragraphs separated by blank lines; the home and The Villa pages render each as its own `<p>`.
+- **Calendar prefetch:** `useNightCalendar` loads six months on page load, then the month on
+  screen plus the next two, in one request each.
+
+### Deploy notes
+
+- Apply migrations 00023, 00024 and 00025 to remote databases.
+
+---
+
 ## v0.8.0 — Booking codes, private booking links, WhatsApp ID sharing, SEO and GEO — 2026-09-24
 
 ### Booking codes (`V19-7KQ-M4X`)

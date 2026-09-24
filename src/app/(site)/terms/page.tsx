@@ -20,7 +20,7 @@ export default async function TermsPage() {
   const property = await getProperty();
   const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
   const checkOut = formatTime12(property?.check_out_time ?? '11:00');
-  const maxGuests = property?.max_occupancy ?? 15;
+  const maxGuests = property?.max_occupancy ?? 14;
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>

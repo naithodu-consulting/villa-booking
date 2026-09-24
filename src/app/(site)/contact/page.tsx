@@ -188,7 +188,7 @@ export default async function ContactPage() {
               Not ready to book yet? Ask us anything: dates, availability, group requirements.
             </p>
           </div>
-          <EnquiryForm maxGuests={property?.max_occupancy ?? 15} />
+          <EnquiryForm maxGuests={property?.max_occupancy ?? 14} />
         </div>
 
       </div>

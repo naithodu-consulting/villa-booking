@@ -26,7 +26,7 @@ export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }:
   const todayStr = todayISO();
   const [checkIn, setCheckIn] = useState(todayStr);
   const [checkOut, setCheckOut] = useState(addDaysISO(todayStr, 1));
-  const [adults, setAdults] = useState(2);
+  const [adults, setAdults] = useState(Math.min(8, maxOccupancy));
   const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(propertyId);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out

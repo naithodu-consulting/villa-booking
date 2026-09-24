@@ -93,7 +93,7 @@ export default async function StayGuidePage() {
       icon: ShieldCheck,
       title: 'Villa Rules',
       items: [
-        `Maximum occupancy: ${property?.max_occupancy ?? 15} guests`,
+        `Maximum occupancy: ${property?.max_occupancy ?? 14} guests`,
         'Quiet hours: 11 PM to 7 AM',
         'No smoking indoors. Designated outdoor area available.',
         'No pets allowed',

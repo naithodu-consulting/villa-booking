@@ -12,8 +12,10 @@ export interface NightInfo {
 }
 
 /**
- * Nightly price and availability for the date pickers, loaded a month at a time
- * from /api/availability/calendar as the guest pages through the calendar.
+ * Nightly price and availability for the date pickers, from
+ * /api/availability/calendar: six months on page load, then the month on screen
+ * plus the next two as the guest pages forward, so a month is normally ready
+ * before it is shown.
  *
  * If a month fails to load its dates stay selectable: checkout prices the stay and
  * re-checks availability on the server, so a failed request never blocks a booking.
@@ -24,14 +26,27 @@ export function useNightCalendar(propertyId: string | undefined) {
   const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
   const requested = useRef(new Set<string>());
 
-  /** Load the month containing `iso`, once (retried on the next call if it failed). */
-  const loadMonth = useCallback((iso: string) => {
+  /**
+   * Load `count` months starting with the one containing `iso`, in a single
+   * request, skipping months already loaded or in flight. A failed month is
+   * retried on the next call.
+   */
+  const loadMonths = useCallback((iso: string, count: number) => {
     if (!propertyId || !/^\d{4}-\d{2}/.test(iso)) return;
-    const from = `${iso.slice(0, 7)}-01`;
-    if (requested.current.has(from)) return;
-    requested.current.add(from);
-
-    const params = new URLSearchParams({ propertyId, from, to: addMonthsISO(from, 1) });
+    const months: string[] = [];
+    let month = `${iso.slice(0, 7)}-01`;
+    for (let i = 0; i < count; i++) {
+      if (!requested.current.has(month)) months.push(month);
+      month = addMonthsISO(month, 1);
+    }
+    if (months.length === 0) return;
+    // One request spans the first to the last missing month; a loaded month in
+    // between is simply fetched again, which is cheaper than a second request.
+    const from = months[0];
+    const to = addMonthsISO(months[months.length - 1], 1);
+    for (let m = from; m < to; m = addMonthsISO(m, 1)) if (!months.includes(m)) months.push(m);
+    months.forEach((m) => requested.current.add(m));
+    const params = new URLSearchParams({ propertyId, from, to });
     fetch(`/api/availability/calendar?${params}`)
       .then((res) => {
         if (!res.ok) throw new Error(`calendar ${res.status}`);
@@ -44,13 +59,32 @@ export function useNightCalendar(propertyId: string | undefined) {
           for (const night of body.nights!) next.set(night.date, night);
           return next;
         });
-        setLoaded((prev) => new Set(prev).add(from));
+        setLoaded((prev) => {
+          const next = new Set(prev);
+          months.forEach((m) => next.add(m));
+          return next;
+        });
+        setFailed((prev) => {
+          const next = new Set(prev);
+          months.forEach((m) => next.delete(m));
+          return next;
+        });
       })
       .catch(() => {
-        requested.current.delete(from);
-        setFailed((prev) => new Set(prev).add(from));
+        months.forEach((m) => requested.current.delete(m));
+        setFailed((prev) => {
+          const next = new Set(prev);
+          months.forEach((m) => next.add(m));
+          return next;
+        });
       });
   }, [propertyId]);
+
+  /**
+   * The month on screen, plus the next two fetched in the background, so paging
+   * forward shows prices at once instead of a blank calendar that fills in.
+   */
+  const loadMonth = useCallback((iso: string) => loadMonths(iso, 3), [loadMonths]);
 
   /** Load every month a stay touches, so range checks see all of its nights. */
   const loadRange = useCallback((checkIn: string, checkOut: string) => {
@@ -63,12 +97,12 @@ export function useNightCalendar(propertyId: string | undefined) {
     }
   }, [loadMonth]);
 
-  // The two months a guest is most likely to look at first.
+  // Six months in one request on page load: most stays are booked within that
+  // window, so the calendar is usually complete before the guest opens it.
+  // (Six months is at most 184 nights, inside the endpoint's 186-night limit.)
   useEffect(() => {
-    const today = todayISO();
-    loadMonth(today);
-    loadMonth(addMonthsISO(today, 1));
-  }, [loadMonth]);
+    loadMonths(todayISO(), 6);
+  }, [loadMonths]);
 
   const unavailable = useMemo<ReadonlySet<string>>(
     () => new Set([...nights.values()].filter((n) => !n.available).map((n) => n.date)),
