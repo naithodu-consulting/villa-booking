@@ -214,6 +214,20 @@
     color: var(--brass-ink);
   }
 
+  /* Hero eyebrow — the line above a page's h1.
+     A tier above .eyebrow (12px): a hero eyebrow is read first but sat at the
+     smallest size on the page, under a 60px title and above a 20px subtitle,
+     which made it look like a stray caption. 14px restores the ladder and eases
+     the all-caps + tracking combination, which is the hardest to read small. */
+  .eyebrow-hero {
+    font-family: var(--font-body);
+    font-size: 0.875rem;             /* 14px */
+    font-weight: 700;
+    letter-spacing: 1.4px;           /* 0.1em, matching the smaller tiers */
+    text-transform: uppercase;
+    color: var(--brass-ink);
+  }
+
   /* Card */
   .card {
     background: var(--surface);
@@ -468,6 +482,11 @@
   @media (max-width: 767px) {
     body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem; }
   }
+
+  /* The cookie banner is fixed to the bottom at z-50 and would sit on top of
+     the scroll control, so the control steps above it until it is dismissed.
+     Not inside the max-width block above: the control is lg-and-up only. */
+  body:has(#cookie-banner) { --scroll-aid-bottom: 6rem; }
 
   /* Horizontal shelves: hide the scrollbar, keep the scrolling.
      The peeking next card is the affordance, not the bar. */

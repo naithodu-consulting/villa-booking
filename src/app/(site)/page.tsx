@@ -11,8 +11,10 @@ import RoomShelf from '@/components/guest/RoomShelf';
 import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, nearestPlace, formatDistance } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
+import { renderBoldText } from '@/lib/bold';
 import {
   ShieldCheck, MapPin, Users, Wifi, Bed, Home,
+  Car, Sofa, Trees, BedSingle,
   Sparkles, Phone,
   Clock, ChevronDown, ArrowRight,
 } from 'lucide-react';
@@ -53,6 +55,8 @@ export default async function LandingPage() {
   ]);
   const beachDistance = formatDistance(nearestPlace(nearby, 'beach'));
   const airportDistance = formatDistance(nearby.find((p) => /airport/i.test(p.name)));
+  const mainRoadDistance = formatDistance(nearby.find((p) => /main road/i.test(p.name)));
+  const superMarketDistance = formatDistance(nearby.find((p) => /super market/i.test(p.name)));
 
   // Group amenities by category (preserving display_order within each group)
   const amenityGroups = amenities.reduce<Record<string, string[]>>((acc, a) => {
@@ -122,48 +126,37 @@ export default async function LandingPage() {
         {/* Left column */}
         <div className="lg:col-span-2 space-y-10">
 
-          {/* Highlights bar */}
+          {/* Highlights bar — gap-px trick: container = border colour, cells = surface */}
           <div
-            className="p-3 sm:p-6 rounded-3xl grid grid-cols-2 sm:grid-cols-4 gap-0 text-left sm:text-center shadow-md"
-            style={{
-              backgroundColor: 'var(--surface)',
-              border: '1px solid var(--border-subtle)',
-            }}
+            className="rounded-3xl overflow-hidden shadow-md"
+            style={{ backgroundColor: 'var(--border-subtle)', border: '1px solid var(--border-subtle)' }}
           >
-            {/* No eyebrow labels: "Capacity / Up to 12 Guests" and
-                "Beach / 1.5 km to Beach" said the same thing twice. The value
-                alone is self-describing, which buys back readable type.
-                Bedrooms replaces the old beach entry — the beach distance is
-                already given under Location. */}
-            {[
-              { icon: Users, value: `Up to ${property.base_occupancy} Guests` },
-              { icon: Bed,   value: `${property.bedroom_count ?? 4} Bedrooms` },
-              { icon: Wifi,  value: 'High-Speed WiFi' },
-              { icon: Home,  value: 'Lawn & Balconies' },
-            ].map(({ icon: Icon, value }, i) => (
-              /* Mobile: icon beside the text, so a cell is one line tall rather
-                 than three. sm+: the original stacked, centred treatment.
-                 Borders differ per breakpoint — at 2 columns only the even-indexed
-                 cells sit in column 2, so only they take a left rule. */
-              <div
-                key={value}
-                className={
-                  'flex items-center gap-2.5 py-3 px-2.5 sm:block sm:py-4 sm:px-3 ' +
-                  (i % 2 === 1 ? 'border-l ' : '') +
-                  (i > 0 ? 'sm:border-l ' : 'sm:border-l-0 ') +
-                  (i >= 2 ? 'border-t sm:border-t-0' : '')
-                }
-                style={{ borderColor: 'var(--border-subtle)' }}
-              >
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
+              {[
+                { icon: MapPin,    value: 'Central Location'       },
+                { icon: Bed,       value: '4 Bedrooms'             },
+                { icon: Users,     value: 'Upto 14 Guests'         },
+                { icon: Car,       value: 'Ample Private Parking'  },
+                { icon: Sofa,      value: 'Private Lounge'         },
+                { icon: Trees,     value: 'Lawn & Balconies'       },
+                { icon: Wifi,      value: 'High Speed WiFi'        },
+                { icon: BedSingle, value: 'Driver Accommodation'   },
+              ].map(({ icon: Icon, value }) => (
                 <div
-                  className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 sm:mx-auto sm:mb-3"
-                  style={{ backgroundColor: 'var(--maroon-tint)' }}
+                  key={value}
+                  className="flex items-center gap-2.5 py-4 px-3 sm:flex-col sm:items-center sm:py-6 sm:px-4 sm:text-center"
+                  style={{ backgroundColor: 'var(--surface)' }}
                 >
-                  <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                  <div
+                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 sm:mb-3"
+                    style={{ backgroundColor: 'var(--maroon-tint)' }}
+                  >
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                  </div>
+                  <p className="text-sm sm:text-base font-bold leading-snug" style={{ color: 'var(--maroon)' }}>{value}</p>
                 </div>
-                <p className="text-sm sm:text-base font-bold leading-snug min-w-0" style={{ color: 'var(--maroon)' }}>{value}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* About */}
@@ -176,7 +169,7 @@ export default async function LandingPage() {
             </div>
             <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>{property.tagline}</h2>
             {property.description?.split(/\n\s*\n/).map((para) => (
-            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{para}</p>
+            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{renderBoldText(para)}</p>
           ))}
           </div>
 
@@ -214,7 +207,7 @@ export default async function LandingPage() {
                   <p className="text-base font-semibold">{property.address}</p>
                   <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>{property.city}, {property.state} {property.pincode}</p>
                   <p className="text-sm mt-1" style={{ color: 'var(--ink-faint)' }}>
-                    Exact address and directions shared after booking confirmation.
+                    Exact address and directions will be shared after booking confirmation.
                   </p>
                 </div>
               </div>
@@ -280,11 +273,15 @@ export default async function LandingPage() {
                   four rows of one become two rows of two, and no place name
                   has to be truncated to fit beside its distance. */}
               <div className="grid grid-cols-2 gap-2 text-sm lg:text-[15px]">
+                {/* Walking distances lead: 100 m to the main road is the most
+                    persuasive thing about the location, and both were hardcoded
+                    guesses ("Walking distance", "City Centre 3.7 km") until the
+                    operator supplied the real figures. Now read from the DB. */}
                 {([
+                  ['Main Road & Bus Stand', mainRoadDistance],
+                  ['Super Market', superMarketDistance],
                   ['Mangalore Airport', airportDistance],
                   ['Nearest Beach', beachDistance],
-                  ['Main Road & Market', 'Walking distance'],
-                  ['City Centre', '3.7 km · ~10 min'],
                 ] as [string, string | undefined][]).filter(([, time]) => time).map(([place, time]) => (
                   <div
                     key={place}
@@ -408,7 +405,7 @@ export default async function LandingPage() {
                 {[
                   ['Check-in',    `From ${formatTime12(property.check_in_time)}`],
                   ['Check-out',   `By ${formatTime12(property.check_out_time)}`],
-                  ['Quiet hours', '11 PM to 7 AM'],
+                  ['Quiet hours', '10 PM to 7 AM'],
                   ['Max guests',  `${property.max_occupancy}`],
                 ].map(([label, value]) => (
                   <div
@@ -436,10 +433,10 @@ export default async function LandingPage() {
                 </summary>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm lg:text-[15px] pt-3 text-left">
                   {[
-                    'Government photo ID required at check-in for all adults',
+                    'Government photo ID is mandatory at check-in for all guests',
                     'No smoking indoors. Designated outdoor area available.',
-                    'No pets',
-                    'No outside guests without prior written approval',
+                    'Pets are not entertained',
+                    'Outside guests are not allowed',
                     'Events and celebrations require advance notice',
                   ].map((rule) => (
                     <div

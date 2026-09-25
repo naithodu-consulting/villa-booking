@@ -52,18 +52,21 @@ export default function AboutPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          {/* The badge carries its own maroon disc and "by Habbaa" signature,
+              so it needs no circular wrapper: one sat inside the other before. */}
           <div className="flex justify-center mb-6">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: 'var(--maroon-deep)', border: '2px solid rgba(168,116,50,0.35)' }}
-            >
-              <Image
-                src="/habbaa-logo-white.svg"
-                alt="Habbaa"
-                width={52}
-                height={52}
-              />
-            </div>
+            <Image
+              src="/villa19-badge.png"
+              alt="Villa 19 by Habbaa"
+              width={480}
+              height={422}
+              /* Sized inline rather than with an arbitrary Tailwind class: if the
+                 JIT misses `w-[…]`, the image falls back to its 480px intrinsic
+                 width and swamps the 60px title. Kept well under the title so the
+                 mark stays a supporting element. */
+              style={{ width: 'clamp(88px, 10vw, 116px)', height: 'auto' }}
+              priority
+            />
           </div>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"

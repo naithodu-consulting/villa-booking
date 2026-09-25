@@ -135,6 +135,9 @@ export function nearestPlace(places: NearbyPlace[], category: string): NearbyPla
 
 export function formatDistance(place: NearbyPlace | undefined): string | undefined {
   if (!place?.distance_km) return undefined;
-  const km = `${Number(place.distance_km)} km`;
+  // Under a kilometre reads as metres: "0.1 km" for the bus stand at the end of
+  // the road undersells how close it is, and reads as a rounding artefact.
+  const value = Number(place.distance_km);
+  const km = value < 1 ? `${Math.round(value * 1000)} m` : `${value} km`;
   return place.travel_minutes ? `${km} · ~${place.travel_minutes} min` : km;
 }

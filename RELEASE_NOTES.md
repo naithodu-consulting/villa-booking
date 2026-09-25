@@ -4,6 +4,74 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.0 — Content overhaul, room breakdown, amenities, scroll aid — 2026-09-25
+
+### Content
+
+- **Tagline is now "Premium 4-Bedroom Private Urban Villa"** everywhere (migration 00026, seed,
+  footer, SEO descriptions and the social share image). The villa is positioned as urban rather
+  than coastal, so "in Urwa, Mangalore" and "on the Karnataka coast" were dropped from the
+  tagline. The About page's brand line and the Events backdrop line keep their coastal wording
+  by decision.
+- **"About the Villa" supports bold.** The description stores `**markers**`, rendered as
+  `<strong>` by `src/lib/bold.tsx` on both the home and The Villa pages (migration 00027).
+- **Amenities overhauled** (migration 00030): all 19 placeholders replaced with the villa's real
+  26, under four renamed categories (Living & Dining, Bedrooms & Comfort, Outdoors & Spaces,
+  Convenience & Essentials). The two location entries were dropped because they duplicated
+  `nearby_places`, which already drives the Location section. `parking_spaces` 4 -> 10.
+- **House rules reworded** (migration 00031): quiet hours 11 PM -> 10 PM; photo ID "mandatory
+  for all guests"; "Outside guests are not allowed"; "Pets are not entertained". The 24/7
+  caretaker is withdrawn everywhere, including the FAQ that advertised it, and the BBQ and
+  bonfire kit go with it.
+- **Walking-distance landmarks:** Main Road & Bus Stand (100 m) and Super Market (300 m).
+  `formatDistance` now renders sub-kilometre distances in metres; the home page's Location box
+  previously carried two hardcoded, invented figures ("Walking distance", "City Centre 3.7 km")
+  which are now read from the database.
+- **Events capacity** quoted `base_occupancy` (12) and contradicted every other page; it now
+  quotes `max_occupancy` (14) and names the lounge.
+
+### Rooms
+
+- **Real room breakdown** (migrations 00028, 00029): four bedrooms plus the Private Lounge,
+  which sleeps 2 on sofa-cum-beds and so completes the 14-guest cap (3+3+3+3+2). New `floor`
+  column; room sizes recorded. Rooms keep their ids so the linked photos survive.
+- **Bathrooms corrected to 3** (was 4): attached to Room 1, plus one common bathroom per floor.
+  Only the attached bath is named per room; the arrangement is stated once in the Rooms intro.
+- The Rooms page counted `rooms.length` as bedrooms, which would have claimed 5 once the lounge
+  was added. It now counts bedrooms separately.
+
+### UI
+
+- **Scroll aid** (`src/components/layout/ScrollAid.tsx`): jump-to-top / jump-to-bottom control on
+  long desktop pages. Mounted once in the site layout and self-activating above two viewports,
+  so no page needs configuring. Hidden below `lg`, honours `prefers-reduced-motion`, and steps
+  above the cookie banner while that is on screen.
+- **Desktop nav** is now Home / The Villa / Rooms / Gallery, set in Cormorant Garamond at 20px to
+  match the section headings, with a lighter brass for legibility on maroon.
+- **Hero eyebrows** were 12px across six pages in three inconsistent treatments, making the first
+  line on each page the smallest text on it. A new `.eyebrow-hero` tier (14px) standardises them.
+  The existing `.eyebrow` and `.eyebrow-lg` classes had never been used by any page.
+- **Home highlights bar** rebuilt with the gap-px technique: the conditional border classes
+  produced uneven rules between cells.
+- **Stay Guide CTA:** both buttons used `btn-frosted`, leaving the panel with no primary action.
+  Book Now is now `btn-brass-filled`, matching every other dark CTA panel.
+- **About page** uses the new Villa 19 badge (`public/villa19-badge.png`), sized with an inline
+  style rather than an arbitrary Tailwind class, which silently falls back to the image's
+  intrinsic width if the JIT misses it.
+
+### Fixes
+
+- `supabase/seed.sql` carried stale `UPDATE rooms SET slug = …` statements naming the retired
+  placeholder rooms. On a fresh database they ran after the insert and reverted every new room
+  slug, breaking the room URLs. Removed, and the whole seed was replayed to confirm it lands on
+  the same state as the migrations.
+
+### Deploy notes
+
+- Apply migrations 00026 through 00031 to remote databases.
+
+---
+
 ## v0.8.1 — Checkout fixes, 14-guest cap, new villa write-up — 2026-09-24
 
 ### Fixes

@@ -28,6 +28,9 @@ export default function CookieConsent() {
 
   return (
     <div
+      /* id is a layout hook: ScrollAid lifts clear of this banner via
+         `body:has(#cookie-banner)` in globals.css. */
+      id="cookie-banner"
       role="dialog"
       aria-label="Cookie consent"
       aria-live="polite"

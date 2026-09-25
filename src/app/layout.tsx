@@ -31,20 +31,20 @@ export const metadata: Metadata = {
     template: "%s | Villa 19 by Habbaa",
   },
   description:
-    "Villa 19 is a premium 4-bedroom private villa in Urwa, Mangalore. Private lawn, 12-guest capacity, direct booking at the best rate. By Habbaa.",
+    "Villa 19: Premium 4-Bedroom Private Urban Villa. Private lawn, 12-guest capacity, direct booking at the best rate. By Habbaa.",
   applicationName: SITE_NAME,
   openGraph: {
     type: "website",
     locale: "en_IN",
     siteName: SITE_NAME,
     title: "Villa 19 | Private Villa in Mangalore",
-    description: "Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking at the best rate.",
+    description: "Premium 4-Bedroom Private Urban Villa. Sleeps 12. Direct booking at the best rate.",
     images: [DEFAULT_SHARE_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "Villa 19 | Private Villa in Mangalore",
-    description: "Premium 4-bedroom private villa in Urwa, Mangalore. Sleeps 12. Direct booking at the best rate.",
+    description: "Premium 4-Bedroom Private Urban Villa. Sleeps 12. Direct booking at the best rate.",
     images: [DEFAULT_SHARE_IMAGE.url],
   },
   robots: { index: true, follow: true },

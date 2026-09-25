@@ -4,11 +4,13 @@ import { pageMetadata, breadcrumbJsonLd, lodgingJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import {
-  MapPin, Users, Wifi, Car, Zap, Home,
-  Waves, ShieldCheck, Check, Bed,
+  MapPin, Users, Wifi, Car, Home,
+  ShieldCheck, Check, Bed,
+  Sofa, Trees, BedSingle,
 } from 'lucide-react';
-import { getProperty, getAmenities, getPolicies, getNearbyPlaces, getImages, nearestPlace } from '@/lib/data';
+import { getProperty, getAmenities, getPolicies, getNearbyPlaces, getImages, nearestPlace, formatDistance } from '@/lib/data';
 import BookNowLink from '@/components/guest/BookNowLink';
+import { renderBoldText } from '@/lib/bold';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Private 4-Bedroom Villa in Mangalore',
@@ -27,7 +29,7 @@ const GOOD_TO_KNOW = (beachKm?: number) => [
       ? `The villa is in a quiet residential area. The nearest beach is about ${Number(beachKm)} km away by car.`
       : 'The villa is in a quiet residential area, a short drive from the nearest beach.',
   },
-  { title: 'No pets', body: 'Pets are not allowed at the villa.' },
+  { title: 'Pets are not entertained', body: 'Pets are not entertained at the villa.' },
 ];
 
 const CATEGORY_ICON: Record<string, string> = {
@@ -71,14 +73,14 @@ export default async function TheVillaPage() {
   const nearestBeach = nearestPlace(nearbyPlaces, 'beach');
 
   const highlights = [
-    { icon: Bed,        label: 'Bedrooms',      value: '4 Bedrooms' },
-    { icon: Users,      label: 'Capacity',       value: `Up to ${property.base_occupancy} Guests` },
-    { icon: Waves,      label: 'Beach',          value: nearestBeach?.distance_km ? `${Number(nearestBeach.distance_km)} km` : 'Short drive' },
-    { icon: Wifi,       label: 'Internet',       value: 'High-Speed WiFi' },
-    { icon: Car,        label: 'Parking',        value: 'Ample Parking' },
-    { icon: Zap,        label: 'Power',          value: 'Power Backup' },
-    { icon: Home,       label: 'Outdoors',       value: 'Lawn & Balconies' },
-    { icon: ShieldCheck, label: 'Booking',       value: 'Direct · No Fees' },
+    { icon: MapPin,    label: 'Location',   value: 'Central Location'      },
+    { icon: Bed,       label: 'Bedrooms',   value: '4 Bedrooms'            },
+    { icon: Users,     label: 'Capacity',   value: 'Upto 14 Guests'        },
+    { icon: Car,       label: 'Parking',    value: 'Ample Private Parking' },
+    { icon: Sofa,      label: 'Lounge',     value: 'Private Lounge'        },
+    { icon: Trees,     label: 'Outdoors',   value: 'Lawn & Balconies'      },
+    { icon: Wifi,      label: 'Internet',   value: 'High Speed WiFi'       },
+    { icon: BedSingle, label: 'Staff',      value: 'Driver Accommodation'  },
   ];
 
   return (
@@ -95,7 +97,7 @@ export default async function TheVillaPage() {
         }}
       >
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
+          <p className="eyebrow-hero mb-4">
             Urwa, Mangalore, Karnataka
           </p>
           <h1
@@ -124,7 +126,7 @@ export default async function TheVillaPage() {
             <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>About the Villa</h2>
           </div>
           {property.description?.split(/\n\s*\n/).map((para) => (
-            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{para}</p>
+            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{renderBoldText(para)}</p>
           ))}
         </section>
 
@@ -271,7 +273,9 @@ export default async function TheVillaPage() {
                   >
                     <span className="text-sm font-medium" style={{ color: 'var(--ink-muted)' }}>{place.name}</span>
                     <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--brass-ink)' }}>
-                      {place.distance_km != null ? `${place.distance_km} km` : place.travel_minutes ? `${place.travel_minutes} min` : ''}
+                      {/* Shared helper, not a local template: this printed
+                          "0.10 km" for the walkable landmarks. */}
+                      {formatDistance(place) ?? (place.travel_minutes ? `${place.travel_minutes} min` : '')}
                     </span>
                   </div>
                 ))}

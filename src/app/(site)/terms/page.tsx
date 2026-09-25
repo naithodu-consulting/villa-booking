@@ -78,7 +78,7 @@ export default async function TermsPage() {
               <li>Check-in time: {checkIn}. Early check-in is subject to availability and prior arrangement.</li>
               <li>Check-out time: {checkOut}. Late check-out may incur additional charges.</li>
               <li>Exact address and access instructions will be provided 24 hours before check-in.</li>
-              <li>A valid government-issued photo ID is required for all adult guests at check-in.</li>
+              <li>Government photo ID is mandatory at check-in for all guests.</li>
             </ul>
           </Section>
 
@@ -86,10 +86,10 @@ export default async function TermsPage() {
             <ul className="list-disc list-inside space-y-1">
               <li>Maximum occupancy: {maxGuests} guests. Exceeding this limit is not permitted.</li>
               <li>No smoking inside the villa. Designated outdoor smoking areas are available.</li>
-              <li>Pets are not permitted without prior written consent.</li>
+              <li>Pets are not entertained at the villa.</li>
               <li>Events or parties beyond the booked guest count require prior approval and may incur additional fees.</li>
               <li>Guests are responsible for any damage to the property beyond normal wear and tear.</li>
-              <li>Noise must be kept at reasonable levels. Quiet hours are 11:00 PM to 7:00 AM.</li>
+              <li>Noise must be kept at reasonable levels. Quiet hours are 10:00 PM to 7:00 AM.</li>
               <li>Illegal activities on the premises are strictly prohibited and will result in immediate eviction without refund.</li>
             </ul>
           </Section>

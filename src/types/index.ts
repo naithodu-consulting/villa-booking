@@ -20,6 +20,7 @@ export interface Property {
   check_out_time: string;
   is_active: boolean;
   bedroom_count?: number;
+  bathroom_count?: number;
   whatsapp_number?: string;
 }
 
@@ -33,6 +34,9 @@ export interface Room {
   max_guests: number;
   has_ensuite_bathroom: boolean;
   display_order: number;
+  /** Null for shared spaces that do not sit on one floor, e.g. the lounge. */
+  floor?: string | null;
+  size_sqft?: number | null;
 }
 
 export interface PropertyImage {

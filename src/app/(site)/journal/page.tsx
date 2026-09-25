@@ -27,7 +27,7 @@ function PostMeta({ post }: { post: JournalPost }) {
 
 function CategoryLabel({ post }: { post: JournalPost }) {
   return (
-    <p className="text-xs font-bold uppercase tracking-widest" style={{ color: 'var(--brass-ink)' }}>
+    <p className="eyebrow-hero mb-4">
       {JOURNAL_CATEGORIES[post.category]}
     </p>
   );

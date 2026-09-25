@@ -47,7 +47,7 @@ const EVENT_TYPES = [
 
 const IMPORTANT_NOTES = [
   'All events must be declared at the time of booking. Undisclosed events may result in cancellation.',
-  'Loud music after 11 PM is not permitted. Quiet hours are strictly enforced.',
+  'Loud music after 10 PM is not permitted. Quiet hours are strictly enforced.',
   'Guest count must not exceed the booked capacity at any time, including day visitors.',
   'An additional security deposit applies for event bookings.',
   'We do not permit events that conflict with local laws or cause nuisance to neighbours.',
@@ -56,16 +56,17 @@ const IMPORTANT_NOTES = [
 export default async function EventsPage() {
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number;
-  // Advertised capacity is the guests included in the rate; up to 3 more can book
-  // at extra cost (see property.max_occupancy).
-  const includedGuests = property?.base_occupancy ?? 12;
+  // Headline capacity is the villa's true maximum, matching the highlights bar
+  // and the room breakdown (3+3+3+3 bedrooms + 2 in the lounge = 14). Quoting
+  // base_occupancy here said 12 and contradicted every other page.
+  const maxGuests = property?.max_occupancy ?? 14;
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about hosting an event at ${property?.name ?? 'Villa 19'}`)}`
     : undefined;
 
   const INCLUDED = [
     'Exclusive use of the entire villa and grounds',
-    `Up to ${includedGuests} guests across 4 bedrooms`,
+    `Up to ${maxGuests} guests across 4 bedrooms and a private lounge`,
     'Full access to kitchen and all outdoor spaces',
     'Dedicated host contact throughout your stay',
     'Flexible check-in time subject to availability',
@@ -86,7 +87,7 @@ export default async function EventsPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-sm font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-ink)' }}>
+          <p className="eyebrow-hero mb-4">
             Private Villa Exclusively Yours
           </p>
           <h1
@@ -96,7 +97,7 @@ export default async function EventsPage() {
             Events & Celebrations
           </h1>
           <p className="text-lg leading-relaxed max-w-xl mx-auto mb-6 text-[var(--ink-muted)]">
-            Make your celebration memorable with a private villa stay for up to {includedGuests} guests.
+            Make your celebration memorable with a private villa stay for up to {maxGuests} guests.
           </p>
           {whatsappUrl && (
             <a

@@ -24,9 +24,10 @@ interface HeaderProps {
 
 // Desktop nav — kept minimal for clean look
 const NAV_LINKS = [
+  { href: '/',          label: 'Home'      },
   { href: '/the-villa', label: 'The Villa' },
-  { href: '/events',    label: 'Events'    },
-  { href: '/contact',   label: 'Contact Us'},
+  { href: '/rooms',     label: 'Rooms'     },
+  { href: '/gallery',   label: 'Gallery'   },
 ];
 
 // Mobile drawer — full sitemap
@@ -79,7 +80,7 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
         <div className="hidden md:grid h-full" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
           {/* Left — nav links */}
-          <nav className="flex items-center gap-1 h-full" aria-label="Main navigation">
+          <nav className="flex items-center gap-1 h-full -ml-3.5" aria-label="Main navigation">
             {NAV_LINKS.map(({ href, label }) => (
               <NavLink key={href} href={href} label={label} />
             ))}
@@ -102,7 +103,7 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
             />
             <div className="flex flex-col leading-none gap-[3px]">
               <span
-                className="text-[19px] text-white leading-none"
+                className="text-[22px] text-white leading-none"
                 style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
               >
                 {propertyName}
@@ -315,14 +316,17 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
   const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
+  // Lighter than --brass-light: Cormorant's hairlines need extra contrast on maroon.
+  const idle = '#DDB57A';
   return (
     <Link
       href={href}
       aria-current={isActive ? 'page' : undefined}
-      className="flex items-center text-lg font-semibold px-3.5 h-full transition-colors duration-150"
+      className="flex items-center text-[20px] font-semibold mx-3.5 pt-px h-full transition-colors duration-150"
       style={{
-        color: isActive ? '#fff' : 'var(--brass-light)',
-        letterSpacing: '0.01em',
+        color: isActive ? '#fff' : idle,
+        fontFamily: 'var(--font-display)',
+        letterSpacing: '0.02em',
         borderBottom: isActive ? '2px solid rgba(201,148,74,0.75)' : '2px solid transparent',
       }}
       onMouseEnter={e => {
@@ -334,7 +338,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
       onMouseLeave={e => {
         if (isActive) return;
         const el = e.currentTarget as HTMLAnchorElement;
-        el.style.color = 'var(--brass-light)';
+        el.style.color = idle;
         el.style.borderBottomColor = 'transparent';
       }}
     >

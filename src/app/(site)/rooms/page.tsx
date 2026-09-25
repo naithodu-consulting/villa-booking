@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
-import { Users, Bed, Bath, Wind, Check } from 'lucide-react';
+import { Users, Bed, Bath, Wind, Check, Building, Maximize } from 'lucide-react';
 import { getProperty, getRooms } from '@/lib/data';
 import BookNowLink from '@/components/guest/BookNowLink';
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Bedrooms & Sleeping Arrangements',
   path: '/rooms',
   description:
-    'Four bedrooms at Villa 19, Mangalore, sleeping up to 14 guests. See bed types, room capacity and bathrooms for each room before you book the whole villa.',
+    'Four bedrooms and a private lounge at Villa 19, Mangalore, sleeping up to 14 guests. See bed types, floor, size and capacity for each room before you book the whole villa.',
 });
 
 const BED_TYPE_LABEL: Record<string, string> = {
@@ -33,6 +33,9 @@ export default async function RoomsPage() {
   }
 
   const rooms = await getRooms(property.id);
+  // The lounge sleeps 2 on sofa-cum-beds but is not a bedroom, so the
+  // headline counts must exclude it or the page overstates the layout.
+  const bedroomCount = rooms.filter((r) => r.room_type !== 'Lounge').length;
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
@@ -48,7 +51,7 @@ export default async function RoomsPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
+          <p className="eyebrow-hero mb-4">
             Sleeping Arrangements
           </p>
           <h1
@@ -58,7 +61,13 @@ export default async function RoomsPage() {
             Rooms
           </h1>
           <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            {rooms.length} bedrooms sleeping up to {property.base_occupancy} guests. Each space thoughtfully appointed for comfort and privacy.
+            {bedroomCount} bedrooms plus a private lounge, sleeping up to {property.max_occupancy} guests. Each space thoughtfully appointed for comfort and privacy.
+          </p>
+          {/* Stated up front: the shared-bathroom arrangement is something
+              guests would otherwise have to infer room by room. */}
+          <p className="text-sm leading-relaxed mt-4 text-[var(--ink-muted)]">
+            {property.bathroom_count} bathrooms in all: Room 1 has its own attached bathroom, and a
+            common bathroom serves each floor.
           </p>
         </div>
       </section>
@@ -116,6 +125,25 @@ export default async function RoomsPage() {
                       </span>
                     </div>
 
+                    {room.floor && (
+                      <div
+                        className="flex items-center gap-2 p-2.5 rounded-xl"
+                        style={{ backgroundColor: 'var(--paper-sunk)' }}
+                      >
+                        <Building className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                        <span style={{ color: 'var(--ink-muted)' }}>{room.floor}</span>
+                      </div>
+                    )}
+
+                    {room.size_sqft && (
+                      <div
+                        className="flex items-center gap-2 p-2.5 rounded-xl"
+                        style={{ backgroundColor: 'var(--paper-sunk)' }}
+                      >
+                        <Maximize className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                        <span style={{ color: 'var(--ink-muted)' }}>{room.size_sqft} sq ft</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Features */}
@@ -123,10 +151,13 @@ export default async function RoomsPage() {
                     className="pt-4 text-xs space-y-2"
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
+                    {/* Only the attached bath is named per room. The common
+                        bathrooms are stated once in the page intro instead, so
+                        every other card would otherwise repeat the same line. */}
                     {room.has_ensuite_bathroom && (
                       <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
                         <Bath className="w-3.5 h-3.5" aria-hidden="true" />
-                        <span className="font-semibold">Private Ensuite Bathroom</span>
+                        <span className="font-semibold">Attached Bathroom</span>
                       </div>
                     )}
                     <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
@@ -179,7 +210,7 @@ export default async function RoomsPage() {
             Book the entire villa
           </h2>
           <p className="text-white/70 text-sm">
-            Villa 19 is rented exclusively: all {rooms.length} bedrooms, for up to {property.base_occupancy} guests.
+            Villa 19 is rented exclusively: all {bedroomCount} bedrooms and the private lounge, for up to {property.max_occupancy} guests.
           </p>
           <BookNowLink
             className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"

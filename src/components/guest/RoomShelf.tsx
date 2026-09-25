@@ -148,14 +148,23 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
                   </span>
                 </div>
                 <h3 className="text-base lg:text-[17px] font-bold mb-2" style={{ color: 'var(--ink)' }}>{room.name}</h3>
+                {/* Floor and size: the two things guests ask before picking a room.
+                    The lounge has no floor, so the separator collapses with it. */}
+                <p className="text-xs lg:text-[13px]" style={{ color: 'var(--ink-muted)' }}>
+                  {[room.floor, room.size_sqft ? `${room.size_sqft} sq ft` : null]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </p>
               </div>
               <div
-                className="pt-3 text-sm lg:text-[15px] flex items-center justify-between"
+                className="pt-3 mt-3 text-sm lg:text-[15px] flex items-center justify-between"
                 style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
               >
                 <span>{room.bed_count} × {room.bed_type}</span>
+                {/* Only the attached bath is named. The common bathrooms are
+                    covered on the Rooms page, not repeated on every card. */}
                 {room.has_ensuite_bathroom && (
-                  <span className="font-semibold" style={{ color: 'var(--ink-muted)' }}>Ensuite Bath</span>
+                  <span className="font-semibold" style={{ color: 'var(--ink-muted)' }}>Attached Bath</span>
                 )}
               </div>
             </div>

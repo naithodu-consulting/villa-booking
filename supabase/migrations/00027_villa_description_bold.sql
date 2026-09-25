@@ -1,0 +1,7 @@
+-- 00027: updated villa description with bold markers, per the operator 2026-09-25.
+-- Bold markers (**text**) are rendered as <strong> in the frontend.
+
+UPDATE properties
+   SET description = E'**Villa 19 by Habbaa** is a spacious **4-bedroom private urban villa** set amidst lush greenery in Urwa, Mangalore. Spread across **5,000 sq. ft.**, it offers generous living spaces, a manicured lawn, balconies across every floor, and ample private parking.\n\nTucked away in a peaceful setting yet close to the heart of the city, the villa is just minutes from the main road, local markets, shops, and everyday conveniences. Its location makes it easy to explore Mangalore while giving you a quiet space to return to at the end of the day.\n\nDesigned with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.\n\nComfortably **accommodating up to 14 guests**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore.\n\nWhether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
+       updated_at   = NOW()
+ WHERE slug = 'villa-19';

@@ -63,7 +63,7 @@ export default async function GalleryPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
+          <p className="eyebrow-hero mb-4">
             {property.name}
           </p>
           <h1

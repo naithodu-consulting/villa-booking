@@ -4,6 +4,7 @@ import BookingDialog from '@/components/guest/BookingDialog';
 import Footer from '@/components/layout/Footer';
 import AnnouncementBar, { type Announcement } from '@/components/layout/AnnouncementBar';
 import CookieConsent from '@/components/layout/CookieConsent';
+import ScrollAid from '@/components/layout/ScrollAid';
 import Analytics from '@/components/layout/Analytics';
 import { getProperty } from '@/lib/data';
 import { isJournalLive } from '@/lib/journal';
@@ -40,6 +41,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main className="flex-1">{children}</main>
       {property && <Footer property={property} whatsappUrl={whatsappUrl} showJournal={showJournal} />}
       <BookingDialog maxOccupancy={property?.max_occupancy ?? 14} propertyId={property?.id} />
+      <ScrollAid />
       <CookieConsent />
       <Analytics />
     </div>

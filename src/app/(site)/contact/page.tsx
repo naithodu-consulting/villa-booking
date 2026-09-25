@@ -169,7 +169,7 @@ export default async function ContactPage() {
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{property.address}</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{property.city}, {property.state} {property.pincode}</p>
               <p className="text-sm mt-2" style={{ color: 'var(--ink-muted)' }}>
-                Exact address and directions shared after booking confirmation.
+                Exact address and directions will be shared after booking confirmation.
               </p>
             </div>
           </div>

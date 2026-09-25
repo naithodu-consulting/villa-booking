@@ -55,7 +55,7 @@ export default async function StayGuidePage() {
       icon: Key,
       title: 'Arrival',
       items: [
-        'Government photo ID required for all adult guests at check-in',
+        'Government photo ID is mandatory at check-in for all guests',
         'Exact address and entry instructions shared after booking is confirmed',
         'Host is reachable on WhatsApp for any arrival questions',
         'Keys and access code provided. Do not share with non-registered guests.',
@@ -65,7 +65,7 @@ export default async function StayGuidePage() {
       icon: Luggage,
       title: 'What to Bring',
       items: [
-        'Government-issued photo ID for each adult guest',
+        'Government-issued photo ID for every guest',
         'Personal medications and toiletries',
         'Beach or outdoor footwear if visiting the shore',
         'Power sockets are standard Indian type. Bring your own chargers.',
@@ -94,10 +94,10 @@ export default async function StayGuidePage() {
       title: 'Villa Rules',
       items: [
         `Maximum occupancy: ${property?.max_occupancy ?? 14} guests`,
-        'Quiet hours: 11 PM to 7 AM',
+        'Quiet hours: 10 PM to 7 AM',
         'No smoking indoors. Designated outdoor area available.',
-        'No pets allowed',
-        'No outside guests without prior written approval',
+        'Pets are not entertained',
+        'Outside guests are not allowed',
         'Events and celebrations require advance notice and approval',
       ],
     },
@@ -117,7 +117,7 @@ export default async function StayGuidePage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--brass-ink)' }}>
+          <p className="eyebrow-hero mb-4">
             Before You Arrive
           </p>
           <h1
@@ -281,13 +281,16 @@ export default async function StayGuidePage() {
                 href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-frosted flex items-center gap-2 px-6 py-3 rounded-xl"
+                className="btn-frosted flex items-center gap-2 px-8 py-3.5 rounded-xl"
               >
                 <WhatsAppIcon className="w-4 h-4" /> WhatsApp Us
               </a>
             )}
+            {/* Brass, not frosted: every other dark CTA panel pairs one brass
+                primary with a frosted secondary. Two frosted buttons on maroon
+                left the panel with no primary and both reading as washed out. */}
             <BookNowLink
-              className="btn-frosted px-6 py-3 rounded-xl"
+              className="btn-brass-filled px-8 py-3.5 rounded-xl"
             >
               Book Now
             </BookNowLink>

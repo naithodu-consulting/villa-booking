@@ -100,7 +100,7 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
 
             {/* Tagline — desktop only to avoid repeating what guest just read */}
             <p className="hidden lg:block text-sm leading-relaxed text-white/75 max-w-[300px]">
-              A premium private villa on the Karnataka coast.
+              Premium 4-Bedroom Private Urban Villa
             </p>
 
             <div className="space-y-1.5 pt-1">
