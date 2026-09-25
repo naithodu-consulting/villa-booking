@@ -1,5 +1,5 @@
 import React from 'react';
-import Link from 'next/link';
+import NavLinkBase from '@/components/layout/NavLinkBase';
 import Image from 'next/image';
 import { Phone, Mail } from 'lucide-react';
 
@@ -55,7 +55,7 @@ interface FooterProps {
 
 export default function Footer({ property, whatsappUrl, showJournal = false }: FooterProps) {
   const year = new Date().getFullYear();
-  const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in';
+  const email = process.env.PROPERTY_EMAIL ?? 'reservations@habbaa.com';
   // No invented number: each contact row renders only if its value is configured.
   const phoneNumber = process.env.PROPERTY_PHONE ?? property.whatsapp_number;
 
@@ -119,7 +119,7 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
             <ul className="space-y-3">
               {(showJournal ? [...EXPLORE_LINKS, ['/journal', 'Journal'] as [string, string]] : EXPLORE_LINKS).map(([href, label]) => (
                 <li key={href}>
-                  <Link href={href} className={COL_LINK}>{label}</Link>
+                  <NavLinkBase href={href} className={COL_LINK}>{label}</NavLinkBase>
                 </li>
               ))}
             </ul>
@@ -203,13 +203,13 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
           <div className="flex items-center justify-center lg:justify-end">
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
               {LEGAL_LINKS.map(([href, label]) => (
-                <Link
+                <NavLinkBase
                   key={href}
                   href={href}
                   className="text-[13px] text-white/60 hover:text-white transition-colors"
                 >
                   {label}
-                </Link>
+                </NavLinkBase>
               ))}
             </div>
           </div>

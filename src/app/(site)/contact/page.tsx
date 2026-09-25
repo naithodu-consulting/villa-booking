@@ -26,7 +26,7 @@ export default async function ContactPage() {
   // Nothing here invents a number: a card is shown only when its value is set.
   const whatsappNumber = property?.whatsapp_number;
   const phoneNumber = process.env.PROPERTY_PHONE ?? whatsappNumber;
-  const email = process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in';
+  const email = process.env.PROPERTY_EMAIL ?? 'reservations@habbaa.com';
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I'd like to enquire about ${property?.name ?? 'Villa 19'}`)}`
     : undefined;

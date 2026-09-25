@@ -109,7 +109,7 @@ export default async function RoomsPage() {
                       className="text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0"
                       style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon-deep)' }}
                     >
-                      {room.max_guests} Guests
+                      Max {room.max_guests} Guests
                     </span>
                   </div>
 
@@ -175,42 +175,16 @@ export default async function RoomsPage() {
           </div>
         </section>
 
-        {/* ── Shared Facilities ────────────────────────────── */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
-              Shared Facilities
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { title: 'Guest Bathrooms',  body: 'Additional guest bathrooms are available in the common areas of the villa.' },
-              { title: 'Living Areas',     body: 'Spacious living and dining areas shared across all guests.' },
-              { title: 'Outdoor Spaces',   body: 'Lawn, balconies, and outdoor seating available to all guests.' },
-            ].map(({ title, body }) => (
-              <div
-                key={title}
-                className="p-5 rounded-2xl"
-                style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-              >
-                <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--maroon)' }}>{title}</p>
-                <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-muted)' }}>{body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* ── CTA ──────────────────────────────────────────── */}
         <section
           className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-            Book the entire villa
+            Book the Villa 19
           </h2>
           <p className="text-white/70 text-sm">
-            Villa 19 is rented exclusively: all {bedroomCount} bedrooms and the private lounge, for up to {property.max_occupancy} guests.
+            Upon booking, Villa 19 will be exclusively and entirely available for you, including all {bedroomCount} bedrooms and the private lounge, for up to {property.max_occupancy} guests.
           </p>
           <BookNowLink
             className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"

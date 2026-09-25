@@ -88,22 +88,22 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
       night's price, so this is a nice-to-have rather than a gap.
 
 ## Email domain migration to habbaa.in (2026-09-09)
-The site now uses `hello@habbaa.in` everywhere in code and in `.env.local` /
+The site now uses `reservations@habbaa.com` everywhere in code and in `.env.local` /
 `.env.example` (`PROPERTY_EMAIL`, `ADMIN_EMAIL`). Two pieces are deliberately
 left on the old domain because changing them blind would break things:
 
 - [ ] **`RESEND_FROM_EMAIL` is still `hello@habbaa.com`.** Resend will only send
       from a domain verified in its dashboard. Verify `habbaa.in` in Resend
       (DNS: SPF + DKIM records), confirm it shows as verified, and only then set
-      `RESEND_FROM_EMAIL="Villa 19 by Habbaa <hello@habbaa.in>"`. Switching it
+      `RESEND_FROM_EMAIL="Villa 19 by Habbaa <reservations@habbaa.com>"`. Switching it
       before verification makes every transactional email fail to send:
       booking confirmations, refund notices, admin alerts.
 - [ ] **Update the environment variables on Vercel.** `.env.local` is not
       deployed, so staging and production still resolve `PROPERTY_EMAIL` and
       `ADMIN_EMAIL` to the `.com` address and will render it in the footer and
-      on /contact. Set both to `hello@habbaa.in` in the Vercel project settings
+      on /contact. Set both to `reservations@habbaa.com` in the Vercel project settings
       for each environment, then redeploy.
-- [ ] Confirm `hello@habbaa.in` actually exists and is monitored before the
+- [ ] Confirm `reservations@habbaa.com` actually exists and is monitored before the
       change goes live: it is now the only address published on the site, and
       it is where refund requests are directed from /terms.
 

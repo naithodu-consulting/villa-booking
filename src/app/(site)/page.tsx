@@ -96,7 +96,7 @@ export default async function LandingPage() {
                   color: 'var(--brass)',
                 }}
               >
-                <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Verified Property Booking
+                <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Property Booking
               </div>
               <h1
                 className="text-4xl sm:text-6xl lg:text-6xl leading-tight mb-1.5 sm:mb-2"
@@ -133,14 +133,14 @@ export default async function LandingPage() {
           >
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
               {[
-                { icon: MapPin,    value: 'Central Location'       },
+                { icon: MapPin,    value: 'Centrally Located'       },
                 { icon: Bed,       value: '4 Bedrooms'             },
                 { icon: Users,     value: 'Upto 14 Guests'         },
-                { icon: Car,       value: 'Ample Private Parking'  },
-                { icon: Sofa,      value: 'Private Lounge'         },
-                { icon: Trees,     value: 'Lawn & Balconies'       },
-                { icon: Wifi,      value: 'High Speed WiFi'        },
-                { icon: BedSingle, value: 'Driver Accommodation'   },
+                { icon: Car,       value: 'Private Parking'  },
+                { icon: Sofa,      value: 'Lounge Area'         },
+                { icon: Trees,     value: 'Landscaped Garden'       },
+                { icon: Wifi,      value: 'High Speed Internet'        },
+                { icon: BedSingle, value: 'Driver Room'   },
               ].map(({ icon: Icon, value }) => (
                 <div
                   key={value}
@@ -406,7 +406,7 @@ export default async function LandingPage() {
                   ['Check-in',    `From ${formatTime12(property.check_in_time)}`],
                   ['Check-out',   `By ${formatTime12(property.check_out_time)}`],
                   ['Quiet hours', '10 PM to 7 AM'],
-                  ['Max guests',  `${property.max_occupancy}`],
+                  ['Ideal For',  `8-${property.max_occupancy} Guests`],
                 ].map(([label, value]) => (
                   <div
                     key={label}
@@ -521,11 +521,18 @@ export default async function LandingPage() {
               {phoneNumber && (
               <a
                 href={`tel:+${phoneNumber}`}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors hover:border-[var(--brass)] hover:text-[var(--ink)] active:scale-95"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold transition-colors hover:border-[var(--brass)] hover:text-[var(--ink)] active:scale-95"
                 style={{
                   backgroundColor: 'var(--paper-sunk)',
                   border: '1px solid var(--border-subtle)',
                   color: 'var(--ink-muted)',
+                  /* Matches .btn-wa-ghost beside it, which is the design system's
+                     button type: 13.5px uppercase tracked. This was 14px sentence
+                     case, so the pair disagreed on size, casing and height. Only
+                     the type is aligned; the neutral colour role is unchanged. */
+                  fontSize: 'var(--text-ui)',
+                  letterSpacing: '1.2px',
+                  textTransform: 'uppercase',
                 }}
               >
                 <Phone className="w-4 h-4" aria-hidden="true" /> Call Us

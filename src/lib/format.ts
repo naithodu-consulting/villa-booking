@@ -29,7 +29,7 @@ export function formatTime12(time: string | null | undefined): string {
 }
 
 /**
- * "917760777876" to "+91 77607 77876".
+ * "918050484123" to "+91 80504 84123".
  *
  * Numbers are stored bare (no punctuation) because wa.me and tel: links need
  * them that way, but pages were printing the raw value, so the Contact page and

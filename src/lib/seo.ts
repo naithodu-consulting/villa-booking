@@ -64,7 +64,7 @@ export function organizationJsonLd() {
     name: BRAND,
     url: SITE_URL,
     logo: `${SITE_URL}/habbaa-logo.png`,
-    email: process.env.PROPERTY_EMAIL ?? 'hello@habbaa.in',
+    email: process.env.PROPERTY_EMAIL ?? 'reservations@habbaa.com',
   };
 }
 

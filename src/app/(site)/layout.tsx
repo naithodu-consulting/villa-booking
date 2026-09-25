@@ -14,12 +14,12 @@ import { organizationJsonLd } from '@/lib/seo';
 const ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'promo-1',
-    text: 'Exclusive discount for you. Use code:',
+    text: 'Early bookings get 15% discount. Use code:',
     code: 'VILLA19',
   },
   {
     id: 'corporate',
-    text: 'Corporate & Bulk bookings: hello@habbaa.in  |  +91 77607 77876',
+    text: 'Corporate & Bulk bookings: reservations@habbaa.com  |  +91 80504 84123',
   },
 ];
 

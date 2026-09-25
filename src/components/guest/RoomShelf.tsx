@@ -144,7 +144,7 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
                     className="text-xs lg:text-[13px] font-semibold px-2.5 py-0.5 rounded-full"
                     style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon-deep)' }}
                   >
-                    {room.max_guests} Guests
+                    Max {room.max_guests} Guests
                   </span>
                 </div>
                 <h3 className="text-base lg:text-[17px] font-bold mb-2" style={{ color: 'var(--ink)' }}>{room.name}</h3>

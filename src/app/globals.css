@@ -111,7 +111,6 @@
   }
 
   html {
-    scroll-behavior: smooth;
     background-color: var(--paper);
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
@@ -122,9 +121,27 @@
     letter-spacing: normal;
   }
 
+  /* No `scroll-behavior: smooth` on `html`. On the root element it also
+     captures the scroll reset the App Router performs on every route change,
+     so each navigation animated the whole page back to the top instead of
+     jumping: slow from deep in a long page, and on image-heavy routes the
+     document grew mid-animation and the scroll settled short of the top.
+     Scoping it to `:has(:target)` fixed the route changes but left inbound
+     `/#faq` links animating, which silently does nothing wherever smooth
+     scrolling is unavailable — landing on a fragment should be instant anyway.
+     The two places that do want an animation (ScrollAid's jump buttons and the
+     RoomShelf carousel) ask for it themselves, so nothing here depends on it.
+  */
+
+  /* `overflow-x: clip` rather than `hidden`. On `body`, `hidden` makes the
+     element a scroll container, which gives it a computed `overflow-y: auto`
+     and stops scroll propagating to the viewport: anchor navigation silently
+     did nothing, and even a direct `scrollIntoView()` failed to move the page,
+     so every inbound `/#faq`-style link landed at the top. `clip` suppresses
+     the same horizontal overflow without establishing a scroll container. */
   body {
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow-x: clip;
     background-color: var(--paper);
     color: var(--ink);
   }

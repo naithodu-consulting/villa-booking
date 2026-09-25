@@ -28,7 +28,7 @@ Comfortably **accommodating up to 14 guests**, Villa 19 is designed for families
 
 Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
   'Urwa', 'Mangalore', 'Karnataka', '575006',
-  12.8892951, 74.8298580,
+  12.895188, 74.830676,
   12, 14,   -- 12 guests included, up to 2 more
   100000,   -- ₹1,000/extra guest per night
   1200000,  -- ₹12,000/night base
@@ -95,14 +95,14 @@ INSERT INTO property_amenities (property_id, category, label, icon, is_available
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Outdoor seating', 'Armchair', TRUE, FALSE, 32),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Private parking for up to 10 vehicles', 'Car', TRUE, TRUE , 33),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Lush green surroundings', 'Leaf', TRUE, FALSE, 34),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Dedicated driver''s room with bathroom', 'BedSingle', TRUE, FALSE, 35),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'CCTV surveillance in common outdoor areas', 'Camera', TRUE, FALSE, 36),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Fully equipped kitchen', 'ChefHat', TRUE, TRUE , 40),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'High-speed Wi-Fi', 'Wifi', TRUE, TRUE , 41),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Washing machine & refrigerator', 'WashingMachine', TRUE, FALSE, 42),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', '24/7 hot water', 'Droplets', TRUE, FALSE, 43),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Inverter power backup', 'Zap', TRUE, FALSE, 44),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Premium toiletries', 'Sparkles', TRUE, FALSE, 45),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Dedicated driver''s room with bathroom', 'BedSingle', TRUE, FALSE, 46),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'CCTV surveillance in common outdoor areas', 'Camera', TRUE, FALSE, 47),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Fire extinguishers', 'FireExtinguisher', TRUE, FALSE, 48),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'First aid kit', 'HeartPulse', TRUE, FALSE, 49)
 ON CONFLICT ON CONSTRAINT uq_amenity_property_label DO UPDATE SET
@@ -172,26 +172,23 @@ ON CONFLICT ON CONSTRAINT uq_faq_property_question DO NOTHING;
 -- Nearby Places
 -- ─────────────────────────────────────────────────────────
 INSERT INTO nearby_places (property_id, name, category, distance_km, travel_minutes, note, display_order, is_published) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Main Road & Bus Stand',       'transport',   0.1,  2, 'Local bus stand and the main road, a two-minute walk',        1, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Super Market',                'shopping',    0.3,  4, 'Everyday groceries and essentials, a short walk away',        2, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Panambur Beach',              'beach',       7.6,  15,  'Popular sandy beach, clean and family-friendly',              10, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Tannirbhavi Beach',           'beach',       8.8,  20, 'Quieter, less crowded: good for morning walks',               11, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Someshwar Beach',             'beach',       24.0, 45, 'Scenic and rocky; near Someshwar temple. Best as a half-day trip', 12, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Kadri Manjunath Temple',      'temple',      3.5,  10, '11th century temple, one of Mangalore''s oldest',            20, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sharavu Mahaganapathi Temple','temple',      4.0,  12, 'Famous Ganesha temple in city centre',                        21, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'St. Aloysius Chapel',         'temple',      3.2,  5, 'Stunning Italian-style frescos, 1880',                        22, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Ideal Ice Cream',             'food',        3.3,  5, 'Mangalore institution: cashew, tender coconut',               30, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Machali Restaurant',          'food',        2.7,  5,  'Local seafood: Mangalorean fish curry',                       31, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Hotel Srinivas',              'food',        3.5,  5,  'Udupi vegetarian breakfast: set dosa, idli',                  32, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Big Bazaar (Mangalore)',      'shopping',    5.0,  15, 'Supermarket for groceries and supplies',                      40, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Urwa Market',                 'shopping',    0.8,  3,  'Local market: fresh produce, daily needs',                   41, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Forum Fiza Mall',             'shopping',    4.4,  10, 'Largest mall in Mangalore',                                   42, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Mangalore Central Station',   'transport',   4.3,  10, 'Main railway station',                                        50, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Bajpe Airport (IXE)',         'transport',   13.0, 20, 'Mangalore International Airport',                             51, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'KSRTC Bus Stand',             'transport',   5.0,  15, 'State bus terminus for inter-city travel',                    52, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Pilikula Nisarga Dhama',      'attraction',  14.0, 30, 'Nature park, zoo, science centre: great for families',        60, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sultan Battery',              'attraction',  8.0,  22, 'Historic watch tower at Gurupur river mouth',                 61, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Mangaladevi Temple',          'attraction',  5.8,  10, 'City''s patron goddess: gives Mangalore its name',            62, TRUE)
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Main Road & Bus Stand', 'transport', 0.1, 1, 'Local bus stand and the main road, a two-minute walk', 10, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Super Market', 'shopping', 0.2, 2, 'Everyday groceries and essentials, a short walk away', 20, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Panambur Beach', 'beach', 7.3, 15, 'Popular sandy beach, clean and family-friendly', 30, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Tannirbhavi Beach', 'beach', 8.8, 20, 'Quieter, less crowded: good for morning walks', 40, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Kadri Manjunath Temple', 'temple', 4.2, 10, NULL, 50, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sharavu Mahaganapathi Temple', 'temple', 4.0, 10, NULL, 60, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Pabbas Ideal Cafe', 'food', 2.2, 5, NULL, 70, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Machali Restaurant', 'food', 3.3, 8, NULL, 80, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Nilgiris', 'shopping', 0.7, 2, NULL, 90, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Urwa Market', 'shopping', 0.8, 3, NULL, 100, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'City Centre Mall', 'shopping', 3.8, 10, NULL, 110, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Mangalore Central Station', 'transport', 5.0, 13, NULL, 120, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Mangalore International Airport (IXE)', 'transport', 11.0, 22, NULL, 130, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'KSRTC Bus Stand', 'transport', 3.3, 10, NULL, 140, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Pilikula Nisarga Dhama', 'attraction', 14.0, 30, NULL, 150, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sultan Battery', 'attraction', 1.7, 5, NULL, 160, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Kudroli Temple', 'temple', 2.9, 8, NULL, 170, TRUE)
 ON CONFLICT ON CONSTRAINT uq_nearby_property_name DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────

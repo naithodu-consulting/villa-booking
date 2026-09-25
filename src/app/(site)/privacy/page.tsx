@@ -46,7 +46,7 @@ export default function PrivacyPage() {
               Mangalore, Karnataka 575006. Our registered office is 209, Citadel Prism, PVS Kalakunj Road,
               Kodialbail, Mangalore 575003. We are the data fiduciary for the personal data described below.
               For privacy-related queries, email us at{' '}
-              <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass-ink)' }}>hello@habbaa.in</a>.
+              <a href="mailto:reservations@habbaa.com" style={{ color: 'var(--brass-ink)' }}>reservations@habbaa.com</a>.
             </p>
           </Section>
 
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
               <li>Request deletion of your data (subject to legal obligations)</li>
               <li>Withdraw consent where processing is consent-based</li>
             </ul>
-            <p className="mt-3">To exercise any of these rights, email <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass-ink)' }}>hello@habbaa.in</a>.</p>
+            <p className="mt-3">To exercise any of these rights, email <a href="mailto:reservations@habbaa.com" style={{ color: 'var(--brass-ink)' }}>reservations@habbaa.com</a>.</p>
           </Section>
 
           <Section title="9. Changes to this policy">
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
 
           <Section title="10. Contact">
             <p>
-              For any privacy-related concerns: <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass-ink)' }}>hello@habbaa.in</a><br />
+              For any privacy-related concerns: <a href="mailto:reservations@habbaa.com" style={{ color: 'var(--brass-ink)' }}>reservations@habbaa.com</a><br />
               HABBAA SOLUTIONS PVT LTD, 209, Citadel Prism, PVS Kalakunj Road, Kodialbail, Mangalore 575003
             </p>
           </Section>

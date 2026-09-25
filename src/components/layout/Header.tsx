@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import NavLinkBase from '@/components/layout/NavLinkBase';
 import BookNowLink from '@/components/guest/BookNowLink';
 import Image from 'next/image';
 import { X } from 'lucide-react';
@@ -262,7 +263,7 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
               ).map(({ href, label }) => {
                 const active = pathname === href || (href !== '/' && pathname.startsWith(href));
                 return (
-                  <Link
+                  <NavLinkBase
                     key={href}
                     href={href}
                     onClick={() => setMenuOpen(false)}
@@ -277,7 +278,7 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
                     onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = ''; }}
                   >
                     {label}
-                  </Link>
+                  </NavLinkBase>
                 );
               })}
             </nav>
@@ -319,7 +320,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
   // Lighter than --brass-light: Cormorant's hairlines need extra contrast on maroon.
   const idle = '#DDB57A';
   return (
-    <Link
+    <NavLinkBase
       href={href}
       aria-current={isActive ? 'page' : undefined}
       className="flex items-center text-[20px] font-semibold mx-3.5 pt-px h-full transition-colors duration-150"
@@ -343,6 +344,6 @@ function NavLink({ href, label }: { href: string; label: string }) {
       }}
     >
       {label}
-    </Link>
+    </NavLinkBase>
   );
 }

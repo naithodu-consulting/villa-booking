@@ -55,8 +55,9 @@ RAZORPAY_KEY_SECRET=<secret>                       # NEVER NEXT_PUBLIC_
 RAZORPAY_WEBHOOK_SECRET=<secret>                   # NEVER NEXT_PUBLIC_
 
 # ── Property ─────────────────────────────────────────────────────────
-PROPERTY_WHATSAPP=919XXXXXXXXXX
-PROPERTY_EMAIL=hello@habbaa.com
+PROPERTY_WHATSAPP=918050484123
+PROPERTY_PHONE=918050484123
+PROPERTY_EMAIL=reservations@habbaa.com
 
 # ── App URL ──────────────────────────────────────────────────────────
 APP_URL=http://localhost:3000                       # override in Vercel

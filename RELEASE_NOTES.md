@@ -4,6 +4,58 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.1 — Contact details, nearby distances, coordinates, navigation — 2026-09-25
+
+### Content
+
+- **Contact details updated everywhere:** phone and WhatsApp to `918050484123`, email to
+  `reservations@habbaa.com` (was `hello@habbaa.in`). Covers the announcement bar, footer,
+  Contact, Privacy and Terms pages, transactional email, the structured data and the
+  deployment docs.
+- **Location & Nearby re-measured** (migration 00033). The previous figures were estimates and
+  several were not achievable: four implied 35-42 km/h through city traffic, and the airport
+  claimed 20 minutes against a real 25-40. Three separate places all sat at exactly "5 min",
+  which is what gave them away. The list is now 17 places with implied speeds of 20-30 km/h;
+  nothing reads as too fast. Someshwar Beach, St. Aloysius Chapel, Hotel Srinivas, Forum Fiza
+  Mall and Mangaladevi Temple are dropped; Nilgiris and Kudroli Temple are added; Ideal Ice
+  Cream becomes Pabbas Ideal Cafe and Big Bazaar becomes City Centre Mall.
+- **Villa coordinates corrected** (migration 00034): 12.8892951, 74.8298580 -> 12.895188,
+  74.830676, about 661 m north-east. These drive the "Open in Maps" links and the
+  GeoCoordinates in the structured data. `public/villa-map.jpg` is a build asset with its own
+  hardcoded pair in `scripts/make-map.py`; both were updated and the image regenerated.
+- **Highlight labels reworded**: Centrally Located, Private Parking, Lounge Area, Landscaped
+  Garden, High Speed Internet, Driver Room. Room cards read "Max N Guests", and the villa rules
+  card leads with "Ideal For 8-14 Guests".
+- **Two amenities recategorised** (migration 00032): the driver's room and the outdoor CCTV move
+  from Convenience & Essentials to Outdoors & Spaces, where they describe the grounds.
+
+### Navigation
+
+- **`NavLinkBase`** replaces `next/link` in the header and footer. The App Router dedupes a
+  navigation to the current URL, so its scroll reset never ran and clicking the link for the
+  page you were already on did nothing. It now returns to the top, leaving modified clicks and
+  hash links alone.
+- **`scroll-behavior: smooth` removed from `html`.** On the root element it also captured the
+  App Router's scroll reset, so every route change animated back to the top instead of jumping.
+  The two places that want animation ask for it themselves.
+- **`body` uses `overflow-x: clip`, not `hidden`.** `hidden` made the body a scroll container,
+  which stopped scroll propagating to the viewport: every inbound `/#faq`-style link landed at
+  the top instead of the section.
+
+### Fixes
+
+- The home page's "Call Us" button was 14px sentence case beside a 13.5px uppercase WhatsApp
+  button, so the pair disagreed on size, casing and height. Its type now matches; its neutral
+  colour role is unchanged.
+
+### Deploy notes
+
+- Apply migrations 00032, 00033 and 00034 to remote databases.
+- Set `PROPERTY_PHONE`, `PROPERTY_WHATSAPP` and `PROPERTY_EMAIL` to the new values in every
+  environment. `RESEND_FROM_EMAIL` still needs pointing at the verified sending domain.
+
+---
+
 ## v0.9.0 — Content overhaul, room breakdown, amenities, scroll aid — 2026-09-25
 
 ### Content
@@ -1229,7 +1281,7 @@ The banner wrote a string to localStorage and gated nothing, so "Decline" declin
 
 ### Identity, contact and content corrections
 
-- **Single mailbox: `hello@habbaa.in`.** The site previously mixed `hello@habbaa.com` and
+- **Single mailbox: `reservations@habbaa.com`.** The site previously mixed `hello@habbaa.com` and
   `bookings@habbaa.in`. `RESEND_FROM_EMAIL` is deliberately unchanged pending domain
   verification in Resend — see TODO.
 - **`formatPhone()`** — the Contact page, Stay Guide and footer printed `+917760777876` while

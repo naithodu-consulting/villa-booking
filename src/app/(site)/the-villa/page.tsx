@@ -73,14 +73,14 @@ export default async function TheVillaPage() {
   const nearestBeach = nearestPlace(nearbyPlaces, 'beach');
 
   const highlights = [
-    { icon: MapPin,    label: 'Location',   value: 'Central Location'      },
+    { icon: MapPin,    label: 'Location',   value: 'Centrally Located'      },
     { icon: Bed,       label: 'Bedrooms',   value: '4 Bedrooms'            },
     { icon: Users,     label: 'Capacity',   value: 'Upto 14 Guests'        },
-    { icon: Car,       label: 'Parking',    value: 'Ample Private Parking' },
-    { icon: Sofa,      label: 'Lounge',     value: 'Private Lounge'        },
-    { icon: Trees,     label: 'Outdoors',   value: 'Lawn & Balconies'      },
-    { icon: Wifi,      label: 'Internet',   value: 'High Speed WiFi'       },
-    { icon: BedSingle, label: 'Staff',      value: 'Driver Accommodation'  },
+    { icon: Car,       label: 'Parking',    value: 'Private Parking' },
+    { icon: Sofa,      label: 'Lounge',     value: 'Lounge Area'        },
+    { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },
+    { icon: Wifi,      label: 'Internet',   value: 'High Speed Internet'       },
+    { icon: BedSingle, label: 'Staff',      value: 'Driver Room'  },
   ];
 
   return (
@@ -188,26 +188,6 @@ export default async function TheVillaPage() {
           </div>
         </section>
 
-        {/* ── Good to know ─────────────────────────────────── */}
-        {/* Stated plainly because guests (and AI assistants) tend to assume a
-            private villa has a pool and staff. Wrong assumptions become bad reviews. */}
-        <section className="space-y-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Good to Know</h2>
-          </div>
-          <ul
-            className="p-5 rounded-2xl space-y-3 text-base"
-            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
-          >
-            {GOOD_TO_KNOW(nearestBeach?.distance_km).map(({ title, body }) => (
-              <li key={title}>
-                <strong style={{ color: 'var(--ink)' }}>{title}.</strong> {body}
-              </li>
-            ))}
-          </ul>
-        </section>
-
         {/* ── Villa Rules / Policies ───────────────────────── */}
         {policies.length > 0 && (
           <section className="space-y-4">
@@ -229,6 +209,26 @@ export default async function TheVillaPage() {
             </div>
           </section>
         )}
+
+        {/* ── Good to know ─────────────────────────────────── */}
+        {/* Stated plainly because guests (and AI assistants) tend to assume a
+            private villa has a pool and staff. Wrong assumptions become bad reviews. */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Good to Know</h2>
+          </div>
+          <ul
+            className="p-5 rounded-2xl space-y-3 text-base"
+            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
+          >
+            {GOOD_TO_KNOW(nearestBeach?.distance_km).map(({ title, body }) => (
+              <li key={title}>
+                <strong style={{ color: 'var(--ink)' }}>{title}.</strong> {body}
+              </li>
+            ))}
+          </ul>
+        </section>
 
         {/* ── Location & Nearby ────────────────────────────── */}
         <section className="space-y-4">

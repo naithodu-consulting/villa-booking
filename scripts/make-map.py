@@ -11,9 +11,9 @@ fetched once here, never by the visitor. Attribution is rendered on the card.
 import math, time, urllib.request, io, sys
 from PIL import Image
 
-LAT, LON, Z = 12.8892951, 74.8298580, 16
+LAT, LON, Z = 12.895188, 74.830676, 16
 W, H = 1600, 960
-UA = "Villa19-BuildAsset/1.0 (one-off static map generation; contact hello@habbaa.in)"
+UA = "Villa19-BuildAsset/1.0 (one-off static map generation; contact reservations@habbaa.com)"
 
 n = 2 ** Z
 xt = (LON + 180.0) / 360.0 * n

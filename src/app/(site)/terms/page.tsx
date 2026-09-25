@@ -68,7 +68,7 @@ export default async function TermsPage() {
               <li><strong style={{ color: 'var(--ink)' }}>15 to 29 days before check-in:</strong> 50% refund.</li>
               <li><strong style={{ color: 'var(--ink)' }}>Under 15 days before check-in:</strong> No refund.</li>
               <li>The security deposit, if any, is refunded within 5 working days of check-out, subject to property inspection.</li>
-              <li>Refund requests must be submitted in writing to hello@habbaa.in with your booking reference.</li>
+              <li>Refund requests must be submitted in writing to reservations@habbaa.com with your booking reference.</li>
               <li>Approved refunds will be processed to the original payment method within 7 to 10 business days.</li>
             </ul>
           </Section>
@@ -118,7 +118,7 @@ export default async function TermsPage() {
 
           <Section title="8. Contact">
             <p>
-              For any queries about these terms: <a href="mailto:hello@habbaa.in" style={{ color: 'var(--brass-ink)' }}>hello@habbaa.in</a><br />
+              For any queries about these terms: <a href="mailto:reservations@habbaa.com" style={{ color: 'var(--brass-ink)' }}>reservations@habbaa.com</a><br />
               Villa 19 by Habbaa, Urwa, Mangalore, Karnataka 575006
             </p>
           </Section>

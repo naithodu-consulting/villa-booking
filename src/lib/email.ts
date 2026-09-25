@@ -1,7 +1,7 @@
 import 'server-only';
 
-const FROM = process.env.RESEND_FROM_EMAIL ?? 'Villa 19 by Habbaa <hello@habbaa.in>';
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'hello@habbaa.in';
+const FROM = process.env.RESEND_FROM_EMAIL ?? 'Villa 19 by Habbaa <reservations@habbaa.com>';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? 'reservations@habbaa.com';
 
 async function send(
   to: string,
@@ -115,7 +115,7 @@ export async function sendBookingConfirmation(p: BookingConfirmationParams) {
     </div>
     <div style="background:#f9f6f1;padding:16px 40px;text-align:center;font-size:12px;color:#aaa;">
       Villa 19 by Habbaa · Urwa, Mangalore, Karnataka 575006<br>
-      hello@habbaa.in
+      reservations@habbaa.com
     </div>
   </div>
 </body>
@@ -217,7 +217,7 @@ export async function sendRefundConfirmation(p: RefundProcessedParams) {
       <p style="margin-top:24px;">Warm regards,<br>The Habbaa Team</p>
     </div>
     <div style="background:#f9f6f1;padding:16px 40px;text-align:center;font-size:12px;color:#aaa;">
-      Villa 19 by Habbaa · hello@habbaa.in
+      Villa 19 by Habbaa · reservations@habbaa.com
     </div>
   </div>
 </body>
