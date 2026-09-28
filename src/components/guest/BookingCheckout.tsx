@@ -12,6 +12,7 @@ import { isRangeAvailable } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
 import { formatTime12 } from '@/lib/format';
+import { GSTIN_PATTERN } from '@/lib/gstin';
 
 declare global {
   interface Window {
@@ -64,6 +65,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [guestEmail,       setGuestEmail]       = useState('');
   const [guestPhone,       setGuestPhone]       = useState('');
   const [specialRequests,  setSpecialRequests]  = useState('');
+  const [wantsGstInvoice,  setWantsGstInvoice]  = useState(false);
+  const [guestCompany,     setGuestCompany]     = useState('');
+  const [guestGstin,       setGuestGstin]       = useState('');
   const [isProcessing,     setIsProcessing]     = useState(false);
   const [serverError,      setServerError]      = useState('');
   // Catches a stale link or a night taken since the guest picked dates, before
@@ -111,6 +115,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
           propertyId: property.id,
           checkIn, checkOut, adults, children,
           guestName, guestEmail, guestPhone, specialRequests,
+          ...(wantsGstInvoice && { guestCompany: guestCompany.trim(), guestGstin }),
         }),
       });
 
@@ -343,6 +348,58 @@ function CheckoutContent({ property, pricingRules }: Props) {
                       color: 'var(--ink)',
                     }}
                   />
+                </div>
+
+                {/* Every booking gets a GST invoice. These fields only put a business
+                    on it, so the company can claim the input tax. */}
+                <div className="space-y-3">
+                  <label className="flex items-center gap-2.5 text-sm font-bold cursor-pointer" style={{ color: 'var(--ink-muted)' }}>
+                    <input
+                      type="checkbox"
+                      checked={wantsGstInvoice}
+                      onChange={(e) => setWantsGstInvoice(e.target.checked)}
+                      className="w-4 h-4 accent-[var(--maroon)]"
+                    />
+                    Invoice in a company name (GST)
+                  </label>
+                  {wantsGstInvoice && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="guestCompany" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
+                          Company Name *
+                        </label>
+                        <input
+                          id="guestCompany"
+                          type="text"
+                          required
+                          maxLength={120}
+                          value={guestCompany}
+                          onChange={(e) => setGuestCompany(e.target.value)}
+                          placeholder="As registered for GST"
+                          className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
+                          style={{ backgroundColor: 'var(--paper)', border: '1px solid var(--border-subtle)', color: 'var(--ink)' }}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="guestGstin" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
+                          GSTIN *
+                        </label>
+                        <input
+                          id="guestGstin"
+                          type="text"
+                          required
+                          pattern={GSTIN_PATTERN}
+                          title="15-character GSTIN, e.g. 29ABCDE1234F1Z5"
+                          value={guestGstin}
+                          onChange={(e) => setGuestGstin(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 15))}
+                          placeholder="29ABCDE1234F1Z5"
+                          autoCapitalize="characters"
+                          className="w-full rounded-xl px-4 py-3 text-base tracking-wide focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
+                          style={{ backgroundColor: 'var(--paper)', border: '1px solid var(--border-subtle)', color: 'var(--ink)' }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div

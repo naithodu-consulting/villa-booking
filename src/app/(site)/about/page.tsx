@@ -2,9 +2,8 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import Link from 'next/link';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
-import BookNowLink from '@/components/guest/BookNowLink';
+import CtaButtons from '@/components/guest/CtaButtons';
 
 export const metadata: Metadata = pageMetadata({
   title: 'About Habbaa',
@@ -121,19 +120,7 @@ export default function AboutPage() {
             Ready to experience it?
           </h2>
           <p className="text-white/70 text-base">Book Villa 19 directly. No platform fees, personal host service.</p>
-          <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
-            <BookNowLink
-              className="btn-brass-filled px-8 py-3.5 rounded-xl"
-            >
-              Check Availability
-            </BookNowLink>
-            <Link
-              href="/contact"
-              className="btn-frosted px-6 py-3.5 rounded-xl"
-            >
-              Contact Us
-            </Link>
-          </div>
+          <CtaButtons secondary={{ href: '/contact', label: 'Contact Us' }} />
         </section>
 
       </div>

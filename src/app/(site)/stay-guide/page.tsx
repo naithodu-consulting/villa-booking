@@ -1,18 +1,18 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { pageMetadata, breadcrumbJsonLd, faqJsonLd } from '@/lib/seo';
+import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import Link from 'next/link';
-import { ChevronDown, Clock, Key, Luggage, Wifi, Car, ShieldCheck, Info } from 'lucide-react';
-import { getProperty, getFAQs } from '@/lib/data';
+import { Clock, Key, Luggage, Wifi, Car, ShieldCheck, Info } from 'lucide-react';
+import { getProperty } from '@/lib/data';
 import { formatTime12, formatPhone } from '@/lib/format';
-import BookNowLink from '@/components/guest/BookNowLink';
+import { villaRules } from '@/lib/villa-rules';
+import CtaButtons from '@/components/guest/CtaButtons';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Stay Guide: Check-in, Rules & FAQs',
+  title: 'Stay Guide: Check-in, House Rules & Contacts',
   path: '/stay-guide',
   description:
-    'Everything for your stay at Villa 19, Mangalore: check-in and check-out times, parking, WiFi, house rules, emergency contacts and answers to common questions.',
+    'Everything for your stay at Villa 19, Mangalore: check-in and check-out times, parking, WiFi, house rules and emergency contacts.',
 });
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -31,14 +31,6 @@ export default async function StayGuidePage() {
     : undefined;
   const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
   const checkOut = formatTime12(property?.check_out_time ?? '11:00');
-
-  const faqs = property ? await getFAQs(property.id) : [];
-  const faqGroups = faqs.reduce<Record<string, typeof faqs>>((acc, f) => {
-    const key = f.category ?? 'General';
-    if (!acc[key]) acc[key] = [];
-    acc[key].push(f);
-    return acc;
-  }, {});
 
   const infoSections = [
     {
@@ -92,20 +84,15 @@ export default async function StayGuidePage() {
     {
       icon: ShieldCheck,
       title: 'Villa Rules',
-      items: [
-        `Maximum occupancy: ${property?.max_occupancy ?? 14} guests`,
-        'Quiet hours: 10 PM to 7 AM',
-        'No smoking indoors. Designated outdoor area available.',
-        'Pets are not entertained',
-        'Outside guests are not allowed',
-        'Events and celebrations require advance notice and approval',
-      ],
+      items: property
+        ? villaRules(property).map((r) => `${r.title}: ${r.body}`)
+        : [],
     },
   ];
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
-      <JsonLd data={[breadcrumbJsonLd([{ name: 'Stay Guide', path: '/stay-guide' }]), ...(faqs.length ? [faqJsonLd(faqs)] : [])]} />
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Stay Guide', path: '/stay-guide' }])} />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section
@@ -219,52 +206,6 @@ export default async function StayGuidePage() {
           </div>
         </section>
 
-        {/* ── FAQ ──────────────────────────────────────────── */}
-        {Object.keys(faqGroups).length > 0 && (
-          <section id="faq" className="scroll-mt-24 space-y-6">
-            <div className="flex items-center gap-2.5">
-              <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
-                Frequently Asked Questions
-              </h2>
-            </div>
-            {Object.entries(faqGroups).map(([category, items]) => (
-              <div key={category} className="space-y-2">
-                <h3
-                  className="text-xs font-bold uppercase tracking-widest pb-2"
-                  style={{ color: 'var(--brass-ink)', borderBottom: '1px solid var(--border-subtle)' }}
-                >
-                  {category}
-                </h3>
-                {items.map((faq) => (
-                  <details
-                    key={faq.id}
-                    className="rounded-2xl shadow-sm group"
-                    style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-                  >
-                    <summary
-                      className="flex items-center justify-between p-5 cursor-pointer list-none font-semibold text-base select-none"
-                      style={{ color: 'var(--ink)' }}
-                    >
-                      {faq.question}
-                      <ChevronDown
-                        className="w-4 h-4 flex-shrink-0 group-open:rotate-180 transition-transform"
-                        style={{ color: 'var(--ink-muted)' }}
-                        aria-hidden="true"
-                      />
-                    </summary>
-                    <p
-                      className="px-5 pb-5 text-base leading-relaxed pt-4"
-                      style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
-                    >
-                      {faq.answer}
-                    </p>
-                  </details>
-                ))}
-              </div>
-            ))}
-          </section>
-        )}
 
         {/* ── CTA ──────────────────────────────────────────── */}
         <div
@@ -275,25 +216,13 @@ export default async function StayGuidePage() {
             <p className="font-bold">Still have questions?</p>
             <p className="text-sm text-white/70 mt-0.5">We are happy to help before and during your stay.</p>
           </div>
-          <div className="flex items-center gap-3 flex-shrink-0">
-            {whatsappUrl && (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-frosted flex items-center gap-2 px-8 py-3.5 rounded-xl"
-              >
-                <WhatsAppIcon className="w-4 h-4" /> WhatsApp Us
-              </a>
-            )}
-            {/* Brass, not frosted: every other dark CTA panel pairs one brass
-                primary with a frosted secondary. Two frosted buttons on maroon
-                left the panel with no primary and both reading as washed out. */}
-            <BookNowLink
-              className="btn-brass-filled px-8 py-3.5 rounded-xl"
-            >
-              Book Now
-            </BookNowLink>
+          <div className="flex-shrink-0">
+            <CtaButtons
+              className="justify-center sm:justify-end"
+              secondary={whatsappUrl
+                ? { href: whatsappUrl, external: true, label: <><WhatsAppIcon className="w-4 h-4" /> WhatsApp Us</> }
+                : { href: '/contact', label: 'Contact Us' }}
+            />
           </div>
         </div>
 

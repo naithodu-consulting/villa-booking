@@ -142,14 +142,17 @@ describe('calculateBookingPrice', () => {
   });
 });
 
-// Villa 19's live configuration from 00021: 12 guests included, up to 3 more at
-// Rs 1,000 per person per night, and Rs 16,000 on New Year's Eve and New Year's Day.
-describe('Villa 19 pricing (00021)', () => {
+// Villa 19's live configuration from 00039: 8 guests included, guests 9-11 at
+// Rs 1,000 and 12-14 at Rs 700 per person per night, capped at 14, and Rs 16,000
+// on New Year's Eve and New Year's Day.
+describe('Villa 19 pricing (00039)', () => {
   const VILLA_19: Property = {
     ...VILLA,
-    base_occupancy: 12,
-    max_occupancy: 15,
-    extra_guest_rate: 100_000,       // ₹1,000
+    base_occupancy: 8,
+    max_occupancy: 14,
+    extra_guest_rate: 100_000,       // ₹1,000, guests 9-11
+    extra_guest_tier2_from: 12,
+    extra_guest_tier2_rate: 70_000,  // ₹700, guests 12-14
     base_nightly_rate: 1_200_000,    // ₹12,000
     weekend_nightly_rate: 1_400_000, // ₹14,000
   };
@@ -157,27 +160,47 @@ describe('Villa 19 pricing (00021)', () => {
     id: 'ny', property_id: 'test-villa', rule_name: "New Year's Eve and New Year's Day",
     start_date: '2026-12-31', end_date: '2027-01-02', nightly_rate: 1_600_000, min_stay_nights: 1,
   };
+  // One weekday night (Mon 14 Dec) so the extra per night is the whole extra.
+  const extraFor = (guests: number) =>
+    calculateBookingPrice(VILLA_19, [], '2026-12-14', '2026-12-15', guests, 0).extra_guest_amount;
 
-  it('includes 12 guests in the nightly rate', () => {
-    const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-28', '2026-12-29', 12, 0);
+  it('includes 8 guests in the nightly rate', () => {
+    const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-28', '2026-12-29', 8, 0);
     expect(r.extra_guests_count).toBe(0);
     expect(r.base_amount).toBe(1_200_000);
   });
 
-  it('charges ₹1,000 per extra person per night, up to 15 guests', () => {
-    // Mon 14 Dec to Thu 17 Dec: 3 weekday nights, 3 extra guests
-    const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-14', '2026-12-17', 13, 2);
-    expect(r.extra_guests_count).toBe(3);
-    expect(r.extra_guest_amount).toBe(3 * 100_000 * 3);
+  it('charges ₹1,000 each for guests 9 to 11 and ₹700 each for 12 to 14, stepwise', () => {
+    expect(extraFor(9)).toBe(100_000);
+    expect(extraFor(11)).toBe(300_000);
+    expect(extraFor(12)).toBe(370_000);  // 3 × 1,000 + 1 × 700
+    expect(extraFor(14)).toBe(510_000);  // 3 × 1,000 + 3 × 700
   });
 
-  it('refuses a 16th guest', () => {
-    expect(() => calculateBookingPrice(VILLA_19, [], '2026-12-14', '2026-12-15', 16, 0)).toThrow('MAX_OCCUPANCY');
+  it('never makes a bigger group cheaper', () => {
+    for (let g = 8; g < 14; g++) expect(extraFor(g + 1)).toBeGreaterThan(extraFor(g));
+  });
+
+  it('counts children, multiplies by nights and taxes the extra', () => {
+    // Mon 14 Dec to Thu 17 Dec: 3 weekday nights, 10 adults + 2 children = 12 guests
+    const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-14', '2026-12-17', 10, 2);
+    expect(r.extra_guests_count).toBe(4);
+    expect(r.extra_guest_amount).toBe(370_000 * 3);
+    expect(r.tax_amount).toBe(Math.round(((1_200_000 * 3 + 370_000 * 3) * 18) / 100));
+  });
+
+  it('falls back to one flat rate when no second tier is set', () => {
+    const flat = { ...VILLA_19, extra_guest_tier2_from: null, extra_guest_tier2_rate: null };
+    expect(calculateBookingPrice(flat, [], '2026-12-14', '2026-12-15', 14, 0).extra_guest_amount).toBe(6 * 100_000);
+  });
+
+  it('refuses a 15th guest', () => {
+    expect(() => calculateBookingPrice(VILLA_19, [], '2026-12-14', '2026-12-15', 15, 0)).toThrow('MAX_OCCUPANCY');
   });
 
   it("prices 31 Dec and 1 Jan at ₹16,000, overriding the Friday weekend rate, and 2 Jan at the weekend rate", () => {
     // Wed 30 Dec to Sun 3 Jan
-    const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-30', '2027-01-03', 12, 0);
+    const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-30', '2027-01-03', 8, 0);
     expect(r.nightly_details.map((n) => [n.date, n.rate])).toEqual([
       ['2026-12-30', 1_200_000], // Wed
       ['2026-12-31', 1_600_000], // Thu, New Year's Eve

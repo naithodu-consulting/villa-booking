@@ -2,31 +2,17 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import Link from 'next/link';
 import Image from 'next/image';
 import { getProperty, getImages } from '@/lib/data';
-import BookNowLink from '@/components/guest/BookNowLink';
+import { GALLERY_SECTIONS } from '@/lib/gallery';
+import CtaButtons from '@/components/guest/CtaButtons';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Villa Photos & Gallery',
   path: '/gallery',
   description:
-    'Photos of Villa 19 in Urwa, Mangalore: bedrooms, living and dining spaces, the private lawn and the villa exterior. See the whole house before you book.',
+    'Photos of Villa 19 in Urwa, Mangalore: the villa, living and dining spaces, bedrooms, bathrooms, outdoor spaces, parking and the neighbourhood.',
 });
-
-const CATEGORY_ORDER = ['hero', 'exterior', 'living', 'bedroom', 'dining', 'kitchen', 'bathroom', 'outdoor', 'surroundings'];
-
-const CATEGORY_LABEL: Record<string, string> = {
-  hero:          'Overview',
-  exterior:      'Exterior',
-  living:        'Living Spaces',
-  bedroom:       'Bedrooms',
-  dining:        'Dining',
-  kitchen:       'Kitchen',
-  bathroom:      'Bathrooms',
-  outdoor:       'Outdoor',
-  surroundings:  'Surroundings',
-};
 
 export default async function GalleryPage() {
   const property = await getProperty();
@@ -40,12 +26,11 @@ export default async function GalleryPage() {
 
   const images = await getImages(property.id);
 
-  // Group by category in defined order
-  const imageGroups = CATEGORY_ORDER.reduce<Record<string, typeof images>>((acc, cat) => {
-    const imgs = images.filter((img) => img.category === cat);
-    if (imgs.length > 0) acc[cat] = imgs;
-    return acc;
-  }, {});
+  // Sections in the operator's order. A section with no photos yet is left out
+  // rather than shown empty.
+  const sections = GALLERY_SECTIONS
+    .map((sec) => ({ ...sec, imgs: images.filter((img) => img.category === sec.key) }))
+    .filter((sec) => sec.imgs.length > 0);
 
   const hasImages = images.length > 0;
 
@@ -63,9 +48,6 @@ export default async function GalleryPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="eyebrow-hero mb-4">
-            {property.name}
-          </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
@@ -73,7 +55,7 @@ export default async function GalleryPage() {
             Gallery
           </h1>
           <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            Bedrooms, common areas, the lawn, and the neighbourhood. Everything you want to see before you book.
+            Explore the spaces, the surroundings, and everything in between.
           </p>
         </div>
       </section>
@@ -106,13 +88,13 @@ export default async function GalleryPage() {
           </div>
         ) : (
           <div className="space-y-12">
-            {Object.entries(imageGroups).map(([category, imgs]) => (
-              <section key={category} className="space-y-4">
+            {sections.map(({ key, label, imgs }) => (
+              <section key={key} className="space-y-4">
                 <h2
                   className="text-sm font-bold uppercase tracking-widest pb-2"
                   style={{ color: 'var(--brass-ink)', borderBottom: '1px solid var(--border-subtle)' }}
                 >
-                  {CATEGORY_LABEL[category] ?? category}
+                  {label}
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {imgs.map((img) => (
@@ -145,11 +127,7 @@ export default async function GalleryPage() {
             Like what you see?
           </h2>
           <p className="text-white/70 text-base">Book directly. No platform fees, instant confirmation.</p>
-          <BookNowLink
-            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
-          >
-            Check Availability
-          </BookNowLink>
+          <CtaButtons />
         </div>
       </div>
     </div>

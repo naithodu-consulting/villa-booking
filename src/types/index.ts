@@ -1,3 +1,5 @@
+import type { GalleryCategory } from '@/lib/gallery';
+
 export interface Property {
   id: string;
   slug: string;
@@ -17,6 +19,10 @@ export interface Property {
   ideal_occupancy: number;
   /** All monetary fields are stored in PAISE (integer). ₹1 = 100 paise. */
   extra_guest_rate: number;
+  /** First guest (by count) charged extra_guest_tier2_rate instead; null for one flat rate. */
+  extra_guest_tier2_from?: number | null;
+  /** Paise, per guest per night, from extra_guest_tier2_from onwards. */
+  extra_guest_tier2_rate?: number | null;
   base_nightly_rate: number;
   weekend_nightly_rate: number;
   check_in_time: string;
@@ -36,6 +42,7 @@ export interface Room {
   bed_count: number;
   max_guests: number;
   has_ensuite_bathroom: boolean;
+  has_ac?: boolean | null;
   display_order: number;
   /** Null for shared spaces that do not sit on one floor, e.g. the lounge. */
   floor?: string | null;
@@ -48,7 +55,7 @@ export interface PropertyImage {
   room_id?: string;
   url: string;
   alt_text: string;
-  category: 'hero' | 'exterior' | 'bedroom' | 'dining' | 'living' | 'bathroom' | 'kitchen' | 'outdoor' | 'surroundings';
+  category: GalleryCategory;
   display_order: number;
 }
 

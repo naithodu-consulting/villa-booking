@@ -16,7 +16,7 @@ interface FormState {
 }
 
 /** Capacity comes from the property so the form cannot contradict the booking
- *  limit (12 guests included, up to 14 with the extra-guest charge). */
+ *  limit (8 guests included, up to 14 with the extra-guest charge). */
 export default function EnquiryForm({ maxGuests = 14 }: { maxGuests?: number }) {
   const [form, setForm] = useState<FormState>({
     name: '', email: '', phone: '', checkIn: '', checkOut: '', guestCount: '', message: '',

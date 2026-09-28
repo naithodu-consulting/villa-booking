@@ -5,6 +5,8 @@ import { Phone, Mail } from 'lucide-react';
 
 import type { Property } from '@/types';
 import { formatPhone } from '@/lib/format';
+import { ENTITY } from '@/lib/entity';
+import { EVENTS_PAGE_ENABLED } from '@/lib/features';
 
 function WhatsAppIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -14,20 +16,12 @@ function WhatsAppIcon({ className, style }: { className?: string; style?: React.
   );
 }
 
-/** Registered entity behind Villa 19. Confirmed by the operator 2026-09-08. */
-const ENTITY = {
-  name: 'HABBAA SOLUTIONS PVT LTD',
-  address: '209, Citadel Prism, PVS Kalakunj Road, Kodialbail, Mangalore 575003',
-  cin: 'U47711KA2025PTC207750',
-  gstin: '29AAICH1682G1ZD',
-};
-
 const EXPLORE_LINKS: [string, string][] = [
   ['/',           'Home'],
   ['/the-villa',  'The Villa'],
   ['/rooms',      'Rooms'],
   ['/gallery',    'Gallery'],
-  ['/events',     'Events'],
+  ...(EVENTS_PAGE_ENABLED ? [['/events', 'Events'] as [string, string]] : []),
   ['/stay-guide', 'Stay Guide'],
   ['/about',      'About Us'],
 ];
@@ -66,7 +60,7 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
         {/* ── Main grid ──────────────────────────────────────────────────────── */}
         {/*
             Mobile: single column, centred.
-            lg+: 4 columns — brand is widest (holds logo + tagline),
+            lg+: 4 columns — brand is widest (holds logo + company details),
                  then Explore, Contact, and a combined Follow/Legal column.
         */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.9fr_1fr_1.1fr_0.9fr] gap-10 lg:gap-8 text-center lg:text-left">
@@ -83,12 +77,8 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
               height={32}
             />
 
-            {/* Tagline — desktop only to avoid repeating what guest just read */}
-            <p className="hidden lg:block text-sm leading-relaxed text-white/75 max-w-[300px]">
-              Premium 4-Bedroom Private Urban Villa
-            </p>
-
             <div className="space-y-1.5 pt-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[var(--brass-light)]">Managed by</p>
               <p className="text-[13px] font-bold tracking-wide text-white/75">{ENTITY.name}</p>
               <p className="text-[13px] text-white/60 leading-snug max-w-[300px] mx-auto lg:mx-0">
                 {ENTITY.address}

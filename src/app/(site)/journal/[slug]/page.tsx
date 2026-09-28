@@ -3,11 +3,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronLeft } from 'lucide-react';
-import BookNowLink from '@/components/guest/BookNowLink';
 import JournalCover from '@/components/guest/JournalCover';
 import JournalBody from '@/components/guest/JournalBody';
 import JsonLd from '@/components/seo/JsonLd';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
+import CtaButtons from '@/components/guest/CtaButtons';
 import {
   getJournalPost, getJournalPosts, formatJournalDate, JOURNAL_CATEGORIES, SITE_URL,
 } from '@/lib/journal';
@@ -159,9 +159,7 @@ export default async function JournalPostPage({ params }: { params: Promise<{ sl
             Make Villa 19 your base in Mangalore
           </h2>
           <p className="text-white/70 text-base">The whole villa for your group. Book directly, no platform fees.</p>
-          <BookNowLink className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2">
-            Check Availability
-          </BookNowLink>
+          <CtaButtons />
         </section>
       </div>
     </div>

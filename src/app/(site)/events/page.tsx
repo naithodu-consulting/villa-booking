@@ -2,17 +2,21 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import Link from 'next/link';
 import { Users, Music, Briefcase, Heart, Check } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { getProperty } from '@/lib/data';
-import BookNowLink from '@/components/guest/BookNowLink';
+import { EVENTS_PAGE_ENABLED } from '@/lib/features';
+import CtaButtons from '@/components/guest/CtaButtons';
 
-export const metadata: Metadata = pageMetadata({
-  title: 'Celebrations & Group Events in Mangalore',
-  path: '/events',
-  description:
-    'Host a family reunion, milestone celebration or small corporate retreat at Villa 19, Mangalore. The whole private villa and lawn for up to 14 guests.',
-});
+export const metadata: Metadata = {
+  ...pageMetadata({
+    title: 'Celebrations & Group Events in Mangalore',
+    path: '/events',
+    description:
+      'Host a family reunion, milestone celebration or small corporate retreat at Villa 19, Mangalore. The whole private villa and lawn for up to 14 guests.',
+  }),
+  ...(!EVENTS_PAGE_ENABLED && { robots: { index: false, follow: false } }),
+};
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -54,6 +58,8 @@ const IMPORTANT_NOTES = [
 ];
 
 export default async function EventsPage() {
+  // Hidden pending review: see src/lib/features.ts.
+  if (!EVENTS_PAGE_ENABLED) notFound();
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number;
   // Headline capacity is the villa's true maximum, matching the highlights bar
@@ -147,7 +153,7 @@ export default async function EventsPage() {
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
             <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
-              What's Included
+              What&apos;s Included
             </h2>
           </div>
           <div
@@ -200,23 +206,11 @@ export default async function EventsPage() {
           <p className="text-white/70 text-base max-w-sm mx-auto">
             Tell us about your event and we will work out the details together.
           </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap pt-2">
-            {whatsappUrl && (
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-frosted flex items-center gap-2 px-8 py-3.5 rounded-xl"
-              >
-                <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
-              </a>
-            )}
-            <BookNowLink
-              className="btn-brass-filled px-6 py-3.5 rounded-xl"
-            >
-              Check Availability
-            </BookNowLink>
-          </div>
+          <CtaButtons
+            secondary={whatsappUrl
+              ? { href: whatsappUrl, external: true, label: <><WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp</> }
+              : { href: '/contact', label: 'Contact Us' }}
+          />
         </section>
 
       </div>

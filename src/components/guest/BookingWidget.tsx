@@ -95,6 +95,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
   const baseRateDisplay = inr(property.base_nightly_rate);
   const extraRateDisplay = inr(property.extra_guest_rate);
+  const tier2From = property.extra_guest_tier2_from;
 
   return (
     <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg">
@@ -259,8 +260,10 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                 </div>
 
                 <p className="text-xs text-[var(--brass-ink)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
-                  Base rate includes up to {property.base_occupancy} guests.
-                  ₹{extraRateDisplay}/night per additional guest.
+                  Base rate includes up to {property.base_occupancy} guests.{' '}
+                  {tier2From != null && tier2From <= property.max_occupancy && property.extra_guest_tier2_rate != null
+                    ? <>Extra guests per night: ₹{extraRateDisplay} each for guests {property.base_occupancy + 1}-{tier2From - 1}, ₹{inr(property.extra_guest_tier2_rate)} each for guests {tier2From}-{property.max_occupancy}.</>
+                    : <>₹{extraRateDisplay}/night per additional guest.</>}
                 </p>
               </div>
             )}

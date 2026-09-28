@@ -10,7 +10,8 @@ INSERT INTO properties (
   address, city, state, pincode,
   geo_lat, geo_lng,
   base_occupancy, max_occupancy, ideal_occupancy,
-  extra_guest_rate, base_nightly_rate, weekend_nightly_rate,
+  extra_guest_rate, extra_guest_tier2_from, extra_guest_tier2_rate,
+  base_nightly_rate, weekend_nightly_rate,
   check_in_time, check_out_time,
   is_active
 ) VALUES (
@@ -29,43 +30,51 @@ Designed with a relaxed, contemporary character, Villa 19 brings together the co
 Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
   'Urwa', 'Mangalore', 'Karnataka', '575006',
   12.895188, 74.830676,
-  12, 14, 8,  -- base 12 included, hard cap 14, ideal party size 8
-  100000,   -- ₹1,000/extra guest per night
+  8, 14, 8,  -- base 8 included, hard cap 14, ideal party size 8
+  100000,   -- ₹1,000/extra guest per night, guests 9-11
+  12, 70000, -- ₹700/extra guest per night from guest 12
   1200000,  -- ₹12,000/night base
   1400000,  -- ₹14,000/night weekend
   '14:00:00', '11:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
-  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, is_active = EXCLUDED.is_active;
+  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, is_active = EXCLUDED.is_active;
 
 -- ─────────────────────────────────────────────────────────
 -- Rooms (4 bedrooms)
 -- ─────────────────────────────────────────────────────────
-INSERT INTO rooms (id, property_id, name, slug, room_type, bed_type, bed_count, max_guests, has_ensuite_bathroom, bathroom_type, floor, size_sqft, display_order) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000011', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 1',         'room-1',         'Bedroom', 'King Size Bed',  1, 3, TRUE,  'Attached', 'Ground Floor', 156, 1),
-  ('a1b2c3d4-0000-0000-0000-000000000012', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 2',         'room-2',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'Ground Floor', 144, 2),
-  ('a1b2c3d4-0000-0000-0000-000000000013', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 3',         'room-3',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'First Floor',  125, 3),
-  ('a1b2c3d4-0000-0000-0000-000000000014', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 4',         'room-4',         'Bedroom', 'King Size Bed',  1, 3, FALSE, 'Shared',   'First Floor',  156, 4),
-  ('a1b2c3d4-0000-0000-0000-000000000015', 'a1b2c3d4-0000-0000-0000-000000000001', 'Private Lounge', 'private-lounge', 'Lounge',  'Sofa Cum Bed',   2, 2, FALSE, 'Shared',   'First Floor',  144, 5)
+INSERT INTO rooms (id, property_id, name, slug, room_type, bed_type, bed_count, max_guests, has_ensuite_bathroom, bathroom_type, floor, size_sqft, display_order, has_ac) VALUES
+  ('a1b2c3d4-0000-0000-0000-000000000011', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 1',         'room-1',         'Bedroom', 'King Size Bed',  1, 3, TRUE,  'Attached', 'Ground Floor', 156, 1, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000012', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 2',         'room-2',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'Ground Floor', 144, 2, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000013', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 3',         'room-3',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'First Floor',  125, 3, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000014', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 4',         'room-4',         'Bedroom', 'King Size Bed',  1, 3, FALSE, 'Shared',   'First Floor',  156, 4, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000015', 'a1b2c3d4-0000-0000-0000-000000000001', 'Private Lounge', 'private-lounge', 'Lounge',  'Sofa Cum Bed',   2, 2, FALSE, 'Shared',   'First Floor',  144, 5, FALSE)
 ON CONFLICT (id) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────
 -- Property Images (12 Unsplash placeholders)
 -- ─────────────────────────────────────────────────────────
 INSERT INTO property_images (id, property_id, url, alt_text, category, display_order, room_id) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000021', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=1600&q=80', 'Villa 19 - Main Exterior with Tropical Garden', 'hero',     1, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000022', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80', 'Bright Living Room with Natural Light',                    'living',   2, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000023', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80', 'Garden View Master Suite - King Bed',                      'bedroom',  3, 'a1b2c3d4-0000-0000-0000-000000000011'),
-  ('a1b2c3d4-0000-0000-0000-000000000024', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', 'Lawn View Bedroom - Queen Bed & Ensuite',                  'bedroom',  4, 'a1b2c3d4-0000-0000-0000-000000000012'),
-  ('a1b2c3d4-0000-0000-0000-000000000025', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80', 'Dining - Fresh Coastal Cuisine',                           'dining',   5, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000026', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=80', 'Sunset Balcony Suite - King Bed',                          'bedroom',  6, 'a1b2c3d4-0000-0000-0000-000000000013'),
-  ('a1b2c3d4-0000-0000-0000-000000000027', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80', 'Living Room - Evening Ambience',                           'living',   7, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000028', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80', 'Heritage Courtyard Room - Twin Beds',                      'bedroom',  8, 'a1b2c3d4-0000-0000-0000-000000000014'),
-  ('a1b2c3d4-0000-0000-0000-000000000029', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', 'Villa Exterior - Garden & Green Surroundings',             'exterior', 9, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002a', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80', 'Open Living Area - Warm Evening Light',                    'living',   10, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002b', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80', 'Outdoor Dining Area',                'dining',   11, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002c', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=1200&q=80', 'Villa Balcony - Lush Green Views',                         'exterior', 12, NULL)
-ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id;
+  ('a1b2c3d4-0000-0000-0000-000000000021', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=1600&q=80', 'Villa 19 exterior with garden', 'villa',     1, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000022', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80', 'Living room with natural light', 'living_dining',   2, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000023', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80', 'Room 1 - King Bed', 'bedroom',  3, 'a1b2c3d4-0000-0000-0000-000000000011'),
+  ('a1b2c3d4-0000-0000-0000-000000000024', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', 'Room 2 - Queen Bed', 'bedroom',  4, 'a1b2c3d4-0000-0000-0000-000000000012'),
+  ('a1b2c3d4-0000-0000-0000-000000000025', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80', 'Dining area', 'living_dining',   5, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000026', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=80', 'Room 3 - Queen Bed', 'bedroom',  6, 'a1b2c3d4-0000-0000-0000-000000000013'),
+  ('a1b2c3d4-0000-0000-0000-000000000027', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80', 'Living room in the evening', 'living_dining',   7, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000028', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80', 'Room 4 - King Bed', 'bedroom',  8, 'a1b2c3d4-0000-0000-0000-000000000014'),
+  ('a1b2c3d4-0000-0000-0000-000000000029', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', 'Villa exterior and garden', 'villa', 9, NULL),
+  ('a1b2c3d4-0000-0000-0000-00000000002a', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80', 'Open living area', 'living_dining',   10, NULL),
+  ('a1b2c3d4-0000-0000-0000-00000000002b', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80', 'Outdoor seating area', 'outdoor',   11, NULL),
+  ('a1b2c3d4-0000-0000-0000-00000000002c', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=1200&q=80', 'Balcony with garden views', 'outdoor', 12, NULL),
+  ('a1b2c3d4-0000-0000-0000-00000000002d', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=80', 'Bathroom with washbasin', 'bathroom', 13, NULL),
+  ('a1b2c3d4-0000-0000-0000-00000000002e', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80', 'Bathroom with glass shower', 'bathroom', 14, NULL),
+  ('a1b2c3d4-0000-0000-0000-00000000002f', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1200&q=80', 'Driveway and parking in front of the house', 'parking', 15, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000030', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&q=80', 'Paved parking area at the entrance', 'parking', 16, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000031', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80', 'Beach at sunset', 'around', 17, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000032', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80', 'South Indian temple tower', 'around', 18, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000033', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=80', 'City lights at night', 'around', 19, NULL)
+ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id, category = EXCLUDED.category, alt_text = EXCLUDED.alt_text;
 
 -- ─────────────────────────────────────────────────────────
 -- Pricing Rules (see 00021). end_date is exclusive: the last priced night is 1 Jan.
@@ -120,38 +129,50 @@ INSERT INTO property_policies (property_id, key, title, body, category, display_
    'Check-in: 2:00 PM · Check-out: 11:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
    'checkin', 10),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'id_requirement',
-   'Government ID Required',
-   'Government photo ID is mandatory at check-in for all guests: Aadhaar card, passport, or driving licence. This is a legal requirement under Karnataka state regulations. Soft copies must be shared via WhatsApp before arrival.',
+   'Registered Guests Only',
+   'Government photo ID is required at check-in for every guest: Aadhaar, passport or driving licence. Please share copies on WhatsApp before arrival for a faster check-in.',
    'id', 20),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'visitors',
+   'Visitors',
+   'Unregistered visitors are not permitted on the premises.',
+   'rules', 21),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'occupancy',
+   'Occupancy',
+   'Up to 14 guests are permitted. The base rate covers 8 guests, with extra-guest charges from the ninth guest.',
+   'rules', 22),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'events_policy',
+   'No Parties',
+   'Parties, loud gatherings and commercial activities are not permitted.',
+   'events', 23),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'quiet_hours',
-   'Quiet Hours',
-   'Quiet hours are observed from 10 PM to 7 AM. Music or amplified sound outside the villa is not permitted after 10 PM, out of respect for neighbours.',
-   'rules', 30),
+   'Quiet Hours: 10 PM to 7 AM',
+   'Please keep noise to a minimum and respect the neighbourhood.',
+   'rules', 24),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'no_smoking',
    'No Smoking Indoors',
-   'Smoking is strictly prohibited inside the villa, including all bedrooms, living areas and kitchen. Designated smoking areas are available on the lawn. Please dispose of cigarette butts responsibly.',
-   'smoking', 31),
+   'Smoking is prohibited inside the villa. Cleaning and restoration charges apply for violations.',
+   'smoking', 25),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'pets_policy',
-   'Pets Are Not Entertained',
-   'Pets are not entertained at the villa. Please make alternative arrangements for your animals before booking.',
-   'pets', 32),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'events_policy',
-   'Events & Gatherings',
-   'The villa is well suited for private family gatherings and milestone celebrations. Outside guests are not allowed beyond the booked group. Loud DJ music is not permitted. Contact us before booking for event enquiries.',
-   'events', 33),
+   'No Pets',
+   'Pets are not permitted anywhere on the property.',
+   'pets', 26),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'property_care',
+   'Care for the Property',
+   'Guests are responsible for the villa, its furnishings and amenities during their stay.',
+   'rules', 27),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'kitchen_policy',
    'Kitchen Use',
    'The fully equipped kitchen is available for self-catering throughout your stay. Guests are welcome to bring their own groceries. Please clean up after cooking and leave the kitchen as you found it. The kitchen is not staffed - no in-house cook is provided.',
-   'kitchen', 34),
+   'kitchen', 30),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'housekeeping_policy',
    'Housekeeping',
    'The villa is professionally cleaned before each check-in. Mid-stay housekeeping is available on request and may carry an additional charge for stays beyond 3 nights.',
-   'housekeeping', 35),
+   'housekeeping', 31),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'cancellation',
    'Cancellation Policy',
    '30 or more days before check-in: 90% refund. 15 to 29 days before check-in: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.',
    'cancellation', 40)
-ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body;
+ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body, category = EXCLUDED.category, display_order = EXCLUDED.display_order;
 
 -- ─────────────────────────────────────────────────────────
 -- FAQs
@@ -188,7 +209,11 @@ INSERT INTO nearby_places (property_id, name, category, distance_km, travel_minu
   ('a1b2c3d4-0000-0000-0000-000000000001', 'KSRTC Bus Stand', 'transport', 3.3, 10, NULL, 140, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Pilikula Nisarga Dhama', 'attraction', 14.0, 30, NULL, 150, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Sultan Bathery', 'attraction', 1.7, 5, NULL, 160, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Kudroli Temple', 'temple', 2.9, 8, NULL, 170, TRUE)
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Kudroli Temple', 'temple', 2.9, 8, NULL, 170, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Gokul Kalyana Mantapa', 'function_hall', 0.08, 1, 'Wedding and function hall on Ashok Nagar Road', 1, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Daivajna Kalyana Mantapa', 'function_hall', 0.1, 1, 'Wedding and function hall on Boloor Marigudi Road', 2, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sanghaniketan Hall', 'function_hall', 1.8, 5, 'Large hall on Mannagudda Road, Gandhinagar', 3, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Urwa Marigudi Temple', 'temple', 0.55, 2, 'Shri Mariamma Temple, Urwa Marigudi Road', 45, TRUE)
 ON CONFLICT ON CONSTRAINT uq_nearby_property_name DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────

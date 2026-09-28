@@ -2,16 +2,15 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import Link from 'next/link';
-import { Users, Bed, Bath, Wind, Check, Building, Maximize } from 'lucide-react';
+import { Bed, Bath, Wind, Check, Building, Maximize } from 'lucide-react';
 import { getProperty, getRooms } from '@/lib/data';
-import BookNowLink from '@/components/guest/BookNowLink';
+import CtaButtons from '@/components/guest/CtaButtons';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Bedrooms & Sleeping Arrangements',
   path: '/rooms',
   description:
-    'Four bedrooms and a private lounge at Villa 19, Mangalore, sleeping up to 14 guests. See bed types, floor, size and capacity for each room before you book the whole villa.',
+    'Four bedrooms, a private lounge and 3 bathrooms at Villa 19, Mangalore, comfortably accommodating 8 guests and sleeping up to 14. See bed types, floor, size and capacity for each room before you book the whole villa.',
 });
 
 const BED_TYPE_LABEL: Record<string, string> = {
@@ -51,9 +50,6 @@ export default async function RoomsPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="eyebrow-hero mb-4">
-            Sleeping Arrangements
-          </p>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
@@ -61,13 +57,13 @@ export default async function RoomsPage() {
             Rooms
           </h1>
           <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            {bedroomCount} bedrooms plus a private lounge, ideal for {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Each space thoughtfully appointed for comfort and privacy.
+            {bedroomCount} bedrooms, a private lounge and {property.bathroom_count} bathrooms, comfortably accommodating {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Thoughtfully designed for comfort, privacy and time together.
           </p>
           {/* Stated up front: the shared-bathroom arrangement is something
-              guests would otherwise have to infer room by room. */}
+              guests would otherwise have to infer room by room. The count is
+              in the line above, so this carries only the layout. */}
           <p className="text-sm leading-relaxed mt-4 text-[var(--ink-muted)]">
-            {property.bathroom_count} bathrooms in all: Room 1 has its own attached bathroom, and a
-            common bathroom serves each floor.
+            Room 1 has its own attached bathroom, and a common bathroom serves each floor.
           </p>
         </div>
       </section>
@@ -160,10 +156,13 @@ export default async function RoomsPage() {
                         <span className="font-semibold">Attached Bathroom</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
-                      <Wind className="w-3.5 h-3.5" aria-hidden="true" />
-                      <span>Air-conditioned</span>
-                    </div>
+                    {/* From rooms.has_ac: the Private Lounge is not air-conditioned (00041). */}
+                    {room.has_ac && (
+                      <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
+                        <Wind className="w-3.5 h-3.5" aria-hidden="true" />
+                        <span>Air-conditioned</span>
+                      </div>
+                    )}
                     <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
                       <Check className="w-3.5 h-3.5" aria-hidden="true" />
                       <span>Fresh linens & towels provided</span>
@@ -181,16 +180,12 @@ export default async function RoomsPage() {
           style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
           <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
-            Book the Villa 19
+            Book {property.name}
           </h2>
           <p className="text-white/70 text-sm">
-            Upon booking, Villa 19 will be exclusively and entirely available for you, including all {bedroomCount} bedrooms and the private lounge, for up to {property.max_occupancy} guests.
+            Enjoy the entire villa exclusively for your group, with {bedroomCount} bedrooms, a private lounge and space for up to {property.max_occupancy} guests.
           </p>
-          <BookNowLink
-            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
-          >
-            Check Availability & Rates
-          </BookNowLink>
+          <CtaButtons />
         </section>
 
       </div>

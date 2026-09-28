@@ -95,9 +95,21 @@ export function calculateBookingPrice(
     curr.setUTCDate(curr.getUTCDate() + 1);
   }
 
-  // Extra guests (adults + children above base occupancy) — all in paise
+  // Extra guests (adults + children above base occupancy), all in paise.
+  // Two tiers: guests from extra_guest_tier2_from onwards pay extra_guest_tier2_rate,
+  // the ones before that pay extra_guest_rate. For Villa 19 (00039): 8 included,
+  // guests 9-11 at Rs 1,000 and 12-14 at Rs 700, per guest per night. Without a
+  // second tier configured, every extra guest pays extra_guest_rate.
   const extraGuestsCount = Math.max(0, totalGuests - property.base_occupancy);
-  const extraGuestAmountPaise = extraGuestsCount * toInt(property.extra_guest_rate) * numNights;
+  const tier2From = property.extra_guest_tier2_from;
+  const tier2Count = tier2From != null && property.extra_guest_tier2_rate != null
+    ? Math.min(extraGuestsCount, Math.max(0, totalGuests - tier2From + 1))
+    : 0;
+  const tier1Count = extraGuestsCount - tier2Count;
+  const extraPerNightPaise =
+    tier1Count * toInt(property.extra_guest_rate) +
+    tier2Count * toInt(property.extra_guest_tier2_rate ?? 0);
+  const extraGuestAmountPaise = extraPerNightPaise * numNights;
 
   const subtotalPaise = baseAmountPaise + extraGuestAmountPaise;
 

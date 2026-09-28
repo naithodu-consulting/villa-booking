@@ -6,6 +6,9 @@ import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 export interface Announcement {
   id: string;
   text: string;
+  /** Shown instead of text below the sm breakpoint, where the full line is
+   *  truncated and the useful part (a phone number, the code) gets cut off. */
+  shortText?: string;
   /** If provided, renders a copy-able code badge */
   code?: string;
   /** Optional link */
@@ -70,7 +73,14 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
 
       {/* Message — single line on mobile, truncated */}
       <span className="flex items-center gap-2 min-w-0 justify-center">
-        <span className="truncate">{current.text}</span>
+        {current.shortText ? (
+          <>
+            <span className="truncate sm:hidden">{current.shortText}</span>
+            <span className="truncate hidden sm:inline">{current.text}</span>
+          </>
+        ) : (
+          <span className="truncate">{current.text}</span>
+        )}
 
         {current.code && (
           <button

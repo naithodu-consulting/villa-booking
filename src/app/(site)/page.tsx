@@ -1,8 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { pageMetadata, lodgingJsonLd } from '@/lib/seo';
+import { pageMetadata, lodgingJsonLd, faqJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import Link from 'next/link';
 import Image from 'next/image';
 import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
@@ -12,8 +11,9 @@ import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQ
 import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 import { renderBoldText } from '@/lib/bold';
+import { villaRules } from '@/lib/villa-rules';
 import {
-  ShieldCheck, MapPin, Users, Wifi, Bed, Home,
+  ShieldCheck, MapPin, Users, Wifi, Bed,
   Car, Sofa, Trees, BedSingle,
   Sparkles, Phone,
   Clock, ChevronDown, ArrowRight,
@@ -56,7 +56,9 @@ export default async function LandingPage() {
   // The Location card's four tiles. See closestByCategory: nearest-first, one
   // per category, so the airport (22 min) and a beach (15) no longer sit beside
   // a bus stand 100 m away.
-  const locationHighlights = closestByCategory(nearby, 4);
+  // Function halls are left out: they are listed on The Villa page for wedding
+  // guests, and a hall 80 m away would otherwise take a tile here.
+  const locationHighlights = closestByCategory(nearby.filter((p) => p.category !== 'function_hall'), 4);
 
   // Group amenities by category (preserving display_order within each group)
   const amenityGroups = amenities.reduce<Record<string, string[]>>((acc, a) => {
@@ -81,7 +83,10 @@ export default async function LandingPage() {
   // ~128px of dead space between the last card and the footer.
   return (
     <div style={{ color: 'var(--ink)' }}>
-      <JsonLd data={lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })} />
+      <JsonLd data={[
+        lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number }),
+        ...(faqs.length ? [faqJsonLd(faqs)] : []),
+      ]} />
 
       {/* ── Hero ──────────────────────────────────────── */}
       <section id="overview" className="pt-6 sm:pt-8">
@@ -98,11 +103,30 @@ export default async function LandingPage() {
               >
                 <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Property Booking
               </div>
+              {/* Lockup: the heading is exactly as wide as the name, and the
+                  signature is right-aligned under it, the way the logo pairs
+                  them. Width-relative, not pixel offsets, so it holds at any
+                  viewport, zoom level or property name. */}
               <h1
-                className="text-4xl sm:text-6xl lg:text-6xl leading-tight mb-1.5 sm:mb-2"
+                className="flex flex-col items-end w-fit text-4xl sm:text-6xl leading-tight mb-4"
                 style={{ fontFamily: 'var(--font-brand)', fontWeight: 700, letterSpacing: '0.02em', color: 'var(--maroon)', textTransform: 'uppercase' }}
               >
-                {property.name}
+                <span className="self-stretch">{property.name}</span>
+                {/* The logo's own "by Habbaa" signature, cut from the traced mark
+                    so it matches exactly. About half the cap height, so it reads
+                    as a signature rather than a second headline. The negative
+                    margin tucks it into the empty space below the capitals (they
+                    have no descenders). Alt text completes the heading for screen
+                    readers and search: "Villa 19 by Habbaa". */}
+                <Image
+                  src="/by-habbaa.svg"
+                  alt=" by Habbaa"
+                  width={99}
+                  height={34}
+                  priority
+                  className="block h-[22px] sm:h-[34px] w-auto"
+                  style={{ marginTop: '-0.12em' }}
+                />
               </h1>
               <p className="text-sm flex items-center gap-1.5" style={{ color: 'var(--ink-muted)' }}>
                 <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
@@ -427,20 +451,15 @@ export default async function LandingPage() {
                   <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" aria-hidden="true" />
                 </summary>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm lg:text-[15px] pt-3 text-left">
-                  {[
-                    'Government photo ID is mandatory at check-in for all guests',
-                    'No smoking indoors. Designated outdoor area available.',
-                    'Pets are not entertained',
-                    'Outside guests are not allowed',
-                    'Events and celebrations require advance notice',
-                  ].map((rule) => (
+                  {/* Quiet hours is already a tile above. */}
+                  {villaRules(property).filter((r) => !r.title.startsWith('Quiet hours')).map((rule) => (
                     <div
-                      key={rule}
+                      key={rule.title}
                       className="flex items-start gap-2.5 p-2.5 rounded-xl"
                       style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
                     >
                       <span className="w-2 h-2 rounded-full flex-shrink-0 mt-1.5" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-                      <span>{rule}</span>
+                      <span><strong style={{ color: 'var(--ink)' }}>{rule.title}:</strong> {rule.body}</span>
                     </div>
                   ))}
                 </div>
@@ -448,14 +467,14 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* FAQ from DB */}
+          {/* FAQ from DB. The full list lives here: the Stay Guide no longer repeats it. */}
           <div id="faq" className="scroll-mt-24 space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Frequently Asked Questions</h2>
             </div>
             <div className="space-y-2">
-              {faqs.slice(0, 4).map((faq) => (
+              {faqs.map((faq) => (
                 <details
                   key={faq.id}
                   className="rounded-2xl shadow-sm group"
@@ -477,20 +496,6 @@ export default async function LandingPage() {
                 </details>
               ))}
             </div>
-            {faqs.length > 4 && (
-              <Link
-                href="/stay-guide#faq"
-                className="flex items-center justify-center gap-2 p-4 rounded-2xl text-sm font-bold transition-colors"
-                style={{
-                  color: 'var(--maroon)',
-                  backgroundColor: 'var(--surface)',
-                  border: '1px solid var(--border-medium)',
-                }}
-              >
-                See all {faqs.length} questions
-                <ArrowRight className="w-4 h-4" aria-hidden="true" />
-              </Link>
-            )}
           </div>
 
           {/* Contact strip */}
@@ -499,7 +504,7 @@ export default async function LandingPage() {
             style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
           >
             <div>
-              <p className="text-base font-bold">Have a question before booking?</p>
+              <p className="text-base font-bold">Planning Your Stay?</p>
               <p className="text-base mt-0.5" style={{ color: 'var(--ink-muted)' }}>We usually reply on WhatsApp within an hour during the day.</p>
             </div>
             <div className="flex items-center gap-3">

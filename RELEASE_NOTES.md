@@ -4,6 +4,82 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.4 — GST invoices, tiered pricing, villa rules, gallery, content — 2026-09-28
+
+### GST invoices
+
+- **Tax invoice PDF attached to every confirmation email** (`src/lib/invoice.ts`, pdf-lib):
+  supplier with GSTIN and CIN, invoice number and date, booking number, place of supply
+  Karnataka (29), SAC 996311, taxable value, CGST 9% + SGST 9% (always intra-state:
+  accommodation is taxed where the property is), total in figures and words. Amounts come from
+  the booking row, never a recalculation. If rendering fails the confirmation still sends.
+- **Invoice numbers `V19/26-27/INV/000001`** (migration 00038), Ooruda's
+  `{INITIALS}/{FY}/{TYPE}/{NNNNNN}` shape. A per-property, per-FY counter restarts each 1 April
+  (IST) and is allocated by a trigger in the same transaction that confirms and pays the
+  booking, so the series is gapless and every confirmation path (site, webhook, Ooruda) gets
+  one. Bookings confirmed before this release are not backfilled.
+- **Company invoices at checkout:** optional company name + GSTIN, validated in the browser and
+  on the server and enforced by constraints (a GSTIN needs a company name).
+- Both confirmation paths now share `notifyConfirmedBooking`. The confirmation email reads
+  check-in/check-out times from the database (it hardcoded 2:00 PM / 11:00 AM) and all emails
+  use the brand palette.
+
+### Pricing
+
+- **Tiered extra-guest pricing** (migration 00039): base rate covers 8 guests; guests 9-11 pay
+  ₹1,000 and 12-14 pay ₹700 each per night, stepwise (12 guests = ₹3,700 a night extra). Was 12
+  included at ₹1,000 each above. New `extra_guest_tier2_from` / `extra_guest_tier2_rate`
+  columns; both null means one flat rate. The widget explains the tiers. Tests cover every
+  group size and that a bigger group never costs less. `docs/OORUDA_VILLA_INTEGRATION.md` has
+  the new formula (and the cap corrected from 15 to 14).
+
+### Villa rules and content
+
+- **Eight villa rules** (migration 00040), one shared list for the home page and Stay Guide
+  (`src/lib/villa-rules.ts`); Terms reworded to match. "No parties" drops "events".
+- **Private Lounge is not air-conditioned** (migration 00041); the Rooms badge reads `has_ac`.
+- **Function halls and Urwa Marigudi Temple** under Location & Nearby (migration 00044), halls
+  listed first, distances measured with Google Maps driving directions. Halls stay off the home
+  page Location card.
+- Rooms intro and booking panel rewritten; Rooms eyebrow and Gallery eyebrow removed; the
+  Villa page title is "The Villa" and loses Amenities, Villa Rules, Good to Know and the hero
+  button; FAQs live only on the home page (the Stay Guide copy is gone, JSON-LD moved).
+- Footer: "Managed by" above the company; tagline removed. Company details moved to
+  `src/lib/entity.ts`, shared with the invoice.
+- Home page title adds the logo's own "by Habbaa" signature, right-aligned under the name.
+- Announcement bar: reservations contact and the VILLA19 offer, with short phone versions so
+  the useful part is not truncated.
+- Journal copy corrected for the new pricing and 10 PM quiet hours.
+
+### Gallery
+
+- **Seven sections** (migration 00042): The Villa, Living & Dining, Bedrooms, Bathrooms,
+  Outdoor Spaces, Parking, Around Villa 19; one list (`src/lib/gallery.ts`) for the page and
+  the photo viewer. Alt text no longer claims an ensuite for Room 2, twin beds or cuisine.
+- **Placeholder photos** for Bathrooms, Parking and Around Villa 19 (migration 00043). Every
+  gallery image is still Unsplash stock; replace with real photographs before launch.
+
+### UI
+
+- One `CtaButtons` pair (brass Check Availability + frosted secondary) on every dark booking
+  panel.
+- **Events page hidden** behind `EVENTS_PAGE_ENABLED` (`src/lib/features.ts`): off the nav,
+  footer and sitemap, and the route 404s.
+
+### Known issues
+
+- The VILLA19 code is advertised but checkout has no code field yet (TODO item 1).
+- `/opengraph-image` still fails under `next dev`; verify on a production build.
+
+### Deploy notes
+
+- Migrations 00036-00044 are applied to staging. Apply them to production before deploying
+  this code once production exists.
+- Ooruda Villa must price staff-entered bookings with the new tiered formula.
+- Redeploy so statically rendered pages pick up the new content.
+
+---
+
 ## v0.9.3 — Booking confirmation page, security deposit wording — 2026-09-28
 
 ### Booking confirmation page

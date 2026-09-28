@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { createServiceClient } from '@/lib/supabase/server';
 import { hexSignatureMatches } from '@/lib/signature';
-import { sendBookingConfirmation, sendAdminNewBookingNotification } from '@/lib/email';
-import { SITE_URL } from '@/lib/seo';
-import { idShareWhatsAppUrl } from '@/lib/whatsapp';
+import { notifyConfirmedBooking } from '@/lib/booking-notify';
 
 export async function POST(request: NextRequest) {
   try {
@@ -76,7 +74,7 @@ export async function POST(request: NextRequest) {
         .from('bookings')
         .update({ status: 'confirmed', payment_status: 'paid', hold_expires_at: null })
         .eq('id', payment.booking_id)
-        .select('property_id, reference_number, booking_code, access_token, guest_name, guest_email, guest_phone, check_in, check_out, num_adults, num_children, total_amount')
+        .select('property_id, reference_number, booking_code, check_in, check_out')
         .single();
 
       if (booking) {
@@ -100,35 +98,7 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        const fmt = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-        const emailParams = {
-          guestEmail: booking.guest_email,
-          guestName: booking.guest_name,
-          bookingRef: booking.booking_code ?? booking.reference_number,
-          bookingUrl: `${SITE_URL}/booking/${booking.access_token}`,
-          idShareUrl: process.env.PROPERTY_WHATSAPP && booking.booking_code
-            ? idShareWhatsAppUrl(process.env.PROPERTY_WHATSAPP, booking.booking_code, booking.num_adults ?? 1)
-            : undefined,
-          propertyName: 'Villa 19 by Habbaa',
-          checkIn: fmt(booking.check_in),
-          checkOut: fmt(booking.check_out),
-          guests: (booking.num_adults ?? 0) + (booking.num_children ?? 0),
-          totalPaise: booking.total_amount,
-        };
-        await Promise.all([
-          sendBookingConfirmation(emailParams),
-          sendAdminNewBookingNotification({
-            bookingRef: booking.booking_code ?? booking.reference_number,
-            guestName: booking.guest_name,
-            guestEmail: booking.guest_email,
-            guestPhone: booking.guest_phone ?? undefined,
-            checkIn: fmt(booking.check_in),
-            checkOut: fmt(booking.check_out),
-            guests: emailParams.guests,
-            totalPaise: booking.total_amount,
-            channel: 'Online (Razorpay)',
-          }),
-        ]);
+        await notifyConfirmedBooking(supabase, payment.booking_id, 'Online (Razorpay)');
       }
     }
 

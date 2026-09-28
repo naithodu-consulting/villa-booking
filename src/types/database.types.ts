@@ -166,13 +166,17 @@ export type Database = {
           deposit_amount: number | null
           expires_at: string | null
           extra_guest_amount: number | null
+          guest_company: string | null
           guest_email: string
+          guest_gstin: string | null
           guest_name: string
           guest_phone: string
           hold_expires_at: string | null
           id: string
           id_status: string
           id_status_updated_at: string | null
+          invoice_date: string | null
+          invoice_number: string | null
           num_adults: number
           num_children: number | null
           num_infants: number | null
@@ -200,13 +204,17 @@ export type Database = {
           deposit_amount?: number | null
           expires_at?: string | null
           extra_guest_amount?: number | null
+          guest_company?: string | null
           guest_email: string
+          guest_gstin?: string | null
           guest_name: string
           guest_phone: string
           hold_expires_at?: string | null
           id?: string
           id_status?: string
           id_status_updated_at?: string | null
+          invoice_date?: string | null
+          invoice_number?: string | null
           num_adults?: number
           num_children?: number | null
           num_infants?: number | null
@@ -234,13 +242,17 @@ export type Database = {
           deposit_amount?: number | null
           expires_at?: string | null
           extra_guest_amount?: number | null
+          guest_company?: string | null
           guest_email?: string
+          guest_gstin?: string | null
           guest_name?: string
           guest_phone?: string
           hold_expires_at?: string | null
           id?: string
           id_status?: string
           id_status_updated_at?: string | null
+          invoice_date?: string | null
+          invoice_number?: string | null
           num_adults?: number
           num_children?: number | null
           num_infants?: number | null
@@ -512,6 +524,32 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "faqs_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_sequences: {
+        Row: {
+          financial_year: number
+          next_val: number
+          property_id: string
+        }
+        Insert: {
+          financial_year: number
+          next_val: number
+          property_id: string
+        }
+        Update: {
+          financial_year?: number
+          next_val?: number
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_sequences_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
@@ -902,6 +940,8 @@ export type Database = {
           description: string
           descriptor: string | null
           extra_guest_rate: number
+          extra_guest_tier2_from: number | null
+          extra_guest_tier2_rate: number | null
           geo_lat: number | null
           geo_lng: number | null
           google_place_id: string | null
@@ -936,6 +976,8 @@ export type Database = {
           description: string
           descriptor?: string | null
           extra_guest_rate?: number
+          extra_guest_tier2_from?: number | null
+          extra_guest_tier2_rate?: number | null
           geo_lat?: number | null
           geo_lng?: number | null
           google_place_id?: string | null
@@ -970,6 +1012,8 @@ export type Database = {
           description?: string
           descriptor?: string | null
           extra_guest_rate?: number
+          extra_guest_tier2_from?: number | null
+          extra_guest_tier2_rate?: number | null
           geo_lat?: number | null
           geo_lng?: number | null
           google_place_id?: string | null
@@ -1264,6 +1308,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      allocate_invoice_number: {
+        Args: { p_date: string; p_property_id: string }
+        Returns: string
+      }
       check_availability: {
         Args: { p_check_in: string; p_check_out: string; p_property_id: string }
         Returns: string

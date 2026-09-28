@@ -84,12 +84,13 @@ export default async function TermsPage() {
 
           <Section title="4. Guest conduct and property rules">
             <ul className="list-disc list-inside space-y-1">
+              <li>Only registered guests may stay. Government photo ID is required at check-in for every guest, and unregistered visitors are not permitted on the premises.</li>
               <li>Maximum occupancy: {maxGuests} guests. Exceeding this limit is not permitted.</li>
-              <li>No smoking inside the villa. Designated outdoor smoking areas are available.</li>
-              <li>Pets are not entertained at the villa.</li>
-              <li>Events or parties beyond the booked guest count require prior approval and may incur additional fees.</li>
-              <li>Guests are responsible for any damage to the property beyond normal wear and tear.</li>
-              <li>Noise must be kept at reasonable levels. Quiet hours are 10:00 PM to 7:00 AM.</li>
+              <li>Parties, loud gatherings and commercial activities are not permitted.</li>
+              <li>Quiet hours are 10:00 PM to 7:00 AM. Please keep noise to a minimum and respect the neighbourhood.</li>
+              <li>Smoking is prohibited inside the villa. Cleaning and restoration charges apply for violations.</li>
+              <li>Pets are not permitted anywhere on the property.</li>
+              <li>Guests are responsible for the villa, its furnishings and amenities during their stay, and for any damage beyond normal wear and tear.</li>
               <li>Illegal activities on the premises are strictly prohibited and will result in immediate eviction without refund.</li>
             </ul>
           </Section>

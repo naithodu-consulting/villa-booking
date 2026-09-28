@@ -4,22 +4,21 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { PropertyImage } from '@/types';
 import { X, ChevronLeft, ChevronRight, Grid } from 'lucide-react';
+import { GALLERY_SECTIONS, galleryLabel } from '@/lib/gallery';
 
 interface GalleryProps {
   images: PropertyImage[];
 }
 
-const VALID_CATEGORIES = ['all', 'hero', 'bedroom', 'living', 'dining', 'exterior'] as const;
 
 export default function GalleryModal({ images }: GalleryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
-  // Derive categories from actual image data — never hardcode (L-02 fix)
-  const categories: string[] = ['all', ...Array.from(
-    new Set(images.map((img) => img.category).filter((c) => VALID_CATEGORIES.includes(c as typeof VALID_CATEGORIES[number])))
-  )];
+  // Only sections that have photos, in the gallery page's order.
+  const present = new Set(images.map((img) => img.category));
+  const categories: string[] = ['all', ...GALLERY_SECTIONS.map((s) => s.key).filter((k) => present.has(k))];
 
   const filteredImages = activeCategory === 'all'
     ? images
@@ -129,14 +128,14 @@ export default function GalleryModal({ images }: GalleryProps) {
                 <button
                   key={cat}
                   onClick={() => { setActiveCategory(cat); setCurrentIndex(0); }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all whitespace-nowrap ${
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                     activeCategory === cat
                       ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
                       : 'bg-white/10 text-white/80 hover:bg-white/20'
                   }`}
                   aria-pressed={activeCategory === cat}
                 >
-                  {cat}
+                  {cat === 'all' ? 'All' : galleryLabel(cat)}
                 </button>
               ))}
             </div>

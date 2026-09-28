@@ -3,6 +3,7 @@ import Razorpay from 'razorpay';
 import { calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, PricingRule } from '@/types';
+import { GSTIN_RE } from '@/lib/gstin';
 
 // Deferred so build-time static analysis doesn't throw when env vars are absent
 function getRazorpay() {
@@ -21,6 +22,7 @@ export async function POST(request: NextRequest) {
     const {
       propertyId, checkIn, checkOut, adults, children,
       guestName, guestEmail, guestPhone, specialRequests,
+      guestCompany, guestGstin,
     } = body;
 
     // Input validation
@@ -32,6 +34,12 @@ export async function POST(request: NextRequest) {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
+    }
+    // Optional business details for the GST invoice: both or neither.
+    const company = typeof guestCompany === 'string' ? guestCompany.trim().slice(0, 120) : '';
+    const gstin = typeof guestGstin === 'string' ? guestGstin.trim().toUpperCase() : '';
+    if ((company || gstin) && !(company && GSTIN_RE.test(gstin))) {
+      return NextResponse.json({ error: 'For a company invoice, enter the company name and a valid 15-character GSTIN.' }, { status: 400 });
     }
 
     // Fetch property + active pricing rules from DB — never trust client amounts
@@ -98,6 +106,14 @@ export async function POST(request: NextRequest) {
     const row = (data as { reference_number: string; booking_id: string }[])[0];
     const bookingReference = row.reference_number;
     const bookingId = row.booking_id;
+
+    if (company) {
+      const { error: gstError } = await supabase
+        .from('bookings')
+        .update({ guest_company: company, guest_gstin: gstin })
+        .eq('id', bookingId);
+      if (gstError) console.error(`[create-order] Could not save GST details for ${bookingReference}:`, gstError.message);
+    }
 
     // Create Razorpay order — amount is already in paise (integer). If this
     // fails, release the hold at once rather than blocking the dates for 15 min.

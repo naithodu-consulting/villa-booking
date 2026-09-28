@@ -267,9 +267,11 @@ booking passes the one-week mark.
 |---|---|
 | `base_nightly_rate` | Sunday to Thursday nights, paise |
 | `weekend_nightly_rate` | **Friday and Saturday nights**, paise |
-| `extra_guest_rate` | Per guest, per night, above `base_occupancy`, paise. Currently **100000** (₹1,000). |
-| `base_occupancy` | Guests included in the nightly rate (children count; infants do not). Currently **12**, and the number the site advertises ("up to 12 guests"). |
-| `max_occupancy` | Hard cap. The guest site refuses anything above it. Currently **15** (12 included + 3 extra). |
+| `base_occupancy` | Guests included in the nightly rate (children count; infants do not). Currently **8**. |
+| `extra_guest_rate` | Per guest, per night, for guests above `base_occupancy` up to the second tier, paise. Currently **100000** (₹1,000, guests 9-11). |
+| `extra_guest_tier2_from` | First guest (by count) charged the second-tier rate instead. Currently **12**. `NULL` means one flat `extra_guest_rate` for every extra guest. |
+| `extra_guest_tier2_rate` | Per guest, per night, from `extra_guest_tier2_from` onwards, paise. Currently **70000** (₹700, guests 12-14). Set both tier columns or neither. |
+| `max_occupancy` | Hard cap. The guest site refuses anything above it. Currently **14**. |
 
 Changes apply to **new** bookings at once. Existing bookings keep their stored amounts.
 
@@ -307,7 +309,11 @@ booking for the same stay cost the same:
 
 1. For each night in `[check_in, check_out)`: the `pricing_rules.nightly_rate` covering it, else
    `weekend_nightly_rate` for Friday/Saturday, else `base_nightly_rate`. Sum = `base_amount`.
-2. `extra_guest_amount = max(0, adults + children - base_occupancy) × extra_guest_rate × nights`.
+2. Extra guests, stepwise (guests = adults + children):
+   - `extra = max(0, guests - base_occupancy)`
+   - `tier2 = min(extra, max(0, guests - extra_guest_tier2_from + 1))` (0 if the tier columns are `NULL`)
+   - `extra_guest_amount = ((extra - tier2) × extra_guest_rate + tier2 × extra_guest_tier2_rate) × nights`
+   - Example, 12 guests for 1 night: 3 × ₹1,000 + 1 × ₹700 = ₹3,700.
 3. `tax_amount = round((base_amount + extra_guest_amount) × 18 / 100)` (GST at 18%).
 4. `total_amount = base_amount + extra_guest_amount + tax_amount`.
 

@@ -1,10 +1,9 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
-import Link from 'next/link';
 import { Star } from 'lucide-react';
 import { getProperty } from '@/lib/data';
-import BookNowLink from '@/components/guest/BookNowLink';
+import CtaButtons from '@/components/guest/CtaButtons';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -125,11 +124,7 @@ export default async function ReviewsPage() {
             Be among our first guests
           </h2>
           <p className="text-white/70 text-sm">Book now and help us build our review history.</p>
-          <BookNowLink
-            className="btn-brass-filled inline-block px-8 py-3.5 rounded-xl mt-2"
-          >
-            Check Availability
-          </BookNowLink>
+          <CtaButtons />
         </div>
 
       </div>
