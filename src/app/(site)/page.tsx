@@ -8,7 +8,7 @@ import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
 import AmenitiesSection from '@/components/guest/AmenitiesSection';
 import RoomShelf from '@/components/guest/RoomShelf';
-import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, nearestPlace, formatDistance } from '@/lib/data';
+import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, closestByCategory, formatDistance } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 import { renderBoldText } from '@/lib/bold';
@@ -53,10 +53,10 @@ export default async function LandingPage() {
     getFAQs(property.id),
     getNearbyPlaces(property.id),
   ]);
-  const beachDistance = formatDistance(nearestPlace(nearby, 'beach'));
-  const airportDistance = formatDistance(nearby.find((p) => /airport/i.test(p.name)));
-  const mainRoadDistance = formatDistance(nearby.find((p) => /main road/i.test(p.name)));
-  const superMarketDistance = formatDistance(nearby.find((p) => /super market/i.test(p.name)));
+  // The Location card's four tiles. See closestByCategory: nearest-first, one
+  // per category, so the airport (22 min) and a beach (15) no longer sit beside
+  // a bus stand 100 m away.
+  const locationHighlights = closestByCategory(nearby, 4);
 
   // Group amenities by category (preserving display_order within each group)
   const amenityGroups = amenities.reduce<Record<string, string[]>>((acc, a) => {
@@ -274,15 +274,10 @@ export default async function LandingPage() {
                   has to be truncated to fit beside its distance. */}
               <div className="grid grid-cols-2 gap-2 text-sm lg:text-[15px]">
                 {/* Walking distances lead: 100 m to the main road is the most
-                    persuasive thing about the location, and both were hardcoded
+                    persuasive thing about the location, and these were hardcoded
                     guesses ("Walking distance", "City Centre 3.7 km") until the
                     operator supplied the real figures. Now read from the DB. */}
-                {([
-                  ['Main Road & Bus Stand', mainRoadDistance],
-                  ['Super Market', superMarketDistance],
-                  ['Mangalore Airport', airportDistance],
-                  ['Nearest Beach', beachDistance],
-                ] as [string, string | undefined][]).filter(([, time]) => time).map(([place, time]) => (
+                {locationHighlights.map((p) => [p.name, formatDistance(p)] as const).map(([place, time]) => (
                   <div
                     key={place}
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 p-2.5 rounded-xl"
@@ -406,7 +401,7 @@ export default async function LandingPage() {
                   ['Check-in',    `From ${formatTime12(property.check_in_time)}`],
                   ['Check-out',   `By ${formatTime12(property.check_out_time)}`],
                   ['Quiet hours', '10 PM to 7 AM'],
-                  ['Ideal For',  `8-${property.max_occupancy} Guests`],
+                  ['Ideal For',  `${property.ideal_occupancy}-${property.max_occupancy} Guests`],
                 ].map(([label, value]) => (
                   <div
                     key={label}

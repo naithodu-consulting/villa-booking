@@ -9,9 +9,11 @@ import { useNightCalendar } from '@/components/guest/useNightCalendar';
 
 interface Props {
   maxOccupancy: number;
+  /** Starting guest count - the villa's ideal party size. */
+  idealOccupancy: number;
   /** When given, booked and blocked nights are struck out and cannot be chosen. */
   propertyId?: string;
-  /** Receives the query string for /book, e.g. "checkIn=…&checkOut=…&adults=2&children=0". */
+  /** Receives the query string for /book, e.g. "checkIn=…&checkOut=…&adults=8&children=0". */
   onContinue: (query: string) => void;
 }
 
@@ -22,11 +24,11 @@ interface Props {
  * Dates are calendar dates at the property (see todayISO): using the UTC day
  * here would offer a check-in that has already passed between 00:00 and 05:30 IST.
  */
-export default function DateSelectForm({ maxOccupancy, propertyId, onContinue }: Props) {
+export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyId, onContinue }: Props) {
   const todayStr = todayISO();
   const [checkIn, setCheckIn] = useState(todayStr);
   const [checkOut, setCheckOut] = useState(addDaysISO(todayStr, 1));
-  const [adults, setAdults] = useState(Math.min(8, maxOccupancy));
+  const [adults, setAdults] = useState(Math.min(idealOccupancy, maxOccupancy));
   const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(propertyId);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out

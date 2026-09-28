@@ -68,20 +68,19 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
   return (
     <>
       <header
-        className="sticky top-0 z-40 px-6 sm:px-8 lg:px-12"
+        className="sticky top-0 z-40 px-6 sm:px-8 lg:px-12 h-[72px]"
         style={{
           backgroundColor: 'var(--maroon-deep)',
           borderBottom: '1px solid rgba(168,116,50,0.28)',
           boxShadow: scrolled ? '0 2px 20px rgba(0,0,0,0.22)' : 'none',
           transition: 'box-shadow 0.2s ease',
-          height: '72px',
         }}
       >
         {/* ── Desktop: 3-column grid — nav | logo | actions ── */}
         <div className="hidden md:grid h-full" style={{ gridTemplateColumns: '1fr auto 1fr' }}>
 
           {/* Left — nav links */}
-          <nav className="flex items-center gap-1 h-full -ml-3.5" aria-label="Main navigation">
+          <nav className="flex items-center gap-1 h-full -ml-2.5 lg:-ml-3.5" aria-label="Main navigation">
             {NAV_LINKS.map(({ href, label }) => (
               <NavLink key={href} href={href} label={label} />
             ))}
@@ -90,32 +89,16 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
           {/* Center — logo */}
           <Link
             href="/"
-            className="flex items-center gap-2.5 self-center"
+            className="flex items-center self-center"
             aria-label={`${propertyName} home`}
           >
             <Image
-              src="/habbaa-logo-white.svg"
-              alt="Habbaa"
-              width={48}
-              height={48}
-              className="rounded-full"
-              style={{ border: '1px solid rgba(201,148,74,0.35)' }}
+              src="/villa19-wordmark-knockout.svg"
+              alt={propertyName}
+              width={125}
+              height={28}
               priority
             />
-            <div className="flex flex-col leading-none gap-[3px]">
-              <span
-                className="text-[22px] text-white leading-none"
-                style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
-              >
-                {propertyName}
-              </span>
-              <span
-                className="text-[9px] font-bold uppercase leading-none"
-                style={{ color: 'var(--brass-light)', letterSpacing: '0.18em' }}
-              >
-                By Habbaa
-              </span>
-            </div>
           </Link>
 
           {/* Right — actions */}
@@ -162,30 +145,14 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
           </button>
 
           {/* Center — logo */}
-          <Link href="/" className="flex items-center gap-2" aria-label={`${propertyName} home`}>
+          <Link href="/" className="flex items-center" aria-label={`${propertyName} home`}>
             <Image
-              src="/habbaa-logo-white.svg"
-              alt="Habbaa"
-              width={48}
-              height={48}
-              className="rounded-full"
-              style={{ border: '1px solid rgba(201,148,74,0.35)' }}
+              src="/villa19-wordmark-knockout.svg"
+              alt={propertyName}
+              width={107}
+              height={24}
               priority
             />
-            <div className="flex flex-col leading-none gap-[2px]">
-              <span
-                className="text-[20px] text-white leading-none"
-                style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
-              >
-                {propertyName}
-              </span>
-              <span
-                className="text-[10px] font-bold uppercase leading-none"
-                style={{ color: 'var(--brass-light)', letterSpacing: '0.16em' }}
-              >
-                By Habbaa
-              </span>
-            </div>
           </Link>
 
           {/* Right — spacer to keep logo centered */}
@@ -218,29 +185,13 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
               className="flex items-center justify-between px-5 py-4 shrink-0"
               style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(168,116,50,0.28)' }}
             >
-              <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2.5">
+              <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center">
                 <Image
-                  src="/habbaa-logo-white.svg"
-                  alt="Habbaa"
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                  style={{ border: '1px solid rgba(201,148,74,0.35)' }}
+                  src="/villa19-wordmark-knockout.svg"
+                  alt={propertyName}
+                  width={89}
+                  height={20}
                 />
-                <div className="flex flex-col leading-none gap-[3px]">
-                  <span
-                    className="text-[17px] text-white leading-none"
-                    style={{ fontFamily: 'var(--font-brand)', fontWeight: 600, letterSpacing: '0.03em' }}
-                  >
-                    {propertyName}
-                  </span>
-                  <span
-                    className="text-[8px] font-bold uppercase leading-none"
-                    style={{ color: 'var(--brass-light)', letterSpacing: '0.18em' }}
-                  >
-                    By Habbaa
-                  </span>
-                </div>
               </Link>
               <button
                 onClick={() => setMenuOpen(false)}
@@ -323,7 +274,7 @@ function NavLink({ href, label }: { href: string; label: string }) {
     <NavLinkBase
       href={href}
       aria-current={isActive ? 'page' : undefined}
-      className="flex items-center text-[20px] font-semibold mx-3.5 pt-px h-full transition-colors duration-150"
+      className="flex items-center whitespace-nowrap text-[17px] mx-2.5 lg:text-[20px] lg:mx-3.5 font-semibold pt-px h-full transition-colors duration-150"
       style={{
         color: isActive ? '#fff' : idle,
         fontFamily: 'var(--font-display)',

@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
-import Image from 'next/image';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
 import BookNowLink from '@/components/guest/BookNowLink';
 
@@ -52,22 +51,6 @@ export default function AboutPage() {
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          {/* The badge carries its own maroon disc and "by Habbaa" signature,
-              so it needs no circular wrapper: one sat inside the other before. */}
-          <div className="flex justify-center mb-6">
-            <Image
-              src="/villa19-badge.png"
-              alt="Villa 19 by Habbaa"
-              width={480}
-              height={422}
-              /* Sized inline rather than with an arbitrary Tailwind class: if the
-                 JIT misses `w-[…]`, the image falls back to its 480px intrinsic
-                 width and swamps the 60px title. Kept well under the title so the
-                 mark stays a supporting element. */
-              style={{ width: 'clamp(88px, 10vw, 116px)', height: 'auto' }}
-              priority
-            />
-          </div>
           <h1
             className="text-5xl sm:text-6xl font-bold mb-5"
             style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}

@@ -9,14 +9,18 @@
   --cream:        #FFFCF0;      /* warm attention ground: announcement bar, inputs */
   --surface:      #FFFFFF;
 
-  /* Brand */
-  --maroon:       #5A2626;
-  --maroon-deep:  #3C1717;
-  --maroon-tint:  rgba(90, 38, 38, 0.06);
+  /* Brand — the operator's official palette, taken from the Villa 19 logo.
+     Was #5A2626 (hue 0, brick) against the logo's #5C1732 (hue 337, wine): 22
+     degrees apart, which is close enough to read as a mistake rather than a
+     pair. The logo is the fixed brand anchor, so the palette moved to it.
+     Every contrast pair improved; none regressed. */
+  --maroon:       #5C1732;  /* brand maroon */
+  --maroon-deep:  #3A0E1F;  /* same hue and saturation at 63% value */
+  --maroon-tint:  rgba(92, 23, 50, 0.06);
 
   /* Accent — rules, small caps, active states only */
   --brass:        #A87432;  /* icons, stars, rules, borders. 3.8:1 on paper: NOT for text */
-  --brass-light:  #C9944A;  /* accent text on dark grounds (5.9:1 on --maroon-deep) */
+  --brass-light:  #C9944A;  /* accent text on dark grounds (6.2:1 on --maroon-deep) */
   --brass-ink:    #8A5E22;  /* accent text on light grounds (5.4:1 on --paper) */
 
   /* Ink */

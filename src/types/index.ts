@@ -12,6 +12,9 @@ export interface Property {
   geo_lng: number;
   base_occupancy: number;
   max_occupancy: number;
+  /** Comfort figure for copy and guest-count defaults. Not a pricing or
+   *  enforcement threshold: those are base_occupancy and max_occupancy. */
+  ideal_occupancy: number;
   /** All monetary fields are stored in PAISE (integer). ₹1 = 100 paise. */
   extra_guest_rate: number;
   base_nightly_rate: number;

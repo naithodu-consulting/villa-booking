@@ -9,7 +9,7 @@ INSERT INTO properties (
   id, slug, name, tagline, description,
   address, city, state, pincode,
   geo_lat, geo_lng,
-  base_occupancy, max_occupancy,
+  base_occupancy, max_occupancy, ideal_occupancy,
   extra_guest_rate, base_nightly_rate, weekend_nightly_rate,
   check_in_time, check_out_time,
   is_active
@@ -24,19 +24,19 @@ Tucked away in a peaceful setting yet close to the heart of the city, the villa 
 
 Designed with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.
 
-Comfortably **accommodating up to 14 guests**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore.
+**Ideal for 8 guests** and comfortably **accommodating up to 14**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore.
 
 Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
   'Urwa', 'Mangalore', 'Karnataka', '575006',
   12.895188, 74.830676,
-  12, 14,   -- 12 guests included, up to 2 more
+  12, 14, 8,  -- base 12 included, hard cap 14, ideal party size 8
   100000,   -- ₹1,000/extra guest per night
   1200000,  -- ₹12,000/night base
   1400000,  -- ₹14,000/night weekend
   '14:00:00', '11:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
-  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, is_active = EXCLUDED.is_active;
+  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, is_active = EXCLUDED.is_active;
 
 -- ─────────────────────────────────────────────────────────
 -- Rooms (4 bedrooms)

@@ -169,7 +169,7 @@ export default async function TheVillaPage() {
                 className="p-5 rounded-2xl shadow-sm"
                 style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
               >
-                <h3 className="text-xs font-bold uppercase mb-3" style={{ color: 'var(--brass-ink)', letterSpacing: '1.2px' }}>{category}</h3>
+                <h3 className="text-sm font-bold uppercase mb-3" style={{ color: 'var(--brass-ink)', letterSpacing: '1.2px' }}>{category}</h3>
                 <ul className="space-y-2">
                   {items.map((item) => (
                     <li key={item} className="text-sm flex items-center gap-2.5" style={{ color: 'var(--ink-muted)' }}>
@@ -289,7 +289,7 @@ export default async function TheVillaPage() {
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Ready to book your stay?
           </h2>
           <p className="text-white/70 text-sm">Direct booking. No platform fees, instant confirmation.</p>

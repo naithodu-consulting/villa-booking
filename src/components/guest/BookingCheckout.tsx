@@ -51,7 +51,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
 
   const checkIn  = searchParams.get('checkIn')  ?? '';
   const checkOut = searchParams.get('checkOut') ?? '';
-  const adults   = parseInt(searchParams.get('adults')   ?? '8', 10);
+  const adults   = parseInt(searchParams.get('adults')   ?? String(property.ideal_occupancy), 10);
 
   const fmtDate = (iso: string) => {
     if (!iso) return '';
@@ -174,7 +174,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
         >
           <div className="space-y-1.5">
-            <h1 className="text-3xl font-bold" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h1 className="text-3xl font-black" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Choose your dates
             </h1>
             <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
@@ -184,6 +184,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
 
           <DateSelectForm
             maxOccupancy={property.max_occupancy}
+            idealOccupancy={property.ideal_occupancy}
             propertyId={property.id}
             onContinue={(query) => router.push(`/book?${query}`)}
           />
@@ -392,14 +393,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
                 Stay Summary
               </h2>
 
-              <div className="flex items-center gap-3 pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <div className="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden" style={{ backgroundColor: 'var(--maroon)' }}>
-                  <Image src="/habbaa-logo-white.svg" alt="Habbaa" width={48} height={48} className="w-full h-full" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold" style={{ color: 'var(--ink)' }}>{property.name}</p>
-                  <p className="text-xs font-medium tracking-widest uppercase" style={{ color: 'var(--brass-ink)' }}>By Habbaa</p>
-                </div>
+              <div className="pb-3 space-y-1.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                <Image src="/villa19-wordmark.svg" alt={property.name} width={98} height={22} />
+                <p className="text-xs font-medium tracking-widest uppercase" style={{ color: 'var(--brass-ink)' }}>By Habbaa</p>
               </div>
 
               <div className="text-sm space-y-2.5">
@@ -475,11 +471,7 @@ function CheckoutHeader({ property, secured = false }: { property: Property; sec
       style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
     >
       <Link href="/" className="flex items-center gap-3" aria-label="Back to villa">
-        <Image src="/habbaa-logo-white.svg" alt="Habbaa" width={44} height={44} className="rounded-full flex-shrink-0" priority />
-        <div className="hidden sm:flex flex-col leading-tight">
-          <span className="text-base font-bold text-white">{property.name}</span>
-          <span className="text-xs font-medium tracking-widest uppercase mt-0.5" style={{ color: 'var(--brass-light)' }}>By Habbaa</span>
-        </div>
+        <Image src="/villa19-wordmark-knockout.svg" alt={property.name} width={107} height={24} className="flex-shrink-0" priority />
       </Link>
     </header>
   );

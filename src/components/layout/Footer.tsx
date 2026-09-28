@@ -76,27 +76,12 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
               than burying it in the bottom bar. Same pattern here: the company
               details are a column, not fine print. */}
           <div className="flex flex-col items-center lg:items-start gap-5">
-            {/* Logo + wordmark */}
-            <div className="flex items-center gap-3">
-              <Image
-                src="/habbaa-logo-white.svg"
-                alt="Habbaa"
-                width={44}
-                height={44}
-                className="rounded-full flex-shrink-0"
-              />
-              <div className="flex flex-col leading-tight">
-                <span
-                  className="text-lg font-semibold text-white leading-none"
-                  style={{ fontFamily: 'var(--font-brand)', letterSpacing: '0.04em' }}
-                >
-                  {property.name}
-                </span>
-                <span className="text-[10px] font-bold tracking-[0.22em] text-[var(--brass-light)] uppercase mt-1">
-                  By Habbaa
-                </span>
-              </div>
-            </div>
+            <Image
+              src="/villa19-wordmark-knockout.svg"
+              alt={property.name}
+              width={143}
+              height={32}
+            />
 
             {/* Tagline — desktop only to avoid repeating what guest just read */}
             <p className="hidden lg:block text-sm leading-relaxed text-white/75 max-w-[300px]">

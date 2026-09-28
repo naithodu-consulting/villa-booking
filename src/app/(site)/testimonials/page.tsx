@@ -94,7 +94,7 @@ export default async function ReviewsPage() {
         <div className="space-y-4">
           <div className="flex items-center gap-2.5">
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
-            <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Why Book With Confidence
             </h2>
           </div>

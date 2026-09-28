@@ -15,6 +15,7 @@ const VILLA: Property = {
   geo_lat: 12.8,
   geo_lng: 74.8,
   base_occupancy: 8,
+  ideal_occupancy: 8,
   max_occupancy: 14,
   extra_guest_rate: 50000,       // ₹500 in paise
   base_nightly_rate: 1000000,    // ₹10,000 in paise

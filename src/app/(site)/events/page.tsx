@@ -194,7 +194,7 @@ export default async function EventsPage() {
           className="p-8 sm:p-10 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
-          <h2 className="text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
             Planning something special?
           </h2>
           <p className="text-white/70 text-base max-w-sm mx-auto">

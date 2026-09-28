@@ -61,7 +61,7 @@ export default async function RoomsPage() {
             Rooms
           </h1>
           <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            {bedroomCount} bedrooms plus a private lounge, sleeping up to {property.max_occupancy} guests. Each space thoughtfully appointed for comfort and privacy.
+            {bedroomCount} bedrooms plus a private lounge, ideal for {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Each space thoughtfully appointed for comfort and privacy.
           </p>
           {/* Stated up front: the shared-bathroom arrangement is something
               guests would otherwise have to infer room by room. */}

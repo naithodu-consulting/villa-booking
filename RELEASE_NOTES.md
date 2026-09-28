@@ -4,6 +4,52 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.2 — Villa 19 wordmark, brand palette, ideal occupancy — 2026-09-28
+
+### Brand
+
+- **Villa 19 wordmark** replaces the round badge and the typed "Villa 19 / By Habbaa" lockup
+  in the header, mobile drawer, footer, checkout header and journal covers. It is a vector
+  trace of the supplied logo (`public/villa19-wordmark.svg`, maroon, for light grounds;
+  `villa19-wordmark-knockout.svg`, white, for dark grounds), transparent and tightly cropped.
+  The old `villa19-badge.png` and `villa19-wordmark.png` are removed.
+- **Palette moved to the logo's wine** (`--maroon` #5A2626 -> #5C1732, `--maroon-deep`
+  #3C1717 -> #3A0E1F). The brick and the logo sat 22 degrees of hue apart, close enough to read
+  as a mistake. Every contrast pair improved; none regressed.
+- **Header back to a single-line mark** at 72px. The desktop nav tightens at tablet width
+  (768-1023px) so "The Villa" no longer wraps into the logo.
+- **Duplicate names removed:** the About hero no longer repeats the header's wordmark, the
+  journal cover label reads "Journal" under the mark, and the checkout Stay Summary shows the
+  wordmark in place of the typed name.
+- **Share image** uses the wordmark instead of system-font "VILLA 19", on the new palette.
+
+### Content
+
+- **Ideal occupancy** (migration 00035): a new `properties.ideal_occupancy` (8) drives "Ideal for
+  8 guests" copy, the Rooms intro, the "Ideal For" tile and every default guest count (booking
+  dialog, booking widget, create-order fallback). It was a hardcoded 8 in four places. Pricing
+  is unaffected: `base_occupancy` stays 12 and nothing in the pricing engine reads the column.
+- **Location card** picks its four tiles with `closestByCategory`: nearest-first, one per
+  category. The regex-picked set put the airport (22 min) beside a bus stand 100 m away.
+- Section headings on Events, The Villa and Reviews brought onto one size tier.
+
+### Fixes
+
+- **Focus ring left on clicked nav links.** The header and footer persist across routes, so a
+  clicked link kept focus on the new page and showed the ring at the next keypress. Mouse and
+  touch clicks now release focus; keyboard activation keeps it.
+
+### Known issues
+
+- `/opengraph-image` fails in `next dev` ("failed to pipe response") even with no images in
+  it, so this predates the logo work. Verify on a production build.
+
+### Deploy notes
+
+- Apply migration 00035 to remote databases.
+
+---
+
 ## v0.9.1 — Contact details, nearby distances, coordinates, navigation — 2026-09-25
 
 ### Content

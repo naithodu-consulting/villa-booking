@@ -9,8 +9,9 @@ export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
 export default async function Image() {
-  const logo = await readFile(join(process.cwd(), 'public/habbaa-logo-white.svg'));
-  const logoSrc = `data:image/svg+xml;base64,${logo.toString('base64')}`;
+  const svg = async (name: string) =>
+    `data:image/svg+xml;base64,${(await readFile(join(process.cwd(), 'public', name))).toString('base64')}`;
+  const wordmarkSrc = await svg('villa19-wordmark-knockout.svg');
 
   return new ImageResponse(
     (
@@ -22,13 +23,13 @@ export default async function Image() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#3C1717',
+          background: '#3A0E1F',
           color: '#FBF7F1',
-          border: '14px solid #5A2626',
+          border: '14px solid #5C1732',
         }}
       >
-        <img src={logoSrc} width={150} height={150} alt="" style={{ borderRadius: 999 }} />
-        <div style={{ fontSize: 96, letterSpacing: 12, marginTop: 36, fontWeight: 700 }}>VILLA 19</div>
+        {/* The logo's own lettering, not a system font standing in for it */}
+        <img src={wordmarkSrc} width={580} height={130} alt="" />
         <div style={{ fontSize: 26, letterSpacing: 10, color: '#C9944A', marginTop: 8 }}>BY HABBAA</div>
         <div style={{ width: 80, height: 2, background: 'rgba(201,148,74,0.6)', marginTop: 36 }} />
         <div style={{ fontSize: 32, marginTop: 30, color: 'rgba(251,247,241,0.85)' }}>

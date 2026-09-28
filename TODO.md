@@ -124,3 +124,267 @@ left on the old domain because changing them blind would break things:
       the checkout picker inherited it. Fix with an IST-aware helper in
       `src/lib/format.ts` (e.g. `en-CA` formatting with `timeZone:
       'Asia/Kolkata'`) and use it for both `min` and the defaults.
+
+---
+
+# Ooruda Villa integration — work owed by this repo
+
+> Added 2026-09-27 by the Ooruda Villa (PropTech repo, branch `villa-v1.0`) planning session.
+> **None of this was done in that session** — Ooruda-side work and villa-booking-side work are
+> deliberately separate. Each item below is self-contained; pick them up in any order except where
+> a dependency is stated.
+>
+> Context: `docs/OORUDA_VILLA_INTEGRATION.md` is the contract. **Every item here changes it, so
+> update that document in the same commit as the migration.** The Ooruda plan lives at
+> `PropTech/OORUDA_VILLA_PLAN.md`; section numbers below refer to it.
+
+## 1. Discount codes — schema + atomic enforcement (blocks Ooruda M8)
+
+**Why this repo.** Redemption happens at checkout, here. A usage counter read and written outside
+`create_booking_atomic`'s advisory lock is a race: a `max_uses = 1` code hit by concurrent
+checkouts is honoured every time. The counter must be incremented **inside** the lock, in the same
+transaction as the booking insert, or the guardrail is decorative.
+
+**Ownership split.** Ooruda Villa *defines and approves* codes and owns the audit trail. This repo
+*enforces and counts*. Ooruda must never write the counter; this repo must never invent a code.
+
+**Schema.**
+
+```sql
+create table discount_codes (
+  id                 uuid primary key default gen_random_uuid(),
+  property_id        uuid not null references properties(id) on delete cascade,
+  code               text not null,                      -- store uppercase, no spaces
+  discount_type      text not null check (discount_type in ('percent','flat')),
+  discount_value     int  not null check (discount_value > 0),  -- percent 1-100, or paise
+  max_discount_paise bigint,                             -- cap for percent codes
+  valid_from         date not null,
+  valid_to           date not null,                      -- inclusive, on the BOOKING date
+  min_nights         int  not null default 1,
+  min_booking_paise  bigint not null default 0,
+  max_uses           int,                                -- null = unlimited
+  max_uses_per_guest int  not null default 1,            -- keyed on guest_phone
+  uses_count         int  not null default 0,            -- written ONLY inside the lock
+  channels           text[] not null default '{online}', -- never include OTA channels
+  stackable          boolean not null default false,
+  status             text not null default 'active' check (status in ('active','paused','expired')),
+  created_by         text,                               -- Ooruda user id, free text
+  -- Ooruda enforces a 25% ceiling; >25% arrives only after super-admin approval.
+  -- Defence in depth here too:
+  constraint percent_ceiling check (discount_type <> 'percent' or discount_value <= 100),
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now(),
+  constraint valid_code_dates check (valid_to >= valid_from),
+  unique (property_id, code)
+);
+
+create table discount_blackouts (
+  id          uuid primary key default gen_random_uuid(),
+  code_id     uuid not null references discount_codes(id) on delete cascade,
+  start_date  date not null,
+  end_date    date not null,                             -- EXCLUSIVE, like every range here
+  constraint valid_blackout_range check (end_date > start_date)
+);
+
+create table discount_redemptions (
+  id              uuid primary key default gen_random_uuid(),
+  code_id         uuid not null references discount_codes(id) on delete restrict,
+  booking_id      uuid not null references bookings(id) on delete cascade,
+  guest_phone     text,
+  discount_paise  bigint not null,
+  redeemed_at     timestamptz not null default now(),
+  unique (booking_id)                                    -- one code per booking, no stacking
+);
+```
+
+`bookings` gains `discount_code_id uuid references discount_codes(id)` and
+`discount_amount bigint not null default 0`.
+
+**Enforcement, inside `create_booking_atomic`.** Add an optional `p_discount_code text` parameter.
+Adding a parameter creates a **new overload**, and an ambiguous call throws "could not choose best
+candidate function" — so either drop the old signature in the same migration or have every caller
+pass an explicit `null`. Inside the existing `pg_advisory_xact_lock`, after the availability
+checks and before the insert:
+
+1. `select ... from discount_codes where property_id = p_property_id and code = upper(trim(...))
+   and status = 'active' for update` — the row lock is what makes the counter safe.
+2. Reject with a distinct error prefix for each failure so the site can show a useful message:
+   `DISCOUNT_NOT_FOUND`, `DISCOUNT_EXPIRED`, `DISCOUNT_MIN_NIGHTS`, `DISCOUNT_MIN_VALUE`,
+   `DISCOUNT_BLACKOUT`, `DISCOUNT_EXHAUSTED`, `DISCOUNT_GUEST_LIMIT`, `DISCOUNT_CHANNEL`.
+3. Blackout test uses the half-open overlap the rest of the schema uses:
+   `p_check_in < b.end_date and p_check_out > b.start_date`.
+4. Guest limit: count `discount_redemptions` joined to non-cancelled bookings by `guest_phone`.
+5. Compute the discount, apply the cap, then **`uses_count = uses_count + 1`**, insert the booking
+   and the redemption row in the same transaction.
+
+**Order of operations for tax — this is the part that is easy to get wrong.** GST is charged on the
+discounted value. In `src/lib/pricing-engine.ts` the discount is subtracted **after**
+`base_amount + extra_guest_amount` and **before** the 18% is computed:
+
+```
+taxable = base_amount + extra_guest_amount - discount_amount
+tax     = round(taxable * 18 / 100)
+total   = taxable + tax
+```
+
+Never reduce `base_amount` itself — Ooruda's GST invoice shows the discount as its own line and
+needs the gross and the discount separately.
+
+**Release on cancellation.** When a booking is cancelled, decrement `uses_count` and delete the
+redemption row, or a cancelled booking permanently consumes a limited code. Do it in the same
+statement that sets `status = 'cancelled'`, or in a trigger — not in application code.
+
+**Read-back for Ooruda.** Ooruda polls `discount_redemptions` (joined to `bookings` for the
+`booking_code`) for its usage and revenue-impact reporting. Grant `service_role` select. Ooruda
+has insert/update/delete on `discount_codes` and `discount_blackouts` and **select only** on
+`discount_redemptions` and `discount_codes.uses_count`.
+
+**Contract:** new section 12, plus a rule in the "Do not" list — *never write `uses_count` or
+`discount_redemptions` from Ooruda Villa.*
+
+## 2. Pricing rules — make non-overlap a constraint, not a convention
+
+Contract §6.2 says rules must not overlap, and explains the consequence when they do: checkout and
+the homepage widget can pick different rules, so **the guest is shown one price and charged
+another**. It is enforced by nobody. Make the database enforce it:
+
+```sql
+create extension if not exists btree_gist;
+
+alter table pricing_rules
+  add constraint pricing_rules_no_overlap
+  exclude using gist (
+    property_id with =,
+    daterange(start_date, end_date, '[)') with &&
+  );
+```
+
+Check for existing overlaps before applying, or the migration fails:
+
+```sql
+select a.id, a.rule_name, b.id, b.rule_name
+  from pricing_rules a join pricing_rules b
+    on a.property_id = b.property_id and a.id < b.id
+   and a.start_date < b.end_date and a.end_date > b.start_date;
+```
+
+Also worth the same treatment on `blocked_dates` (overlapping blocks are harmless but messy), and
+a `check (end_date > start_date)` everywhere a zero-night range is currently possible — the
+contract §3 warns that the tables allow them and asks callers not to write them.
+
+**Contract:** update §6.2 to say the constraint enforces it, and drop the "check before inserting"
+query to "the insert will fail cleanly; handle the error".
+
+## 3. Room-level selling (future, but design it before the second villa)
+
+Villa 19 sells the whole property. A future villa will sell **individual rooms**. The Ooruda side
+already takes cheap forward-compatibility (a `villa_rooms` table, a `room_scope` column, an
+optional room set in its adapter). The expensive half is here, because the availability grain
+lives in this repo:
+
+- `rooms` gains `is_sellable_separately boolean not null default false` and its own rate columns.
+- A `booking_rooms` join table; a whole-property booking implicitly holds every room.
+- `check_availability` and `get_unavailable_nights` take an optional room set and fall back to
+  whole-property behaviour when it is null — signature change, so the overload caution above
+  applies again.
+- `create_booking_atomic` keeps the **property-level** advisory lock even for a room booking. It is
+  the cheapest correct choice: room-level locks invite deadlock when a whole-property booking needs
+  all of them.
+- An exclusion constraint per room, plus the rule that a whole-property booking conflicts with any
+  room booking and vice versa.
+- The guest site's calendar and booking widget need a room picker; the pricing engine needs
+  per-room rates.
+
+Do not start this until a customer actually needs it, but do not let the schema drift somewhere
+that makes it impossible either.
+
+## 4. Razorpay webhook stays OFF — decided, do not re-enable
+
+The Ooruda plan (§9b) makes Ooruda Villa the **sole** owner of the refund path: it calls the
+Razorpay Refunds API with an idempotency key, then mirrors into this database exactly as contract
+§7 prescribes, then issues a GST credit note.
+
+Turning this repo's webhook back on would create **two writers** for the same rows and reintroduce
+double-counting. It was considered and rejected. If anyone wants to revisit it, the two systems
+must be changed together, in one go.
+
+What this repo should do instead:
+- Leave the webhook disabled, and add a comment at the handler saying why and pointing here.
+- Confirm `service_role` can update `payments.status` and `bookings.status` / `payment_status`
+  (contract §7 assumes it; `00020_service_role_write_grants.sql` should already cover it — verify).
+- Consider a `refunds` table here instead of the contract's suggestion of stashing the amount in
+  `special_requests`. Ooruda holds the authoritative ledger either way, but `special_requests` is
+  guest-visible text and is the wrong place for a money record. Low priority; coordinate first.
+
+## 5. Add-on services — reconcile with Ooruda
+
+`addon_services` exists here and is unused. Ooruda plans `villa_addons` (extra bed, breakfast,
+BBQ, early check-in, late check-out, pet fee) as an operator-managed catalogue. Decide one owner —
+recommended: **Ooruda writes `addon_services` here**, same as it writes rates, and the booking
+widget offers them at checkout. That needs:
+
+- a `booking_addons` join table (booking, addon, quantity, unit price in paise at time of booking);
+- add-on totals folded into the pricing engine **before** GST, like the discount;
+- `service_role` write grants on `addon_services`;
+- contract §6 extended with the add-on pricing formula, so a phone quote and an online quote agree.
+
+## 6. GST rate — replace the hardcoded 18 with the per-night slab
+
+`src/lib/pricing-engine.ts` hardcodes 18%. Checked 2026-09-27: since **22 Sep 2025**
+(Notification 15/2025-CT(R)) accommodation under SAC **996311** is **5% (no ITC) when the value per
+unit per day is ≤ ₹7,500, and 18% above**. The 12% slab no longer exists (so contract §6.3's
+"do not use 12%" stays true), and the old ₹1,000 exemption was withdrawn in July 2022.
+
+The slab is decided on the **actual value per unit per night**, after any discount and **including
+extra-guest / extra-bed charges**. So:
+
+```
+for each night:
+  night_value = nightly_rate + extra_guest_for_that_night - discount_share_for_that_night
+  rate        = night_value <= 750000 ? 5 : 18        -- paise
+  night_tax   = round(night_value * rate / 100)
+tax_amount = sum(night_tax)
+```
+
+Villa 19 (₹14,500+ a night) is 18% on every night even at the 25% maximum discount, so nothing
+changes for it today. It matters for any cheaper villa and for room-level selling. Ooruda
+implements the identical rule in `lib/villa/gst.ts`; add a shared fixture of test cases to both
+repos so they cannot drift. Keep `properties.gst_rate` out of it — the rate is a function of value,
+not a setting.
+
+## 7. Privacy page — guest ID documents are now stored
+
+**Decided 2026-09-27:** Ooruda Villa stores guest identity documents in its own Supabase Storage
+for legal record-keeping. That supersedes the WhatsApp-only arrangement in contract §5.7 and the
+internal "staff delete from WhatsApp one week after check-out" policy.
+
+This repo must, **before Ooruda enables the upload feature**:
+
+- add a section to the Privacy page (`src/app/(site)/privacy`) stating what identity documents are
+  collected, why (statutory guest records), that they are stored securely by the operator, who can
+  access them, and the retention period;
+- keep the retention period **identical** to what Ooruda states on ooruda.com — a mismatch between
+  the two notices is worse than either one alone;
+- the WhatsApp submission flow and the `id_status` states stay exactly as they are; only the
+  storage destination and the notice change.
+
+**Retention decided 2026-09-27: 30 days after check-out.** State exactly that; Ooruda's notice
+says the same.
+
+## 8. `bookings.status = 'completed'`
+
+Contract §5.2 says nothing sets it. Ooruda intends to set it at check-out. Confirm nothing here is
+waiting to own it, then say so in the contract so it is no longer ambiguous.
+
+## 9. Contract updates owed
+
+Fold these into `docs/OORUDA_VILLA_INTEGRATION.md` as each item lands:
+
+- [ ] §12 (new): discount codes — schema, error prefixes, what Ooruda may and may not write.
+- [ ] §6.2: pricing-rule overlap is now a database constraint.
+- [ ] §6.3: discount and add-on ordering relative to GST; `properties.gst_rate` instead of a literal 18.
+- [ ] §7: the webhook stays off by decision; Ooruda owns refunds end-to-end; how partial refunds are recorded.
+- [ ] §5.2: who sets `completed`.
+- [ ] §5.7: identity documents are stored by Ooruda Villa; retention; the Privacy page states it.
+- [ ] §10 "Do not": never write `uses_count` or `discount_redemptions` from Ooruda Villa.
+- [ ] §11 checklist: add discount-code and add-on rows.

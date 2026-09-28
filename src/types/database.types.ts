@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -159,10 +154,14 @@ export type Database = {
       }
       bookings: {
         Row: {
+          access_token: string
           base_amount: number
+          booking_channel: string | null
+          booking_code: string | null
           channel_reservation_id: string | null
           check_in: string
           check_out: string
+          confirmed_at: string | null
           created_at: string | null
           deposit_amount: number | null
           expires_at: string | null
@@ -170,7 +169,10 @@ export type Database = {
           guest_email: string
           guest_name: string
           guest_phone: string
+          hold_expires_at: string | null
           id: string
+          id_status: string
+          id_status_updated_at: string | null
           num_adults: number
           num_children: number | null
           num_infants: number | null
@@ -186,10 +188,14 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          access_token?: string
           base_amount: number
+          booking_channel?: string | null
+          booking_code?: string | null
           channel_reservation_id?: string | null
           check_in: string
           check_out: string
+          confirmed_at?: string | null
           created_at?: string | null
           deposit_amount?: number | null
           expires_at?: string | null
@@ -197,7 +203,10 @@ export type Database = {
           guest_email: string
           guest_name: string
           guest_phone: string
+          hold_expires_at?: string | null
           id?: string
+          id_status?: string
+          id_status_updated_at?: string | null
           num_adults?: number
           num_children?: number | null
           num_infants?: number | null
@@ -213,10 +222,14 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          access_token?: string
           base_amount?: number
+          booking_channel?: string | null
+          booking_code?: string | null
           channel_reservation_id?: string | null
           check_in?: string
           check_out?: string
+          confirmed_at?: string | null
           created_at?: string | null
           deposit_amount?: number | null
           expires_at?: string | null
@@ -224,7 +237,10 @@ export type Database = {
           guest_email?: string
           guest_name?: string
           guest_phone?: string
+          hold_expires_at?: string | null
           id?: string
+          id_status?: string
+          id_status_updated_at?: string | null
           num_adults?: number
           num_children?: number | null
           num_infants?: number | null
@@ -496,6 +512,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "faqs_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      journal_posts: {
+        Row: {
+          body: string
+          category: string
+          cover_alt: string | null
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string
+          id: string
+          property_id: string
+          published_at: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          category: string
+          cover_alt?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt: string
+          id?: string
+          property_id: string
+          published_at?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          cover_alt?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          property_id?: string
+          published_at?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "journal_posts_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
@@ -822,6 +894,7 @@ export type Database = {
           base_occupancy: number
           bathroom_count: number | null
           bedroom_count: number | null
+          booking_code_prefix: string | null
           check_in_time: string | null
           check_out_time: string | null
           city: string | null
@@ -835,6 +908,7 @@ export type Database = {
           has_power_backup: boolean | null
           has_wifi: boolean | null
           id: string
+          ideal_occupancy: number
           is_active: boolean | null
           max_occupancy: number
           name: string
@@ -854,6 +928,7 @@ export type Database = {
           base_occupancy?: number
           bathroom_count?: number | null
           bedroom_count?: number | null
+          booking_code_prefix?: string | null
           check_in_time?: string | null
           check_out_time?: string | null
           city?: string | null
@@ -867,6 +942,7 @@ export type Database = {
           has_power_backup?: boolean | null
           has_wifi?: boolean | null
           id?: string
+          ideal_occupancy?: number
           is_active?: boolean | null
           max_occupancy?: number
           name: string
@@ -886,6 +962,7 @@ export type Database = {
           base_occupancy?: number
           bathroom_count?: number | null
           bedroom_count?: number | null
+          booking_code_prefix?: string | null
           check_in_time?: string | null
           check_out_time?: string | null
           city?: string | null
@@ -899,6 +976,7 @@ export type Database = {
           has_power_backup?: boolean | null
           has_wifi?: boolean | null
           id?: string
+          ideal_occupancy?: number
           is_active?: boolean | null
           max_occupancy?: number
           name?: string
@@ -922,6 +1000,7 @@ export type Database = {
           icon: string | null
           id: string
           is_available: boolean
+          is_featured: boolean
           label: string
           property_id: string
         }
@@ -932,6 +1011,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_available?: boolean
+          is_featured?: boolean
           label: string
           property_id: string
         }
@@ -942,6 +1022,7 @@ export type Database = {
           icon?: string | null
           id?: string
           is_available?: boolean
+          is_featured?: boolean
           label?: string
           property_id?: string
         }
@@ -1119,6 +1200,7 @@ export type Database = {
           description: string | null
           display_order: number | null
           features: string[] | null
+          floor: string | null
           has_ac: boolean | null
           has_ensuite_bathroom: boolean | null
           id: string
@@ -1137,6 +1219,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           features?: string[] | null
+          floor?: string | null
           has_ac?: boolean | null
           has_ensuite_bathroom?: boolean | null
           id?: string
@@ -1155,6 +1238,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           features?: string[] | null
+          floor?: string | null
           has_ac?: boolean | null
           has_ensuite_bathroom?: boolean | null
           id?: string
@@ -1180,6 +1264,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_availability: {
+        Args: { p_check_in: string; p_check_out: string; p_property_id: string }
+        Returns: string
+      }
       create_booking_atomic: {
         Args: {
           p_base_amount: number
@@ -1203,6 +1291,13 @@ export type Database = {
           reference_number: string
         }[]
       }
+      expire_stale_booking_holds: { Args: never; Returns: number }
+      generate_booking_code: { Args: { p_prefix: string }; Returns: string }
+      get_unavailable_nights: {
+        Args: { p_from: string; p_property_id: string; p_to: string }
+        Returns: string[]
+      }
+      new_booking_access_token: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
@@ -1221,12 +1316,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1250,11 +1345,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1275,11 +1370,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1300,11 +1395,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1317,11 +1412,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1338,3 +1433,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

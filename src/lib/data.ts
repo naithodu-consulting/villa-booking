@@ -133,6 +133,32 @@ export function nearestPlace(places: NearbyPlace[], category: string): NearbyPla
     .sort((a, b) => Number(a.distance_km) - Number(b.distance_km))[0];
 }
 
+/**
+ * The closest few places, one per category, for the homepage Location card.
+ *
+ * That card has room for four. It used to name them by regex ("main road",
+ * "airport", "beach"), which put the airport at 22 minutes and a beach at 15
+ * beside a bus stand 100 m away - the two entries that undersell the location
+ * sitting next to the two that sell it. Nearest-first alone is no better: the
+ * four closest here are a bus stand and three shops.
+ *
+ * So: sort by travel time, then distance, and take the first place in each
+ * category. That yields a varied, genuinely-close set, and it re-sorts itself
+ * as Ooruda Villa edits the list rather than needing a code change.
+ */
+export function closestByCategory(places: NearbyPlace[], limit = 4): NearbyPlace[] {
+  const seen = new Set<string>();
+  return places
+    .filter((p) => p.distance_km != null)
+    .sort(
+      (a, b) =>
+        (a.travel_minutes ?? Infinity) - (b.travel_minutes ?? Infinity) ||
+        Number(a.distance_km) - Number(b.distance_km),
+    )
+    .filter((p) => !seen.has(p.category) && seen.add(p.category))
+    .slice(0, limit);
+}
+
 export function formatDistance(place: NearbyPlace | undefined): string | undefined {
   if (!place?.distance_km) return undefined;
   // Under a kilometre reads as metres: "0.1 km" for the bus stand at the end of

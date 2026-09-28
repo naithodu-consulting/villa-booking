@@ -27,6 +27,11 @@ export default function NavLinkBase({
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     onClick?.(e);
 
+    // Header and footer stay mounted across routes, so a clicked link kept
+    // focus on the new page and grew the focus ring at the next keypress.
+    // detail is 0 for keyboard activation: keyboard users keep their focus.
+    if (e.detail > 0) e.currentTarget.blur();
+
     const target = typeof href === 'string' ? href : href.pathname ?? '';
     const isSamePage = !target.includes('#') && target === pathname;
 

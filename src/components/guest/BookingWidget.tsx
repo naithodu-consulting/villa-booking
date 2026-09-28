@@ -26,7 +26,9 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
   const [checkIn, setCheckIn] = useState<string>(addDaysISO(todayStr, 3));
   const [checkOut, setCheckOut] = useState<string>(addDaysISO(todayStr, 5));
-  const [adults, setAdults] = useState<number>(2);
+  // Defaults to the villa's ideal party size, not 2: this is a whole-villa
+  // booking, so a couple is never the expected starting point.
+  const [adults, setAdults] = useState<number>(property.ideal_occupancy);
   const [children, setChildren] = useState<number>(0);
   const [showGuestMenu, setShowGuestMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
