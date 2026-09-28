@@ -4,6 +4,18 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.5 — Rooms and Stay Guide tidy-up — 2026-09-28
+
+- **Rooms:** the bathroom-layout line under the intro is removed; the intro already gives the
+  bathroom count and Room 1's card keeps its Attached Bathroom badge.
+- **Stay Guide:** the Villa Rules card is removed (the rules stay on the home page and, in
+  legal wording, on Terms). Page title and description no longer mention house rules.
+- **Stay Guide booking panel** now uses the same stacked, centred layout as every other
+  panel: heading, line, then the button pair. The side-by-side row squeezed the text into a
+  narrow column.
+
+---
+
 ## v0.9.4 — GST invoices, tiered pricing, villa rules, gallery, content — 2026-09-28
 
 ### GST invoices

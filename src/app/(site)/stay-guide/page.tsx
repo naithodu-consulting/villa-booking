@@ -2,17 +2,16 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
-import { Clock, Key, Luggage, Wifi, Car, ShieldCheck, Info } from 'lucide-react';
+import { Clock, Key, Luggage, Wifi, Car, Info } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import { formatTime12, formatPhone } from '@/lib/format';
-import { villaRules } from '@/lib/villa-rules';
 import CtaButtons from '@/components/guest/CtaButtons';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Stay Guide: Check-in, House Rules & Contacts',
+  title: 'Stay Guide: Check-in, Parking, WiFi & Contacts',
   path: '/stay-guide',
   description:
-    'Everything for your stay at Villa 19, Mangalore: check-in and check-out times, parking, WiFi, house rules and emergency contacts.',
+    'Everything for your stay at Villa 19, Mangalore: check-in and check-out times, parking, WiFi and emergency contacts.',
 });
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -80,13 +79,6 @@ export default async function StayGuidePage() {
         'Park only in designated areas within the compound',
         'Do not block the gate or access for neighbours',
       ],
-    },
-    {
-      icon: ShieldCheck,
-      title: 'Villa Rules',
-      items: property
-        ? villaRules(property).map((r) => `${r.title}: ${r.body}`)
-        : [],
     },
   ];
 
@@ -208,23 +200,23 @@ export default async function StayGuidePage() {
 
 
         {/* ── CTA ──────────────────────────────────────────── */}
-        <div
-          className="p-6 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4"
+        {/* Same stacked, centred panel as every other page: heading, line, then
+            the button pair. The side-by-side row squeezed the text into a
+            narrow column and was the only panel laid out that way. */}
+        <section
+          className="p-8 rounded-3xl text-center space-y-4"
           style={{ backgroundColor: 'var(--maroon-deep)', color: 'white' }}
         >
-          <div>
-            <p className="font-bold">Still have questions?</p>
-            <p className="text-sm text-white/70 mt-0.5">We are happy to help before and during your stay.</p>
-          </div>
-          <div className="flex-shrink-0">
-            <CtaButtons
-              className="justify-center sm:justify-end"
-              secondary={whatsappUrl
-                ? { href: whatsappUrl, external: true, label: <><WhatsAppIcon className="w-4 h-4" /> WhatsApp Us</> }
-                : { href: '/contact', label: 'Contact Us' }}
-            />
-          </div>
-        </div>
+          <h2 className="text-3xl font-bold" style={{ fontFamily: 'var(--font-display)' }}>
+            Still have questions?
+          </h2>
+          <p className="text-white/70 text-base">We are happy to help before and during your stay.</p>
+          <CtaButtons
+            secondary={whatsappUrl
+              ? { href: whatsappUrl, external: true, label: <><WhatsAppIcon className="w-4 h-4" /> WhatsApp Us</> }
+              : { href: '/contact', label: 'Contact Us' }}
+          />
+        </section>
 
       </div>
     </div>

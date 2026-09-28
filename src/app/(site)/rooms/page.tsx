@@ -59,12 +59,6 @@ export default async function RoomsPage() {
           <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
             {bedroomCount} bedrooms, a private lounge and {property.bathroom_count} bathrooms, comfortably accommodating {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Thoughtfully designed for comfort, privacy and time together.
           </p>
-          {/* Stated up front: the shared-bathroom arrangement is something
-              guests would otherwise have to infer room by room. The count is
-              in the line above, so this carries only the layout. */}
-          <p className="text-sm leading-relaxed mt-4 text-[var(--ink-muted)]">
-            Room 1 has its own attached bathroom, and a common bathroom serves each floor.
-          </p>
         </div>
       </section>
 
@@ -147,9 +141,8 @@ export default async function RoomsPage() {
                     className="pt-4 text-xs space-y-2"
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
-                    {/* Only the attached bath is named per room. The common
-                        bathrooms are stated once in the page intro instead, so
-                        every other card would otherwise repeat the same line. */}
+                    {/* Only the attached bath is named per room; a "shared
+                        bathroom" line on every other card would just repeat. */}
                     {room.has_ensuite_bathroom && (
                       <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
                         <Bath className="w-3.5 h-3.5" aria-hidden="true" />

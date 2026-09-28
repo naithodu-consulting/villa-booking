@@ -1,8 +1,8 @@
 import type { Property } from '@/types';
 
 /**
- * The villa rules, per the operator 2026-09-28. One list for the home page and
- * the Stay Guide, which previously kept separate copies that drifted apart.
+ * The villa rules, per the operator 2026-09-28, as shown on the home page. The
+ * Stay Guide used to carry its own copy, which drifted; it no longer lists them.
  * property_policies (00040) holds the same wording for Ooruda Villa, so a
  * change goes in both places.
  */
