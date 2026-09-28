@@ -145,7 +145,7 @@ export default async function StayGuidePage() {
               Questions? We are on WhatsApp.
             </p>
             <p className="text-base" style={{ color: 'var(--ink-muted)' }}>
-              Your host responds within 30 minutes.{whatsappUrl && (
+              Your host usually replies within an hour during the day.{whatsappUrl && (
                 <>
                   {' '}
                   <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass-ink)' }}>

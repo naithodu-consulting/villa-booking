@@ -443,7 +443,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     <span style={{ color: 'var(--brass-ink)' }}>₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
                   </div>
                   <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
-                    All prices in INR incl. 18% GST. Security deposit (if any) collected at check-in.
+                    All prices in INR incl. 18% GST. A security deposit, where applicable, is collected at check-in.
                   </p>
                 </div>
               )}

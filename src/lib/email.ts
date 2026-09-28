@@ -109,7 +109,7 @@ export async function sendBookingConfirmation(p: BookingConfirmationParams) {
         ${p.idShareUrl ? `<strong>Please share a photo ID for every adult guest</strong> (Aadhaar, passport or driving licence)
         on <a href="${esc(p.idShareUrl)}" style="color:#6b1c1c;">WhatsApp</a> before you arrive. Please do not reply to this email with ID documents.<br><br>` : ''}
         We will send you the exact address and check-in instructions 24 hours before your arrival.
-        If you have any questions, WhatsApp us. We respond within 30 minutes.
+        If you have any questions, WhatsApp us. We usually reply within an hour during the day.
       </p>
       <p style="color:#333;font-size:14px;margin-top:24px;">Warm regards,<br>The Habbaa Team</p>
     </div>

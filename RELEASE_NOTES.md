@@ -4,6 +4,46 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.3 — Booking confirmation page, security deposit wording — 2026-09-28
+
+### Booking confirmation page
+
+- **One state from both status columns.** The page only asked "is it paid?", so a cancelled
+  or refunded booking read "Booking Pending". It now shows Confirmed, Confirming Your Payment,
+  Booking Cancelled (noting a refund) or Booking Not Completed (noting no charge).
+- **Claims only when true:** "Total Paid", "A confirmation has been emailed", the ID card and
+  next steps appear only for confirmed bookings. Status reads in plain words, not raw values.
+- **Check-in and check-out times from the database** (they were hardcoded as 2:00 PM and
+  11:00 AM after 00031 moved them there). Property name and locality also come from the DB.
+- **Price breakdown** from the amounts stored on the booking (stay, extra guests, GST, total),
+  not a recalculation, so later rate changes cannot alter it.
+- Adds night count, adults and children separately, Add to Google Calendar (IST, no exact
+  address) and a cancellation policy link. Duplicated email and ID steps removed from "What
+  happens next", now a real ordered list.
+- **Pending pages refresh themselves** every 4 seconds for about a minute, covering the gap
+  before the Razorpay webhook lands.
+- Outbound WhatsApp links release focus after a click (no ring on return); long values wrap on
+  mobile; phone shown as +91 XXXXX XXXXX; dates pinned to IST; row dividers use the subtle
+  border colour instead of near-black.
+
+### Content
+
+- **Security deposit** wording from the operator on the Terms page, the home page deposit
+  terms, the cancellation policy and FAQ (migration 00037), and a short form in the checkout
+  footnote. The policy version said "subject to no damage" against "property inspection"
+  elsewhere.
+- **Reply time** reads "We usually reply within an hour during the day" on the home page,
+  confirmation page, Stay Guide and confirmation email (was "within 30 minutes", with no
+  overnight cover).
+- **Sultan Battery -> Sultan Bathery** (migration 00036).
+
+### Deploy notes
+
+- Apply migrations 00036 and 00037 to remote databases, then redeploy so statically rendered
+  pages pick up the new content.
+
+---
+
 ## v0.9.2 — Villa 19 wordmark, brand palette, ideal occupancy — 2026-09-28
 
 ### Brand

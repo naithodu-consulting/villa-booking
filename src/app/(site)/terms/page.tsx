@@ -67,7 +67,7 @@ export default async function TermsPage() {
               <li><strong style={{ color: 'var(--ink)' }}>30 or more days before check-in:</strong> 90% refund.</li>
               <li><strong style={{ color: 'var(--ink)' }}>15 to 29 days before check-in:</strong> 50% refund.</li>
               <li><strong style={{ color: 'var(--ink)' }}>Under 15 days before check-in:</strong> No refund.</li>
-              <li>The security deposit, if any, is refunded within 5 working days of check-out, subject to property inspection.</li>
+              <li><strong style={{ color: 'var(--ink)' }}>Security deposit:</strong> A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.</li>
               <li>Refund requests must be submitted in writing to reservations@habbaa.com with your booking reference.</li>
               <li>Approved refunds will be processed to the original payment method within 7 to 10 business days.</li>
             </ul>

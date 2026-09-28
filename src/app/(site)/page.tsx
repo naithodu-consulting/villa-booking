@@ -377,7 +377,7 @@ export default async function LandingPage() {
                   <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" aria-hidden="true" />
                 </summary>
                 <p className="text-sm lg:text-[15px] pt-3 leading-relaxed text-left" style={{ color: 'var(--ink-muted)' }}>
-                  Security deposit (if any) is refunded within 5 working days of check-out, subject to property inspection. Refunds are processed to the original payment method.
+                  A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.
                 </p>
               </details>
             </div>
@@ -500,7 +500,7 @@ export default async function LandingPage() {
           >
             <div>
               <p className="text-base font-bold">Have a question before booking?</p>
-              <p className="text-base mt-0.5" style={{ color: 'var(--ink-muted)' }}>We typically respond within 30 minutes on WhatsApp.</p>
+              <p className="text-base mt-0.5" style={{ color: 'var(--ink-muted)' }}>We usually reply on WhatsApp within an hour during the day.</p>
             </div>
             <div className="flex items-center gap-3">
               {whatsappUrl && (

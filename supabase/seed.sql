@@ -149,7 +149,7 @@ INSERT INTO property_policies (property_id, key, title, body, category, display_
    'housekeeping', 35),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'cancellation',
    'Cancellation Policy',
-   '30 or more days before check-in: 90% refund. 15 to 29 days before check-in: 50% refund. Under 15 days before check-in: no refund. The security deposit is refunded within 5 working days of check-out, subject to no damage.',
+   '30 or more days before check-in: 90% refund. 15 to 29 days before check-in: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.',
    'cancellation', 40)
 ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body;
 
@@ -162,7 +162,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out times?', 'Standard check-in is at 2:00 PM and check-out is at 11:00 AM. Early check-in and late check-out are available on request (subject to availability). Please contact us at least 24 hours in advance.', 'general', 30, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'How far is the beach from the villa?', 'The nearest beach, Panambur, is about 7.6 km from the villa, roughly a 15-minute drive. Tannirbhavi Beach is about 8.8 km. The villa is also close to the main road, local market and everyday shops.', 'location', 40, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the property suitable for events or large gatherings?', 'Yes. The villa is well suited for private family gatherings, milestone celebrations and corporate offsites. The spacious lawn is ideal for outdoor celebrations. Please contact us before booking for event enquiries - special terms and event-specific pricing may apply.', 'general', 50, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What is the cancellation policy?', 'Cancellations 30 or more days before check-in receive a 90% refund. 15 to 29 days: 50% refund. Under 15 days before check-in: no refund. The security deposit is refunded within 5 working days of check-out.', 'policies', 60, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What is the cancellation policy?', 'Cancellations 30 or more days before check-in receive a 90% refund. 15 to 29 days: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.', 'policies', 60, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is government ID required at check-in?', 'Government photo ID is mandatory at check-in for all guests: Aadhaar card, passport or driving licence. This is a legal requirement. We request that soft copies be shared via WhatsApp before arrival for faster check-in.', 'general', 70, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'How many cars can be parked at the villa?', 'The villa has covered parking for 4 or more cars within the property. Street parking is also available nearby.', 'general', 80, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I book just a single bedroom?', 'No. Villa 19 is booked exclusively as a whole property. All 4 bedrooms, the lawn, and all common spaces are reserved for your group only. Individual room bookings are not available.', 'booking', 100, TRUE)
@@ -187,7 +187,7 @@ INSERT INTO nearby_places (property_id, name, category, distance_km, travel_minu
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Mangalore International Airport (IXE)', 'transport', 11.0, 22, NULL, 130, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'KSRTC Bus Stand', 'transport', 3.3, 10, NULL, 140, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Pilikula Nisarga Dhama', 'attraction', 14.0, 30, NULL, 150, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sultan Battery', 'attraction', 1.7, 5, NULL, 160, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sultan Bathery', 'attraction', 1.7, 5, NULL, 160, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Kudroli Temple', 'temple', 2.9, 8, NULL, 170, TRUE)
 ON CONFLICT ON CONSTRAINT uq_nearby_property_name DO NOTHING;
 
