@@ -90,7 +90,7 @@ export default async function TermsPage() {
               <li>Quiet hours are 10:00 PM to 7:00 AM. Please keep noise to a minimum and respect the neighbourhood.</li>
               <li>Smoking is prohibited inside the villa. Cleaning and restoration charges apply for violations.</li>
               <li>Pets are not permitted anywhere on the property.</li>
-              <li>Guests are responsible for the villa, its furnishings and amenities during their stay, and for any damage beyond normal wear and tear.</li>
+              <li>Guests are responsible for using the villa, furnishings and amenities responsibly, and for any damage beyond normal wear and tear.</li>
               <li>Illegal activities on the premises are strictly prohibited and will result in immediate eviction without refund.</li>
             </ul>
           </Section>

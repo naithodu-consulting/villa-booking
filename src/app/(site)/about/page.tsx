@@ -4,6 +4,7 @@ import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 export const metadata: Metadata = pageMetadata({
   title: 'About Habbaa',
@@ -40,27 +41,8 @@ export default function AboutPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'About Us', path: '/about' }])} />
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section
-        className="py-12 sm:py-16"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            About Us
-          </h1>
-          <p className="text-lg leading-relaxed max-w-xl mx-auto text-[var(--ink-muted)]">
-            A boutique hospitality brand born on the Karnataka coast.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="About Us" intro="A boutique hospitality brand born on the Karnataka coast." />
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
 

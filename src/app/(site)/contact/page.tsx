@@ -6,6 +6,7 @@ import { MapPin, Mail, Phone, Clock } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import EnquiryForm from '@/components/guest/EnquiryForm';
 import { formatPhone } from '@/lib/format';
+import PageHero from '@/components/layout/PageHero';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -35,27 +36,8 @@ export default async function ContactPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Contact Us', path: '/contact' }])} />
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section
-        className="py-10 sm:py-14"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Contact Us
-          </h1>
-          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            WhatsApp is the fastest way to reach us. We reply as quickly as we can.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="Contact Us" intro="WhatsApp is the fastest way to reach us. We reply as quickly as we can." />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
 

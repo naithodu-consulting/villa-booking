@@ -414,8 +414,7 @@ export default async function LandingPage() {
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Villa Rules</h2>
             </div>
             {/* The four most-asked facts are always visible as labelled values;
-                the disclosure carries only the rules those four do not already
-                answer, so opening it earns its click. */}
+                the disclosure carries the full rule list. */}
             <div
               className="p-5 sm:p-6 rounded-3xl shadow-sm"
               style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
@@ -451,8 +450,10 @@ export default async function LandingPage() {
                   <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" aria-hidden="true" />
                 </summary>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm lg:text-[15px] pt-3 text-left">
-                  {/* Quiet hours is already a tile above. */}
-                  {villaRules(property).filter((r) => !r.title.startsWith('Quiet hours')).map((rule) => (
+                  {/* All eight rules, including quiet hours: this list is titled
+                      "All villa rules", so it must not drop one because a tile
+                      above repeats it. */}
+                  {villaRules(property).map((rule) => (
                     <div
                       key={rule.title}
                       className="flex items-start gap-2.5 p-2.5 rounded-xl"

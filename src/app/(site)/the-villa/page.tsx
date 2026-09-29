@@ -9,6 +9,7 @@ import {
 import { getProperty, getAmenities, getNearbyPlaces, getImages, formatDistance } from '@/lib/data';
 import { renderBoldText } from '@/lib/bold';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Private 4-Bedroom Villa in Mangalore',
@@ -71,30 +72,8 @@ export default async function TheVillaPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={[breadcrumbJsonLd([{ name: 'The Villa', path: '/the-villa' }]), lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })]} />
 
-      {/* ── Page Hero ─────────────────────────────────────── */}
-      <section
-        className="py-12 sm:py-16"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="eyebrow-hero mb-4">
-            Urwa, Mangalore, Karnataka
-          </p>
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            The Villa
-          </h1>
-          <p className="text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto text-[var(--ink-muted)]">
-            {property.tagline}
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="The Villa" intro={<>{property.tagline}</>} />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
 

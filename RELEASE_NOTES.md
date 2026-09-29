@@ -4,6 +4,39 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.6 — Consistent page headers, UI audit fixes, villa rules wording — 2026-09-29
+
+### Page headers
+
+- **One `PageHero` for every inner page** (About, Contact, Gallery, Journal, Rooms, Stay
+  Guide, Testimonials, The Villa, Events). The hand-rolled headers had drifted to 40-80px of
+  vertical padding, 16 or 20px under the title and four different intro widths. With the eyebrow
+  labels gone the band is sized for title plus intro only, and intros are balanced so a
+  two-line intro no longer leaves one word behind. Privacy and Terms keep their legal header.
+- **Eyebrow labels removed** from The Villa, Stay Guide, Journal and Events.
+
+### UI audit fixes
+
+- Tap targets raised to 44px: "Show All N Photos" (was 34px) and the room shelf arrows (36px).
+- Rooms browser title "Bedrooms & Sleeping Arrangements" is now "Rooms: Bedrooms, Beds &
+  Capacity", matching the page.
+- Audited all 13 pages at 375px and desktop: no horizontal overflow, no broken images,
+  consistent page-title and section-heading styles.
+
+### Villa rules
+
+- The home page "All villa rules" list shows all eight; quiet hours had been dropped because
+  a tile above repeats it.
+- **Occupancy** and **Care for the Property** use the operator's wording on the home page,
+  Terms and in `property_policies` (migration 00045). Care for the Property had been reworded
+  to read as liability rather than conduct.
+
+### Deploy notes
+
+- Migration 00045 is applied to staging.
+
+---
+
 ## v0.9.5 — Rooms and Stay Guide tidy-up — 2026-09-28
 
 - **Rooms:** the bathroom-layout line under the intro is removed; the intro already gives the

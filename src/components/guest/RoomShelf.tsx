@@ -98,7 +98,7 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
             onClick={() => step(-1)}
             disabled={atStart}
             aria-label="Previous room"
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
             style={btn(atStart)}
           >
             <ChevronLeft className="w-4 h-4" aria-hidden="true" />
@@ -108,7 +108,7 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
             onClick={() => step(1)}
             disabled={atEnd}
             aria-label="Next room"
-            className="w-9 h-9 rounded-full flex items-center justify-center transition-all"
+            className="w-11 h-11 rounded-full flex items-center justify-center transition-all"
             style={btn(atEnd)}
           >
             <ChevronRight className="w-4 h-4" aria-hidden="true" />

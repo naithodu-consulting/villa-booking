@@ -5,6 +5,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import JournalCover from '@/components/guest/JournalCover';
+import PageHero from '@/components/layout/PageHero';
 import {
   getJournalPosts, isJournalLive, formatJournalDate, JOURNAL_CATEGORIES, type JournalPost,
 } from '@/lib/journal';
@@ -43,30 +44,8 @@ export default async function JournalPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Journal', path: '/journal' }])} />
 
-      {/* ── Page Hero ─────────────────────────────────────── */}
-      <section
-        className="py-10 sm:py-14"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--brass-ink)' }}>
-            Guides &amp; Stories
-          </p>
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Journal
-          </h1>
-          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            Local knowledge of Mangalore and honest advice for planning your stay, from the people who host it.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="Journal" intro="Local knowledge of Mangalore and honest advice for planning your stay, from the people who host it." />
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
 

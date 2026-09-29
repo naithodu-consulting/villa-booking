@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { getProperty, getImages } from '@/lib/data';
 import { GALLERY_SECTIONS } from '@/lib/gallery';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Villa Photos & Gallery',
@@ -38,27 +39,8 @@ export default async function GalleryPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Gallery', path: '/gallery' }])} />
 
-      {/* ── Page Hero ─────────────────────────────────────── */}
-      <section
-        className="py-10 sm:py-14"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Gallery
-          </h1>
-          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            Explore the spaces, the surroundings, and everything in between.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="Gallery" intro="Explore the spaces, the surroundings, and everything in between." />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!hasImages ? (

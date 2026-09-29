@@ -105,7 +105,7 @@ export default function GalleryModal({ images }: GalleryProps) {
 
         <button
           onClick={() => openLightbox(0)}
-          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-3.5 py-2 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
+          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-4 min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
           aria-label={`Show all ${images.length} photos`}
         >
           <Grid className="w-3.5 h-3.5" aria-hidden="true" />

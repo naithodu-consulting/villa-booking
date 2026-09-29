@@ -6,6 +6,7 @@ import { Clock, Key, Luggage, Wifi, Car, Info } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import { formatTime12, formatPhone } from '@/lib/format';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Stay Guide: Check-in, Parking, WiFi & Contacts',
@@ -86,30 +87,8 @@ export default async function StayGuidePage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Stay Guide', path: '/stay-guide' }])} />
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section
-        className="py-10 sm:py-14"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="eyebrow-hero mb-4">
-            Before You Arrive
-          </p>
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-4"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Stay Guide
-          </h1>
-          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            Everything you need for a smooth, enjoyable stay at Villa 19.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="Stay Guide" intro="Everything you need for a smooth, enjoyable stay at Villa 19." />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
 

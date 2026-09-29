@@ -4,6 +4,7 @@ import { pageMetadata } from '@/lib/seo';
 import { Star } from 'lucide-react';
 import { getProperty } from '@/lib/data';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -30,27 +31,8 @@ export default async function ReviewsPage() {
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section
-        className="py-16 sm:py-20"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Guest Testimonials
-          </h1>
-          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            Verified guest reviews will appear here once we open our doors.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="Guest Testimonials" intro="Verified guest reviews will appear here once we open our doors." />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
 

@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { getProperty } from '@/lib/data';
 import { EVENTS_PAGE_ENABLED } from '@/lib/features';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 export const metadata: Metadata = {
   ...pageMetadata({
@@ -83,29 +84,9 @@ export default async function EventsPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Events', path: '/events' }])} />
 
-      {/* ── Hero ─────────────────────────────────────────── */}
-      <section
-        className="py-10 sm:py-14"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <p className="eyebrow-hero mb-4">
-            Private Villa Exclusively Yours
-          </p>
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-4"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Events & Celebrations
-          </h1>
-          <p className="text-lg leading-relaxed max-w-xl mx-auto mb-6 text-[var(--ink-muted)]">
-            Make your celebration memorable with a private villa stay for up to {maxGuests} guests.
-          </p>
-          {whatsappUrl && (
+      {/* ── Page Hero ── */}
+      <PageHero title="Events & Celebrations" intro={<>Make your celebration memorable with a private villa stay for up to {maxGuests} guests.</>}>
+        {whatsappUrl && (
             <a
               href={whatsappUrl}
               target="_blank"
@@ -115,8 +96,7 @@ export default async function EventsPage() {
               <WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp
             </a>
           )}
-        </div>
-      </section>
+      </PageHero>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-14">
 

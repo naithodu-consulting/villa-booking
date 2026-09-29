@@ -5,9 +5,10 @@ import JsonLd from '@/components/seo/JsonLd';
 import { Bed, Bath, Wind, Check, Building, Maximize } from 'lucide-react';
 import { getProperty, getRooms } from '@/lib/data';
 import CtaButtons from '@/components/guest/CtaButtons';
+import PageHero from '@/components/layout/PageHero';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Bedrooms & Sleeping Arrangements',
+  title: 'Rooms: Bedrooms, Beds & Capacity',
   path: '/rooms',
   description:
     'Four bedrooms, a private lounge and 3 bathrooms at Villa 19, Mangalore, comfortably accommodating 8 guests and sleeping up to 14. See bed types, floor, size and capacity for each room before you book the whole villa.',
@@ -40,27 +41,8 @@ export default async function RoomsPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'Rooms', path: '/rooms' }])} />
 
-      {/* ── Page Hero ─────────────────────────────────────── */}
-      <section
-        className="py-10 sm:py-14"
-        style={{
-          backgroundColor: 'var(--paper-sunk)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h1
-            className="text-5xl sm:text-6xl font-bold mb-5"
-            style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
-          >
-            Rooms
-          </h1>
-          <p className="text-lg leading-relaxed text-[var(--ink-muted)]">
-            {bedroomCount} bedrooms, a private lounge and {property.bathroom_count} bathrooms, comfortably accommodating {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Thoughtfully designed for comfort, privacy and time together.
-          </p>
-        </div>
-      </section>
+      {/* ── Page Hero ── */}
+      <PageHero title="Rooms" intro={<>{bedroomCount} bedrooms, a private lounge and {property.bathroom_count} bathrooms, comfortably accommodating {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Thoughtfully designed for comfort, privacy and time together.</>} />
 
       {/* ── Room Cards ────────────────────────────────────── */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
