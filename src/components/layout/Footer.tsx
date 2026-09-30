@@ -23,6 +23,7 @@ const EXPLORE_LINKS: [string, string][] = [
   ['/gallery',    'Gallery'],
   ...(EVENTS_PAGE_ENABLED ? [['/events', 'Events'] as [string, string]] : []),
   ['/stay-guide', 'Stay Guide'],
+  ['/faq',        'FAQs'],
   ['/about',      'About Us'],
 ];
 

@@ -27,7 +27,7 @@ export default function PageHero({
         borderBottom: '1px solid var(--border-subtle)',
       }}
     >
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
         <h1
           className="text-5xl sm:text-6xl font-bold"
           style={{ fontFamily: 'var(--font-display)', color: 'var(--maroon)' }}
@@ -35,9 +35,11 @@ export default function PageHero({
           {title}
         </h1>
         {intro && (
-          // 2xl (672px) keeps intros at a comfortable measure, and text-balance
-          // splits a two-line intro evenly instead of leaving one word behind.
-          <p className="mt-4 text-lg leading-relaxed max-w-2xl mx-auto text-balance text-[var(--ink-muted)]">
+          // 3xl (768px, about 85 characters) is the widest a centred line stays
+          // easy to follow; 2xl squeezed two-sentence intros into three lines in
+          // a wide band. text-balance splits a two-line intro evenly. 16px on
+          // phones, where 18px fits only ~38 characters and stacks five lines.
+          <p className="mt-4 text-base sm:text-lg leading-relaxed max-w-3xl mx-auto text-balance text-[var(--ink-muted)]">
             {intro}
           </p>
         )}

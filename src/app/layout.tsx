@@ -27,11 +27,11 @@ const cinzel = Cinzel({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Villa 19 | Private Villa in Mangalore by Habbaa",
+    default: "Villa19 | Private Urban Villa",
     template: "%s | Villa 19 by Habbaa",
   },
   description:
-    "Villa 19: Premium 4-Bedroom Private Urban Villa. Private lawn, 12-guest capacity, direct booking at the best rate. By Habbaa.",
+    "Villa 19: Premium 4-Bedroom Private Urban Villa in Mangalore. Private lawn, up to 14 guests, direct booking at the best rate. By Habbaa.",
   applicationName: SITE_NAME,
   openGraph: {
     type: "website",

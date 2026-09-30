@@ -497,6 +497,7 @@ export type Database = {
           created_at: string
           display_order: number
           id: string
+          is_featured: boolean
           is_published: boolean
           property_id: string
           question: string
@@ -507,6 +508,7 @@ export type Database = {
           created_at?: string
           display_order?: number
           id?: string
+          is_featured?: boolean
           is_published?: boolean
           property_id: string
           question: string
@@ -517,6 +519,7 @@ export type Database = {
           created_at?: string
           display_order?: number
           id?: string
+          is_featured?: boolean
           is_published?: boolean
           property_id?: string
           question?: string

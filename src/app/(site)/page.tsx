@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
-import { pageMetadata, lodgingJsonLd, faqJsonLd } from '@/lib/seo';
+import { pageMetadata, lodgingJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import Image from 'next/image';
 import GalleryModal from '@/components/guest/GalleryModal';
@@ -12,6 +12,8 @@ import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 import { renderBoldText } from '@/lib/bold';
 import { villaRules } from '@/lib/villa-rules';
+import Link from 'next/link';
+import FaqList from '@/components/guest/FaqList';
 import {
   ShieldCheck, MapPin, Users, Wifi, Bed,
   Car, Sofa, Trees, BedSingle,
@@ -28,10 +30,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Villa 19 | Private Holiday Villa in Mangalore by Habbaa',
+  title: 'Villa19 | Private Urban Villa',
   path: '/',
   description:
-    'Villa 19 is a private 4-bedroom holiday villa in Urwa, Mangalore for up to 14 guests: private lawn, balconies, parking and power backup. Book direct, no fees.',
+    'Villa 19 is a private 4-bedroom urban villa in Urwa, Mangalore for up to 14 guests: private lawn, balconies, parking and power backup. Book direct, no fees.',
   absoluteTitle: true,
 });
 
@@ -58,6 +60,8 @@ export default async function LandingPage() {
   // a bus stand 100 m away.
   // Function halls are left out: they are listed on The Villa page for wedding
   // guests, and a hall 80 m away would otherwise take a tile here.
+  const featuredFaqs = faqs.filter((f) => f.is_featured);
+
   const locationHighlights = closestByCategory(nearby.filter((p) => p.category !== 'function_hall'), 4);
 
   // Group amenities by category (preserving display_order within each group)
@@ -85,7 +89,6 @@ export default async function LandingPage() {
     <div style={{ color: 'var(--ink)' }}>
       <JsonLd data={[
         lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number }),
-        ...(faqs.length ? [faqJsonLd(faqs)] : []),
       ]} />
 
       {/* ── Hero ──────────────────────────────────────── */}
@@ -474,28 +477,17 @@ export default async function LandingPage() {
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Frequently Asked Questions</h2>
             </div>
-            <div className="space-y-2">
-              {faqs.map((faq) => (
-                <details
-                  key={faq.id}
-                  className="rounded-2xl shadow-sm group"
-                  style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-                >
-                  <summary
-                    className="flex items-center justify-between p-5 cursor-pointer list-none font-semibold text-base select-none"
-                    style={{ color: 'var(--ink)' }}
-                  >
-                    {faq.question}
-                    <ChevronDown className="w-4 h-4 flex-shrink-0 group-open:rotate-180 transition-transform" style={{ color: 'var(--ink-muted)' }} aria-hidden="true" />
-                  </summary>
-                  <p
-                    className="px-5 pb-5 text-base leading-relaxed pt-4"
-                    style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--ink-muted)' }}
-                  >
-                    {faq.answer}
-                  </p>
-                </details>
-              ))}
+            {/* A featured few here; every question lives on /faq. */}
+            <FaqList faqs={featuredFaqs} />
+            <div className="flex justify-center pt-2">
+              <Link
+                href="/faq"
+                className="inline-flex items-center justify-center gap-2 min-h-11 px-6 rounded-xl text-sm font-bold w-full sm:w-auto transition-colors hover:bg-[var(--paper-sunk)]"
+                style={{ color: 'var(--maroon)', border: '1px solid var(--border-medium)', backgroundColor: 'var(--surface)' }}
+              >
+                View all FAQs
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
             </div>
           </div>
 

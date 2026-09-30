@@ -133,6 +133,8 @@ export interface FAQ {
   category: string;
   display_order: number;
   is_published: boolean;
+  /** Shown on the home page; the full list lives on /faq (00050). */
+  is_featured?: boolean;
 }
 
 export interface PropertyPolicy {

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     const property: Property = {
       ...propertyData,
-      check_in_time: propertyData.check_in_time?.slice(0, 5) ?? '14:00',
+      check_in_time: propertyData.check_in_time?.slice(0, 5) ?? '15:00',
       check_out_time: propertyData.check_out_time?.slice(0, 5) ?? '11:00',
       whatsapp_number: process.env.PROPERTY_WHATSAPP,
     };

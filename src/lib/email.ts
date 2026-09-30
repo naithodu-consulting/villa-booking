@@ -71,7 +71,7 @@ export interface BookingConfirmationParams {
   checkOut: string;
   guests: number;
   totalPaise: number; // total in paise, formatted to INR
-  checkInTime: string;  // e.g. "2:00 PM", from the property row
+  checkInTime: string;  // e.g. "3:00 PM", from the property row
   checkOutTime: string;
   /** GST tax invoice, attached as a PDF. Absent only if generation failed. */
   invoice?: { number: string; pdf: Uint8Array };

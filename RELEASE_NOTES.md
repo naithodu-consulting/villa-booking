@@ -4,6 +4,31 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.8 - FAQ page, 3:00 PM check-in, new tab title and icon - 2026-09-30
+
+### FAQs
+
+- **New /faq page** (migration 00050): 42 questions in sections, an accordion per section,
+  FAQPage structured data and a "Still have questions?" panel. Linked from the header drawer,
+  footer and sitemap.
+- Home page shows the 8 featured FAQs (new `faqs.is_featured`) and a "View all FAQs" button.
+- Children: under 5 free, 5-12 at 50% of the guest rate, above 12 full rate. Note: the booking
+  engine does not price children yet.
+- ID wording: all guests (not "all adults") must show government photo ID.
+
+### Stay details
+
+- Check-in moves to 3:00 PM (migration 00049), including code fallbacks and journal copy.
+- Parking for 8 vehicles.
+- Journal: power backup keeps fans, lighting and Wi-Fi running (not air conditioning).
+
+### Look
+
+- Tab title "Villa19 | Private Urban Villa"; new PNG favicon and Apple touch icon.
+- Page intros wider (768px) and balanced across lines.
+
+---
+
 ## v0.9.7 — Real gallery photos, room photos, "starting from" pricing — 2026-09-30
 
 ### Gallery

@@ -18,7 +18,7 @@ export default async function TermsPage() {
   // Check-in/out times and occupancy were hardcoded here, so editing them in
   // admin silently left the Terms page stating the old figures.
   const property = await getProperty();
-  const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
+  const checkIn  = formatTime12(property?.check_in_time  ?? '15:00');
   const checkOut = formatTime12(property?.check_out_time ?? '11:00');
   const maxGuests = property?.max_occupancy ?? 14;
 

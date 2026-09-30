@@ -40,6 +40,7 @@ const DRAWER_LINKS = [
   { href: '/gallery',    label: 'Gallery'    },
   ...(EVENTS_PAGE_ENABLED ? [{ href: '/events', label: 'Events' }] : []),
   { href: '/stay-guide', label: 'Stay Guide' },
+  { href: '/faq',        label: 'FAQs'       },
   { href: '/about',      label: 'About Us'   },
   { href: '/contact',    label: 'Contact Us' },
 ];

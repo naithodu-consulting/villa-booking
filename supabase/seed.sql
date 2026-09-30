@@ -35,7 +35,7 @@ Whether it is a family gathering, a weekend with friends, a milestone celebratio
   12, 70000, -- ₹700/extra guest per night from guest 12
   1200000,  -- ₹12,000/night base
   1400000,  -- ₹14,000/night weekend
-  '14:00:00', '11:00:00',
+  '15:00:00', '11:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
   slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, is_active = EXCLUDED.is_active;
@@ -103,7 +103,7 @@ INSERT INTO property_amenities (property_id, category, label, icon, is_available
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Private manicured lawn', 'Trees', TRUE, TRUE , 30),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Covered rooftop terrace', 'Sun', TRUE, FALSE, 31),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Outdoor seating', 'Armchair', TRUE, FALSE, 32),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Private parking for up to 10 vehicles', 'Car', TRUE, TRUE , 33),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Private parking for up to 8 vehicles', 'Car', TRUE, TRUE , 33),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Lush green surroundings', 'Leaf', TRUE, FALSE, 34),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Dedicated driver''s room with bathroom', 'BedSingle', TRUE, FALSE, 35),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'CCTV surveillance in common outdoor areas', 'Camera', TRUE, FALSE, 36),
@@ -127,7 +127,7 @@ ON CONFLICT ON CONSTRAINT uq_amenity_property_label DO UPDATE SET
 INSERT INTO property_policies (property_id, key, title, body, category, display_order) VALUES
   ('a1b2c3d4-0000-0000-0000-000000000001', 'checkin_time',
    'Check-In & Check-Out',
-   'Check-in: 2:00 PM · Check-out: 11:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
+   'Check-in: 3:00 PM · Check-out: 11:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
    'checkin', 10),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'id_requirement',
    'Registered Guests Only',
@@ -178,17 +178,50 @@ ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCL
 -- ─────────────────────────────────────────────────────────
 -- FAQs
 -- ─────────────────────────────────────────────────────────
-INSERT INTO faqs (property_id, question, answer, category, display_order, is_published) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What is included in the base booking price?', 'The base price covers exclusive use of the entire villa: all 4 bedrooms, private lawn, covered parking and high-speed Wi-Fi. Cooking gas and kitchen basics are also included.', 'general', 10, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is there a kitchen available for guests?', 'Yes. The villa has a fully equipped kitchen: gas stove, refrigerator, microwave, cookware and utensils. Guests are welcome to bring groceries or order from nearby restaurants and food delivery services. No in-house cook is provided.', 'general', 20, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out times?', 'Standard check-in is at 2:00 PM and check-out is at 11:00 AM. Early check-in and late check-out are available on request (subject to availability). Please contact us at least 24 hours in advance.', 'general', 30, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'How far is the beach from the villa?', 'The nearest beach, Panambur, is about 7.6 km from the villa, roughly a 15-minute drive. Tannirbhavi Beach is about 8.8 km. The villa is also close to the main road, local market and everyday shops.', 'location', 40, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the property suitable for events or large gatherings?', 'Yes. The villa is well suited for private family gatherings, milestone celebrations and corporate offsites. The spacious lawn is ideal for outdoor celebrations. Please contact us before booking for event enquiries - special terms and event-specific pricing may apply.', 'general', 50, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What is the cancellation policy?', 'Cancellations 30 or more days before check-in receive a 90% refund. 15 to 29 days: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.', 'policies', 60, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is government ID required at check-in?', 'Government photo ID is mandatory at check-in for all guests: Aadhaar card, passport or driving licence. This is a legal requirement. We request that soft copies be shared via WhatsApp before arrival for faster check-in.', 'general', 70, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'How many cars can be parked at the villa?', 'The villa has covered parking for 4 or more cars within the property. Street parking is also available nearby.', 'general', 80, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I book just a single bedroom?', 'No. Villa 19 is booked exclusively as a whole property. All 4 bedrooms, the lawn, and all common spaces are reserved for your group only. Individual room bookings are not available.', 'booking', 100, TRUE)
-ON CONFLICT ON CONSTRAINT uq_faq_property_question DO NOTHING;
+INSERT INTO faqs (property_id, question, answer, category, display_order, is_published, is_featured) VALUES
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Villa 19 booked as an entire villa?', 'Yes. Villa 19 is available exclusively as a private whole-villa stay. Individual rooms cannot be booked separately.', 'About Villa 19', 10, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'How many guests can Villa 19 accommodate?', 'Villa 19 is designed for 8 guests comfortably and can accommodate up to 14 guests with additional sleeping arrangements and applicable charges.', 'About Villa 19', 20, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What is included in the base booking price?', 'The base price includes exclusive use of the entire villa, including all 4 bedrooms, private lounge, lawn, rooftop terrace, parking and shared spaces. The base rate is for up to 8 guests.', 'About Villa 19', 30, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'How many bedrooms and bathrooms are there?', 'Villa 19 has 4 bedrooms, 3 bathrooms and a private lounge.', 'About Villa 19', 40, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the villa suitable for families and groups?', 'Yes. Villa 19 is designed for families, groups of friends, family gatherings and relaxed group stays.', 'About Villa 19', 50, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I book Villa 19 for more than 8 guests?', 'Yes. Additional guests can be accommodated up to the maximum capacity of 14 guests, with applicable additional-guest charges.', 'Booking & Guests', 60, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are children counted towards occupancy?', 'Yes. Children are included in the total occupancy. Children below 5 years stay free. Children aged 5-12 years are charged at 50% of the applicable guest rate, while guests above 12 years are charged at the full rate.', 'Booking & Guests', 70, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is government ID required at check-in?', 'Yes. A valid government-issued photo ID is required for all registered guests at check-in. Sharing ID details in advance can help make the check-in process faster.', 'Booking & Guests', 80, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are visitors allowed at the villa?', 'Only guests included in the booking are permitted within the premises. Unregistered outside visitors are not allowed.', 'Booking & Guests', 90, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a security deposit required?', 'A refundable security deposit may be collected at check-in, depending on the booking. Subject to property inspection after check-out, it will be refunded to the original payment method within 5 working days.', 'Booking & Guests', 100, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are unmarried couples allowed to stay at Villa 19?', 'Villa 19 is primarily intended for families and family groups. Stays by unmarried couples are not encouraged. All guests must provide valid government-issued photo identification at check-in.', 'Booking & Guests', 110, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out timings?', 'Standard check-in is at 3:00 PM and check-out is at 11:00 AM. Early check-in and late check-out may be available on request, subject to availability.', 'Check-in & Check-out', 120, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I request early check-in or late check-out?', 'Yes. Requests can be made in advance and will be accommodated wherever possible, subject to availability and applicable charges.', 'Check-in & Check-out', 130, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can someone else check in on my behalf?', 'The person making the booking should normally be present at check-in. Alternative arrangements should be confirmed with Villa 19 in advance.', 'Check-in & Check-out', 140, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a kitchen available for guests?', 'Yes. The villa has a fully equipped kitchen with a refrigerator, cookware, crockery and basic cooking essentials.', 'Kitchen & Amenities', 150, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can guests cook at the villa?', 'Yes. Guests are welcome to prepare simple meals using the kitchen facilities. Food can also be arranged from outside. Cooking pungent food items is not allowed.', 'Kitchen & Amenities', 160, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Wi-Fi available?', 'Yes. High-speed Wi-Fi is available throughout the villa.', 'Kitchen & Amenities', 170, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is there a TV?', 'Yes. The lounge has a 50-inch Smart TV with OTT apps.', 'Kitchen & Amenities', 180, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are indoor games available?', 'Yes. A selection of indoor games is available in the lounge.', 'Kitchen & Amenities', 190, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is power backup available?', 'Yes. The villa has inverter power backup for essential loads including fans, lighting, Wi-Fi and other selected equipment.', 'Kitchen & Amenities', 200, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is hot water available?', 'Yes. 24/7 hot water is available.', 'Kitchen & Amenities', 210, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are all bedrooms air-conditioned?', 'Yes. All 4 bedrooms have air conditioning.', 'Bedrooms & Bathrooms', 220, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What type of beds are available?', 'Villa 19 has a combination of king and queen beds, with two guests comfortably accommodated in each bedroom.', 'Bedrooms & Bathrooms', 230, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are bed linen and towels provided?', 'Yes. Fresh bed linen, pillows, bath towels and hand towels are provided.', 'Bedrooms & Bathrooms', 240, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are toiletries provided?', 'Yes. Premium basic toiletries are provided for guests.', 'Bedrooms & Bathrooms', 250, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are additional sleeping arrangements available?', 'Yes. Additional sleeping arrangements are available for larger groups, allowing the villa to accommodate up to 14 guests.', 'Bedrooms & Bathrooms', 260, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'How many cars can be parked at the villa?', 'Villa 19 has private parking for up to 8 vehicles within the property, subject to vehicle size and parking arrangement.', 'Parking & Outdoor Spaces', 270, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Does Villa 19 have outdoor spaces?', 'Yes. The property includes a private lawn, outdoor seating and a covered rooftop terrace.', 'Parking & Outdoor Spaces', 280, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the rooftop terrace private?', 'Yes. The covered rooftop terrace is exclusively available to guests staying at Villa 19.', 'Parking & Outdoor Spaces', 290, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are parties or events allowed?', 'No. Parties, events, loud gatherings and commercial activities are not permitted.', 'House Rules', 300, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the quiet hours?', 'Guests are requested to maintain low noise levels between 10:00 PM and 7:00 AM, out of consideration for the neighbourhood.', 'House Rules', 310, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is smoking allowed?', 'Smoking is not permitted inside the villa, including bedrooms and bathrooms. Cleaning and restoration charges apply for violations.', 'House Rules', 320, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are pets allowed?', 'No. Pets are not permitted at Villa 19.', 'House Rules', 330, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are unregistered guests allowed?', 'No. Only guests included in the booking are permitted within the premises.', 'House Rules', 340, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the property monitored by CCTV?', 'Yes. CCTV surveillance is provided in common outdoor areas for property security. There are no cameras in private guest areas.', 'Safety & Security', 350, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Are fire extinguishers available?', 'Yes. Fire extinguishers are provided at appropriate locations within the property.', 'Safety & Security', 360, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a first-aid kit available?', 'Yes. A first-aid kit is available at the villa.', 'Safety & Security', 370, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Where is Villa 19 located?', 'Villa 19 is located in Urwa, Mangalore, in a peaceful residential setting with convenient access to the main road, local markets, shops and everyday amenities.', 'Location', 380, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Villa 19 close to the city?', 'Yes. The villa offers a quiet setting while remaining conveniently connected to Mangalore''s key areas.', 'Location', 390, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the villa suitable as a base for exploring Mangalore?', 'Yes. Its location in Urwa provides convenient access to the city, while the private villa offers a relaxed space to return to after exploring Mangalore.', 'Location', 400, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the driver room included in the four bedrooms?', 'No. The dedicated Driver Room is separate from the four guest bedrooms and is intended for driver/staff accommodation.', 'Additional Accommodation', 410, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can the driver stay at the property?', 'Yes. A dedicated driver room with an attached bathroom is available separately from the guest accommodation.', 'Additional Accommodation', 420, TRUE, FALSE)
+ON CONFLICT ON CONSTRAINT uq_faq_property_question DO UPDATE SET answer = EXCLUDED.answer, category = EXCLUDED.category, display_order = EXCLUDED.display_order, is_featured = EXCLUDED.is_featured;
 
 -- ─────────────────────────────────────────────────────────
 -- Nearby Places
