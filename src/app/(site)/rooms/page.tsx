@@ -3,7 +3,8 @@ import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { Bed, Bath, Wind, Check, Building, Maximize } from 'lucide-react';
-import { getProperty, getRooms } from '@/lib/data';
+import Image from 'next/image';
+import { getProperty, getRooms, getImages } from '@/lib/data';
 import CtaButtons from '@/components/guest/CtaButtons';
 import PageHero from '@/components/layout/PageHero';
 
@@ -32,7 +33,10 @@ export default async function RoomsPage() {
     );
   }
 
-  const rooms = await getRooms(property.id);
+  const [rooms, images] = await Promise.all([getRooms(property.id), getImages(property.id)]);
+  // First linked photo per room (property_images.room_id, 00047).
+  const roomPhoto = new Map<string, (typeof images)[number]>();
+  for (const img of images) if (img.room_id && !roomPhoto.has(img.room_id)) roomPhoto.set(img.room_id, img);
   // The lounge sleeps 2 on sofa-cum-beds but is not a bedroom, so the
   // headline counts must exclude it or the page overstates the layout.
   const bedroomCount = rooms.filter((r) => r.room_type !== 'Lounge').length;
@@ -55,16 +59,29 @@ export default async function RoomsPage() {
                 className="rounded-3xl shadow-sm overflow-hidden"
                 style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
               >
-                {/* Room image placeholder */}
-                <div
-                  className="w-full h-48 flex items-center justify-center"
-                  style={{ backgroundColor: 'var(--paper-sunk)' }}
-                >
-                  <div className="text-center space-y-2">
-                    <Bed className="w-10 h-10 mx-auto" style={{ color: 'var(--border-brass)' }} aria-hidden="true" />
-                    <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>Room {idx + 1}</p>
+                {/* The room's own photo; the bed icon stands in until one is linked. */}
+                {roomPhoto.get(room.id) ? (
+                  <div className="relative w-full aspect-[4/3]">
+                    <Image
+                      src={roomPhoto.get(room.id)!.url}
+                      alt={roomPhoto.get(room.id)!.alt_text}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 50vw"
+                      className="object-cover"
+                      priority={idx < 2}
+                    />
                   </div>
-                </div>
+                ) : (
+                  <div
+                    className="w-full h-48 flex items-center justify-center"
+                    style={{ backgroundColor: 'var(--paper-sunk)' }}
+                  >
+                    <div className="text-center space-y-2">
+                      <Bed className="w-10 h-10 mx-auto" style={{ color: 'var(--border-brass)' }} aria-hidden="true" />
+                      <p className="text-xs" style={{ color: 'var(--ink-muted)' }}>{room.name}</p>
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-5 space-y-4">
                   {/* Header */}

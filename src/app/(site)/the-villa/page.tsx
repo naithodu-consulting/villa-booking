@@ -60,7 +60,7 @@ export default async function TheVillaPage() {
   const highlights = [
     { icon: MapPin,    label: 'Location',   value: 'Centrally Located'      },
     { icon: Bed,       label: 'Bedrooms',   value: '4 Bedrooms'            },
-    { icon: Users,     label: 'Capacity',   value: 'Upto 14 Guests'        },
+    { icon: Users,     label: 'Capacity',   value: `Up to ${property.max_occupancy} Guests`        },
     { icon: Car,       label: 'Parking',    value: 'Private Parking' },
     { icon: Sofa,      label: 'Lounge',     value: 'Lounge Area'        },
     { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },

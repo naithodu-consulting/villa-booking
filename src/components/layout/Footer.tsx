@@ -172,7 +172,7 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
           style={{ borderColor: 'rgba(255,255,255,0.10)' }}
         >
           <p className="text-[13px] text-white/60 text-center lg:text-left">
-            &copy; {year} {property.name} by Habbaa. All rights reserved.
+            &copy; {year} Habbaa. All rights reserved.
           </p>
 
           <div className="flex items-center justify-center lg:justify-end">

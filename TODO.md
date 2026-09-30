@@ -371,10 +371,115 @@ This repo must, **before Ooruda enables the upload feature**:
 **Retention decided 2026-09-27: 30 days after check-out.** State exactly that; Ooruda's notice
 says the same.
 
+**Status 2026-09-30:** Ooruda's notice is written (ooruda.com Privacy Policy §5, "Villa Guests
+and Identity Documents"). Ooruda keeps the upload switch (`VILLA_GUEST_ID_UPLOADS`) off until this
+repo's notice is live; until then staff record IDs seen in person with the last 4 digits only.
+Mirror Ooruda's wording on: who sees the documents (owner and managers, signed in), masked number
+only, every view recorded, deletion 30 days after check-out.
+
 ## 8. `bookings.status = 'completed'`
 
 Contract §5.2 says nothing sets it. Ooruda intends to set it at check-out. Confirm nothing here is
 waiting to own it, then say so in the contract so it is no longer ambiguous.
+
+## 8b. Atomic block and rate functions (found in the Ooruda M1 review, 2026-09-29)
+
+Ooruda Villa writes blocks and seasonal rates with separate PostgREST requests,
+because this database offers no function for them. Three races follow:
+
+- **Partial unblock** (contract §4 says "delete it and insert the remaining
+  pieces in one transaction"). Over PostgREST that is two requests. Ooruda now
+  inserts the pieces first, deletes the original only if it still exists, and
+  rolls its pieces back on a clash, so two partial releases can no longer
+  undo each other. A timeout between the two steps can still leave an extra
+  overlapping block (nights stay blocked, which is the safe direction).
+- **Block creation** is check-then-insert: a guest checkout can land between
+  `check_availability` and the insert.
+- **Seasonal rate creation** is overlap-check-then-insert (item 2's exclusion
+  constraint closes this one).
+
+Add, with the same per-property advisory lock `create_booking_atomic` takes:
+
+```sql
+-- Blocks [p_start, p_end) if and only if every night is free.
+create_block_atomic(p_property_id uuid, p_start date, p_end date,
+                    p_reason text, p_notes text) returns uuid
+-- Releases [p_from, p_to) out of block p_block_id in one transaction:
+-- SELECT ... FOR UPDATE, delete, insert the remaining pieces.
+release_blocked_nights(p_property_id uuid, p_block_id uuid,
+                       p_from date, p_to date) returns setof blocked_dates
+```
+
+Grant EXECUTE to `service_role` only. Once they exist, Ooruda switches
+`lib/villa-db/blocks.ts` to call them; tell the Ooruda side when shipped.
+
+## 8c. Tax invoice at CHECK-OUT, not at payment (decided 2026-09-29)
+
+Migration `00038_gst_invoices.sql` issues the invoice when a booking first
+becomes `confirmed` AND `paid` — usually before the stay. The operator decided
+(2026-09-29, in the Ooruda Villa planning session) that the tax invoice is
+issued **at check-out**, so it can include what actually happened (extra bed,
+late check-out, add-ons), with **receipt vouchers** for money received before
+that.
+
+This database stays the **single allocator** of the invoice series
+(`V19/26-27/INV/NNNNNN`, `allocate_invoice_number`); Ooruda Villa issues
+through it and never numbers invoices itself.
+
+Change `bookings_assign_invoice()` so the number is allocated when a booking
+first becomes **`completed`** (Ooruda sets this at check-out; contract §5.2),
+not on confirmed+paid. Keep the rest: allocate inside the same transaction, no
+gaps, no backfill, IST date. Bookings already invoiced under the old rule keep
+their numbers.
+
+Also needed for the invoice PDF: the GST slab per night (item 6) instead of a
+flat 18%, and add-on lines (item 5).
+
+Contract: rewrite §5.7's "Not an invoice number" bullet and add the rule
+"invoice number is assigned at `completed`".
+
+## 8d. Maintain `bookings.updated_at` with a trigger (found 2026-09-29)
+
+`bookings.updated_at` is only changed when a writer sets it by hand. The site's
+own payment paths don't: `api/bookings/verify-payment` and
+`api/bookings/webhook` set `status = 'confirmed', payment_status = 'paid'`
+(and the cancellations) without touching it. Ooruda Villa keeps a read-model of
+bookings for revenue and occupancy reports, and "what changed since my last
+sync" is exactly the question `updated_at` should answer. Today it misses the
+most important change of all — a guest paying online.
+
+Add the standard trigger (Ooruda falls back to re-reading a date window until
+this ships, which is slower but correct):
+
+```sql
+create or replace function set_bookings_updated_at() returns trigger
+language plpgsql set search_path = '' as $$
+begin new.updated_at := now(); return new; end; $$;
+
+drop trigger if exists trg_bookings_updated_at on bookings;
+create trigger trg_bookings_updated_at before update on bookings
+  for each row execute function set_bookings_updated_at();
+
+create index if not exists idx_bookings_property_updated_at
+  on bookings (property_id, updated_at);
+```
+
+## 8e. `properties.whatsapp_number` column (found 2026-09-30)
+
+The business WhatsApp number lives only in this repo's env (`PROPERTY_WHATSAPP`), so Ooruda cannot
+read it and keeps its own copy (`villa_properties.whatsapp_number`, set in Villa Settings) for the
+guest ID request link. Two copies drift. Add `properties.whatsapp_number text` (E.164 digits, as
+`wa.me` expects), read it in `src/lib/data.ts` instead of the env var, and tell Ooruda so it can
+read the site's value and drop its own field.
+
+## 8f. Record refunded amounts on `payments` (found 2026-09-30)
+
+Ooruda's booking ledger (M5a) reads website payments from `payments`. A **partial** refund made in
+the Razorpay dashboard leaves `status = 'captured'` and records no amount, so Ooruda overstates
+what was kept. Add `payments.amount_refunded bigint not null default 0` (paise, as Razorpay's
+`amount_refunded`) and keep it current wherever refunds are recorded; Ooruda will read it. Until
+Ooruda's own online-refund path ships (plan §9b), online refunds happen in the Razorpay dashboard
+and must be mirrored here by hand.
 
 ## 9. Contract updates owed
 
@@ -388,3 +493,4 @@ Fold these into `docs/OORUDA_VILLA_INTEGRATION.md` as each item lands:
 - [ ] §5.7: identity documents are stored by Ooruda Villa; retention; the Privacy page states it.
 - [ ] §10 "Do not": never write `uses_count` or `discount_redemptions` from Ooruda Villa.
 - [ ] §11 checklist: add discount-code and add-on rows.
+- [ ] §4: blocks are created and released through `create_block_atomic` / `release_blocked_nights`.

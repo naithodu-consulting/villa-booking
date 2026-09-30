@@ -89,7 +89,9 @@ export function lodgingJsonLd({ property, images, amenities, telephone }: Lodgin
     name: property.name,
     description: property.description,
     url: SITE_URL,
-    image: images.length ? images : undefined,
+    // Gallery images are served from /gallery on this site; schema.org needs
+    // absolute URLs, so relative paths are resolved against SITE_URL.
+    image: images.length ? images.map((u) => (/^https?:\/\//.test(u) ? u : `${SITE_URL}${u}`)) : undefined,
     telephone: telephone ? `+${telephone.replace(/\D/g, '')}` : undefined,
     parentOrganization: { '@id': ORG_ID },
     address: {
@@ -108,7 +110,8 @@ export function lodgingJsonLd({ property, images, amenities, telephone }: Lodgin
     numberOfRooms: property.bedroom_count,
     maximumAttendeeCapacity: property.max_occupancy,
     petsAllowed: false,
-    priceRange: `₹${rupees(property.base_nightly_rate).toLocaleString('en-IN')} - ₹${rupees(property.weekend_nightly_rate).toLocaleString('en-IN')} per night`,
+    // Free text for search engines; mirrors the booking widget's "starting from" line.
+    priceRange: `From ₹${rupees(Math.min(property.base_nightly_rate, property.weekend_nightly_rate)).toLocaleString('en-IN')} per night, plus GST`,
     currenciesAccepted: 'INR',
     amenityFeature: [
       ...amenities.map((name) => ({ '@type': 'LocationFeatureSpecification', name, value: true })),

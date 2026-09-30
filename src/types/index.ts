@@ -57,6 +57,10 @@ export interface PropertyImage {
   alt_text: string;
   category: GalleryCategory;
   display_order: number;
+  /** Attribution or caption shown under the photo, e.g. a CC BY-SA credit (00048). */
+  credit?: string | null;
+  /** Source page for the credit, required by CC licences. */
+  credit_url?: string | null;
 }
 
 export interface PricingRule {

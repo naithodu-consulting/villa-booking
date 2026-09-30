@@ -54,27 +54,28 @@ ON CONFLICT (id) DO NOTHING;
 -- ─────────────────────────────────────────────────────────
 -- Property Images (12 Unsplash placeholders)
 -- ─────────────────────────────────────────────────────────
-INSERT INTO property_images (id, property_id, url, alt_text, category, display_order, room_id) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000021', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=1600&q=80', 'Villa 19 exterior with garden', 'villa',     1, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000022', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80', 'Living room with natural light', 'living_dining',   2, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000023', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1200&q=80', 'Room 1 - King Bed', 'bedroom',  3, 'a1b2c3d4-0000-0000-0000-000000000011'),
-  ('a1b2c3d4-0000-0000-0000-000000000024', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80', 'Room 2 - Queen Bed', 'bedroom',  4, 'a1b2c3d4-0000-0000-0000-000000000012'),
-  ('a1b2c3d4-0000-0000-0000-000000000025', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80', 'Dining area', 'living_dining',   5, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000026', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=1200&q=80', 'Room 3 - Queen Bed', 'bedroom',  6, 'a1b2c3d4-0000-0000-0000-000000000013'),
-  ('a1b2c3d4-0000-0000-0000-000000000027', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80', 'Living room in the evening', 'living_dining',   7, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000028', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80', 'Room 4 - King Bed', 'bedroom',  8, 'a1b2c3d4-0000-0000-0000-000000000014'),
-  ('a1b2c3d4-0000-0000-0000-000000000029', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80', 'Villa exterior and garden', 'villa', 9, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002a', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1200&q=80', 'Open living area', 'living_dining',   10, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002b', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1200&q=80', 'Outdoor seating area', 'outdoor',   11, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002c', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1475855581690-80accde3ae2b?auto=format&fit=crop&w=1200&q=80', 'Balcony with garden views', 'outdoor', 12, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002d', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=1200&q=80', 'Bathroom with washbasin', 'bathroom', 13, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002e', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?auto=format&fit=crop&w=1200&q=80', 'Bathroom with glass shower', 'bathroom', 14, NULL),
-  ('a1b2c3d4-0000-0000-0000-00000000002f', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1200&q=80', 'Driveway and parking in front of the house', 'parking', 15, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000030', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1200&q=80', 'Paved parking area at the entrance', 'parking', 16, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000031', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80', 'Beach at sunset', 'around', 17, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000032', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=1200&q=80', 'South Indian temple tower', 'around', 18, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000033', 'a1b2c3d4-0000-0000-0000-000000000001', 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=1200&q=80', 'City lights at night', 'around', 19, NULL)
-ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id, category = EXCLUDED.category, alt_text = EXCLUDED.alt_text;
+INSERT INTO property_images (id, property_id, url, alt_text, category, display_order, room_id, credit, credit_url) VALUES
+  ('a1b2c3d4-0000-0000-0000-000000000101', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-facade.jpg', 'Front view of Villa 19 with its name on the facade', 'villa', 1, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000102', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/living-room.jpg', 'Living room with sofas, carved wooden door and display cabinet', 'living_dining', 2, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000103', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-blue.jpg', 'Room 4: king bed with a blue feature wall', 'bedroom', 9, 'a1b2c3d4-0000-0000-0000-000000000014', NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000104', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/lounge.jpg', 'Private lounge with two blue sofa-cum-beds', 'living_dining', 4, 'a1b2c3d4-0000-0000-0000-000000000015', NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000105', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-plum.jpg', 'Room 3: queen bed with a plum feature wall and arched window', 'bedroom', 8, 'a1b2c3d4-0000-0000-0000-000000000013', NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000106', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/hall-staircase.jpg', 'Hall with the staircase and a washbasin corner', 'living_dining', 6, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000107', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/kitchen.jpg', 'Kitchen with cabinets and refrigerator', 'living_dining', 7, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000108', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-brown.jpg', 'Room 1: king bed, built-in wardrobes and air conditioning', 'bedroom', 3, 'a1b2c3d4-0000-0000-0000-000000000011', NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000109', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-white.jpg', 'Room 2: queen bed with a brown feature wall', 'bedroom', 5, 'a1b2c3d4-0000-0000-0000-000000000012', NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000110', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bathroom.jpg', 'Bathroom with vessel basin and rain shower', 'bathroom', 10, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000111', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/washbasin.jpg', 'Washbasin nook with a tiled wall', 'bathroom', 11, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000112', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-gate.jpg', 'Entrance gate with the Villa 19 sign', 'villa', 12, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000113', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/driveway-house.jpg', 'Villa and paved driveway from the gate', 'villa', 13, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000114', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/driveway.jpg', 'Paved driveway with space for several cars', 'parking', 14, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000115', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-front.jpg', 'Covered parking in front of the villa', 'parking', 15, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000116', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/outdoor-garden.jpg', 'Tropical lawn with coconut palms (representative image)', 'outdoor', 16, NULL, 'Representative image', NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000117', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kudroli.jpg', 'Kudroli Gokarnanatheshwara Temple, 2.9 km away', 'around', 17, NULL, 'Photo: Yakshitha, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Kudroli_temple.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000118', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-panambur.jpg', 'Sunset at Panambur Beach, 7.3 km away', 'around', 18, NULL, 'Photo: Avinash Bhat, CC BY-SA 2.0, cropped', 'https://commons.wikimedia.org/wiki/File:Panambur_Beach,_Mangalore_-_24792281798.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000119', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-sultan-bathery.jpg', 'Sultan Bathery watchtower, 1.7 km away', 'around', 19, NULL, 'Photo: Athulvis, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Sultan_Battery,_Mangaluru_3.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000120', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri.jpg', 'Kadri Manjunatha Temple, 4.2 km away', 'around', 20, NULL, 'Photo: Yakshitha, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Kadri_Manjunatha_Temple.jpg')
+ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id, category = EXCLUDED.category, alt_text = EXCLUDED.alt_text, url = EXCLUDED.url, display_order = EXCLUDED.display_order, credit = EXCLUDED.credit, credit_url = EXCLUDED.credit_url;
 
 -- ─────────────────────────────────────────────────────────
 -- Pricing Rules (see 00021). end_date is exclusive: the last priced night is 1 Jan.

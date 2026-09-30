@@ -159,7 +159,7 @@ export default async function LandingPage() {
               {[
                 { icon: MapPin,    value: 'Centrally Located'       },
                 { icon: Bed,       value: '4 Bedrooms'             },
-                { icon: Users,     value: 'Upto 14 Guests'         },
+                { icon: Users,     value: `Up to ${property.max_occupancy} Guests`         },
                 { icon: Car,       value: 'Private Parking'  },
                 { icon: Sofa,      value: 'Lounge Area'         },
                 { icon: Trees,     value: 'Landscaped Garden'       },

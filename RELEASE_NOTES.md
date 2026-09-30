@@ -4,6 +4,39 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.7 — Real gallery photos, room photos, "starting from" pricing — 2026-09-30
+
+### Gallery
+
+- **Real photographs replace the stock gallery** (migration 00046): 15 photos shortlisted from
+  the operator's 23 Sep shoot (38 reviewed), one per room and the strongest of each space,
+  cropped by hand to the 4:3 tiles, resized to 1600x1200 (34 MB of originals to 3.7 MB), number
+  plates blurred and EXIF, including GPS, stripped. Files live in `public/gallery/`.
+- **Room photos linked** (migration 00047): Rooms 1-4 and the Private Lounge, per the operator's
+  labelled room photos. The Rooms page shows each room's photo instead of a bed icon.
+- **Outdoor Spaces and Around Villa 19** get placeholder photos (migration 00048): one Unsplash
+  lawn, and one Wikimedia Commons photo each of Kudroli Temple, Panambur Beach, Sultan Bathery
+  and Kadri Manjunatha Temple. Credits are stored in new `credit` / `credit_url` columns but
+  not displayed, per the operator. The Commons photos are CC BY-SA and need crediting or
+  replacing before launch.
+- One grid (2 / 3 / 4 columns) for every section, so tiles are the same size throughout.
+- Structured data resolves site-relative image paths to absolute URLs.
+
+### Pricing and copy
+
+- **Booking widget shows "Starting from ₹12,000 / night + GST, for up to 8 guests"**, the lowest
+  nightly rate on file, instead of "₹12,000 / night" as if fixed (weekends, holidays, extra
+  guests and GST all cost more). `priceRange` in the structured data matches.
+- Footer: "© 2026 Habbaa. All rights reserved."
+- "Upto 14 Guests" corrected to "Up to", from `max_occupancy`, on the home and Villa pages.
+
+### Deploy notes
+
+- Migrations 00046-00048 are applied to staging after this code deployed, because they point the
+  gallery at files this deploy adds.
+
+---
+
 ## v0.9.6 — Consistent page headers, UI audit fixes, villa rules wording — 2026-09-29
 
 ### Page headers

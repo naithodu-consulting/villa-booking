@@ -78,19 +78,22 @@ export default async function GalleryPage() {
                 >
                   {label}
                 </h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {/* One grid for every section so tiles are the same size throughout; a
+                    short section leaves space rather than stretching its photos. */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
                   {imgs.map((img) => (
                     <div
                       key={img.id}
                       className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
                       style={{ border: '1px solid var(--border-subtle)' }}
                     >
+                      {/* sizes matches the grid: 2 / 3 / 4 columns, capped by max-w-6xl. */}
                       <Image
                         src={img.url}
                         alt={img.alt_text}
                         fill
                         className="object-cover hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 640px) 50vw, 33vw"
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 290px"
                       />
                     </div>
                   ))}

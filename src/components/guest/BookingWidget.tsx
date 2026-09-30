@@ -93,7 +93,13 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
     }
   };
 
-  const baseRateDisplay = inr(property.base_nightly_rate);
+  // "Starting from" must be the lowest nightly rate a guest can actually get:
+  // weekday, weekend or any seasonal rule, whichever is cheapest.
+  const fromRateDisplay = inr(Math.min(
+    property.base_nightly_rate,
+    property.weekend_nightly_rate,
+    ...pricingRules.map((r) => r.nightly_rate),
+  ));
   const extraRateDisplay = inr(property.extra_guest_rate);
   const tier2From = property.extra_guest_tier2_from;
 
@@ -101,17 +107,23 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
     <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg">
       {/* No overflow-hidden on the card: it clipped the date picker popup. The header
           and body round their own corners instead. */}
-      {/* Header carries one message: the nightly rate.
+      {/* Header carries one message: the lowest nightly rate, stated honestly.
+          It read "₹12,000 / night" as if fixed, but weekends, holidays and extra
+          guests cost more and 18% GST is added on top. Villa sites commonly show
+          a "from" price and reviewers warn it hides those; so it says what the
+          figure covers (before GST, up to base_occupancy guests).
           Was --maroon (#5A2626) while the site header and footer are --maroon-deep
           (#3C1717), so the page showed three different maroons; now they agree.
           The "Direct Booking" pill is gone: it made the same claim as the
           guarantee line beside it, and its rgba(30,138,122,0.2) fill composited
           over maroon to #4E3A37, a muddy brown-grey rather than the intended teal. */}
       <div className="bg-[var(--maroon-deep)] p-5 rounded-t-2xl">
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-3xl font-black text-white leading-none">₹{baseRateDisplay}</span>
-          <span className="text-white/60 text-sm font-semibold">/ night</span>
+        <p className="text-[11px] font-bold uppercase tracking-[1px] text-white/60 mb-1.5">Starting from</p>
+        <div className="flex items-baseline gap-1.5 flex-wrap">
+          <span className="text-3xl font-black text-white leading-none">₹{fromRateDisplay}</span>
+          <span className="text-white/60 text-sm font-semibold">/ night + GST</span>
         </div>
+        <p className="text-[13px] text-white/70 mt-1.5">For up to {property.base_occupancy} guests</p>
         <p className="text-[13px] font-semibold text-[var(--brass-light)] mt-2">
           Lowest rate guaranteed &middot; No platform fees
         </p>

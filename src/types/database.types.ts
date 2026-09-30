@@ -1087,6 +1087,8 @@ export type Database = {
           caption: string | null
           category: string | null
           created_at: string | null
+          credit: string | null
+          credit_url: string | null
           display_order: number | null
           height: number | null
           id: string
@@ -1101,6 +1103,8 @@ export type Database = {
           caption?: string | null
           category?: string | null
           created_at?: string | null
+          credit?: string | null
+          credit_url?: string | null
           display_order?: number | null
           height?: number | null
           id?: string
@@ -1115,6 +1119,8 @@ export type Database = {
           caption?: string | null
           category?: string | null
           created_at?: string | null
+          credit?: string | null
+          credit_url?: string | null
           display_order?: number | null
           height?: number | null
           id?: string
