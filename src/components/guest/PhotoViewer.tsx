@@ -10,8 +10,6 @@ interface PhotoViewerProps {
   images: PropertyImage[];
   startIndex: number;
   onClose: () => void;
-  /** Category chips. Off when the caller already passes one section. */
-  showFilters?: boolean;
 }
 
 /** Horizontal travel before a touch counts as a swipe rather than a tap. */
@@ -25,12 +23,7 @@ const ARROW =
   'hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] hover:border-transparent ' +
   'h-10 w-10 sm:h-11 sm:w-11';
 
-export default function PhotoViewer({
-  images,
-  startIndex,
-  onClose,
-  showFilters = true,
-}: PhotoViewerProps) {
+export default function PhotoViewer({ images, startIndex, onClose }: PhotoViewerProps) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [index, setIndex] = useState(startIndex);
 
@@ -135,30 +128,29 @@ export default function PhotoViewer({
         {/* The chips wrap rather than scroll. On a phone they are 759px of
             content in a 369px row, so scrolling hid half the categories behind
             a gesture nobody is told about. Wrapping costs 80px of the ~460px
-            this layout leaves empty on a tall screen and shows every category
-            at once. At landscape and desktop widths they fit on one row, so it
-            only takes space where the space is going spare. */}
-        {showFilters && (
-          <div className="order-3 flex w-full min-w-0 flex-wrap items-center gap-2 sm:order-1 sm:w-auto sm:flex-1">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => {
-                  setActiveCategory(cat);
-                  setIndex(0);
-                }}
-                className={`rounded-lg px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${
-                  activeCategory === cat
-                    ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
-                    : 'bg-white/10 text-white/80 hover:bg-white/20'
-                }`}
-                aria-pressed={activeCategory === cat}
-              >
-                {cat === 'all' ? 'All' : galleryLabel(cat)}
-              </button>
-            ))}
-          </div>
-        )}
+            this layout leaves empty on a tall screen, since a 4:3 photo cannot
+            fill a phone, and shows every category at once. Desktop fits one
+            row; a phone in landscape takes two and the photo is shorter for
+            it, which is the one case this costs anything. */}
+        <div className="order-3 flex w-full min-w-0 flex-wrap items-center gap-2 sm:order-1 sm:w-auto sm:flex-1">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => {
+                setActiveCategory(cat);
+                setIndex(0);
+              }}
+              className={`rounded-lg px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${
+                activeCategory === cat
+                  ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
+                  : 'bg-white/10 text-white/80 hover:bg-white/20'
+              }`}
+              aria-pressed={activeCategory === cat}
+            >
+              {cat === 'all' ? 'All' : galleryLabel(cat)}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Photo and its caption, kept together and centred. The photo box
