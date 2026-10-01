@@ -1,5 +1,20 @@
 @import "tailwindcss";
 
+/* Devices with a real pointer. Screen width is not a proxy for this: an iPad
+   in portrait is 768px wide, so a `md:` hover rule hides content on a screen
+   that can never hover it. */
+@custom-variant can-hover (@media (hover: hover));
+
+/* Used by horizontally scrolling chip rows, which show their overflow with a
+   gradient instead. */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Design tokens ───────────────────────────────────────────────────── */
 :root {
   /* Ground */

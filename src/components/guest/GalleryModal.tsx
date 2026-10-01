@@ -1,122 +1,75 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { PropertyImage } from '@/types';
-import { X, ChevronLeft, ChevronRight, Grid } from 'lucide-react';
-import { GALLERY_SECTIONS, galleryLabel } from '@/lib/gallery';
+import { Grid } from 'lucide-react';
+import PhotoViewer from './PhotoViewer';
 
 interface GalleryProps {
   images: PropertyImage[];
 }
 
-
+/**
+ * The homepage photo mosaic. A way into the viewer rather than a way to
+ * identify a room, so tiles carry no caption on touch: the Gallery page is
+ * where photos are labelled.
+ */
 export default function GalleryModal({ images }: GalleryProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [activeCategory, setActiveCategory] = useState<string>('all');
-
-  // Only sections that have photos, in the gallery page's order.
-  const present = new Set(images.map((img) => img.category));
-  const categories: string[] = ['all', ...GALLERY_SECTIONS.map((s) => s.key).filter((k) => present.has(k))];
-
-  const filteredImages = activeCategory === 'all'
-    ? images
-    : images.filter((img) => img.category === activeCategory);
-
-  const openLightbox = (index: number) => {
-    setCurrentIndex(index);
-    setIsOpen(true);
-  };
-
-  const closeLightbox = useCallback(() => setIsOpen(false), []);
-
-  const goNext = useCallback(() =>
-    setCurrentIndex((i) => (i < filteredImages.length - 1 ? i + 1 : 0)), [filteredImages.length]);
-
-  const goPrev = useCallback(() =>
-    setCurrentIndex((i) => (i > 0 ? i - 1 : filteredImages.length - 1)), [filteredImages.length]);
-
-  // ESC key and arrow key navigation (M-02 fix)
-  useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowRight') goNext();
-      if (e.key === 'ArrowLeft') goPrev();
-    };
-    document.addEventListener('keydown', handler);
-    // Prevent body scroll while modal is open
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', handler);
-      document.body.style.overflow = '';
-    };
-  }, [isOpen, closeLightbox, goNext, goPrev]);
+  const [openAt, setOpenAt] = useState<number | null>(null);
 
   if (images.length === 0) return null;
 
+  const hero = images[0];
+
   return (
     <div className="w-full">
-      {/* Thumbnail Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 rounded-2xl overflow-hidden shadow-lg relative">
-        {/* Hero image */}
-        <div
-          className="col-span-2 md:col-span-2 md:row-span-2 relative h-72 sm:h-80 md:h-[520px] cursor-pointer group overflow-hidden"
-          onClick={() => openLightbox(0)}
-          role="button"
-          tabIndex={0}
-          aria-label={`Open gallery: ${images[0]?.alt_text}`}
-          onKeyDown={(e) => e.key === 'Enter' && openLightbox(0)}
+        <button
+          type="button"
+          className="col-span-2 md:row-span-2 relative h-72 sm:h-80 md:h-[520px] group overflow-hidden"
+          onClick={() => setOpenAt(0)}
+          aria-label={`Open gallery: ${hero.alt_text}`}
         >
           <Image
-            src={images[0]?.url}
-            alt={images[0]?.alt_text ?? 'Villa exterior'}
+            src={hero.url}
+            alt={hero.alt_text ?? 'Villa exterior'}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-500 can-hover:group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 transition-opacity can-hover:group-hover:opacity-40" />
+        </button>
 
-        </div>
-
-        {/* Remaining thumbnails — show all 4 on desktop, only 2 on mobile */}
+        {/* Four more on desktop, two on mobile. */}
         {images.slice(1, 5).map((img, idx) => (
-          <div
+          <button
+            type="button"
             key={img.id}
-            className={`relative h-36 sm:h-40 md:h-[254px] cursor-pointer group overflow-hidden ${idx >= 2 ? 'hidden md:block' : ''}`}
-            onClick={() => openLightbox(idx + 1)}
-            role="button"
-            tabIndex={0}
+            className={`relative h-36 sm:h-40 md:h-[254px] group overflow-hidden ${idx >= 2 ? 'hidden md:block' : ''}`}
+            onClick={() => setOpenAt(idx + 1)}
             aria-label={`View photo: ${img.alt_text}`}
-            onKeyDown={(e) => e.key === 'Enter' && openLightbox(idx + 1)}
           >
             <Image
               src={img.url}
               alt={img.alt_text ?? `Villa photo ${idx + 2}`}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover transition-transform duration-500 can-hover:group-hover:scale-105"
             />
-            {/* Gradient + label overlay — hidden on desktop until hover; always shown on mobile */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent
-                            transition-opacity duration-300
-                            md:opacity-0 md:group-hover:opacity-100" />
-            <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2
-                            transition-all duration-300
-                            md:translate-y-1 md:opacity-0
-                            md:group-hover:translate-y-0 md:group-hover:opacity-100">
-              <p className="text-white text-[10px] font-semibold leading-snug line-clamp-2 drop-shadow-sm">
-                {img.alt_text}
+            <div className="absolute inset-0 bg-black/15 transition-colors can-hover:group-hover:bg-transparent" />
+            <div className="hidden can-hover:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-2.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+              <p className="text-left text-white text-xs font-semibold leading-snug drop-shadow-sm">
+                {img.caption ?? img.alt_text}
               </p>
             </div>
-          </div>
+          </button>
         ))}
 
         <button
-          onClick={() => openLightbox(0)}
-          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-4 min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
+          onClick={() => setOpenAt(0)}
+          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md can-hover:hover:bg-[var(--brass-light)] can-hover:hover:text-[var(--maroon-deep)] text-white px-4 min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
           aria-label={`Show all ${images.length} photos`}
         >
           <Grid className="w-3.5 h-3.5" aria-hidden="true" />
@@ -124,84 +77,8 @@ export default function GalleryModal({ images }: GalleryProps) {
         </button>
       </div>
 
-      {/* Fullscreen Lightbox */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-[rgba(20,10,8,0.96)] backdrop-blur-xl flex flex-col justify-between p-4 md:p-8"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Photo gallery"
-        >
-          {/* Header: category filters + close */}
-          <div className="flex items-center justify-between z-10">
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => { setActiveCategory(cat); setCurrentIndex(0); }}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                    activeCategory === cat
-                      ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
-                      : 'bg-white/10 text-white/80 hover:bg-white/20'
-                  }`}
-                  aria-pressed={activeCategory === cat}
-                >
-                  {cat === 'all' ? 'All' : galleryLabel(cat)}
-                </button>
-              ))}
-            </div>
-            <button
-              onClick={closeLightbox}
-              className="p-2 rounded-full bg-white/10 text-white/80 hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] transition-all ml-4 flex-shrink-0"
-              aria-label="Close gallery"
-            >
-              <X className="w-6 h-6" aria-hidden="true" />
-            </button>
-          </div>
-
-          {/* Image viewer */}
-          <div className="relative flex-1 flex items-center justify-center my-4">
-            <button
-              onClick={goPrev}
-              className="absolute left-2 md:left-6 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] transition-all border border-white/15"
-              aria-label="Previous photo"
-            >
-              <ChevronLeft className="w-6 h-6" aria-hidden="true" />
-            </button>
-
-            {filteredImages[currentIndex] && (
-              <div className="max-w-5xl w-full flex flex-col items-center px-14">
-                <div className="relative w-full max-h-[70vh] aspect-video">
-                  <Image
-                    src={filteredImages[currentIndex].url}
-                    alt={filteredImages[currentIndex].alt_text ?? 'Villa photo'}
-                    fill
-                    sizes="(max-width: 768px) 90vw, 80vw"
-                    className="object-contain rounded-xl"
-                    priority
-                  />
-                </div>
-                <p className="mt-3 text-white/75 text-sm font-medium text-center">
-                  {filteredImages[currentIndex].alt_text} ·{' '}
-                  <span className="tabular-nums">{currentIndex + 1}</span> of{' '}
-                  <span className="tabular-nums">{filteredImages.length}</span>
-                </p>
-              </div>
-            )}
-
-            <button
-              onClick={goNext}
-              className="absolute right-2 md:right-6 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] transition-all border border-white/15"
-              aria-label="Next photo"
-            >
-              <ChevronRight className="w-6 h-6" aria-hidden="true" />
-            </button>
-          </div>
-
-          <p className="text-center text-xs text-white/60">
-            Use ← → arrow keys to navigate · ESC to close
-          </p>
-        </div>
+      {openAt !== null && (
+        <PhotoViewer images={images} startIndex={openAt} onClose={() => setOpenAt(null)} />
       )}
     </div>
   );

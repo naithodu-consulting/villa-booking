@@ -57,9 +57,11 @@ export interface PropertyImage {
   alt_text: string;
   category: GalleryCategory;
   display_order: number;
-  /** Attribution or caption shown under the photo, e.g. a CC BY-SA credit (00048). */
+  /** Short label for a gallery tile, e.g. "Room 2 · Queen bed" (00060).
+   *  alt_text stays the full description, which the photo viewer shows. */
+  caption?: string | null;
+  /** Unused: credits were cleared in 00058. The columns remain. */
   credit?: string | null;
-  /** Source page for the credit, required by CC licences. */
   credit_url?: string | null;
 }
 

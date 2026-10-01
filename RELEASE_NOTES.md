@@ -4,6 +4,38 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.11 - Gallery works on phones and tablets - 2026-10-01
+
+### Gallery
+
+- **Tapping a photo on the Gallery page now opens it.** The page had no viewer, so on a phone there
+  was no way to see any photo larger than its tile.
+- **Labels moved out of the photo on touch devices.** They sat over the image behind a dark gradient
+  that covered about 40% of every tile. They now sit underneath on touch and appear on hover on
+  desktop, so the photos are no longer dimmed to make room for text.
+- **Fixed: labels never appeared on tablets.** v0.9.10 keyed the hover overlay on `md:`, treating
+  screen width as a proxy for having a mouse. An iPad in portrait is 768px wide, so it hid the
+  labels until a hover that a touchscreen cannot produce. Now keyed on `@media (hover: hover)` via
+  a `can-hover` variant, so the test is the input device rather than the screen size.
+- **Short captions** for all 28 photos (migration 00060), e.g. "Room 2 · Queen bed". `alt_text` was
+  written as full sentences for screen readers and was being truncated mid-word in tiles. It stays
+  the accessible description and is what the viewer shows.
+
+### Photo viewer
+
+Extracted into `PhotoViewer`, shared by the Gallery page and the homepage mosaic.
+
+- Photo fills the full width on a phone. It previously used about 45%, boxed in by room reserved
+  for the arrow buttons and a forced widescreen frame.
+- Swipe to move between photos. A mostly-vertical drag is ignored so scrolling does not flip it.
+- Counter moved to the header as "5 / 28"; it was appended to the caption sentence.
+- Keyboard hint only shows on devices with a keyboard-and-pointer.
+- The category row fades at its right edge to show it scrolls, and no longer crowds the close button.
+- Focus is held inside the viewer while open and returned to the tile that opened it on close.
+- `.scrollbar-none` is now actually defined. The class was in use but had never been written.
+
+---
+
 ## v0.9.10 - Gallery hover labels, Pabbas and Naturals photos, photo credits removed - 2026-10-01
 
 ### Gallery
