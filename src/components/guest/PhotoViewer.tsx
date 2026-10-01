@@ -19,6 +19,12 @@ const SWIPE_THRESHOLD = 50;
 
 const SCRIM = 'rgba(20,10,8,0.97)';
 
+const ARROW =
+  'absolute top-1/2 -translate-y-1/2 z-10 grid place-items-center rounded-full ' +
+  'border border-white/25 bg-black/55 text-white backdrop-blur-sm transition-colors ' +
+  'hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] hover:border-transparent ' +
+  'h-10 w-10 sm:h-11 sm:w-11';
+
 export default function PhotoViewer({
   images,
   startIndex,
@@ -109,11 +115,26 @@ export default function PhotoViewer({
       className="fixed inset-0 z-50 flex flex-col backdrop-blur-xl"
       style={{ backgroundColor: SCRIM }}
     >
-      {/* ── Header: filters, counter, close ── */}
-      <div className="flex items-center gap-2 px-3 pt-3 pb-2 sm:gap-4 sm:px-6 sm:pt-5">
+      {/* ── Header. The chips take a line of their own on a phone, where
+             sharing one with the counter and close button left them clipped
+             mid-word. ── */}
+      <div className="flex flex-shrink-0 flex-wrap items-center gap-x-3 gap-y-2 px-3 pt-3 sm:flex-nowrap sm:gap-x-4 sm:px-6 sm:pt-5">
+        <span className="order-1 mr-auto text-xs tabular-nums text-white/70 sm:order-2 sm:mr-0">
+          {index + 1} / {shown.length}
+        </span>
+
+        <button
+          ref={closeRef}
+          onClick={onClose}
+          className="order-2 grid h-10 w-10 flex-shrink-0 place-items-center rounded-full border border-white/20 bg-white/10 text-white/90 transition-colors hover:border-transparent hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] sm:order-3"
+          aria-label="Close gallery"
+        >
+          <X className="h-5 w-5" aria-hidden="true" />
+        </button>
+
         {showFilters && (
-          <div className="relative min-w-0 flex-1">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pr-8">
+          <div className="relative order-3 w-full min-w-0 sm:order-1 sm:w-auto sm:flex-1">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pr-10">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -121,10 +142,10 @@ export default function PhotoViewer({
                     setActiveCategory(cat);
                     setIndex(0);
                   }}
-                  className={`px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+                  className={`flex-shrink-0 rounded-lg px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${
                     activeCategory === cat
                       ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
-                      : 'bg-white/10 text-white/80 can-hover:hover:bg-white/20'
+                      : 'bg-white/10 text-white/80 hover:bg-white/20'
                   }`}
                   aria-pressed={activeCategory === cat}
                 >
@@ -140,59 +161,45 @@ export default function PhotoViewer({
             />
           </div>
         )}
-
-        <span className="flex-shrink-0 text-xs tabular-nums text-white/70">
-          {index + 1} / {shown.length}
-        </span>
-
-        <button
-          ref={closeRef}
-          onClick={onClose}
-          className="flex-shrink-0 p-2 rounded-full bg-white/10 text-white/80 can-hover:hover:bg-[var(--brass-light)] can-hover:hover:text-[var(--maroon-deep)] transition-colors"
-          aria-label="Close gallery"
-        >
-          <X className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-        </button>
       </div>
 
-      {/* ── Photo: fills the space left over, edge to edge on a phone ── */}
-      <div
-        className="relative flex-1 min-h-0"
-        onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
-      >
-        <Image
-          key={current.id}
-          src={current.url}
-          alt={current.alt_text}
-          fill
-          sizes="100vw"
-          priority
-          className="object-contain"
-        />
-
-        <button
-          onClick={goPrev}
-          className="absolute left-1 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors can-hover:hover:bg-[var(--brass-light)] can-hover:hover:text-[var(--maroon-deep)] sm:left-4 sm:p-3"
-          aria-label="Previous photo"
+      {/* ── Photo and its caption, kept together and centred. The photo box
+             carries the 4:3 of almost every photo here, so a phone shows the
+             pair as one block instead of a small photo marooned in the dark. ── */}
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-3 py-4 sm:px-6">
+        {/* max-h reserves the caption's line(s). Plain max-h-full lets the
+            photo take the column's whole height and push the caption off the
+            bottom of the screen. The desktop figure allows for the extra
+            keyboard-hint line. */}
+        <div
+          className="relative aspect-[4/3] w-full max-w-5xl max-h-[calc(100%-3.5rem)] sm:max-h-[calc(100%-5rem)]"
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         >
-          <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-        </button>
-        <button
-          onClick={goNext}
-          className="absolute right-1 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white backdrop-blur-sm transition-colors can-hover:hover:bg-[var(--brass-light)] can-hover:hover:text-[var(--maroon-deep)] sm:right-4 sm:p-3"
-          aria-label="Next photo"
-        >
-          <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />
-        </button>
-      </div>
+          <Image
+            key={current.id}
+            src={current.url}
+            alt={current.alt_text}
+            fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            priority
+            className="object-contain"
+          />
 
-      {/* ── Caption ── */}
-      <div className="px-4 pb-5 pt-3 text-center sm:pb-6">
-        <p className="text-sm text-white/85">{current.alt_text}</p>
-        <p className="mt-2 hidden text-xs text-white/40 can-hover:block">
-          Use the arrow keys to move between photos. Press Escape to close.
-        </p>
+          <button onClick={goPrev} className={`${ARROW} left-2`} aria-label="Previous photo">
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+          </button>
+          <button onClick={goNext} className={`${ARROW} right-2`} aria-label="Next photo">
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+          </button>
+        </div>
+
+        <div className="flex-shrink-0 text-center">
+          <p className="text-sm text-white/85">{current.alt_text}</p>
+          <p className="pointer-only mt-1.5 text-xs text-white/40">
+            Use the arrow keys to move between photos. Press Escape to close.
+          </p>
+        </div>
       </div>
     </div>
   );

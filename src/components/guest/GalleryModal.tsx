@@ -37,9 +37,9 @@ export default function GalleryModal({ images }: GalleryProps) {
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
-            className="object-cover transition-transform duration-500 can-hover:group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 transition-opacity can-hover:group-hover:opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-40" />
         </button>
 
         {/* Four more on desktop, two on mobile. */}
@@ -56,10 +56,10 @@ export default function GalleryModal({ images }: GalleryProps) {
               alt={img.alt_text ?? `Villa photo ${idx + 2}`}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 can-hover:group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/15 transition-colors can-hover:group-hover:bg-transparent" />
-            <div className="hidden can-hover:block absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-2.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            <div className="absolute inset-0 bg-black/15 transition-colors group-hover:bg-transparent" />
+            <div className="pointer-only absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-2.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <p className="text-left text-white text-xs font-semibold leading-snug drop-shadow-sm">
                 {img.caption ?? img.alt_text}
               </p>
@@ -69,7 +69,7 @@ export default function GalleryModal({ images }: GalleryProps) {
 
         <button
           onClick={() => setOpenAt(0)}
-          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md can-hover:hover:bg-[var(--brass-light)] can-hover:hover:text-[var(--maroon-deep)] text-white px-4 min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
+          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-4 min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
           aria-label={`Show all ${images.length} photos`}
         >
           <Grid className="w-3.5 h-3.5" aria-hidden="true" />

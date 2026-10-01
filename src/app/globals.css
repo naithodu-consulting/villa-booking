@@ -1,9 +1,14 @@
 @import "tailwindcss";
 
-/* Devices with a real pointer. Screen width is not a proxy for this: an iPad
-   in portrait is 768px wide, so a `md:` hover rule hides content on a screen
-   that can never hover it. */
-@custom-variant can-hover (@media (hover: hover));
+/* Hidden where the pointer cannot hover, for things that only make sense with
+   a keyboard and mouse. Tailwind's own `hover:` is already wrapped in
+   `@media (hover: hover)`, so it needs no help; this is only for the inverse.
+   Screen width is not a proxy for either: an iPad in portrait is 768px wide. */
+@media (hover: none) {
+  .pointer-only {
+    display: none;
+  }
+}
 
 /* Used by horizontally scrolling chip rows, which show their overflow with a
    gradient instead. */

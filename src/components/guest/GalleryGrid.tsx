@@ -10,8 +10,11 @@ import PhotoViewer from './PhotoViewer';
  * The Gallery page grid. Every tile opens the viewer, which is the only way to
  * see a photo at any size on a phone.
  *
- * The label sits under the tile on touch devices and over it on hover, so a
- * phone never has 40% of each photo covered by a gradient it cannot dismiss.
+ * The label sits under the tile on every device rather than over the photo on
+ * one and under it on another. Text on top of the photo needs a scrim to stay
+ * legible, which dims the thing the page exists to show, and hiding it behind
+ * hover leaves it unreachable on a touchscreen. Hover zooms the tile; that is
+ * the whole of the hover treatment.
  */
 export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
   const [openAt, setOpenAt] = useState<number | null>(null);
@@ -38,44 +41,34 @@ export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
             {/* One grid for every section so tiles are the same size throughout; a
                 short section leaves space rather than stretching its photos. */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
-              {imgs.map((img) => {
-                const tileLabel = img.caption ?? img.alt_text;
-                return (
-                  <button
-                    key={img.id}
-                    type="button"
-                    onClick={() => setOpenAt(ordered.findIndex((o) => o.id === img.id))}
-                    className="group block w-full text-left rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-offset-2"
-                    aria-label={`View photo: ${img.alt_text}`}
+              {imgs.map((img) => (
+                <button
+                  key={img.id}
+                  type="button"
+                  onClick={() => setOpenAt(ordered.findIndex((o) => o.id === img.id))}
+                  className="group block w-full text-left rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-offset-2"
+                  aria-label={`View photo: ${img.alt_text}`}
+                >
+                  <div
+                    className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
+                    style={{ border: '1px solid var(--border-subtle)' }}
                   >
-                    <div
-                      className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
-                      style={{ border: '1px solid var(--border-subtle)' }}
-                    >
-                      {/* sizes matches the grid: 2 / 3 / 4 columns, capped by max-w-6xl. */}
-                      <Image
-                        src={img.url}
-                        alt={img.alt_text}
-                        fill
-                        className="object-cover transition-transform duration-500 can-hover:group-hover:scale-105"
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 290px"
-                      />
-                      <div className="hidden can-hover:block absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <div className="hidden can-hover:block absolute inset-x-0 bottom-0 px-3 pb-2.5 opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
-                        <p className="text-white text-xs font-semibold leading-snug drop-shadow-sm">
-                          {tileLabel}
-                        </p>
-                      </div>
-                    </div>
-                    <p
-                      className="can-hover:hidden mt-2 text-xs font-medium leading-snug"
-                      style={{ color: 'var(--ink-muted)' }}
-                    >
-                      {tileLabel}
-                    </p>
-                  </button>
-                );
-              })}
+                    {/* sizes matches the grid: 2 / 3 / 4 columns, capped by max-w-6xl. */}
+                    <Image
+                      src={img.url}
+                      alt={img.alt_text}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 290px"
+                    />
+                  </div>
+                  {/* Colour set by class, not inline style: an inline style
+                      would outrank the hover rule and never change. */}
+                  <p className="mt-2 text-xs font-medium leading-snug text-[var(--ink-muted)] transition-colors group-hover:text-[var(--maroon)]">
+                    {img.caption ?? img.alt_text}
+                  </p>
+                </button>
+              ))}
             </div>
           </section>
         ))}

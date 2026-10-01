@@ -4,6 +4,42 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.12 - Gallery corrections - 2026-10-01
+
+Fixes to v0.9.11, which was verified against a stale stylesheet and shipped
+several things that did not work.
+
+### Gallery grid
+
+- **Photo labels now always sit under the tile**, on every device. v0.9.11 put
+  them under the tile on touch and over the photo on hover, which meant the
+  label was governed by a media query on every page load. It is now plain
+  markup with nothing conditional about it. Hover zooms the tile and tints the
+  label; that is the whole hover treatment.
+- The `can-hover` custom variant is gone. Tailwind v4 already wraps its own
+  `hover:` and `group-hover:` in `@media (hover: hover)`, so the variant was
+  never needed for hover rules. Only the inverse case is left, as one plain
+  `@media (hover: none)` rule for the keyboard hint.
+- Fixed the tile label colour, which was set by an inline style and so could
+  never be changed by the hover rule that was supposed to change it.
+
+### Photo viewer
+
+- **Fixed the caption being pushed off the bottom of the screen.** The photo
+  box used `max-h-full`, so it took the whole column and left the caption with
+  nowhere to go. It now reserves the caption's height.
+- **Fixed the cramped header on phones.** The category chips shared one row
+  with the counter and the close button and were clipped mid-word. They now
+  take a row of their own below them, at full width.
+- **Fixed near-invisible arrow buttons.** They were `bg-black/40` on an almost
+  black scrim, so only the chevron showed. They now have a lighter fill and a
+  border.
+- The photo box carries the 4:3 that 25 of the 28 photos share, so the photo
+  and its caption read as one block instead of a small photo adrift in a large
+  dark field. Photos that are not 4:3 letterbox inside it as before.
+
+---
+
 ## v0.9.11 - Gallery works on phones and tablets - 2026-10-01
 
 ### Gallery
