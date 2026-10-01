@@ -37,31 +37,6 @@ export default function PhotoViewer({
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const chipsRef = useRef<HTMLDivElement>(null);
-
-  // The category row scrolls out of sight on a narrow screen, so it says which
-  // way it continues. A fade only on the side that has more is the cue: a fade
-  // that is always there reads as decoration and stops meaning anything.
-  const [chipsMore, setChipsMore] = useState({ start: false, end: false });
-
-  const syncChipsMore = useCallback(() => {
-    const el = chipsRef.current;
-    if (!el) return;
-    const max = el.scrollWidth - el.clientWidth;
-    setChipsMore({ start: el.scrollLeft > 1, end: el.scrollLeft < max - 1 });
-  }, []);
-
-  useEffect(() => {
-    const el = chipsRef.current;
-    if (!el) return;
-    syncChipsMore();
-    el.addEventListener('scroll', syncChipsMore, { passive: true });
-    window.addEventListener('resize', syncChipsMore);
-    return () => {
-      el.removeEventListener('scroll', syncChipsMore);
-      window.removeEventListener('resize', syncChipsMore);
-    };
-  }, [syncChipsMore]);
 
   const present = new Set(images.map((img) => img.category));
   const categories = ['all', ...GALLERY_SECTIONS.map((s) => s.key).filter((k) => present.has(k))];
@@ -157,41 +132,31 @@ export default function PhotoViewer({
           <X className="h-5 w-5" aria-hidden="true" />
         </button>
 
+        {/* The chips wrap rather than scroll. On a phone they are 759px of
+            content in a 369px row, so scrolling hid half the categories behind
+            a gesture nobody is told about. Wrapping costs 80px of the ~460px
+            this layout leaves empty on a tall screen and shows every category
+            at once. At landscape and desktop widths they fit on one row, so it
+            only takes space where the space is going spare. */}
         {showFilters && (
-          <div className="relative order-3 w-full min-w-0 sm:order-1 sm:w-auto sm:flex-1">
-            <div ref={chipsRef} className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    setActiveCategory(cat);
-                    setIndex(0);
-                  }}
-                  className={`flex-shrink-0 rounded-lg px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${
-                    activeCategory === cat
-                      ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
-                      : 'bg-white/10 text-white/80 hover:bg-white/20'
-                  }`}
-                  aria-pressed={activeCategory === cat}
-                >
-                  {cat === 'all' ? 'All' : galleryLabel(cat)}
-                </button>
-              ))}
-            </div>
-            {chipsMore.start && (
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 left-0 w-12"
-                style={{ background: `linear-gradient(to right, ${SCRIM}, transparent)` }}
-              />
-            )}
-            {chipsMore.end && (
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 right-0 w-12"
-                style={{ background: `linear-gradient(to left, ${SCRIM}, transparent)` }}
-              />
-            )}
+          <div className="order-3 flex w-full min-w-0 flex-wrap items-center gap-2 sm:order-1 sm:w-auto sm:flex-1">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => {
+                  setActiveCategory(cat);
+                  setIndex(0);
+                }}
+                className={`rounded-lg px-3.5 py-2 text-xs font-semibold whitespace-nowrap transition-colors ${
+                  activeCategory === cat
+                    ? 'bg-[var(--brass-light)] text-[var(--maroon-deep)]'
+                    : 'bg-white/10 text-white/80 hover:bg-white/20'
+                }`}
+                aria-pressed={activeCategory === cat}
+              >
+                {cat === 'all' ? 'All' : galleryLabel(cat)}
+              </button>
+            ))}
           </div>
         )}
       </div>

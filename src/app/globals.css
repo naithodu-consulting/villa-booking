@@ -1,15 +1,5 @@
 @import "tailwindcss";
 
-/* Used by horizontally scrolling chip rows, which show their overflow with a
-   gradient instead. */
-.scrollbar-none {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
-}
-
 /* ── Design tokens ───────────────────────────────────────────────────── */
 :root {
   /* Ground */

@@ -4,6 +4,30 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.14 - Gallery categories no longer scroll out of sight - 2026-10-01
+
+The photo viewer's category row wrapped onto more lines instead of scrolling
+sideways, so there is nothing left to indicate.
+
+On a phone the eight categories are 759px of chips in a 369px row, so
+scrolling put **half of them off-screen behind an undiscoverable gesture**,
+with a sliced chip at the edge that read as a layout fault. Wrapping shows all
+eight at once. It costs 80px of the roughly 460px this layout leaves empty on
+a tall screen, because a 4:3 photo cannot fill a phone, and the photo keeps
+exactly the size it had.
+
+Replaces the scroll-position fades added in v0.9.13, along with the scroll and
+resize listeners, the state behind them, and the `scrollbar-none` rule that
+had no other user. The widths work out so that this only takes space where the
+space is going spare: desktop fits one row, a phone in landscape two.
+
+Known trade-off: a phone in landscape gives the chips two rows, which leaves
+the photo about 15% shorter than before. Filtering stays reachable there,
+which seemed worth more than the height, but it is worth a look on a real
+device.
+
+---
+
 ## v0.9.13 - Gallery polish - 2026-10-01
 
 - **Removed the keyboard hint** from the photo viewer. With it gone the
