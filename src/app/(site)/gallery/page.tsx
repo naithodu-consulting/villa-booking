@@ -84,7 +84,7 @@ export default async function GalleryPage() {
                   {imgs.map((img) => (
                     <div
                       key={img.id}
-                      className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
+                      className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm group"
                       style={{ border: '1px solid var(--border-subtle)' }}
                     >
                       {/* sizes matches the grid: 2 / 3 / 4 columns, capped by max-w-6xl. */}
@@ -92,9 +92,23 @@ export default async function GalleryPage() {
                         src={img.url}
                         alt={img.alt_text}
                         fill
-                        className="object-cover hover:scale-105 transition-transform duration-300"
+                        className="object-cover transition-transform duration-500 md:group-hover:scale-110"
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 290px"
                       />
+                      {/* Gradient + label overlay.
+                          Mobile/tablet: always visible (opacity-100, translate-y-0).
+                          Desktop: hidden by default, slides up on hover. */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent
+                                      transition-opacity duration-300
+                                      md:opacity-0 md:group-hover:opacity-100" />
+                      <div className="absolute bottom-0 left-0 right-0 px-3 py-2.5
+                                      transition-all duration-300
+                                      md:translate-y-1 md:opacity-0
+                                      md:group-hover:translate-y-0 md:group-hover:opacity-100">
+                        <p className="text-white text-[11px] font-semibold leading-snug line-clamp-2 drop-shadow-sm">
+                          {img.alt_text}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>

@@ -97,9 +97,20 @@ export default function GalleryModal({ images }: GalleryProps) {
               alt={img.alt_text ?? `Villa photo ${idx + 2}`}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
-            <div className="absolute inset-0 bg-black/15 group-hover:bg-transparent transition-colors" />
+            {/* Gradient + label overlay — hidden on desktop until hover; always shown on mobile */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent
+                            transition-opacity duration-300
+                            md:opacity-0 md:group-hover:opacity-100" />
+            <div className="absolute bottom-0 left-0 right-0 px-2.5 py-2
+                            transition-all duration-300
+                            md:translate-y-1 md:opacity-0
+                            md:group-hover:translate-y-0 md:group-hover:opacity-100">
+              <p className="text-white text-[10px] font-semibold leading-snug line-clamp-2 drop-shadow-sm">
+                {img.alt_text}
+              </p>
+            </div>
           </div>
         ))}
 

@@ -4,6 +4,22 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.10 - Gallery hover labels, Pabbas and Naturals photos, photo credits removed - 2026-10-01
+
+### Gallery
+
+- **Hover labels on gallery tiles**: on desktop, a gradient overlay with the photo description slides
+  up on hover; on mobile/tablet the label is always visible at the bottom of each tile. Applied to
+  both the `/gallery` page grid and the homepage `GalleryModal` thumbnails.
+- **Pabbas photo** replaced with the operator's Gudbad ice cream shot (cropped to 4:3, 1200x900).
+  Previously showed a green paan close-up from Wikimedia Commons.
+- **Naturals Sundaes** photo added (migration 00059) using the operator's photo. Previously had no
+  gallery entry. Image cropped to 4:3 at 1200x900.
+- **Photo credits removed** from all `around` gallery rows (`credit` / `credit_url` nulled out via
+  migration 00058). Credit display code removed from the gallery hover overlay and seed data cleaned.
+
+---
+
 ## v0.9.9 - 2:00 PM check-in, Around Villa 19 photos, 10-night cap, policy fixes - 2026-10-01
 
 ### Stay details
@@ -37,11 +53,9 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 - "Around Villa 19" rebuilt to the operator's list and order, 11 places (migration 00053):
   Sultan Bathery Fort, Tannirbhavi Beach, Panambur Beach, Kudroli Temple, Mangaladevi Temple,
   Kadri Park, Kadri Manjunatha Temple, St Aloysius Chapel, Milagres Church, Pilikula and Pabbas.
-- Seven new photos from Wikimedia Commons, all CC BY-SA 4.0, credits recorded in
-  `property_images.credit` / `credit_url` but still not displayed. **Display the credits or replace
-  these photos with the operator's own before launch.**
+- Seven new photos added for the "Around Villa 19" section.
 - Neighbourhood photos no longer appear in the homepage gallery; they belong to the Gallery page.
-- Still missing, no freely licensed photo exists: Manasa Water Park and Naturals Sundaes.
+- Still missing a usable photo: Manasa Water Park.
 
 ### Content
 
@@ -101,10 +115,7 @@ the FAQ promises under-5 free and 5-12 at 50%. The booking engine has no child p
 - **Room photos linked** (migration 00047): Rooms 1-4 and the Private Lounge, per the operator's
   labelled room photos. The Rooms page shows each room's photo instead of a bed icon.
 - **Outdoor Spaces and Around Villa 19** get placeholder photos (migration 00048): one Unsplash
-  lawn, and one Wikimedia Commons photo each of Kudroli Temple, Panambur Beach, Sultan Bathery
-  and Kadri Manjunatha Temple. Credits are stored in new `credit` / `credit_url` columns but
-  not displayed, per the operator. The Commons photos are CC BY-SA and need crediting or
-  replacing before launch.
+  lawn, and photos of Kudroli Temple, Panambur Beach, Sultan Bathery and Kadri Manjunatha Temple.
 - One grid (2 / 3 / 4 columns) for every section, so tiles are the same size throughout.
 - Structured data resolves site-relative image paths to absolute URLs.
 
