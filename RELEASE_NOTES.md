@@ -47,7 +47,10 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 - Lounge convertible sofas noted as additional sleeping space in the villa description.
 - "Indoor games" is now "Books & Board Games"; "2 convertible sofas" splits into "Living room with
-  plush sofas" and "Lounge with convertible sofas" (migration 00055).
+  plush sofas" and "Lounge with convertible sofas" (migrations 00055 and 00057). 00055 matched these
+  rows by hardcoded UUID, but the ids are generated per environment, so on staging every rename
+  matched zero rows while still reporting success. 00057 repairs it by matching on label and setting
+  the display order outright.
 - "Function Halls" is now "Wedding & Event Venues"; "Sanghaniketan Hall" is now "Sanghaniketan".
 - Capitalised King and Queen in bed copy; the kitchen FAQ now lists cutlery.
 
