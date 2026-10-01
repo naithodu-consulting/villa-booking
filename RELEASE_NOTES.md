@@ -4,6 +4,20 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.13 - Gallery polish - 2026-10-01
+
+- **Removed the keyboard hint** from the photo viewer. With it gone the
+  `pointer-only` rule had no users, so all custom hover CSS is now deleted:
+  Tailwind v4 already wraps its own `hover:` in `@media (hover: hover)`.
+- **Photo labels are centred** under their tile, matching the photo above them.
+- **The category row says which way it continues.** It scrolls out of sight on
+  a phone with nothing to show that, so a chip could sit half cut off at the
+  edge and read as a layout fault rather than as more to come. A fade now
+  appears on whichever side has more, and on neither side when the whole row
+  fits, so it means something wherever it shows.
+
+---
+
 ## v0.9.12 - Gallery corrections - 2026-10-01
 
 Fixes to v0.9.11, which was verified against a stale stylesheet and shipped

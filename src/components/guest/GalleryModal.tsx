@@ -59,7 +59,9 @@ export default function GalleryModal({ images }: GalleryProps) {
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-black/15 transition-colors group-hover:bg-transparent" />
-            <div className="pointer-only absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-2.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+            {/* opacity-0 by default and group-hover: is already wrapped in
+                @media (hover: hover), so a touchscreen never reveals this. */}
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 pt-8 pb-2.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <p className="text-left text-white text-xs font-semibold leading-snug drop-shadow-sm">
                 {img.caption ?? img.alt_text}
               </p>

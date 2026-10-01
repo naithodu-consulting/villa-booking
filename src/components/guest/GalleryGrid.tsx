@@ -46,7 +46,7 @@ export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
                   key={img.id}
                   type="button"
                   onClick={() => setOpenAt(ordered.findIndex((o) => o.id === img.id))}
-                  className="group block w-full text-left rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-offset-2"
+                  className="group block w-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-offset-2"
                   aria-label={`View photo: ${img.alt_text}`}
                 >
                   <div
@@ -64,7 +64,7 @@ export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
                   </div>
                   {/* Colour set by class, not inline style: an inline style
                       would outrank the hover rule and never change. */}
-                  <p className="mt-2 text-xs font-medium leading-snug text-[var(--ink-muted)] transition-colors group-hover:text-[var(--maroon)]">
+                  <p className="mt-2 text-center text-xs font-medium leading-snug text-[var(--ink-muted)] transition-colors group-hover:text-[var(--maroon)]">
                     {img.caption ?? img.alt_text}
                   </p>
                 </button>

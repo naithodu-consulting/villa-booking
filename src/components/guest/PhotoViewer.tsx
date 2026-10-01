@@ -37,6 +37,31 @@ export default function PhotoViewer({
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const chipsRef = useRef<HTMLDivElement>(null);
+
+  // The category row scrolls out of sight on a narrow screen, so it says which
+  // way it continues. A fade only on the side that has more is the cue: a fade
+  // that is always there reads as decoration and stops meaning anything.
+  const [chipsMore, setChipsMore] = useState({ start: false, end: false });
+
+  const syncChipsMore = useCallback(() => {
+    const el = chipsRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    setChipsMore({ start: el.scrollLeft > 1, end: el.scrollLeft < max - 1 });
+  }, []);
+
+  useEffect(() => {
+    const el = chipsRef.current;
+    if (!el) return;
+    syncChipsMore();
+    el.addEventListener('scroll', syncChipsMore, { passive: true });
+    window.addEventListener('resize', syncChipsMore);
+    return () => {
+      el.removeEventListener('scroll', syncChipsMore);
+      window.removeEventListener('resize', syncChipsMore);
+    };
+  }, [syncChipsMore]);
 
   const present = new Set(images.map((img) => img.category));
   const categories = ['all', ...GALLERY_SECTIONS.map((s) => s.key).filter((k) => present.has(k))];
@@ -134,7 +159,7 @@ export default function PhotoViewer({
 
         {showFilters && (
           <div className="relative order-3 w-full min-w-0 sm:order-1 sm:w-auto sm:flex-1">
-            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pr-10">
+            <div ref={chipsRef} className="flex items-center gap-2 overflow-x-auto scrollbar-none">
               {categories.map((cat) => (
                 <button
                   key={cat}
@@ -153,12 +178,20 @@ export default function PhotoViewer({
                 </button>
               ))}
             </div>
-            {/* Shows that the row keeps going. */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 right-0 w-10"
-              style={{ background: `linear-gradient(to left, ${SCRIM}, transparent)` }}
-            />
+            {chipsMore.start && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 left-0 w-12"
+                style={{ background: `linear-gradient(to right, ${SCRIM}, transparent)` }}
+              />
+            )}
+            {chipsMore.end && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 w-12"
+                style={{ background: `linear-gradient(to left, ${SCRIM}, transparent)` }}
+              />
+            )}
           </div>
         )}
       </div>
@@ -194,12 +227,7 @@ export default function PhotoViewer({
           </button>
         </div>
 
-        <div className="flex-shrink-0 text-center">
-          <p className="text-sm text-white/85">{current.alt_text}</p>
-          <p className="pointer-only mt-1.5 text-xs text-white/40">
-            Use the arrow keys to move between photos. Press Escape to close.
-          </p>
-        </div>
+        <p className="flex-shrink-0 text-center text-sm text-white/85">{current.alt_text}</p>
       </div>
     </div>
   );
