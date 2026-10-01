@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { getJournalPosts, isJournalLive } from '@/lib/journal';
 import { SITE_URL } from '@/lib/seo';
 import { EVENTS_PAGE_ENABLED } from '@/lib/features';
+import { SHOW_STAY_GUIDE } from '@/lib/site-sections';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_URL;
@@ -13,7 +14,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: '/rooms',       priority: 0.8,  changeFrequency: 'monthly' },
     { path: '/gallery',     priority: 0.75, changeFrequency: 'weekly' },
     ...(EVENTS_PAGE_ENABLED ? [{ path: '/events', priority: 0.75, changeFrequency: 'monthly' as const }] : []),
-    { path: '/stay-guide',   priority: 0.7,  changeFrequency: 'monthly' },
+    ...(SHOW_STAY_GUIDE ? [{ path: '/stay-guide', priority: 0.7, changeFrequency: 'monthly' as const }] : []),
     { path: '/faq',          priority: 0.65, changeFrequency: 'monthly' },
     { path: '/about',        priority: 0.6,  changeFrequency: 'yearly'  },
     { path: '/contact',     priority: 0.5,  changeFrequency: 'yearly' },

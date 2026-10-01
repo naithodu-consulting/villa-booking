@@ -182,9 +182,6 @@ function CheckoutContent({ property, pricingRules }: Props) {
             <h1 className="text-3xl font-black" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
               Choose your dates
             </h1>
-            <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
-              Tell us when you would like to stay and we will show you the total.
-            </p>
           </div>
 
           <DateSelectForm
@@ -450,11 +447,6 @@ function CheckoutContent({ property, pricingRules }: Props) {
                 Stay Summary
               </h2>
 
-              <div className="pb-3 space-y-1.5" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                <Image src="/villa19-wordmark.svg" alt={property.name} width={98} height={22} />
-                <p className="text-xs font-medium tracking-widest uppercase" style={{ color: 'var(--brass-ink)' }}>By Habbaa</p>
-              </div>
-
               <div className="text-sm space-y-2.5">
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--ink-muted)' }}>Check-in</span>
@@ -500,7 +492,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     <span style={{ color: 'var(--brass-ink)' }}>₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
                   </div>
                   <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
-                    All prices in INR incl. 18% GST. A security deposit, where applicable, is collected at check-in.
+                    All prices in INR and inclusive of GST. A security deposit, where applicable, is collected at check-in.
                   </p>
                 </div>
               )}

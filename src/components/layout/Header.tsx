@@ -8,6 +8,7 @@ import BookNowLink from '@/components/guest/BookNowLink';
 import Image from 'next/image';
 import { X } from 'lucide-react';
 import { EVENTS_PAGE_ENABLED } from '@/lib/features';
+import { SHOW_STAY_GUIDE } from '@/lib/site-sections';
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -39,7 +40,7 @@ const DRAWER_LINKS = [
   { href: '/rooms',      label: 'Rooms'      },
   { href: '/gallery',    label: 'Gallery'    },
   ...(EVENTS_PAGE_ENABLED ? [{ href: '/events', label: 'Events' }] : []),
-  { href: '/stay-guide', label: 'Stay Guide' },
+  ...(SHOW_STAY_GUIDE ? [{ href: '/stay-guide', label: 'Stay Guide' }] : []),
   { href: '/faq',        label: 'FAQs'       },
   { href: '/about',      label: 'About Us'   },
   { href: '/contact',    label: 'Contact Us' },

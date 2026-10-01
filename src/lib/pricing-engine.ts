@@ -36,6 +36,15 @@ export function nightlyRate(
   return { rate, isWeekend, rule };
 }
 
+/**
+ * Longest stay bookable online. Longer stays are priced by hand, so the guest is
+ * sent to the villa instead of being quoted a rack rate for a month.
+ */
+export const MAX_STAY_NIGHTS = 10;
+
+export const MAX_STAY_MESSAGE =
+  'For stays of this duration, please contact Villa 19 directly for special pricing and availability.';
+
 export function calculateBookingPrice(
   property: Property,
   pricingRules: PricingRule[],
@@ -49,6 +58,11 @@ export function calculateBookingPrice(
 
   if (isNaN(checkIn.getTime()) || isNaN(checkOut.getTime()) || checkOut <= checkIn) {
     throw new Error('INVALID_DATE_RANGE: Check-out must be after check-in date.');
+  }
+
+  const nights = Math.round((checkOut.getTime() - checkIn.getTime()) / 86400000);
+  if (nights > MAX_STAY_NIGHTS) {
+    throw new Error(`MAX_STAY: ${MAX_STAY_MESSAGE}`);
   }
 
   const totalGuests = numAdults + numChildren;

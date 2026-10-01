@@ -7,6 +7,7 @@ import type { Property } from '@/types';
 import { formatPhone } from '@/lib/format';
 import { ENTITY } from '@/lib/entity';
 import { EVENTS_PAGE_ENABLED } from '@/lib/features';
+import { SHOW_STAY_GUIDE } from '@/lib/site-sections';
 
 function WhatsAppIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -22,7 +23,7 @@ const EXPLORE_LINKS: [string, string][] = [
   ['/rooms',      'Rooms'],
   ['/gallery',    'Gallery'],
   ...(EVENTS_PAGE_ENABLED ? [['/events', 'Events'] as [string, string]] : []),
-  ['/stay-guide', 'Stay Guide'],
+  ...(SHOW_STAY_GUIDE ? [['/stay-guide', 'Stay Guide'] as [string, string]] : []),
   ['/faq',        'FAQs'],
   ['/about',      'About Us'],
 ];

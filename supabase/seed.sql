@@ -25,17 +25,17 @@ Tucked away in a peaceful setting yet close to the heart of the city, the villa 
 
 Designed with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.
 
-**Ideal for 8 guests** and comfortably **accommodating up to 14**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore.
+**Ideal for 8 guests** and comfortably **accommodating up to 14**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore. For larger groups, the spacious lounge can also be used as additional sleeping space with its convertible sofas.
 
 Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
-  'Urwa', 'Mangalore', 'Karnataka', '575006',
+  'Urwa Marigudi Cross Road, Urwa', 'Mangalore', 'Karnataka', '575006',
   12.895188, 74.830676,
   8, 14, 8,  -- base 8 included, hard cap 14, ideal party size 8
   100000,   -- ₹1,000/extra guest per night, guests 9-11
   12, 70000, -- ₹700/extra guest per night from guest 12
   1200000,  -- ₹12,000/night base
   1400000,  -- ₹14,000/night weekend
-  '15:00:00', '11:00:00',
+  '14:00:00', '10:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
   slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, is_active = EXCLUDED.is_active;
@@ -46,9 +46,9 @@ Whether it is a family gathering, a weekend with friends, a milestone celebratio
 INSERT INTO rooms (id, property_id, name, slug, room_type, bed_type, bed_count, max_guests, has_ensuite_bathroom, bathroom_type, floor, size_sqft, display_order, has_ac) VALUES
   ('a1b2c3d4-0000-0000-0000-000000000011', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 1',         'room-1',         'Bedroom', 'King Size Bed',  1, 3, TRUE,  'Attached', 'Ground Floor', 156, 1, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000012', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 2',         'room-2',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'Ground Floor', 144, 2, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000013', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 3',         'room-3',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'First Floor',  125, 3, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000013', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 3',         'room-3',         'Bedroom', 'Queen Size Bed', 1, 2, FALSE, 'Shared',   'First Floor',  125, 3, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000014', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 4',         'room-4',         'Bedroom', 'King Size Bed',  1, 3, FALSE, 'Shared',   'First Floor',  156, 4, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000015', 'a1b2c3d4-0000-0000-0000-000000000001', 'Private Lounge', 'private-lounge', 'Lounge',  'Sofa Cum Bed',   2, 2, FALSE, 'Shared',   'First Floor',  144, 5, FALSE)
+  ('a1b2c3d4-0000-0000-0000-000000000015', 'a1b2c3d4-0000-0000-0000-000000000001', 'Private Lounge', 'private-lounge', 'Lounge',  'Sofa Cum Bed',   2, 3, FALSE, 'Shared',   'First Floor',  144, 5, FALSE)
 ON CONFLICT (id) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────
@@ -71,10 +71,17 @@ INSERT INTO property_images (id, property_id, url, alt_text, category, display_o
   ('a1b2c3d4-0000-0000-0000-000000000114', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/driveway.jpg', 'Paved driveway with space for several cars', 'parking', 14, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000115', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-front.jpg', 'Covered parking in front of the villa', 'parking', 15, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000116', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/outdoor-garden.jpg', 'Tropical lawn with coconut palms (representative image)', 'outdoor', 16, NULL, 'Representative image', NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000117', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kudroli.jpg', 'Kudroli Gokarnanatheshwara Temple, 2.9 km away', 'around', 17, NULL, 'Photo: Yakshitha, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Kudroli_temple.jpg'),
-  ('a1b2c3d4-0000-0000-0000-000000000118', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-panambur.jpg', 'Sunset at Panambur Beach, 7.3 km away', 'around', 18, NULL, 'Photo: Avinash Bhat, CC BY-SA 2.0, cropped', 'https://commons.wikimedia.org/wiki/File:Panambur_Beach,_Mangalore_-_24792281798.jpg'),
-  ('a1b2c3d4-0000-0000-0000-000000000119', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-sultan-bathery.jpg', 'Sultan Bathery watchtower, 1.7 km away', 'around', 19, NULL, 'Photo: Athulvis, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Sultan_Battery,_Mangaluru_3.jpg'),
-  ('a1b2c3d4-0000-0000-0000-000000000120', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri.jpg', 'Kadri Manjunatha Temple, 4.2 km away', 'around', 20, NULL, 'Photo: Yakshitha, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Kadri_Manjunatha_Temple.jpg')
+  ('a1b2c3d4-0000-0000-0000-000000000119', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-sultan-bathery.jpg', 'Sultan Bathery Fort, 1.7 km away', 'around', 17, NULL, 'Photo: Athulvis, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Sultan_Battery,_Mangaluru_3.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000121', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-tannirbavi.jpg', 'Tannirbhavi Beach, 8.8 km away', 'around', 18, NULL, 'Photo: Aviator423, CC BY-SA 4.0, resized', 'https://commons.wikimedia.org/wiki/File:Tannirbhavi_Beach_in_Mangalore_-_2.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000118', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-panambur.jpg', 'Panambur Beach at sunset, 7.3 km away', 'around', 19, NULL, 'Photo: Avinash Bhat, CC BY-SA 2.0, cropped', 'https://commons.wikimedia.org/wiki/File:Panambur_Beach,_Mangalore_-_24792281798.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000117', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kudroli.jpg', 'Kudroli Gokarnanatheshwara Temple, 2.9 km away', 'around', 20, NULL, 'Photo: Yakshitha, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Kudroli_temple.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000122', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-mangaladevi.jpg', 'Mangaladevi Temple, Mangaluru', 'around', 21, NULL, 'Photo: Gopala Krishna A, CC BY-SA 4.0, resized', 'https://commons.wikimedia.org/wiki/File:Mangaladevi_temple_1.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000123', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri-park.jpg', 'Kadri Park, Mangaluru', 'around', 22, NULL, 'Photo: Aviator423, CC BY-SA 4.0, resized', 'https://commons.wikimedia.org/wiki/File:Kadri_Park_in_Mangalore_-_1.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000120', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri.jpg', 'Kadri Manjunatha Temple, 4.2 km away', 'around', 23, NULL, 'Photo: Yakshitha, CC BY-SA 4.0, cropped', 'https://commons.wikimedia.org/wiki/File:Kadri_Manjunatha_Temple.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000124', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-st-aloysius.jpg', 'St Aloysius Chapel, Mangaluru', 'around', 24, NULL, 'Photo: Hariprasad Shetty10, CC BY-SA 4.0, resized', 'https://commons.wikimedia.org/wiki/File:St_Aloysius_chapel,_Mangaluru_Front_view.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000125', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-milagres.jpg', 'Milagres Church, Mangaluru', 'around', 25, NULL, 'Photo: Robjersey, CC BY-SA 4.0, resized', 'https://commons.wikimedia.org/wiki/File:Milagres_Church_in_Mangalore.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000126', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-pilikula.jpg', 'Pilikula Nature Park and Zoo, 14 km away', 'around', 26, NULL, 'Photo: Aviator423, CC BY-SA 4.0, cropped and resized', 'https://commons.wikimedia.org/wiki/File:Near_the_entrance_of_the_Pilikula_Biological_Park_in_Mangalore.jpg'),
+  ('a1b2c3d4-0000-0000-0000-000000000127', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-pabbas.jpg', 'Marzi paan ice cream at Pabbas, 2.2 km away', 'around', 27, NULL, 'Photo: Harikrishnan N, CC BY-SA 4.0, resized', 'https://commons.wikimedia.org/wiki/File:Marzi_Paan_Ice_Cream_-_Pabbas,_Mangalore_-_Karnataka_-_PXL1306.jpg')
 ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id, category = EXCLUDED.category, alt_text = EXCLUDED.alt_text, url = EXCLUDED.url, display_order = EXCLUDED.display_order, credit = EXCLUDED.credit, credit_url = EXCLUDED.credit_url;
 
 -- ─────────────────────────────────────────────────────────
@@ -91,12 +98,13 @@ ON CONFLICT ON CONSTRAINT uq_pricing_property_rule DO NOTHING;
 INSERT INTO property_amenities (property_id, category, label, icon, is_available, is_featured, display_order) VALUES
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', 'Spacious living room', 'Sofa', TRUE, TRUE , 10),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', '8-seater dining area', 'UtensilsCrossed', TRUE, FALSE, 11),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', '2 convertible sofas', 'BedDouble', TRUE, FALSE, 12),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', '50" Smart TV with OTT apps', 'Tv', TRUE, FALSE, 13),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', 'Indoor games', 'Gamepad2', TRUE, FALSE, 14),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', 'Living room with plush sofas', 'BedDouble', TRUE, FALSE, 12),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', 'Lounge with convertible sofas', 'BedDouble', TRUE, FALSE, 13),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', '50" Smart TV with OTT apps', 'Tv', TRUE, FALSE, 14),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Living & Dining', 'Books & Board Games', 'Gamepad2', TRUE, FALSE, 15),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', '4 well-appointed bedrooms', 'Bed', TRUE, TRUE , 20),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', 'Air conditioning in all bedrooms', 'AirVent', TRUE, TRUE , 21),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', 'Comfortable king & queen beds', 'BedDouble', TRUE, FALSE, 22),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', 'Comfortable King & Queen beds', 'BedDouble', TRUE, FALSE, 22),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', 'Plush mattresses & pillows', 'Moon', TRUE, FALSE, 23),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', 'Fresh linen & towels', 'Layers', TRUE, FALSE, 24),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Bedrooms & Comfort', 'Modern, well-equipped bathrooms', 'Bath', TRUE, FALSE, 25),
@@ -127,7 +135,7 @@ ON CONFLICT ON CONSTRAINT uq_amenity_property_label DO UPDATE SET
 INSERT INTO property_policies (property_id, key, title, body, category, display_order) VALUES
   ('a1b2c3d4-0000-0000-0000-000000000001', 'checkin_time',
    'Check-In & Check-Out',
-   'Check-in: 3:00 PM · Check-out: 11:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
+   'Check-in: 2:00 PM · Check-out: 10:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
    'checkin', 10),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'id_requirement',
    'Registered Guests Only',
@@ -171,7 +179,7 @@ INSERT INTO property_policies (property_id, key, title, body, category, display_
    'housekeeping', 31),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'cancellation',
    'Cancellation Policy',
-   '30 or more days before check-in: 90% refund. 15 to 29 days before check-in: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.',
+   '30 or more days before check-in: 100% refund. 15 to 29 days before check-in: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.',
    'cancellation', 40)
 ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body, category = EXCLUDED.category, display_order = EXCLUDED.display_order;
 
@@ -190,10 +198,10 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are visitors allowed at the villa?', 'Only guests included in the booking are permitted within the premises. Unregistered outside visitors are not allowed.', 'Booking & Guests', 90, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a security deposit required?', 'A refundable security deposit may be collected at check-in, depending on the booking. Subject to property inspection after check-out, it will be refunded to the original payment method within 5 working days.', 'Booking & Guests', 100, TRUE, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are unmarried couples allowed to stay at Villa 19?', 'Villa 19 is primarily intended for families and family groups. Stays by unmarried couples are not encouraged. All guests must provide valid government-issued photo identification at check-in.', 'Booking & Guests', 110, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out timings?', 'Standard check-in is at 3:00 PM and check-out is at 11:00 AM. Early check-in and late check-out may be available on request, subject to availability.', 'Check-in & Check-out', 120, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out timings?', 'Standard check-in is at 2:00 PM and check-out is at 10:00 AM. Early check-in and late check-out may be available on request, subject to availability.', 'Check-in & Check-out', 120, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I request early check-in or late check-out?', 'Yes. Requests can be made in advance and will be accommodated wherever possible, subject to availability and applicable charges.', 'Check-in & Check-out', 130, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can someone else check in on my behalf?', 'The person making the booking should normally be present at check-in. Alternative arrangements should be confirmed with Villa 19 in advance.', 'Check-in & Check-out', 140, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a kitchen available for guests?', 'Yes. The villa has a fully equipped kitchen with a refrigerator, cookware, crockery and basic cooking essentials.', 'Kitchen & Amenities', 150, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a kitchen available for guests?', 'Yes. The villa has a fully equipped kitchen with a refrigerator, cutlery, cookware, crockery and basic cooking essentials.', 'Kitchen & Amenities', 150, TRUE, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can guests cook at the villa?', 'Yes. Guests are welcome to prepare simple meals using the kitchen facilities. Food can also be arranged from outside. Cooking pungent food items is not allowed.', 'Kitchen & Amenities', 160, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Wi-Fi available?', 'Yes. High-speed Wi-Fi is available throughout the villa.', 'Kitchen & Amenities', 170, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is there a TV?', 'Yes. The lounge has a 50-inch Smart TV with OTT apps.', 'Kitchen & Amenities', 180, TRUE, FALSE),
@@ -201,7 +209,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is power backup available?', 'Yes. The villa has inverter power backup for essential loads including fans, lighting, Wi-Fi and other selected equipment.', 'Kitchen & Amenities', 200, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is hot water available?', 'Yes. 24/7 hot water is available.', 'Kitchen & Amenities', 210, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are all bedrooms air-conditioned?', 'Yes. All 4 bedrooms have air conditioning.', 'Bedrooms & Bathrooms', 220, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What type of beds are available?', 'Villa 19 has a combination of king and queen beds, with two guests comfortably accommodated in each bedroom.', 'Bedrooms & Bathrooms', 230, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What type of beds are available?', 'Villa 19 has a combination of King and Queen beds, with two guests comfortably accommodated in each bedroom.', 'Bedrooms & Bathrooms', 230, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are bed linen and towels provided?', 'Yes. Fresh bed linen, pillows, bath towels and hand towels are provided.', 'Bedrooms & Bathrooms', 240, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are toiletries provided?', 'Yes. Premium basic toiletries are provided for guests.', 'Bedrooms & Bathrooms', 250, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are additional sleeping arrangements available?', 'Yes. Additional sleeping arrangements are available for larger groups, allowing the villa to accommodate up to 14 guests.', 'Bedrooms & Bathrooms', 260, TRUE, FALSE),
@@ -246,7 +254,7 @@ INSERT INTO nearby_places (property_id, name, category, distance_km, travel_minu
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Kudroli Temple', 'temple', 2.9, 8, NULL, 170, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Gokul Kalyana Mantapa', 'function_hall', 0.08, 1, 'Wedding and function hall on Ashok Nagar Road', 1, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Daivajna Kalyana Mantapa', 'function_hall', 0.1, 1, 'Wedding and function hall on Boloor Marigudi Road', 2, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sanghaniketan Hall', 'function_hall', 1.8, 5, 'Large hall on Mannagudda Road, Gandhinagar', 3, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Sanghaniketan', 'function_hall', 1.8, 5, 'Large hall on Mannagudda Road, Gandhinagar', 3, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Urwa Marigudi Temple', 'temple', 0.55, 2, 'Shri Mariamma Temple, Urwa Marigudi Road', 45, TRUE)
 ON CONFLICT ON CONSTRAINT uq_nearby_property_name DO NOTHING;
 

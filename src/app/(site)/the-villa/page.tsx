@@ -30,7 +30,7 @@ const CATEGORY_ICON: Record<string, string> = {
 
 /** Categories whose key does not read as a heading on its own. */
 const CATEGORY_LABEL: Record<string, string> = {
-  function_hall: 'Function Halls',
+  function_hall: 'Wedding & Event Venues',
 };
 
 export default async function TheVillaPage() {
@@ -63,9 +63,9 @@ export default async function TheVillaPage() {
     { icon: Users,     label: 'Capacity',   value: `Up to ${property.max_occupancy} Guests`        },
     { icon: Car,       label: 'Parking',    value: 'Private Parking' },
     { icon: Sofa,      label: 'Lounge',     value: 'Lounge Area'        },
-    { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },
     { icon: Wifi,      label: 'Internet',   value: 'High Speed Internet'       },
     { icon: BedSingle, label: 'Staff',      value: 'Driver Room'  },
+    { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },
   ];
 
   return (

@@ -4,7 +4,7 @@ import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { Clock, Key, Luggage, Wifi, Car, Info } from 'lucide-react';
 import { getProperty } from '@/lib/data';
-import { formatTime12, formatPhone } from '@/lib/format';
+import { formatTime12 } from '@/lib/format';
 import CtaButtons from '@/components/guest/CtaButtons';
 import PageHero from '@/components/layout/PageHero';
 
@@ -29,8 +29,8 @@ export default async function StayGuidePage() {
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I have a question about my stay at ${property?.name ?? 'Villa 19'}`)}`
     : undefined;
-  const checkIn  = formatTime12(property?.check_in_time  ?? '15:00');
-  const checkOut = formatTime12(property?.check_out_time ?? '11:00');
+  const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
+  const checkOut = formatTime12(property?.check_out_time ?? '10:00');
 
   const infoSections = [
     {
@@ -151,32 +151,6 @@ export default async function StayGuidePage() {
             ))}
           </div>
         </section>
-
-        {/* ── Emergency contacts ───────────────────────────── */}
-        <section
-          className="p-6 rounded-2xl space-y-3"
-          style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-        >
-          <h2 className="text-base font-bold" style={{ color: 'var(--maroon)' }}>Emergency Contacts</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            {[
-              ...(whatsappNumber ? [{ label: 'Your Host (WhatsApp)', value: formatPhone(whatsappNumber) }] : []),
-              { label: 'Police',               value: '100' },
-              { label: 'Ambulance',            value: '108' },
-              { label: 'Nearest Hospital',     value: 'A.J. Hospital, Mangalore' },
-            ].map(({ label, value }) => (
-              <div
-                key={label}
-                className="flex items-center justify-between p-3 rounded-xl"
-                style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
-              >
-                <span style={{ color: 'var(--ink-muted)' }}>{label}</span>
-                <span className="font-semibold" style={{ color: 'var(--ink)' }}>{value}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
 
         {/* ── CTA ──────────────────────────────────────────── */}
         {/* Same stacked, centred panel as every other page: heading, line, then

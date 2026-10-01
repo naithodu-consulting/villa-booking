@@ -21,7 +21,7 @@ const VILLA: Property = {
   base_nightly_rate: 1000000,    // ₹10,000 in paise
   weekend_nightly_rate: 1400000, // ₹14,000 in paise
   check_in_time: '14:00',
-  check_out_time: '11:00',
+  check_out_time: '10:00',
   is_active: true,
 };
 

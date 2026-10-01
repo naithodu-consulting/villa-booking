@@ -494,3 +494,30 @@ Fold these into `docs/OORUDA_VILLA_INTEGRATION.md` as each item lands:
 - [ ] §10 "Do not": never write `uses_count` or `discount_redemptions` from Ooruda Villa.
 - [ ] §11 checklist: add discount-code and add-on rows.
 - [ ] §4: blocks are created and released through `create_block_atomic` / `release_blocked_nights`.
+
+## 10. Policy decisions raised by the 2026-10-01 content review
+
+These came out of a cross-check of `property_policies`, the FAQs, `villa-rules.ts` and the Terms
+page against the pricing code. Everything here needs a business decision, not just an edit.
+
+- [ ] **Children are billed at the full adult rate.** The FAQ promises "children below 5 stay free,
+      5-12 years at 50%", but `calculateBookingPrice` has no child logic: `extra_guests_count` is
+      `adults + children - base_occupancy`. Verified — 8 adults + 2 children and 10 adults both
+      total ₹16,520 for one night. Either implement child pricing (needs child ages captured at
+      booking, which the form does not collect today) or correct the FAQ. Money-affecting, and the
+      site currently makes a public promise it does not honour.
+- [ ] **The 10-night maximum stay is not in any policy.** Enforced since 2026-10-01 in
+      `MAX_STAY_NIGHTS` (`src/lib/pricing-engine.ts`), in both date pickers and in the engine, but
+      Terms, the FAQs and `property_policies` are all silent on it. A guest only discovers it by
+      hitting the error. Add it to Terms §3 and as an FAQ.
+- [ ] **Early check-in notice period contradicts itself three ways.** `property_policies.checkin_time`
+      says "must be requested at least 24 hours in advance"; the FAQ says only "requests can be made
+      in advance"; Terms §3 says "subject to availability and prior arrangement". Pick one window
+      and make all three match.
+- [ ] **Housekeeping threshold vs the stay cap.** The housekeeping policy charges extra for mid-stay
+      cleaning "for stays beyond 3 nights". With stays now capped at 10 nights, that means most
+      mid-length stays carry a vague, unpriced charge. Decide the threshold and publish the price.
+- [ ] **"Stays by unmarried couples are not encouraged."** Business/legal call rather than an
+      inconsistency: it is unenforceable, sits awkwardly beside "groups of friends" elsewhere in the
+      same FAQ set, and this kind of clause attracts negative press in India. Keep, soften or drop —
+      a deliberate decision rather than inherited copy.

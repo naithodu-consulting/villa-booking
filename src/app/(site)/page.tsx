@@ -12,6 +12,15 @@ import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 import { renderBoldText } from '@/lib/bold';
 import { villaRules } from '@/lib/villa-rules';
+import { CANCELLATION_TIERS, SECURITY_DEPOSIT_TERMS } from '@/lib/cancellation';
+
+/** Tile colours for the cancellation tiers, best to worst. Presentation only;
+ *  the tiers themselves live in CANCELLATION_TIERS. */
+const TIER_COLOURS = [
+  { color: 'var(--ok)',        bg: 'rgba(46,125,91,0.07)',  border: 'rgba(46,125,91,0.22)' },
+  { color: 'var(--warn)',      bg: 'rgba(169,112,26,0.07)', border: 'rgba(169,112,26,0.22)' },
+  { color: 'var(--ink-muted)', bg: 'var(--paper-sunk)',     border: 'var(--border-subtle)' },
+];
 import Link from 'next/link';
 import FaqList from '@/components/guest/FaqList';
 import {
@@ -143,7 +152,9 @@ export default async function LandingPage() {
               than a deliberate bleed. Edge-to-edge hero imagery works when the
               image is the first thing under the chrome; here it sits mid-flow. */}
           <div className="px-4 sm:px-6 lg:px-8">
-            <GalleryModal images={images} />
+            {/* Neighbourhood photos belong on the Gallery page, not in the
+                homepage hero gallery, which is about the villa itself. */}
+            <GalleryModal images={images.filter((i) => i.category !== 'around')} />
           </div>
         </div>
       </section>
@@ -165,9 +176,9 @@ export default async function LandingPage() {
                 { icon: Users,     value: `Up to ${property.max_occupancy} Guests`         },
                 { icon: Car,       value: 'Private Parking'  },
                 { icon: Sofa,      value: 'Lounge Area'         },
-                { icon: Trees,     value: 'Landscaped Garden'       },
                 { icon: Wifi,      value: 'High Speed Internet'        },
                 { icon: BedSingle, value: 'Driver Room'   },
+                { icon: Trees,     value: 'Landscaped Garden'       },
               ].map(({ icon: Icon, value }) => (
                 <div
                   key={value}
@@ -368,18 +379,12 @@ export default async function LandingPage() {
                   the two cards carry the same kind of content and previously used
                   opposite structures. The window is also what a guest scans for
                   first ("which bucket am I in?"), so it leads.
-                  Boundaries are exclusive — "30 or more" and "15 to 30" both used
-                  to claim day 30, so a guest cancelling exactly 30 days out could
-                  read either 90% or 50%. Day 30 pays 90%. */}
+                  Tiers come from CANCELLATION_TIERS so this card and the Terms
+                  page cannot drift; only the tile colours live here. */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {[
-                  { color: 'var(--ok)',    bg: 'rgba(46,125,91,0.07)',  border: 'rgba(46,125,91,0.22)',
-                    when: '30 or more days before', amount: '90%' },
-                  { color: 'var(--warn)',  bg: 'rgba(169,112,26,0.07)', border: 'rgba(169,112,26,0.22)',
-                    when: '15 to 29 days before',   amount: '50%' },
-                  { color: 'var(--ink-muted)', bg: 'var(--paper-sunk)', border: 'var(--border-subtle)',
-                    when: 'Under 15 days before',   amount: '0%'  },
-                ].map(({ color, bg, border, when, amount }) => (
+                {CANCELLATION_TIERS.map(({ when, amount }, i) => {
+                  const { color, bg, border } = TIER_COLOURS[i] ?? TIER_COLOURS[TIER_COLOURS.length - 1];
+                  return (
                   <div
                     key={when}
                     className="p-4 rounded-2xl text-center"
@@ -392,7 +397,8 @@ export default async function LandingPage() {
                       {amount}
                     </p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               <details className="group mt-4 text-center">
@@ -404,7 +410,7 @@ export default async function LandingPage() {
                   <ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" aria-hidden="true" />
                 </summary>
                 <p className="text-sm lg:text-[15px] pt-3 leading-relaxed text-left" style={{ color: 'var(--ink-muted)' }}>
-                  A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.
+                  {SECURITY_DEPOSIT_TERMS}
                 </p>
               </details>
             </div>

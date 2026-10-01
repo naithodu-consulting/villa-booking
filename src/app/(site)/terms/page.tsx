@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
 import { getProperty } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
+import { CANCELLATION_TIERS, SECURITY_DEPOSIT_TERMS } from '@/lib/cancellation';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Terms & Conditions',
@@ -18,8 +19,8 @@ export default async function TermsPage() {
   // Check-in/out times and occupancy were hardcoded here, so editing them in
   // admin silently left the Terms page stating the old figures.
   const property = await getProperty();
-  const checkIn  = formatTime12(property?.check_in_time  ?? '15:00');
-  const checkOut = formatTime12(property?.check_out_time ?? '11:00');
+  const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
+  const checkOut = formatTime12(property?.check_out_time ?? '10:00');
   const maxGuests = property?.max_occupancy ?? 14;
 
   return (
@@ -58,16 +59,16 @@ export default async function TermsPage() {
 
           <Section id="cancellation" title="2. Cancellation and refund policy">
             <ul className="list-disc list-inside space-y-1">
-              {/* These tiers are hardcoded here rather than read from
-                  property_policies, so they must be kept in step with
-                  00015_cancellation_boundary.sql and the homepage card.
-                  The windows are exclusive: "more than 30" and "15 to 30" both
-                  used to claim day 30, and read together they put day 30 at 50%
-                  while every other surface put it at 90%. Day 30 pays 90%. */}
-              <li><strong style={{ color: 'var(--ink)' }}>30 or more days before check-in:</strong> 90% refund.</li>
-              <li><strong style={{ color: 'var(--ink)' }}>15 to 29 days before check-in:</strong> 50% refund.</li>
-              <li><strong style={{ color: 'var(--ink)' }}>Under 15 days before check-in:</strong> No refund.</li>
-              <li><strong style={{ color: 'var(--ink)' }}>Security deposit:</strong> A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.</li>
+              {/* Tiers come from CANCELLATION_TIERS so this page and the
+                  homepage card cannot drift. Windows are exclusive: day 30
+                  pays the top tier. */}
+              {CANCELLATION_TIERS.map(({ when, amount }) => (
+                <li key={when}>
+                  <strong style={{ color: 'var(--ink)' }}>{when} check-in:</strong>{' '}
+                  {amount === '0%' ? 'No refund.' : `${amount} refund.`}
+                </li>
+              ))}
+              <li><strong style={{ color: 'var(--ink)' }}>Security deposit:</strong> {SECURITY_DEPOSIT_TERMS}</li>
               <li>Refund requests must be submitted in writing to reservations@habbaa.com with your booking reference.</li>
               <li>Approved refunds will be processed to the original payment method within 7 to 10 business days.</li>
             </ul>
@@ -120,7 +121,7 @@ export default async function TermsPage() {
           <Section title="8. Contact">
             <p>
               For any queries about these terms: <a href="mailto:reservations@habbaa.com" style={{ color: 'var(--brass-ink)' }}>reservations@habbaa.com</a><br />
-              Villa 19 by Habbaa, Urwa, Mangalore, Karnataka 575006
+              {[property?.name, property?.address, property?.city, property?.state, property?.pincode].filter(Boolean).join(', ')}
             </p>
           </Section>
 

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { ComponentType } from 'react';
 import { createServiceClient } from '@/lib/supabase/server';
+import { SHOW_JOURNAL } from '@/lib/site-sections';
 
 import BestTime, { metadata as bestTimeMeta } from '@/content/journal/best-time-to-visit-mangalore.mdx';
 import Beaches, { metadata as beachesMeta } from '@/content/journal/beaches-near-urwa-mangalore.mdx';
@@ -117,6 +118,7 @@ export async function getJournalPost(slug: string): Promise<JournalPost | undefi
 }
 
 export async function isJournalLive(): Promise<boolean> {
+  if (!SHOW_JOURNAL) return false;
   const posts = await getJournalPosts();
   return posts.filter((p) => !p.draft).length >= JOURNAL_LAUNCH_MIN_POSTS;
 }

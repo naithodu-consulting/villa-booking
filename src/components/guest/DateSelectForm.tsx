@@ -6,6 +6,7 @@ import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
+import { MAX_STAY_NIGHTS, MAX_STAY_MESSAGE } from '@/lib/pricing-engine';
 
 interface Props {
   maxOccupancy: number;
@@ -33,15 +34,21 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out
   // calendar shows it as open rather than booked.
-  const checkOutMax = latestCheckOut(unavailable, checkIn) ?? undefined;
+  // Cap the picker at the longest bookable stay as well as at the next booked
+  // night, so the 10-night limit is a shape of the calendar, not just an error.
+  const stayCap = addDaysISO(checkIn, MAX_STAY_NIGHTS);
+  const nextTaken = latestCheckOut(unavailable, checkIn) ?? undefined;
+  const checkOutMax = nextTaken && nextTaken < stayCap ? nextTaken : stayCap;
   const checkOutInfo = (iso: string) => (iso === checkOutMax ? { available: true } : infoFor(iso));
   const datesAvailable = isRangeAvailable(unavailable, checkIn, checkOut);
+  const tooLong = checkOut > stayCap;
+  const canContinue = datesAvailable && !tooLong;
 
   return (
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        if (!datesAvailable) return;
+        if (!canContinue) return;
         onContinue(`checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=0`);
       }}
       className="space-y-5"
@@ -114,13 +121,17 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
         </div>
       </div>
 
-      {!datesAvailable && (
+      {tooLong ? (
+        <p role="alert" className="text-sm font-medium text-[var(--error)]">
+          {MAX_STAY_MESSAGE}
+        </p>
+      ) : !datesAvailable ? (
         <p role="alert" className="text-sm font-medium text-[var(--error)]">
           Some of those nights are already booked. Please choose different dates.
         </p>
-      )}
+      ) : null}
 
-      <button type="submit" disabled={!datesAvailable} className="btn-primary block w-full disabled:opacity-50">
+      <button type="submit" disabled={!canContinue} className="btn-primary block w-full disabled:opacity-50">
         Continue
       </button>
     </form>

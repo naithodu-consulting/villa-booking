@@ -21,8 +21,8 @@ export async function getProperty(): Promise<Property | null> {
     // and a fake default hides a missing setting until a guest messages it.
     whatsapp_number: process.env.PROPERTY_WHATSAPP || undefined,
     // Normalize time format (DB stores HH:MM:SS, UI uses HH:MM)
-    check_in_time: data.check_in_time?.slice(0, 5) ?? '15:00',
-    check_out_time: data.check_out_time?.slice(0, 5) ?? '11:00',
+    check_in_time: data.check_in_time?.slice(0, 5) ?? '14:00',
+    check_out_time: data.check_out_time?.slice(0, 5) ?? '10:00',
   } as Property;
 }
 

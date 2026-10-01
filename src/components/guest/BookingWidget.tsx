@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Property, PricingRule, PricingBreakdown } from '@/types';
-import { calculateBookingPrice } from '@/lib/pricing-engine';
+import { calculateBookingPrice, MAX_STAY_NIGHTS } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
@@ -37,7 +37,11 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out
   // calendar shows it as open rather than booked.
-  const checkOutMax = latestCheckOut(unavailable, checkIn) ?? undefined;
+  // Cap the picker at the longest bookable stay as well as at the next booked
+  // night, so the 10-night limit is a shape of the calendar, not just an error.
+  const stayCap = addDaysISO(checkIn, MAX_STAY_NIGHTS);
+  const nextTaken = latestCheckOut(unavailable, checkIn) ?? undefined;
+  const checkOutMax = nextTaken && nextTaken < stayCap ? nextTaken : stayCap;
   const checkOutInfo = (iso: string) => (iso === checkOutMax ? { available: true } : infoFor(iso));
 
   // Reset loading state on mount AND on bfcache restore.
@@ -288,24 +292,12 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
             </div>
           ) : breakdown ? (
             <div className="space-y-1.5 py-2.5 border-t border-b border-[rgba(0,0,0,0.09)] text-sm">
-              {breakdown.nightly_details.every(d => d.rate === breakdown!.nightly_details[0].rate) ? (
-                <div className="flex justify-between text-[var(--ink-muted)]">
-                  <span>₹{inr(breakdown.nightly_details[0].rate)} × {breakdown.num_nights} night{breakdown.num_nights === 1 ? '' : 's'}</span>
-                  <span className="tabular-nums">₹{inr(breakdown.base_amount)}</span>
-                </div>
-              ) : (
-                <>
-                  {breakdown.nightly_details.map((d, i) => (
-                    <div key={i} className="flex justify-between text-[var(--ink-muted)]">
-                      <span className="text-[var(--ink-muted)] flex items-center gap-1">
-                        {new Date(d.date + 'T00:00:00').toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })}
-                        {d.is_weekend && <span className="text-[color-mix(in_srgb,var(--brass)_70%,transparent)] text-[10px] bg-[rgba(168,116,50,0.08)] px-1 rounded">wknd</span>}
-                      </span>
-                      <span className="tabular-nums">₹{inr(d.rate)}</span>
-                    </div>
-                  ))}
-                </>
-              )}
+              {/* One line for the stay, not a night-by-night ledger: weekday and
+                  weekend nights are summed rather than itemised. */}
+              <div className="flex justify-between text-[var(--ink-muted)]">
+                <span>Total nights × {breakdown.num_nights}</span>
+                <span className="tabular-nums">₹{inr(breakdown.base_amount)}</span>
+              </div>
 
               {breakdown.extra_guest_amount > 0 && (
                 <div className="flex justify-between text-[var(--ink-muted)]">
@@ -339,7 +331,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
             {isSubmitting ? (
               <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Securing Dates…</>
             ) : (
-              <><Lock className="w-3.5 h-3.5" /> Reserve Now</>
+              <><Lock className="w-3.5 h-3.5" /> Book Now</>
             )}
           </button>
 

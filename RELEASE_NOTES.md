@@ -4,6 +4,64 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.9 - 2:00 PM check-in, Around Villa 19 photos, 10-night cap, policy fixes - 2026-10-01
+
+### Stay details
+
+- Check-in moves to 2:00 PM and check-out to 10:00 AM (migration 00051), superseding the 3:00 PM
+  check-in set in 00049. Covers the property row, the check-in policy, the FAQ prose and the code
+  fallbacks in `data.ts`, `create-order`, Stay Guide and Terms.
+- Room 3 now sleeps 2 and the Private Lounge sleeps 3 (migration 00052).
+- Full street address: Urwa Marigudi Cross Road, Urwa (migration 00054). The Terms contact block
+  now reads it from the database instead of a hardcoded copy that had gone stale.
+
+### Booking
+
+- **Maximum stay of 10 nights.** Enforced in `MAX_STAY_NIGHTS` (`pricing-engine.ts`), so the booking
+  widget, the "Choose your dates" modal and the engine itself all honour it. Both date pickers cap
+  the check-out calendar; longer ranges show "For stays of this duration, please contact Villa 19
+  directly for special pricing and availability."
+- Pricing summary collapsed from a night-by-night ledger to three lines: total nights, GST and
+  total payable. The per-night rows and the "wknd" tags are gone.
+
+### Cancellation
+
+- **The 30+ day tier is a 100% refund, not 90%.** The homepage card said 100% while the Terms page
+  and the policy row said 90%, so a guest cancelling 30 days out could read either. Resolved in
+  favour of 100% (migration 00056).
+- Tiers now come from a single `src/lib/cancellation.ts`, rendered by both the homepage card and
+  Terms, so the two cannot drift again.
+
+### Gallery
+
+- "Around Villa 19" rebuilt to the operator's list and order, 11 places (migration 00053):
+  Sultan Bathery Fort, Tannirbhavi Beach, Panambur Beach, Kudroli Temple, Mangaladevi Temple,
+  Kadri Park, Kadri Manjunatha Temple, St Aloysius Chapel, Milagres Church, Pilikula and Pabbas.
+- Seven new photos from Wikimedia Commons, all CC BY-SA 4.0, credits recorded in
+  `property_images.credit` / `credit_url` but still not displayed. **Display the credits or replace
+  these photos with the operator's own before launch.**
+- Neighbourhood photos no longer appear in the homepage gallery; they belong to the Gallery page.
+- Still missing, no freely licensed photo exists: Manasa Water Park and Naturals Sundaes.
+
+### Content
+
+- Lounge convertible sofas noted as additional sleeping space in the villa description.
+- "Indoor games" is now "Books & Board Games"; "2 convertible sofas" splits into "Living room with
+  plush sofas" and "Lounge with convertible sofas" (migration 00055).
+- "Function Halls" is now "Wedding & Event Venues"; "Sanghaniketan Hall" is now "Sanghaniketan".
+- Capitalised King and Queen in bed copy; the kitchen FAQ now lists cutlery.
+
+### Hidden
+
+- Stay Guide and Journal are out of the header, drawer, footer and sitemap via
+  `src/lib/site-sections.ts`. The pages still build and resolve by URL; flip either flag to restore.
+
+### Known issues
+
+Five policy items from the 2026-10-01 content review need business decisions and are tracked in
+`TODO.md` section 10. The most important: **children are billed at the full adult rate** even though
+the FAQ promises under-5 free and 5-12 at 50%. The booking engine has no child pricing.
+
 ## v0.9.8 - FAQ page, 3:00 PM check-in, new tab title and icon - 2026-09-30
 
 ### FAQs

@@ -60,9 +60,6 @@ export default function BookingDialog({ maxOccupancy, idealOccupancy, propertyId
             >
               Choose your dates
             </h2>
-            <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
-              Tell us when you would like to stay and we will show you the total.
-            </p>
           </div>
           <button
             type="button"
