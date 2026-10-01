@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Script from 'next/script';
 
-import { CONSENT_EVENT, getConsent } from '@/lib/consent';
+import { useConsent } from '@/lib/consent';
 
 /**
  * Google Analytics, loaded only after the guest accepts cookies.
@@ -18,14 +18,9 @@ import { CONSENT_EVENT, getConsent } from '@/lib/consent';
  */
 export default function Analytics() {
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
-  const [granted, setGranted] = useState(false);
-
-  useEffect(() => {
-    setGranted(getConsent() === 'accepted');
-    const onChange = (e: Event) => setGranted((e as CustomEvent).detail === 'accepted');
-    window.addEventListener(CONSENT_EVENT, onChange);
-    return () => window.removeEventListener(CONSENT_EVENT, onChange);
-  }, []);
+  // Unknown on the server and until hydration, so nothing is requested from
+  // Google before the stored choice has actually been read.
+  const granted = useConsent() === 'accepted';
 
   if (!gaId || !granted) return null;
 

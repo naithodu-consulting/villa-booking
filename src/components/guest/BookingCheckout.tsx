@@ -16,7 +16,6 @@ import { GSTIN_PATTERN } from '@/lib/gstin';
 
 declare global {
   interface Window {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Razorpay: new (options: Record<string, unknown>) => { open(): void };
   }
 }
@@ -227,7 +226,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
     <div className="min-h-screen flex flex-col" style={{ color: 'var(--ink)', backgroundColor: 'var(--paper)' }}>
       <Script src={RAZORPAY_SRC} strategy="afterInteractive" />
 
-      <CheckoutHeader property={property} secured />
+      <CheckoutHeader property={property} />
 
       <main className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-6">
@@ -509,11 +508,11 @@ function CheckoutContent({ property, pricingRules }: Props) {
  * Shared chrome for every step of the checkout route.
  *
  * The date-picker step used to render with no header at all, which made it the
- * only screen in the app floating on a bare background. The Razorpay badge is
- * opt-in because nothing is being paid for on the picker step, and promising
- * payment security before a price exists is noise.
+ * only screen in the app floating on a bare background. It once took a
+ * `secured` flag for a Razorpay badge; the badge is gone, so the flag went
+ * with it rather than sitting unread in the signature.
  */
-function CheckoutHeader({ property, secured = false }: { property: Property; secured?: boolean }) {
+function CheckoutHeader({ property }: { property: Property }) {
   return (
     <header
       className="sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between"

@@ -1,30 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 
-import { CONSENT_KEY, setConsent } from '@/lib/consent';
+import { setConsent, useConsent } from '@/lib/consent';
 
 export default function CookieConsent() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(CONSENT_KEY)) setVisible(true);
-    } catch {
-      setVisible(true);
-    }
-  }, []);
+  // null means asked and unanswered; undefined means not yet known, which
+  // keeps the banner out of the server-rendered HTML so it cannot flash at
+  // someone who decided long ago.
+  const consent = useConsent();
 
   // setConsent persists the choice and broadcasts it, so <Analytics> can load
-  // or stay away without a page reload. The banner no longer records a
-  // preference it does not act on.
-  const respond = (choice: 'accepted' | 'declined') => {
-    setConsent(choice);
-    setVisible(false);
-  };
+  // or stay away without a page reload, and this banner closes off the same
+  // event rather than its own copy of the answer.
+  const respond = (choice: 'accepted' | 'declined') => setConsent(choice);
 
-  if (!visible) return null;
+  if (consent !== null) return null;
 
   return (
     <div

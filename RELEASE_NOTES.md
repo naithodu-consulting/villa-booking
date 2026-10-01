@@ -4,7 +4,29 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
-## v0.9.14 - Gallery categories no longer scroll out of sight - 2026-10-01
+## v0.9.15 - Lint clean - 2026-10-01
+
+`npx eslint src/` now reports nothing. Seven problems, none of them in the
+gallery work, four of them the same rule.
+
+- **Cookie consent and analytics** read the stored choice through
+  `useSyncExternalStore` instead of copying it into state from an effect. The
+  stored choice is an external store and both components already had to agree
+  about it, so they now read one. `undefined` means not yet known, which is
+  what keeps the banner out of the server-rendered HTML and out of the face of
+  someone who decided months ago.
+- **The date picker** moves the visible month to the selected date during
+  render rather than in an effect. An effect painted the old month first and
+  corrected itself after.
+- **The booking widget** no longer resets its submitting flag on mount, which
+  was setting state to the value it already had. The bfcache listener that the
+  effect exists for is unchanged. It also navigates with `router.push` instead
+  of assigning `window.location.href`, so leaving the page no longer discards
+  the client router.
+- **Checkout** drops a `secured` prop that was passed at one call site and
+  read at none, left behind when the Razorpay badge was removed, and a stale
+  eslint-disable for a rule that no longer fires there.
+
 
 The photo viewer's category row wrapped onto more lines instead of scrolling
 sideways, so there is nothing left to indicate.

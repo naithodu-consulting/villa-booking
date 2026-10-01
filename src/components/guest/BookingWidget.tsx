@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { Property, PricingRule, PricingBreakdown } from '@/types';
 import { calculateBookingPrice, MAX_STAY_NIGHTS } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
@@ -32,6 +33,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   const [children, setChildren] = useState<number>(0);
   const [showGuestMenu, setShowGuestMenu] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
   const guestMenuRef = useRef<HTMLDivElement>(null);
   const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(property.id);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
@@ -44,11 +46,10 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   const checkOutMax = nextTaken && nextTaken < stayCap ? nextTaken : stayCap;
   const checkOutInfo = (iso: string) => (iso === checkOutMax ? { available: true } : infoFor(iso));
 
-  // Reset loading state on mount AND on bfcache restore.
-  // useEffect([]) only runs on real mounts; bfcache restores the frozen React tree
-  // with isSubmitting:true still set, so we also listen to pageshow(persisted=true).
+  // Clear the loading state on a bfcache restore, which hands back the frozen
+  // React tree with isSubmitting still true and does not remount, so no effect
+  // would otherwise run. A real mount needs nothing: the state starts false.
   useEffect(() => {
-    setIsSubmitting(false);
     const handlePageShow = (e: PageTransitionEvent) => {
       if (e.persisted) setIsSubmitting(false);
     };
@@ -91,7 +92,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
     if (!breakdown) return;
     setIsSubmitting(true);
     try {
-      window.location.href = `/book?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}`;
+      router.push(`/book?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}`);
     } catch {
       setIsSubmitting(false);
     }

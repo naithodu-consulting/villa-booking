@@ -217,9 +217,14 @@ export default function DatePicker({
     return () => document.removeEventListener('keydown', handler);
   }, [isOpen]);
 
-  useEffect(() => {
+  // Show the month the selected date is in. Adjusting state during render is
+  // React's own pattern for state derived from a prop: an effect would paint
+  // the old month first and only then correct itself.
+  const [syncedValue, setSyncedValue] = useState(value);
+  if (value !== syncedValue) {
+    setSyncedValue(value);
     if (selected) { setViewYear(selected.getFullYear()); setViewMonth(selected.getMonth()); }
-  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+  }
 
   // Let the parent load prices and availability for whichever month is on screen.
   useEffect(() => {

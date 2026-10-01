@@ -10,6 +10,8 @@
  * the script at all.
  */
 
+import { useSyncExternalStore } from 'react';
+
 export const CONSENT_KEY = 'villa19_cookie_consent';
 export const CONSENT_EVENT = 'villa19:consent';
 
@@ -25,6 +27,26 @@ export function getConsent(): Consent {
   } catch {
     return null;
   }
+}
+
+/** Subscribes to choices made elsewhere on the page. */
+export function subscribeConsent(onChange: () => void) {
+  window.addEventListener(CONSENT_EVENT, onChange);
+  return () => window.removeEventListener(CONSENT_EVENT, onChange);
+}
+
+/** The server cannot read storage, so the choice is unknown until hydration. */
+const unknownConsent = () => undefined;
+
+/**
+ * The stored choice, kept in step with any later change.
+ *
+ * `undefined` means not yet known (server render and the first client render),
+ * which is distinct from `null`, meaning known to be unset. Reading storage in
+ * an effect instead would set state on every mount and render twice.
+ */
+export function useConsent(): Consent | undefined {
+  return useSyncExternalStore(subscribeConsent, getConsent, unknownConsent);
 }
 
 export function setConsent(choice: Exclude<Consent, null>) {
