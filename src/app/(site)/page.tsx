@@ -3,10 +3,13 @@ import type { Metadata } from 'next';
 import { pageMetadata, lodgingJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import Image from 'next/image';
+import Link from 'next/link';
 import GalleryModal from '@/components/guest/GalleryModal';
 import BookingWidget from '@/components/guest/BookingWidget';
 import AmenitiesSection from '@/components/guest/AmenitiesSection';
 import RoomShelf from '@/components/guest/RoomShelf';
+import SectionNav from '@/components/guest/SectionNav';
+import FaqList from '@/components/guest/FaqList';
 import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, closestByCategory, formatDistance } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
@@ -21,8 +24,6 @@ const TIER_COLOURS = [
   { color: 'var(--warn)',      bg: 'rgba(169,112,26,0.07)', border: 'rgba(169,112,26,0.22)' },
   { color: 'var(--ink-muted)', bg: 'var(--paper-sunk)',     border: 'var(--border-subtle)' },
 ];
-import Link from 'next/link';
-import FaqList from '@/components/guest/FaqList';
 import {
   ShieldCheck, MapPin, Users, Wifi, Bed,
   Car, Sofa, Trees, BedSingle,
@@ -101,7 +102,7 @@ export default async function LandingPage() {
       ]} />
 
       {/* ── Hero ──────────────────────────────────────── */}
-      <section id="overview" className="pt-6 sm:pt-8">
+      <section className="pt-6 sm:pt-8">
         <div className="max-w-[1440px] mx-auto">
           <div className="px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4 sm:mb-5">
             <div>
@@ -159,65 +160,71 @@ export default async function LandingPage() {
         </div>
       </section>
 
+      {/* ── In-page Section Navigation Bar (Sticky below photos) ── */}
+      <SectionNav />
+
       {/* ── Main Layout: Content + Widget ─────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
         {/* Left column */}
         <div className="lg:col-span-2 space-y-10">
 
-          {/* Highlights bar — gap-px trick: container = border colour, cells = surface */}
-          <div
-            className="rounded-3xl overflow-hidden shadow-md"
-            style={{ backgroundColor: 'var(--border-subtle)', border: '1px solid var(--border-subtle)' }}
-          >
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
-              {[
-                { icon: MapPin,    value: 'Centrally Located'       },
-                { icon: Bed,       value: '4 Bedrooms'             },
-                { icon: Users,     value: `Up to ${property.max_occupancy} Guests`         },
-                { icon: Car,       value: 'Private Parking'  },
-                { icon: Sofa,      value: 'Lounge Area'         },
-                { icon: Wifi,      value: 'High Speed Internet'        },
-                { icon: BedSingle, value: 'Driver Room'   },
-                { icon: Trees,     value: 'Landscaped Garden'       },
-              ].map(({ icon: Icon, value }) => (
-                <div
-                  key={value}
-                  className="flex items-center gap-2.5 py-4 px-3 sm:flex-col sm:items-center sm:py-6 sm:px-4 sm:text-center"
-                  style={{ backgroundColor: 'var(--surface)' }}
-                >
+          {/* Overview: Highlights bar + About the Villa */}
+          <div id="overview" className="scroll-mt-[120px] space-y-10">
+            {/* Highlights bar — gap-px trick: container = border colour, cells = surface */}
+            <div
+              className="rounded-3xl overflow-hidden shadow-md"
+              style={{ backgroundColor: 'var(--border-subtle)', border: '1px solid var(--border-subtle)' }}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px">
+                {[
+                  { icon: MapPin,    value: 'Centrally Located'       },
+                  { icon: Bed,       value: '4 Bedrooms'             },
+                  { icon: Users,     value: `Up to ${property.max_occupancy} Guests`         },
+                  { icon: Car,       value: 'Private Parking'  },
+                  { icon: Sofa,      value: 'Lounge Area'         },
+                  { icon: Wifi,      value: 'High Speed Internet'        },
+                  { icon: BedSingle, value: 'Driver Room'   },
+                  { icon: Trees,     value: 'Landscaped Garden'       },
+                ].map(({ icon: Icon, value }) => (
                   <div
-                    className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 sm:mb-3"
-                    style={{ backgroundColor: 'var(--maroon-tint)' }}
+                    key={value}
+                    className="flex items-center gap-2.5 py-4 px-3 sm:flex-col sm:items-center sm:py-6 sm:px-4 sm:text-center"
+                    style={{ backgroundColor: 'var(--surface)' }}
                   >
-                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                    <div
+                      className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center flex-shrink-0 sm:mb-3"
+                      style={{ backgroundColor: 'var(--maroon-tint)' }}
+                    >
+                      <Icon className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                    </div>
+                    <p className="text-sm sm:text-base font-bold leading-snug" style={{ color: 'var(--maroon)' }}>{value}</p>
                   </div>
-                  <p className="text-sm sm:text-base font-bold leading-snug" style={{ color: 'var(--maroon)' }}>{value}</p>
-                </div>
+                ))}
+              </div>
+            </div>
+
+            {/* About */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
+                <span className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5" style={{ color: 'var(--brass)' }}>
+                  <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> About the Villa
+                </span>
+              </div>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>{property.tagline}</h2>
+              {property.description?.split(/\n\s*\n/).map((para) => (
+                <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{renderBoldText(para)}</p>
               ))}
             </div>
           </div>
 
-          {/* About */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <span className="text-xs font-bold uppercase tracking-widest flex items-center gap-1.5" style={{ color: 'var(--brass)' }}>
-                <Sparkles className="w-3.5 h-3.5" aria-hidden="true" /> About the Villa
-              </span>
-            </div>
-            <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>{property.tagline}</h2>
-            {property.description?.split(/\n\s*\n/).map((para) => (
-            <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{renderBoldText(para)}</p>
-          ))}
-          </div>
-
           {/* Rooms */}
-          <div id="rooms" className="scroll-mt-24 space-y-4">
+          <div id="rooms" className="scroll-mt-[120px] space-y-4">
             <RoomShelf rooms={rooms} />
           </div>
 
           {/* Amenities from DB */}
-          <div id="amenities" className="scroll-mt-24 space-y-4">
+          <div id="amenities" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Property Amenities</h2>
@@ -230,7 +237,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Location */}
-          <div id="location" className="scroll-mt-24 space-y-4">
+          <div id="location" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Location</h2>
@@ -330,7 +337,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Reviews placeholder */}
-          <div id="reviews" className="scroll-mt-24 space-y-4">
+          <div id="reviews" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Guest Reviews</h2>
@@ -351,7 +358,7 @@ export default async function LandingPage() {
 
           {/* Cancellation Policy — heading sits above the card, matching Guest
               Reviews and every other section. The card itself is the disclosure. */}
-          <div id="cancellation" className="scroll-mt-24 space-y-4">
+          <div id="cancellation" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Cancellation Policy</h2>
@@ -417,7 +424,7 @@ export default async function LandingPage() {
           </div>
 
           {/* Villa Rules — heading above the card, same as every other section. */}
-          <div id="policies" className="scroll-mt-24 space-y-4">
+          <div id="policies" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Villa Rules</h2>
@@ -478,7 +485,7 @@ export default async function LandingPage() {
           </div>
 
           {/* FAQ from DB. The full list lives here: the Stay Guide no longer repeats it. */}
-          <div id="faq" className="scroll-mt-24 space-y-4">
+          <div id="faq" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
               <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Frequently Asked Questions</h2>
@@ -544,7 +551,7 @@ export default async function LandingPage() {
 
         {/* Right column: sticky booking widget */}
         <div className="lg:col-span-1">
-          <div className="sticky top-20">
+          <div className="sticky top-[136px]">
             <BookingWidget property={property} pricingRules={pricingRules} />
             <div
               className="mt-4 p-4 rounded-2xl shadow-sm space-y-2 text-sm"

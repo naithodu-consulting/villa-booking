@@ -4,6 +4,18 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.16 - Pricing update (14k weekday / 16k weekend) & gallery image distances removed - 2026-10-02
+
+- **Nightly rates updated** (migration `00061_pricing_and_gallery_distances.sql`):
+  - Weekday rate increased from ₹12,000 to ₹14,000 / night (1,400,000 paise).
+  - Weekend rate (Friday and Saturday nights) increased from ₹14,000 to ₹16,000 / night (1,600,000 paise).
+  - The booking widget starting rate, availability calendar, and booking price calculations reflect the new rates.
+- **Gallery image descriptions cleaned**:
+  - Removed distance indicators (` · X km`) from captions and alt texts below the photos in the "Around Villa 19" gallery section.
+  - Image tiles now display clean titles (e.g., "Sultan Bathery Fort", "Tannirbhavi Beach", "Panambur Beach", "Kudroli Temple", "Kadri Manjunatha Temple", "Pilikula Park", "Pabbas", "Naturals").
+
+---
+
 ## v0.9.15 - Lint clean - 2026-10-01
 
 `npx eslint src/` now reports nothing. Seven problems, none of them in the

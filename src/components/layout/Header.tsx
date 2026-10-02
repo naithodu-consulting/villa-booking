@@ -71,7 +71,7 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
   return (
     <>
       <header
-        className="sticky top-0 z-40 px-6 sm:px-8 lg:px-12 h-[72px]"
+        className="sticky top-0 z-40 px-6 sm:px-8 lg:px-12 h-[80px]"
         style={{
           backgroundColor: 'var(--maroon-deep)',
           borderBottom: '1px solid rgba(168,116,50,0.28)',
@@ -89,18 +89,28 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
             ))}
           </nav>
 
-          {/* Center — logo */}
+          {/* Center — logo lockup: matches hero title proportions and alignment */}
           <Link
             href="/"
-            className="flex items-center self-center"
-            aria-label={`${propertyName} home`}
+            className="flex flex-col items-end self-center group py-2"
+            aria-label={`${propertyName} by Habbaa home`}
           >
             <Image
               src="/villa19-wordmark-knockout.svg"
               alt={propertyName}
-              width={125}
-              height={28}
+              width={132}
+              height={30}
               priority
+              className="block w-[132px] h-auto transition-opacity group-hover:opacity-90"
+            />
+            <Image
+              src="/by-habbaa-white.svg"
+              alt="by Habbaa"
+              width={70}
+              height={25}
+              priority
+              className="block w-[60px] h-auto"
+              style={{ marginTop: '6px' }}
             />
           </Link>
 
@@ -148,13 +158,27 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
           </button>
 
           {/* Center — logo */}
-          <Link href="/" className="flex items-center" aria-label={`${propertyName} home`}>
+          <Link
+            href="/"
+            className="flex flex-col items-end"
+            aria-label={`${propertyName} by Habbaa home`}
+          >
             <Image
               src="/villa19-wordmark-knockout.svg"
               alt={propertyName}
               width={107}
               height={24}
               priority
+              className="block w-[107px] h-auto"
+            />
+            <Image
+              src="/by-habbaa-white.svg"
+              alt="by Habbaa"
+              width={46}
+              height={16}
+              priority
+              className="block w-[46px] h-auto"
+              style={{ marginTop: '-3px' }}
             />
           </Link>
 
@@ -188,12 +212,26 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
               className="flex items-center justify-between px-5 py-4 shrink-0"
               style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(168,116,50,0.28)' }}
             >
-              <Link href="/" onClick={() => setMenuOpen(false)} className="flex items-center">
+              <Link
+                href="/"
+                onClick={() => setMenuOpen(false)}
+                className="flex flex-col items-end"
+                aria-label={`${propertyName} by Habbaa home`}
+              >
                 <Image
                   src="/villa19-wordmark-knockout.svg"
                   alt={propertyName}
-                  width={89}
+                  width={90}
                   height={20}
+                  className="block w-[90px] h-auto"
+                />
+                <Image
+                  src="/by-habbaa-white.svg"
+                  alt="by Habbaa"
+                  width={39}
+                  height={13}
+                  className="block w-[39px] h-auto"
+                  style={{ marginTop: '-2.5px' }}
                 />
               </Link>
               <button

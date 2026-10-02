@@ -222,7 +222,7 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-bold text-[var(--ink)]">Adults</p>
-                    <p className="text-xs text-[var(--ink-muted)]">Ages 13+</p>
+                    <p className="text-xs text-[var(--ink-muted)]">Ages 12+</p>
                   </div>
                   <div className="flex items-center gap-2.5">
                     <button

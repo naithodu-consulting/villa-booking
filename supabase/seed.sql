@@ -33,12 +33,12 @@ Whether it is a family gathering, a weekend with friends, a milestone celebratio
   8, 14, 8,  -- base 8 included, hard cap 14, ideal party size 8
   100000,   -- ₹1,000/extra guest per night, guests 9-11
   12, 70000, -- ₹700/extra guest per night from guest 12
-  1200000,  -- ₹12,000/night base
-  1400000,  -- ₹14,000/night weekend
+  1400000,  -- ₹14,000/night base
+  1600000,  -- ₹16,000/night weekend
   '14:00:00', '10:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
-  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, is_active = EXCLUDED.is_active;
+  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, base_nightly_rate = EXCLUDED.base_nightly_rate, weekend_nightly_rate = EXCLUDED.weekend_nightly_rate, is_active = EXCLUDED.is_active;
 
 -- ─────────────────────────────────────────────────────────
 -- Rooms (4 bedrooms)
@@ -71,18 +71,18 @@ INSERT INTO property_images (id, property_id, url, alt_text, caption, category, 
   ('a1b2c3d4-0000-0000-0000-000000000114', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/driveway.jpg', 'Paved driveway with space for several cars', 'Open parking', 'parking', 14, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000115', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-front.jpg', 'Covered parking in front of the villa', 'Covered parking', 'parking', 15, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000116', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/outdoor-garden.jpg', 'Tropical lawn with coconut palms (representative image)', 'Lawn (representative)', 'outdoor', 16, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000119', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-sultan-bathery.jpg', 'Sultan Bathery Fort, 1.7 km away', 'Sultan Bathery Fort · 1.7 km', 'around', 17, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000121', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-tannirbavi.jpg', 'Tannirbhavi Beach, 8.8 km away', 'Tannirbhavi Beach · 8.8 km', 'around', 18, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000118', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-panambur.jpg', 'Panambur Beach at sunset, 7.3 km away', 'Panambur Beach · 7.3 km', 'around', 19, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000117', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kudroli.jpg', 'Kudroli Gokarnanatheshwara Temple, 2.9 km away', 'Kudroli Temple · 2.9 km', 'around', 20, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000119', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-sultan-bathery.jpg', 'Sultan Bathery Fort, Mangaluru', 'Sultan Bathery Fort', 'around', 17, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000121', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-tannirbavi.jpg', 'Tannirbhavi Beach, Mangaluru', 'Tannirbhavi Beach', 'around', 18, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000118', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-panambur.jpg', 'Panambur Beach at sunset', 'Panambur Beach', 'around', 19, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000117', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kudroli.jpg', 'Kudroli Gokarnanatheshwara Temple, Mangaluru', 'Kudroli Temple', 'around', 20, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000122', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-mangaladevi.jpg', 'Mangaladevi Temple, Mangaluru', 'Mangaladevi Temple', 'around', 21, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000123', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri-park.jpg', 'Kadri Park, Mangaluru', 'Kadri Park', 'around', 22, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000120', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri.jpg', 'Kadri Manjunatha Temple, 4.2 km away', 'Kadri Manjunatha Temple · 4.2 km', 'around', 23, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000120', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri.jpg', 'Kadri Manjunatha Temple, Mangaluru', 'Kadri Manjunatha Temple', 'around', 23, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000124', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-st-aloysius.jpg', 'St Aloysius Chapel, Mangaluru', 'St Aloysius Chapel', 'around', 24, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000125', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-milagres.jpg', 'Milagres Church, Mangaluru', 'Milagres Church', 'around', 25, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000126', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-pilikula.jpg', 'Pilikula Nature Park and Zoo, 14 km away', 'Pilikula Park · 14 km', 'around', 26, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000127', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-pabbas.jpg', 'Gudbad ice cream at Pabbas, 2.2 km away', 'Pabbas · 2.2 km', 'around', 27, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000128', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-naturals.jpg', 'Naturals Sundaes ice cream, 1.2 km away', 'Naturals · 1.2 km', 'around', 28, NULL, NULL, NULL)
+  ('a1b2c3d4-0000-0000-0000-000000000126', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-pilikula.jpg', 'Pilikula Nature Park and Zoo', 'Pilikula Park', 'around', 26, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000127', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-pabbas.jpg', 'Gudbad ice cream at Pabbas', 'Pabbas', 'around', 27, NULL, NULL, NULL),
+  ('a1b2c3d4-0000-0000-0000-000000000128', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-naturals.jpg', 'Naturals Sundaes ice cream', 'Naturals', 'around', 28, NULL, NULL, NULL)
 ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id, category = EXCLUDED.category, alt_text = EXCLUDED.alt_text, caption = EXCLUDED.caption, url = EXCLUDED.url, display_order = EXCLUDED.display_order, credit = EXCLUDED.credit, credit_url = EXCLUDED.credit_url;
 
 -- ─────────────────────────────────────────────────────────

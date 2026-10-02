@@ -153,8 +153,8 @@ describe('Villa 19 pricing (00039)', () => {
     extra_guest_rate: 100_000,       // ₹1,000, guests 9-11
     extra_guest_tier2_from: 12,
     extra_guest_tier2_rate: 70_000,  // ₹700, guests 12-14
-    base_nightly_rate: 1_200_000,    // ₹12,000
-    weekend_nightly_rate: 1_400_000, // ₹14,000
+    base_nightly_rate: 1_400_000,    // ₹14,000
+    weekend_nightly_rate: 1_600_000, // ₹16,000
   };
   const NEW_YEAR: PricingRule = {
     id: 'ny', property_id: 'test-villa', rule_name: "New Year's Eve and New Year's Day",
@@ -167,7 +167,7 @@ describe('Villa 19 pricing (00039)', () => {
   it('includes 8 guests in the nightly rate', () => {
     const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-28', '2026-12-29', 8, 0);
     expect(r.extra_guests_count).toBe(0);
-    expect(r.base_amount).toBe(1_200_000);
+    expect(r.base_amount).toBe(1_400_000);
   });
 
   it('charges ₹1,000 each for guests 9 to 11 and ₹700 each for 12 to 14, stepwise', () => {
@@ -186,7 +186,7 @@ describe('Villa 19 pricing (00039)', () => {
     const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-14', '2026-12-17', 10, 2);
     expect(r.extra_guests_count).toBe(4);
     expect(r.extra_guest_amount).toBe(370_000 * 3);
-    expect(r.tax_amount).toBe(Math.round(((1_200_000 * 3 + 370_000 * 3) * 18) / 100));
+    expect(r.tax_amount).toBe(Math.round(((1_400_000 * 3 + 370_000 * 3) * 18) / 100));
   });
 
   it('falls back to one flat rate when no second tier is set', () => {
@@ -198,18 +198,18 @@ describe('Villa 19 pricing (00039)', () => {
     expect(() => calculateBookingPrice(VILLA_19, [], '2026-12-14', '2026-12-15', 15, 0)).toThrow('MAX_OCCUPANCY');
   });
 
-  it("prices 31 Dec and 1 Jan at ₹16,000, overriding the Friday weekend rate, and 2 Jan at the weekend rate", () => {
+  it("prices 31 Dec and 1 Jan at ₹16,000, overriding or matching the Friday weekend rate, and 2 Jan at the weekend rate", () => {
     // Wed 30 Dec to Sun 3 Jan
     const r = calculateBookingPrice(VILLA_19, [NEW_YEAR], '2026-12-30', '2027-01-03', 8, 0);
     expect(r.nightly_details.map((n) => [n.date, n.rate])).toEqual([
-      ['2026-12-30', 1_200_000], // Wed
+      ['2026-12-30', 1_400_000], // Wed
       ['2026-12-31', 1_600_000], // Thu, New Year's Eve
       ['2027-01-01', 1_600_000], // Fri, New Year's Day
-      ['2027-01-02', 1_400_000], // Sat, weekend
+      ['2027-01-02', 1_600_000], // Sat, weekend
     ]);
-    expect(r.base_amount).toBe(5_800_000);
-    expect(r.tax_amount).toBe(1_044_000);
-    expect(r.total_amount).toBe(6_844_000);
+    expect(r.base_amount).toBe(6_200_000);
+    expect(r.tax_amount).toBe(1_116_000);
+    expect(r.total_amount).toBe(7_316_000);
   });
 
   it('allows a single night on New Year\'s Eve (no minimum stay)', () => {
@@ -222,26 +222,26 @@ describe('Villa 19 pricing (00039)', () => {
 import { nightlyRate } from '../pricing-engine';
 
 describe('nightlyRate', () => {
-  const rates = { base_nightly_rate: 1_200_000, weekend_nightly_rate: 1_400_000 };
+  const rates = { base_nightly_rate: 1_400_000, weekend_nightly_rate: 1_600_000 };
   const newYear: PricingRule = {
     id: 'ny', property_id: 'p', rule_name: 'NY', start_date: '2026-12-31', end_date: '2027-01-02',
     nightly_rate: 1_600_000, min_stay_nights: 1,
   };
 
   it('uses the weekday rate Sunday to Thursday', () => {
-    expect(nightlyRate(rates, [], '2026-12-13').rate).toBe(1_200_000); // Sun
-    expect(nightlyRate(rates, [], '2026-12-17').rate).toBe(1_200_000); // Thu
+    expect(nightlyRate(rates, [], '2026-12-13').rate).toBe(1_400_000); // Sun
+    expect(nightlyRate(rates, [], '2026-12-17').rate).toBe(1_400_000); // Thu
   });
 
   it('uses the weekend rate on Friday and Saturday nights', () => {
-    expect(nightlyRate(rates, [], '2026-12-18')).toMatchObject({ rate: 1_400_000, isWeekend: true }); // Fri
-    expect(nightlyRate(rates, [], '2026-12-19').rate).toBe(1_400_000); // Sat
+    expect(nightlyRate(rates, [], '2026-12-18')).toMatchObject({ rate: 1_600_000, isWeekend: true }); // Fri
+    expect(nightlyRate(rates, [], '2026-12-19').rate).toBe(1_600_000); // Sat
   });
 
   it('lets a pricing rule override the weekend rate, and excludes the rule end date', () => {
     expect(nightlyRate(rates, [newYear], '2026-12-31').rate).toBe(1_600_000); // Thu
     expect(nightlyRate(rates, [newYear], '2027-01-01')).toMatchObject({ rate: 1_600_000, rule: newYear }); // Fri
     expect(nightlyRate(rates, [newYear], '2027-01-02').rule).toBeUndefined(); // Sat, end date excluded
-    expect(nightlyRate(rates, [newYear], '2027-01-02').rate).toBe(1_400_000);
+    expect(nightlyRate(rates, [newYear], '2027-01-02').rate).toBe(1_600_000);
   });
 });
