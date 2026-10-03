@@ -72,6 +72,9 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [promoInput,       setPromoInput]       = useState('');
   const [promoCode,        setPromoCode]        = useState<string | null>(null);
   const [promoDiscount,    setPromoDiscount]    = useState(0); // paise
+  // GST and total after the discount, as the server worked them out.
+  const [promoTax,         setPromoTax]         = useState<number | null>(null);
+  const [promoTotal,       setPromoTotal]       = useState<number | null>(null);
   const [promoStatus,      setPromoStatus]      = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   // The booking the code was checked against, so a later change to the dates
   // or the guest count drops it instead of showing a saving that may no
@@ -130,6 +133,8 @@ function CheckoutContent({ property, pricingRules }: Props) {
       if (data.valid) {
         setPromoCode(data.code);
         setPromoDiscount(data.discountAmountPaise);
+        setPromoTax(data.taxAmountPaise ?? null);
+        setPromoTotal(data.totalAmountPaise ?? null);
         setPromoMessage(data.message);
         setPromoStatus('valid');
         setPromoFor(`${checkIn}|${checkOut}|${adults}|${children}`);
@@ -151,6 +156,8 @@ function CheckoutContent({ property, pricingRules }: Props) {
     setPromoInput('');
     setPromoCode(null);
     setPromoDiscount(0);
+    setPromoTax(null);
+    setPromoTotal(null);
     setPromoStatus('idle');
     setPromoMessage('');
     setPromoError('');
@@ -162,6 +169,15 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const bookingKey = `${checkIn}|${checkOut}|${adults}|${children}`;
   const appliedCode = promoFor === bookingKey ? promoCode : null;
   const appliedDiscount = appliedCode ? promoDiscount : 0;
+
+  // The discount comes off before GST, so an applied code lowers the tax too.
+  // Both figures come from the server; the browser never re-derives the rule.
+  const shownTax =
+    appliedCode && promoTax !== null ? promoTax : (breakdown?.tax_amount ?? 0);
+  const shownTotal =
+    appliedCode && promoTotal !== null
+      ? promoTotal
+      : (breakdown?.total_amount ?? 0);
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -586,7 +602,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
                       <Lock className="w-4 h-4" />
                       {' Pay ₹'}
                       {breakdown
-                        ? ((breakdown.total_amount - appliedDiscount) / 100).toLocaleString('en-IN')
+                        ? (shownTotal / 100).toLocaleString("en-IN")
                         : '...'}
                     </>
                   )}
@@ -636,23 +652,23 @@ function CheckoutContent({ property, pricingRules }: Props) {
                       <span>₹{(breakdown.extra_guest_amount / 100).toLocaleString('en-IN')}</span>
                     </div>
                   )}
-                  <div className="flex justify-between" style={{ color: 'var(--ink-muted)' }}>
-                    <span>GST (18%)</span>
-                    <span>₹{(breakdown.tax_amount / 100).toLocaleString('en-IN')}</span>
-                  </div>
                   {appliedDiscount > 0 && (
                     <div className="flex justify-between font-semibold" style={{ color: '#15803d' }}>
                       <span>Discount ({appliedCode})</span>
                       <span>−₹{(appliedDiscount / 100).toLocaleString('en-IN')}</span>
                     </div>
                   )}
+                  <div className="flex justify-between" style={{ color: 'var(--ink-muted)' }}>
+                    <span>GST (18%)</span>
+                    <span>₹{(shownTax / 100).toLocaleString("en-IN")}</span>
+                  </div>
                   <div
                     className="flex justify-between text-base font-black pt-2.5"
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     <span style={{ color: 'var(--ink)' }}>Total Payable</span>
                     <span style={{ color: 'var(--brass-ink)' }}>
-                      ₹{((breakdown.total_amount - appliedDiscount) / 100).toLocaleString('en-IN')}
+                      ₹{(shownTotal / 100).toLocaleString("en-IN")}
                     </span>
                   </div>
                   {appliedDiscount > 0 && (

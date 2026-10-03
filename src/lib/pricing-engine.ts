@@ -144,3 +144,33 @@ export function calculateBookingPrice(
     nightly_details: nightlyDetails,
   };
 }
+
+/** GST rate applied to the taxable value of a stay, as a percentage. */
+export const GST_PERCENT = 18;
+
+/**
+ * Re-prices a stay with a discount applied.
+ *
+ * The discount comes off the taxable value, so GST is charged on what the
+ * guest actually pays rather than on the list price. `base_amount` and
+ * `extra_guest_amount` stay gross, so the list price is still recoverable;
+ * `discount_amount` is the saving and `total_amount` is the amount payable.
+ *
+ * `discountPaise` is capped at the subtotal: a discount can take a stay to
+ * zero but never below it, and never produces negative tax.
+ */
+export function applyDiscount(
+  breakdown: PricingBreakdown,
+  discountPaise: number,
+): PricingBreakdown & { discount_amount: number } {
+  const discount = Math.max(0, Math.min(Math.floor(discountPaise), breakdown.subtotal));
+  const taxable = breakdown.subtotal - discount;
+  const taxAmount = Math.round((taxable * GST_PERCENT) / 100);
+
+  return {
+    ...breakdown,
+    discount_amount: discount,
+    tax_amount: taxAmount,
+    total_amount: taxable + taxAmount,
+  };
+}

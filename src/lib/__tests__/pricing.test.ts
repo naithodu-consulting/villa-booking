@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateBookingPrice } from '../pricing-engine';
+import { applyDiscount, calculateBookingPrice } from '../pricing-engine';
 import type { Property, PricingRule } from '@/types';
 
 const VILLA: Property = {
@@ -243,5 +243,50 @@ describe('nightlyRate', () => {
     expect(nightlyRate(rates, [newYear], '2027-01-01')).toMatchObject({ rate: 1_600_000, rule: newYear }); // Fri
     expect(nightlyRate(rates, [newYear], '2027-01-02').rule).toBeUndefined(); // Sat, end date excluded
     expect(nightlyRate(rates, [newYear], '2027-01-02').rate).toBe(1_600_000);
+  });
+});
+
+describe('applyDiscount — the discount comes off before GST', () => {
+  const stay = () =>
+    calculateBookingPrice(VILLA, [], '2026-11-10', '2026-11-12', VILLA.ideal_occupancy, 0);
+
+  it('charges GST on the discounted value, not the list price', () => {
+    const b = stay();
+    const discount = 100_000; // ₹1,000
+    const priced = applyDiscount(b, discount);
+
+    const taxable = b.subtotal - discount;
+    expect(priced.discount_amount).toBe(discount);
+    expect(priced.tax_amount).toBe(Math.round((taxable * 18) / 100));
+    expect(priced.total_amount).toBe(taxable + priced.tax_amount);
+    // The guest saves the discount AND the GST that would have sat on it.
+    expect(priced.total_amount).toBeLessThan(b.total_amount - discount);
+  });
+
+  it('leaves the stay untouched when there is no discount', () => {
+    const b = stay();
+    const priced = applyDiscount(b, 0);
+
+    expect(priced.discount_amount).toBe(0);
+    expect(priced.tax_amount).toBe(b.tax_amount);
+    expect(priced.total_amount).toBe(b.total_amount);
+  });
+
+  it('caps the discount at the subtotal, never going negative', () => {
+    const b = stay();
+    const priced = applyDiscount(b, b.subtotal * 5);
+
+    expect(priced.discount_amount).toBe(b.subtotal);
+    expect(priced.tax_amount).toBe(0);
+    expect(priced.total_amount).toBe(0);
+  });
+
+  it('keeps base and extra-guest amounts gross, so list price is recoverable', () => {
+    const b = stay();
+    const priced = applyDiscount(b, 50_000);
+
+    expect(priced.base_amount).toBe(b.base_amount);
+    expect(priced.extra_guest_amount).toBe(b.extra_guest_amount);
+    expect(priced.subtotal).toBe(b.subtotal);
   });
 });

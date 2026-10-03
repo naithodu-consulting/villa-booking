@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import { calculateBookingPrice } from '@/lib/pricing-engine';
+import { applyDiscount, calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, PricingRule } from '@/types';
 
@@ -166,8 +166,10 @@ export async function POST(request: NextRequest) {
     } else {
       discountAmountPaise = Math.floor(Number(dc.discount_value) * 100);
     }
-    // Cap at total so we never show a negative price
-    discountAmountPaise = Math.min(discountAmountPaise, breakdown.total_amount);
+    // The discount comes off the taxable value, so re-price the stay rather
+    // than subtracting it from the gross total: GST follows the discount.
+    const priced = applyDiscount(breakdown, discountAmountPaise);
+    discountAmountPaise = priced.discount_amount;
 
     const message =
       dc.discount_type === 'percent'
@@ -178,6 +180,10 @@ export async function POST(request: NextRequest) {
       valid: true,
       code: normalizedCode,
       discountAmountPaise,
+      // So the checkout can show the reduced GST and total without
+      // recomputing the tax rule in the browser.
+      taxAmountPaise: priced.tax_amount,
+      totalAmountPaise: priced.total_amount,
       message,
     });
   } catch (err) {

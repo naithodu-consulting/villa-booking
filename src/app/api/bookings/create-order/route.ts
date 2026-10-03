@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
-import { calculateBookingPrice } from '@/lib/pricing-engine';
+import { applyDiscount, calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, PricingRule } from '@/types';
 import { GSTIN_RE } from '@/lib/gstin';
@@ -146,11 +146,16 @@ export async function POST(request: NextRequest) {
       } else {
         discountAmount = Math.floor(Number(dc.discount_value) * 100);
       }
-      discountAmount = Math.min(discountAmount, breakdown.total_amount);
+      discountAmount = Math.min(discountAmount, subtotalPaise);
       discountCode = normalized;
     }
 
-    const chargeAmount = breakdown.total_amount - discountAmount;
+    // The discount comes off the taxable value, so GST is charged on what the
+    // guest actually pays. `priced.total_amount` is therefore the amount
+    // payable, and the booking row records it as such.
+    const priced = applyDiscount(breakdown, discountAmount);
+    discountAmount = priced.discount_amount;
+    const chargeAmount = priced.total_amount;
 
     // Razorpay requires minimum 100 paise. A flat code that covers the full
     // booking value would produce chargeAmount = 0, which Razorpay rejects.
@@ -177,8 +182,8 @@ export async function POST(request: NextRequest) {
       p_num_nights: breakdown.num_nights,
       p_base_amount: breakdown.base_amount,
       p_extra_guest_amount: breakdown.extra_guest_amount,
-      p_tax_amount: breakdown.tax_amount,
-      p_total_amount: breakdown.total_amount,
+      p_tax_amount: priced.tax_amount,
+      p_total_amount: priced.total_amount,
       p_special_requests: specialRequests ?? null,
       p_discount_code: discountCode,
       p_discount_amount: discountAmount,
@@ -291,8 +296,11 @@ export async function POST(request: NextRequest) {
         num_nights: breakdown.num_nights,
         base_amount: breakdown.base_amount,
         extra_guest_amount: breakdown.extra_guest_amount,
-        tax_amount: breakdown.tax_amount,
-        total_amount: breakdown.total_amount,
+        // Tax and total are after the discount; list_total is the price
+        // before it, for showing what the guest saved.
+        tax_amount: priced.tax_amount,
+        total_amount: priced.total_amount,
+        list_total: breakdown.total_amount,
         discount_code: discountCode,
         discount_amount: discountAmount,
         charge_amount: chargeAmount,
