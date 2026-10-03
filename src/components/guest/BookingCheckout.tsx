@@ -10,7 +10,7 @@ import { calculateBookingPrice } from '@/lib/pricing-engine';
 import DateSelectForm from '@/components/guest/DateSelectForm';
 import { isRangeAvailable } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
-import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2, Tag, X, CheckCircle } from 'lucide-react';
 import { formatTime12 } from '@/lib/format';
 import { GSTIN_PATTERN } from '@/lib/gstin';
 
@@ -69,6 +69,16 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [guestGstin,       setGuestGstin]       = useState('');
   const [isProcessing,     setIsProcessing]     = useState(false);
   const [serverError,      setServerError]      = useState('');
+  const [promoInput,       setPromoInput]       = useState('');
+  const [promoCode,        setPromoCode]        = useState<string | null>(null);
+  const [promoDiscount,    setPromoDiscount]    = useState(0); // paise
+  const [promoStatus,      setPromoStatus]      = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+  // The booking the code was checked against, so a later change to the dates
+  // or the guest count drops it instead of showing a saving that may no
+  // longer apply. Derived below rather than cleared, so the two cannot drift.
+  const [promoFor,         setPromoFor]         = useState('');
+  const [promoMessage,     setPromoMessage]     = useState('');
+  const [promoError,       setPromoError]       = useState('');
   // Catches a stale link or a night taken since the guest picked dates, before
   // they fill in the form. create-order still re-checks under a lock at payment.
   const { unavailable, loadRange } = useNightCalendar(property.id);
@@ -96,6 +106,63 @@ function CheckoutContent({ property, pricingRules }: Props) {
     }
   }
 
+  const applyPromo = async () => {
+    const code = promoInput.trim().toUpperCase();
+    if (!code || !breakdown) return;
+    setPromoStatus('checking');
+    setPromoError('');
+    setPromoMessage('');
+    try {
+      const res = await fetch('/api/discount/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          code,
+          propertyId: property.id,
+          checkIn,
+          checkOut,
+          adults,
+          children,
+          guestPhone,
+        }),
+      });
+      const data = await res.json();
+      if (data.valid) {
+        setPromoCode(data.code);
+        setPromoDiscount(data.discountAmountPaise);
+        setPromoMessage(data.message);
+        setPromoStatus('valid');
+        setPromoFor(`${checkIn}|${checkOut}|${adults}|${children}`);
+      } else {
+        setPromoCode(null);
+        setPromoDiscount(0);
+        setPromoError(data.error ?? 'Invalid promo code.');
+        setPromoStatus('invalid');
+      }
+    } catch {
+      setPromoCode(null);
+      setPromoDiscount(0);
+      setPromoError('Could not check promo code. Please try again.');
+      setPromoStatus('invalid');
+    }
+  };
+
+  const clearPromo = () => {
+    setPromoInput('');
+    setPromoCode(null);
+    setPromoDiscount(0);
+    setPromoStatus('idle');
+    setPromoMessage('');
+    setPromoError('');
+    setPromoFor('');
+  };
+
+  // An applied code only counts while the booking still matches the one it
+  // was validated against.
+  const bookingKey = `${checkIn}|${checkOut}|${adults}|${children}`;
+  const appliedCode = promoFor === bookingKey ? promoCode : null;
+  const appliedDiscount = appliedCode ? promoDiscount : 0;
+
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!breakdown) return;
@@ -115,6 +182,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
           checkIn, checkOut, adults, children,
           guestName, guestEmail, guestPhone, specialRequests,
           ...(wantsGstInvoice && { guestCompany: guestCompany.trim(), guestGstin }),
+          ...(appliedCode && { promoCode: appliedCode }),
         }),
       });
 
@@ -398,6 +466,89 @@ function CheckoutContent({ property, pricingRules }: Props) {
                   )}
                 </div>
 
+                {/* Promo code */}
+                <div className="space-y-2">
+                  {appliedCode ? (
+                    <div
+                      className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm"
+                      style={{
+                        backgroundColor: 'rgba(21,128,61,0.07)',
+                        border: '1px solid rgba(21,128,61,0.25)',
+                        color: 'var(--ink)',
+                      }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#15803d' }} />
+                        <span>
+                          <span className="font-black tracking-wide">{appliedCode}</span>
+                          {' — '}
+                          <span style={{ color: '#15803d' }}>{promoMessage}</span>
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={clearPromo}
+                        data-test="discount-code-remove"
+                        className="flex-shrink-0 rounded-full p-1 transition-colors"
+                        style={{ color: 'var(--ink-muted)' }}
+                        aria-label="Remove discount code"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <Tag
+                          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
+                          style={{ color: 'var(--ink-muted)' }}
+                        />
+                        <input
+                          type="text"
+                          value={promoInput}
+                          data-test="discount-code-input"
+                          onChange={(e) => {
+                            setPromoInput(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 20));
+                            if (promoStatus === 'invalid') { setPromoStatus('idle'); setPromoError(''); }
+                          }}
+                          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyPromo(); } }}
+                          placeholder="Enter Coupon Code"
+                          disabled={promoStatus === 'checking'}
+                          className="w-full rounded-xl pl-9 pr-4 py-3 text-sm tracking-wider focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
+                          style={{
+                            backgroundColor: 'var(--paper)',
+                            border: promoStatus === 'invalid'
+                              ? '1px solid rgba(179,38,30,0.5)'
+                              : '1px solid var(--border-subtle)',
+                            color: 'var(--ink)',
+                          }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={applyPromo}
+                        data-test="discount-code-apply"
+                        disabled={!promoInput.trim() || promoStatus === 'checking'}
+                        className="flex-shrink-0 rounded-xl px-4 py-3 text-sm font-bold transition-opacity disabled:opacity-50"
+                        style={{
+                          backgroundColor: 'var(--maroon)',
+                          color: '#fff',
+                        }}
+                      >
+                        {promoStatus === 'checking' ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : 'Apply'}
+                      </button>
+                    </div>
+                  )}
+                  {promoError && (
+                    <p className="text-xs flex items-center gap-1.5" style={{ color: 'var(--error)' }}>
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      {promoError}
+                    </p>
+                  )}
+                </div>
+
                 <div
                   className="p-4 rounded-2xl text-sm flex items-start gap-3"
                   style={{
@@ -431,7 +582,13 @@ function CheckoutContent({ property, pricingRules }: Props) {
                   {isProcessing ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</>
                   ) : (
-                    <><Lock className="w-4 h-4" /> Pay ₹{breakdown ? (breakdown.total_amount / 100).toLocaleString('en-IN') : '...'}</>
+                    <>
+                      <Lock className="w-4 h-4" />
+                      {' Pay ₹'}
+                      {breakdown
+                        ? ((breakdown.total_amount - appliedDiscount) / 100).toLocaleString('en-IN')
+                        : '...'}
+                    </>
                   )}
                 </button>
               </form>
@@ -483,13 +640,27 @@ function CheckoutContent({ property, pricingRules }: Props) {
                     <span>GST (18%)</span>
                     <span>₹{(breakdown.tax_amount / 100).toLocaleString('en-IN')}</span>
                   </div>
+                  {appliedDiscount > 0 && (
+                    <div className="flex justify-between font-semibold" style={{ color: '#15803d' }}>
+                      <span>Discount ({appliedCode})</span>
+                      <span>−₹{(appliedDiscount / 100).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
                   <div
                     className="flex justify-between text-base font-black pt-2.5"
                     style={{ borderTop: '1px solid var(--border-subtle)' }}
                   >
                     <span style={{ color: 'var(--ink)' }}>Total Payable</span>
-                    <span style={{ color: 'var(--brass-ink)' }}>₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
+                    <span style={{ color: 'var(--brass-ink)' }}>
+                      ₹{((breakdown.total_amount - appliedDiscount) / 100).toLocaleString('en-IN')}
+                    </span>
                   </div>
+                  {appliedDiscount > 0 && (
+                    <div className="flex justify-between text-xs" style={{ color: 'var(--ink-muted)' }}>
+                      <span>Original price</span>
+                      <span className="line-through">₹{(breakdown.total_amount / 100).toLocaleString('en-IN')}</span>
+                    </div>
+                  )}
                   <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
                     All prices in INR and inclusive of GST. A security deposit, where applicable, is collected at check-in.
                   </p>

@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
       propertyId, checkIn, checkOut, adults, children,
       guestName, guestEmail, guestPhone, specialRequests,
       guestCompany, guestGstin,
+      promoCode,
     } = body;
 
     // Input validation
@@ -73,6 +74,93 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Re-validate promo code server-side if provided (the client-side
+    // validate endpoint is advisory; this is the authoritative check).
+    let discountCode: string | null = null;
+    let discountAmount = 0;
+    if (typeof promoCode === 'string' && promoCode.trim()) {
+      const normalized = promoCode.toUpperCase().trim();
+      const subtotalPaise = breakdown.base_amount + breakdown.extra_guest_amount;
+
+      const { data: dc } = await supabase
+        .from('discount_codes')
+        .select('*')
+        .eq('code', normalized)
+        .eq('property_id', propertyId)
+        .eq('is_active', true)
+        .maybeSingle();
+
+      if (!dc) {
+        return NextResponse.json({ error: 'Promo code is not valid.' }, { status: 422 });
+      }
+
+      if (today < dc.valid_from || today > dc.valid_to) {
+        return NextResponse.json({ error: 'Promo code has expired.' }, { status: 422 });
+      }
+      if (breakdown.num_nights < dc.min_nights) {
+        return NextResponse.json(
+          { error: `Promo code requires a minimum stay of ${dc.min_nights} nights.` },
+          { status: 422 },
+        );
+      }
+      if (subtotalPaise < Number(dc.min_booking_value) * 100) {
+        return NextResponse.json({ error: 'Booking value does not meet the promo code minimum.' }, { status: 422 });
+      }
+
+      const checkInDate = new Date(checkIn);
+      const checkOutDate = new Date(checkOut);
+      for (const b of (dc.blackouts as Array<{ start: string; end: string }>) ?? []) {
+        if (checkInDate < new Date(b.end) && checkOutDate > new Date(b.start)) {
+          return NextResponse.json({ error: 'Promo code is not valid for these dates.' }, { status: 422 });
+        }
+      }
+
+      if (dc.max_uses != null) {
+        const { count } = await supabase
+          .from('bookings')
+          .select('*', { count: 'exact', head: true })
+          .eq('discount_code', normalized)
+          .eq('property_id', propertyId)
+          .in('status', ['confirmed', 'completed']);
+        if ((count ?? 0) >= dc.max_uses) {
+          return NextResponse.json({ error: 'Promo code has reached its maximum uses.' }, { status: 422 });
+        }
+      }
+
+      const { count: guestCount } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+        .eq('discount_code', normalized)
+        .eq('property_id', propertyId)
+        .eq('guest_phone', guestPhone)
+        .in('status', ['confirmed', 'completed']);
+      if ((guestCount ?? 0) >= dc.max_uses_per_guest) {
+        return NextResponse.json({ error: "You've already used this promo code the maximum number of times." }, { status: 422 });
+      }
+
+      if (dc.discount_type === 'percent') {
+        discountAmount = Math.floor((subtotalPaise * Number(dc.discount_value)) / 100);
+        if (dc.max_discount != null) {
+          discountAmount = Math.min(discountAmount, Math.floor(Number(dc.max_discount) * 100));
+        }
+      } else {
+        discountAmount = Math.floor(Number(dc.discount_value) * 100);
+      }
+      discountAmount = Math.min(discountAmount, breakdown.total_amount);
+      discountCode = normalized;
+    }
+
+    const chargeAmount = breakdown.total_amount - discountAmount;
+
+    // Razorpay requires minimum 100 paise. A flat code that covers the full
+    // booking value would produce chargeAmount = 0, which Razorpay rejects.
+    if (chargeAmount < 100) {
+      return NextResponse.json(
+        { error: 'This discount code covers the full booking value. Please contact the property to complete your booking.' },
+        { status: 422 },
+      );
+    }
+
     // Persist booking as 'pending' via atomic DB function (advisory lock prevents
     // double-booking). This runs before the Razorpay order so unavailable dates
     // are rejected without leaving an orphan order behind.
@@ -92,12 +180,40 @@ export async function POST(request: NextRequest) {
       p_tax_amount: breakdown.tax_amount,
       p_total_amount: breakdown.total_amount,
       p_special_requests: specialRequests ?? null,
+      p_discount_code: discountCode,
+      p_discount_amount: discountAmount,
     });
 
     if (dbError) {
       const msg = dbError.message ?? '';
-      if (msg.startsWith('DATE_UNAVAILABLE') || msg.startsWith('DATE_BLOCKED')) {
-        return NextResponse.json({ error: msg }, { status: 409 });
+      if (msg.startsWith('DATE_UNAVAILABLE')) {
+        console.error('[create-order] Availability conflict:', msg);
+        return NextResponse.json(
+          { error: 'These dates are no longer available. Please go back and select different dates.' },
+          { status: 409 },
+        );
+      }
+      if (msg.startsWith('DATE_BLOCKED')) {
+        console.error('[create-order] Date blocked:', msg);
+        return NextResponse.json(
+          { error: 'These dates are unavailable. Please go back and select different dates.' },
+          { status: 409 },
+        );
+      }
+      if (msg.startsWith('DISCOUNT_')) {
+        console.error('[create-order] Discount rejected:', msg);
+        // The part after 'CODE: ' is written for the guest. Without a colon
+        // the raw message would leak the code itself, so fall back instead.
+        const colon = msg.indexOf(': ');
+        return NextResponse.json(
+          {
+            error:
+              colon === -1
+                ? 'This discount code cannot be used for this booking.'
+                : msg.slice(colon + 2),
+          },
+          { status: 422 },
+        );
       }
       console.error('[create-order] DB error creating booking:', msg);
       return NextResponse.json({ error: 'Booking could not be created. Please try again.' }, { status: 503 });
@@ -120,7 +236,7 @@ export async function POST(request: NextRequest) {
     let razorpayOrder;
     try {
       razorpayOrder = await getRazorpay().orders.create({
-        amount: breakdown.total_amount,
+        amount: chargeAmount,
         currency: 'INR',
         receipt: bookingReference,
         notes: {
@@ -146,7 +262,7 @@ export async function POST(request: NextRequest) {
     const { error: paymentError } = await supabase.from('payments').insert({
       booking_id: bookingId,
       razorpay_order_id: razorpayOrder.id,
-      amount: breakdown.total_amount,
+      amount: chargeAmount,
       currency: 'INR',
       status: 'created',
     });
@@ -169,7 +285,7 @@ export async function POST(request: NextRequest) {
       bookingToken: tokenRow.access_token,
       razorpayOrderId: razorpayOrder.id,
       razorpayKeyId: process.env.RAZORPAY_KEY_ID,
-      amount: breakdown.total_amount,
+      amount: chargeAmount,
       currency: 'INR',
       breakdown: {
         num_nights: breakdown.num_nights,
@@ -177,6 +293,9 @@ export async function POST(request: NextRequest) {
         extra_guest_amount: breakdown.extra_guest_amount,
         tax_amount: breakdown.tax_amount,
         total_amount: breakdown.total_amount,
+        discount_code: discountCode,
+        discount_amount: discountAmount,
+        charge_amount: chargeAmount,
       },
     });
   } catch (err) {

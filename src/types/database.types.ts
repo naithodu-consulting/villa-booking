@@ -164,6 +164,8 @@ export type Database = {
           confirmed_at: string | null
           created_at: string | null
           deposit_amount: number | null
+          discount_amount: number
+          discount_code: string | null
           expires_at: string | null
           extra_guest_amount: number | null
           guest_company: string | null
@@ -202,6 +204,8 @@ export type Database = {
           confirmed_at?: string | null
           created_at?: string | null
           deposit_amount?: number | null
+          discount_amount?: number
+          discount_code?: string | null
           expires_at?: string | null
           extra_guest_amount?: number | null
           guest_company?: string | null
@@ -240,6 +244,8 @@ export type Database = {
           confirmed_at?: string | null
           created_at?: string | null
           deposit_amount?: number | null
+          discount_amount?: number
+          discount_code?: string | null
           expires_at?: string | null
           extra_guest_amount?: number | null
           guest_company?: string | null
@@ -314,6 +320,68 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "channel_sync_log_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discount_codes: {
+        Row: {
+          blackouts: Json
+          code: string
+          created_at: string
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active: boolean
+          max_discount: number | null
+          max_uses: number | null
+          max_uses_per_guest: number
+          min_booking_value: number
+          min_nights: number
+          property_id: string
+          valid_from: string
+          valid_to: string
+        }
+        Insert: {
+          blackouts?: Json
+          code: string
+          created_at?: string
+          discount_type: string
+          discount_value: number
+          id: string
+          is_active?: boolean
+          max_discount?: number | null
+          max_uses?: number | null
+          max_uses_per_guest?: number
+          min_booking_value?: number
+          min_nights?: number
+          property_id: string
+          valid_from: string
+          valid_to: string
+        }
+        Update: {
+          blackouts?: Json
+          code?: string
+          created_at?: string
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          is_active?: boolean
+          max_discount?: number | null
+          max_uses?: number | null
+          max_uses_per_guest?: number
+          min_booking_value?: number
+          min_nights?: number
+          property_id?: string
+          valid_from?: string
+          valid_to?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discount_codes_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
@@ -1330,6 +1398,8 @@ export type Database = {
           p_base_amount: number
           p_check_in: string
           p_check_out: string
+          p_discount_amount?: number
+          p_discount_code?: string
           p_extra_guest_amount: number
           p_guest_email: string
           p_guest_name: string
