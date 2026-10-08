@@ -76,8 +76,12 @@ export async function GET(request: NextRequest) {
       nights.push({ date, rate, available: !taken.has(date), special: rule?.rule_name ?? null });
     }
 
+    // When this data was read from the database. A response served from the CDN
+    // carries the timestamp of the response that was cached, so a caller can
+    // tell how old these rates are and decline to prefer them over fresher
+    // ones it already holds.
     return NextResponse.json(
-      { from, to, nights, unavailable: [...taken] },
+      { from, to, nights, unavailable: [...taken], generatedAt: Date.now() },
       {
         headers: {
           'Cache-Control': 'no-store',

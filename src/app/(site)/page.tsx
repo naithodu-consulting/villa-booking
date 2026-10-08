@@ -10,7 +10,7 @@ import AmenitiesSection from '@/components/guest/AmenitiesSection';
 import RoomShelf from '@/components/guest/RoomShelf';
 import SectionNav from '@/components/guest/SectionNav';
 import FaqList from '@/components/guest/FaqList';
-import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, closestByCategory, formatDistance } from '@/lib/data';
+import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, closestByCategory, formatDistance, ratesReadAt } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 import BookNowLink from '@/components/guest/BookNowLink';
 import { renderBoldText } from '@/lib/bold';
@@ -39,6 +39,12 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+// Re-render at most every 60 s (ISR) so rate changes in the admin reach the
+// booking widget within a minute — same window as the calendar API's CDN TTL.
+// Without this, the page is statically generated at build time and widget
+// prices never update until the next deployment.
+export const revalidate = 60;
+
 export const metadata: Metadata = pageMetadata({
   title: 'Villa19 | Private Urban Villa',
   path: '/',
@@ -57,6 +63,7 @@ export default async function LandingPage() {
     );
   }
 
+  const readAt = ratesReadAt();
   const [rooms, images, pricingRules, amenities, faqs, nearby] = await Promise.all([
     getRooms(property.id),
     getImages(property.id),
@@ -552,7 +559,10 @@ export default async function LandingPage() {
         {/* Right column: sticky booking widget */}
         <div className="lg:col-span-1">
           <div className="sticky top-[136px]">
-            <BookingWidget property={property} pricingRules={pricingRules} />
+            {/* When these rates were read. With revalidate above, this is the
+                age of the cached render, which the widget compares against the
+                calendar's own age to decide which rates are the fresher. */}
+            <BookingWidget property={property} pricingRules={pricingRules} ratesReadAt={readAt} />
             <div
               className="mt-4 p-4 rounded-2xl shadow-sm space-y-2 text-sm"
               style={{

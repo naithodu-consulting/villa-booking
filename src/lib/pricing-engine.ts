@@ -45,13 +45,23 @@ export const MAX_STAY_NIGHTS = 10;
 export const MAX_STAY_MESSAGE =
   'For stays of this duration, please contact Villa 19 directly for special pricing and availability.';
 
+/**
+ * Looks up an authoritative rate for a night, in paise, or undefined when none
+ * is known. Browser callers pass one backed by /api/availability/calendar so a
+ * long-lived tab prices a stay from live rates rather than from the rates baked
+ * into the page when it loaded. The server never passes one: it reads the
+ * database directly and is already authoritative.
+ */
+export type RateOverride = (dateStr: string) => number | undefined;
+
 export function calculateBookingPrice(
   property: Property,
   pricingRules: PricingRule[],
   checkInDateStr: string,
   checkOutDateStr: string,
   numAdults: number,
-  numChildren: number
+  numChildren: number,
+  rateOverride?: RateOverride
 ): PricingBreakdown {
   const checkIn = new Date(checkInDateStr + 'T00:00:00Z');
   const checkOut = new Date(checkOutDateStr + 'T00:00:00Z');
@@ -96,7 +106,11 @@ export function calculateBookingPrice(
   const curr = new Date(checkIn);
   while (curr < checkOut) {
     const dateStr = curr.toISOString().split('T')[0];
-    const { rate: ratePaise, isWeekend, rule: matchedRule } = nightlyRate(property, pricingRules, dateStr);
+    const { rate: computedRate, isWeekend, rule: matchedRule } = nightlyRate(property, pricingRules, dateStr);
+    // A live rate wins over the one derived from page props, so the total can
+    // never disagree with the price shown on that night in the calendar.
+    const override = rateOverride?.(dateStr);
+    const ratePaise = typeof override === 'number' ? toInt(override) : computedRate;
 
     baseAmountPaise += ratePaise;
     nightlyDetails.push({

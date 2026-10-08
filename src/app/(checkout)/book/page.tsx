@@ -2,7 +2,11 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import BookingCheckout from '@/components/guest/BookingCheckout';
-import { getProperty, getPricingRules } from '@/lib/data';
+import { getProperty, getPricingRules, ratesReadAt } from '@/lib/data';
+
+// Must not be cached: the price shown here is what the guest pays. Stale rates
+// would show one amount and charge another.
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Book',
@@ -16,5 +20,7 @@ export default async function BookPage() {
 
   const pricingRules = await getPricingRules(property.id);
 
-  return <BookingCheckout property={property} pricingRules={pricingRules} />;
+  // Rendered per request, so these rates are read fresh here and the calendar's
+  // CDN-cached ones will normally lose the comparison — which is correct.
+  return <BookingCheckout property={property} pricingRules={pricingRules} ratesReadAt={ratesReadAt()} />;
 }

@@ -290,3 +290,102 @@ describe('applyDiscount — the discount comes off before GST', () => {
     expect(priced.subtotal).toBe(b.subtotal);
   });
 });
+
+describe('rateOverride (live rates from the calendar endpoint)', () => {
+  it('prices nights from the override instead of the property rates', () => {
+    // Monday → Wednesday. Property says ₹10,000/night; the override — standing
+    // in for the calendar's live rates — says ₹16,000.
+    const result = calculateBookingPrice(
+      VILLA, [], '2026-08-24', '2026-08-26', 6, 0,
+      () => 1_600_000,
+    );
+    expect(result.base_amount).toBe(3_200_000);
+    expect(result.nightly_details.every((n) => n.rate === 1_600_000)).toBe(true);
+  });
+
+  it('falls back to the property rate for nights the override does not know', () => {
+    // Only the first night is known; the second must keep the weekday rate.
+    const result = calculateBookingPrice(
+      VILLA, [], '2026-08-24', '2026-08-26', 6, 0,
+      (date) => (date === '2026-08-24' ? 1_600_000 : undefined),
+    );
+    expect(result.base_amount).toBe(1_600_000 + 1_000_000);
+  });
+
+  it('overrides a seasonal rule too, since the calendar already applied it', () => {
+    const rules: PricingRule[] = [{
+      id: 'r1',
+      property_id: 'test-villa',
+      rule_name: 'Peak',
+      start_date: '2026-08-24',
+      end_date: '2026-08-26',
+      nightly_rate: 2_000_000,
+      min_stay_nights: 0,
+    } as PricingRule];
+    const result = calculateBookingPrice(
+      VILLA, rules, '2026-08-24', '2026-08-25', 6, 0,
+      () => 1_600_000,
+    );
+    expect(result.base_amount).toBe(1_600_000);
+  });
+
+  it('is identical to the un-overridden result when no override is passed', () => {
+    const withOut = calculateBookingPrice(VILLA, [], '2026-08-21', '2026-08-23', 10, 0);
+    const withUndef = calculateBookingPrice(VILLA, [], '2026-08-21', '2026-08-23', 10, 0, () => undefined);
+    expect(withUndef).toEqual(withOut);
+  });
+
+  it('carries the override through extra guests and GST', () => {
+    // 10 guests = 2 above base occupancy, 1 night at the overridden rate.
+    const result = calculateBookingPrice(
+      VILLA, [], '2026-08-24', '2026-08-25', 10, 0,
+      () => 1_600_000,
+    );
+    expect(result.base_amount).toBe(1_600_000);
+    expect(result.extra_guest_amount).toBe(100_000); // 2 × ₹500
+    expect(result.subtotal).toBe(1_700_000);
+    expect(result.tax_amount).toBe(306_000);         // 18% of ₹17,000
+    expect(result.total_amount).toBe(2_006_000);
+  });
+});
+
+describe('rateOverride freshness gate (regression: CDN-stale rates must not win)', () => {
+  // Mirrors useNightCalendar.rateForSince: a live rate is used only when it was
+  // generated at or after the moment the page's own rates were read.
+  const rateForSince =
+    (nights: Record<string, { rate: number; generatedAt?: number }>, since: number) =>
+    (iso: string): number | undefined => {
+      const n = nights[iso];
+      if (!n || n.generatedAt === undefined) return undefined;
+      return n.generatedAt >= since ? n.rate : undefined;
+    };
+
+  const PAGE_READ_AT = 1_000_000;
+
+  it('uses the live rate when the calendar is newer than the page', () => {
+    // The long-lived-tab case: page rendered long ago, calendar just refreshed.
+    const override = rateForSince(
+      { '2026-08-24': { rate: 1_600_000, generatedAt: PAGE_READ_AT + 60_000 } },
+      PAGE_READ_AT,
+    );
+    const r = calculateBookingPrice(VILLA, [], '2026-08-24', '2026-08-25', 6, 0, override);
+    expect(r.base_amount).toBe(1_600_000);
+  });
+
+  it('keeps the page rate when the calendar response is older (CDN hit)', () => {
+    // The /book case: props read per request, calendar served from a CDN entry
+    // created up to two minutes earlier. The stale rate must lose.
+    const override = rateForSince(
+      { '2026-08-24': { rate: 1_600_000, generatedAt: PAGE_READ_AT - 90_000 } },
+      PAGE_READ_AT,
+    );
+    const r = calculateBookingPrice(VILLA, [], '2026-08-24', '2026-08-25', 6, 0, override);
+    expect(r.base_amount).toBe(1_000_000); // VILLA weekday rate, not the stale 16k
+  });
+
+  it('keeps the page rate when the response carries no timestamp', () => {
+    const override = rateForSince({ '2026-08-24': { rate: 1_600_000 } }, PAGE_READ_AT);
+    const r = calculateBookingPrice(VILLA, [], '2026-08-24', '2026-08-25', 6, 0, override);
+    expect(r.base_amount).toBe(1_000_000);
+  });
+});

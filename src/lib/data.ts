@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { todayISO } from '@/lib/format';
 import type { Property, Room, PropertyImage, PricingRule, PropertyAmenity, FAQ, PropertyPolicy, NearbyPlace } from '@/types';
 
 const PROPERTY_SLUG = 'villa-19';
@@ -50,9 +51,23 @@ export async function getImages(propertyId: string): Promise<PropertyImage[]> {
   return data as PropertyImage[];
 }
 
+/**
+ * The moment a server render read its rates, for comparing against the age of
+ * the calendar endpoint's cached response so the newer of the two wins.
+ *
+ * It belongs here beside the queries it describes rather than being read in a
+ * component: it is a property of the data, not of the render. On a cached page
+ * it is the age of that cached copy, which is exactly what the comparison needs.
+ */
+export function ratesReadAt(): number {
+  return Date.now();
+}
+
 export async function getPricingRules(propertyId: string): Promise<PricingRule[]> {
   const supabase = createServiceClient();
-  const today = new Date().toISOString().slice(0, 10);
+  // The date at the property, not UTC: toISOString() returns yesterday in
+  // India between 00:00 and 05:30 IST, which would drop a rule starting today.
+  const today = todayISO();
   const { data, error } = await supabase
     .from('pricing_rules')
     .select('*')

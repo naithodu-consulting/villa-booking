@@ -43,9 +43,11 @@ function loadRazorpay(): Promise<void> {
 interface Props {
   property: Property;
   pricingRules: PricingRule[];
+  /** When the server read the rates in `property` and `pricingRules`. */
+  ratesReadAt: number;
 }
 
-function CheckoutContent({ property, pricingRules }: Props) {
+function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -82,12 +84,23 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const [promoFor,         setPromoFor]         = useState('');
   const [promoMessage,     setPromoMessage]     = useState('');
   const [promoError,       setPromoError]       = useState('');
+  // Set when create-order refuses because its own total differs from the one
+  // shown here — a rate changed while this page was open. Holds the server's
+  // figures, which are authoritative and already include any discount, and is
+  // tied to the booking it was issued for so it cannot outlive it.
+  const [correction,       setCorrection]       = useState<{
+    tax_amount: number; total_amount: number; discount_amount: number;
+  } | null>(null);
+  const [correctionFor,    setCorrectionFor]    = useState('');
   // Catches a stale link or a night taken since the guest picked dates, before
   // they fill in the form. create-order still re-checks under a lock at payment.
-  const { unavailable, loadRange } = useNightCalendar(property.id);
+  const { unavailable, rateForSince, loadRange, refresh } = useNightCalendar(property.id);
+  const rateFor = rateForSince(ratesReadAt);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
 
-  const hasValidParams = checkIn && checkOut && !isNaN(adults);
+  // children is checked too: a non-numeric ?children= made totalGuests NaN,
+  // which slips past the max-occupancy guard and renders the price as ₹NaN.
+  const hasValidParams = checkIn && checkOut && !isNaN(adults) && !isNaN(children);
   // No dates at all is not an error state: the header BOOK NOW button on every
   // page links to a bare /book, so this is the commonest way in.
   const needsDates = !checkIn && !checkOut;
@@ -99,7 +112,7 @@ function CheckoutContent({ property, pricingRules }: Props) {
     paramError = 'Missing booking details. Please select your dates from the property page.';
   } else {
     try {
-      breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults, children);
+      breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults, children, rateFor);
       if (!isRangeAvailable(unavailable, checkIn, checkOut)) {
         breakdown = null;
         paramError = 'Some of those nights are already booked. Please choose different dates.';
@@ -131,6 +144,10 @@ function CheckoutContent({ property, pricingRules }: Props) {
       });
       const data = await res.json();
       if (data.valid) {
+        // A discount re-prices the stay, so a correction from before it no
+        // longer describes what is owed.
+        setCorrection(null);
+        setCorrectionFor('');
         setPromoCode(data.code);
         setPromoDiscount(data.discountAmountPaise);
         setPromoTax(data.taxAmountPaise ?? null);
@@ -153,6 +170,8 @@ function CheckoutContent({ property, pricingRules }: Props) {
   };
 
   const clearPromo = () => {
+    setCorrection(null);
+    setCorrectionFor('');
     setPromoInput('');
     setPromoCode(null);
     setPromoDiscount(0);
@@ -170,14 +189,21 @@ function CheckoutContent({ property, pricingRules }: Props) {
   const appliedCode = promoFor === bookingKey ? promoCode : null;
   const appliedDiscount = appliedCode ? promoDiscount : 0;
 
+  // Likewise for a price correction: it belongs to the booking it was issued
+  // for, so changing dates or guests discards it.
+  const activeCorrection = correctionFor === bookingKey ? correction : null;
+
   // The discount comes off before GST, so an applied code lowers the tax too.
   // Both figures come from the server; the browser never re-derives the rule.
+  // A correction outranks both: it is the price create-order just computed.
   const shownTax =
-    appliedCode && promoTax !== null ? promoTax : (breakdown?.tax_amount ?? 0);
+    activeCorrection?.tax_amount ??
+    (appliedCode && promoTax !== null ? promoTax : (breakdown?.tax_amount ?? 0));
   const shownTotal =
-    appliedCode && promoTotal !== null
+    activeCorrection?.total_amount ??
+    (appliedCode && promoTotal !== null
       ? promoTotal
-      : (breakdown?.total_amount ?? 0);
+      : (breakdown?.total_amount ?? 0));
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,10 +225,25 @@ function CheckoutContent({ property, pricingRules }: Props) {
           guestName, guestEmail, guestPhone, specialRequests,
           ...(wantsGstInvoice && { guestCompany: guestCompany.trim(), guestGstin }),
           ...(appliedCode && { promoCode: appliedCode }),
+          // What this page is showing. The server prices the stay itself and
+          // refuses rather than charging a total the guest never saw.
+          expectedTotal: shownTotal,
         }),
       });
 
       const orderData = await orderRes.json();
+
+      // The rate moved between this page loading and this click. Show the new
+      // total and let the guest decide; no booking or hold was created.
+      if (orderRes.status === 409 && orderData.error === 'PRICE_CHANGED') {
+        setCorrection(orderData.breakdown);
+        setCorrectionFor(bookingKey);
+        setServerError(orderData.message);
+        refresh(); // bring the calendar's per-night prices in line too
+        setIsProcessing(false);
+        return;
+      }
+
       if (!orderRes.ok) throw new Error(orderData.error ?? 'Could not create booking order. Please try again.');
 
       const { bookingToken, razorpayOrderId, razorpayKeyId, amount } = orderData;
@@ -712,14 +753,14 @@ function CheckoutHeader({ property }: { property: Property }) {
   );
 }
 
-export default function BookingCheckout({ property, pricingRules }: Props) {
+export default function BookingCheckout({ property, pricingRules, ratesReadAt }: Props) {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--paper)' }}>
         <Loader2 className="w-8 h-8 animate-spin" style={{ color: 'var(--brass)' }} />
       </div>
     }>
-      <CheckoutContent property={property} pricingRules={pricingRules} />
+      <CheckoutContent property={property} pricingRules={pricingRules} ratesReadAt={ratesReadAt} />
     </Suspense>
   );
 }

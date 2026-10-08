@@ -6,21 +6,30 @@ import { Property, PricingRule, PricingBreakdown } from '@/types';
 import { calculateBookingPrice, MAX_STAY_NIGHTS } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
-import { todayISO, addDaysISO } from '@/lib/format';
+import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 
 interface BookingWidgetProps {
   property: Property;
   pricingRules: PricingRule[];
+  /** When the server read the rates in `property` and `pricingRules`. */
+  ratesReadAt: number;
 }
+
+/**
+ * How far ahead a seasonal rule may be and still set the "starting from"
+ * price. Matches the six months useNightCalendar loads, so every rate quoted
+ * in the header is one the guest can actually find in the calendar.
+ */
+const FROM_RATE_HORIZON_MONTHS = 6;
 
 /** Converts paise integer to formatted rupee string: 1450000 → "14,500" */
 function inr(paise: number): string {
   return (paise / 100).toLocaleString('en-IN');
 }
 
-export default function BookingWidget({ property, pricingRules }: BookingWidgetProps) {
+export default function BookingWidget({ property, pricingRules, ratesReadAt }: BookingWidgetProps) {
   // Calendar dates at the property, not UTC instants: toISOString() returns
   // yesterday in India between 00:00 and 05:30 IST.
   const todayStr = todayISO();
@@ -35,7 +44,8 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const guestMenuRef = useRef<HTMLDivElement>(null);
-  const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(property.id);
+  const { unavailable, infoFor, rateForSince, monthStatus, loadMonth, loadRange } = useNightCalendar(property.id);
+  const rateFor = rateForSince(ratesReadAt);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out
   // calendar shows it as open rather than booked.
@@ -76,7 +86,10 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
   let errorMsg = '';
 
   try {
-    breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults, children);
+    // rateFor comes from the calendar endpoint, so the total agrees with the
+    // per-night prices shown there and stays right in a long-lived tab. It
+    // falls back to the page's own rates for any month not loaded yet.
+    breakdown = calculateBookingPrice(property, pricingRules, checkIn, checkOut, adults, children, rateFor);
   } catch (err: unknown) {
     const raw = err instanceof Error ? err.message : 'Invalid dates selected';
     errorMsg = raw.includes(':') ? raw.split(':').slice(1).join(':').trim() : raw;
@@ -100,10 +113,20 @@ export default function BookingWidget({ property, pricingRules }: BookingWidgetP
 
   // "Starting from" must be the lowest nightly rate a guest can actually get:
   // weekday, weekend or any seasonal rule, whichever is cheapest.
+  //
+  // Only rules inside the booking horizon count. getPricingRules returns every
+  // rule that has not ended, with no upper bound, so a cheap monsoon rule a
+  // year out would otherwise set the headline price — advertising a rate
+  // nobody can book for months. Six months matches the window the calendar
+  // loads, so the "from" price is one the guest can find by paging through it.
+  const fromHorizon = addMonthsISO(todayStr, FROM_RATE_HORIZON_MONTHS);
+  const bookableRules = pricingRules.filter(
+    (r) => r.start_date < fromHorizon && r.end_date > todayStr,
+  );
   const fromRateDisplay = inr(Math.min(
     property.base_nightly_rate,
     property.weekend_nightly_rate,
-    ...pricingRules.map((r) => r.nightly_rate),
+    ...bookableRules.map((r) => r.nightly_rate),
   ));
   const extraRateDisplay = inr(property.extra_guest_rate);
   const tier2From = property.extra_guest_tier2_from;

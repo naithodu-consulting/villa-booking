@@ -4,6 +4,7 @@ import { applyDiscount, calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, PricingRule } from '@/types';
 import { GSTIN_RE } from '@/lib/gstin';
+import { todayISO } from '@/lib/format';
 
 // Deferred so build-time static analysis doesn't throw when env vars are absent
 function getRazorpay() {
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
       guestName, guestEmail, guestPhone, specialRequests,
       guestCompany, guestGstin,
       promoCode,
+      expectedTotal,
     } = body;
 
     // Input validation
@@ -45,7 +47,10 @@ export async function POST(request: NextRequest) {
 
     // Fetch property + active pricing rules from DB — never trust client amounts
     const supabase = createServiceClient();
-    const today = new Date().toISOString().slice(0, 10);
+    // The date at the property, not UTC. This gates promo-code valid_from and
+    // valid_to below, so between 00:00 and 05:30 IST a UTC date would honour a
+    // code a day early or reject one on its last valid day.
+    const today = todayISO();
 
     const [{ data: propertyData, error: propError }, { data: rulesData }] = await Promise.all([
       supabase.from('properties').select('*').eq('id', propertyId).eq('is_active', true).single(),
@@ -156,6 +161,34 @@ export async function POST(request: NextRequest) {
     const priced = applyDiscount(breakdown, discountAmount);
     discountAmount = priced.discount_amount;
     const chargeAmount = priced.total_amount;
+
+    // The guest pays what the server works out, not what their page displayed.
+    // When the two disagree — a rate changed while the page was open, or the
+    // page was loaded before a rate change — stop and show them the new price
+    // rather than silently charging a figure they never agreed to. The amount
+    // is authoritative either way; this is about consent, so an older client
+    // that sends no expectation simply skips the check.
+    if (typeof expectedTotal === 'number' && expectedTotal !== chargeAmount) {
+      return NextResponse.json(
+        {
+          error: 'PRICE_CHANGED',
+          message:
+            'The price for these dates has changed since this page was opened. Please review the updated total and confirm.',
+          breakdown: {
+            num_nights: breakdown.num_nights,
+            base_amount: breakdown.base_amount,
+            extra_guest_amount: breakdown.extra_guest_amount,
+            tax_amount: priced.tax_amount,
+            total_amount: priced.total_amount,
+            list_total: breakdown.total_amount,
+            discount_code: discountCode,
+            discount_amount: discountAmount,
+            charge_amount: chargeAmount,
+          },
+        },
+        { status: 409 },
+      );
+    }
 
     // Razorpay requires minimum 100 paise. A flat code that covers the full
     // booking value would produce chargeAmount = 0, which Razorpay rejects.
