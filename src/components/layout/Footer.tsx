@@ -31,7 +31,7 @@ const EXPLORE_LINKS: [string, string][] = [
 const LEGAL_LINKS: [string, string][] = [
   ['/privacy',            'Privacy Policy'],
   ['/terms',              'Terms of Service'],
-  ['/terms#cancellation', 'Cancellation Policy'],
+  ['/cancellation',       'Cancellation Policy'],
 ];
 
 // Shared heading style for every column — keeps them locked to one baseline.

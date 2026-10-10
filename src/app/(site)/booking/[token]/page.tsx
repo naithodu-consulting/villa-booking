@@ -313,7 +313,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
             </ol>
             <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
               Plans changed? See our{' '}
-              <Link href="/terms#cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
+              <Link href="/cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
                 cancellation policy
               </Link>
               .
