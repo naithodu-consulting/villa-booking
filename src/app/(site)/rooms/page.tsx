@@ -59,15 +59,18 @@ export default async function RoomsPage() {
                 className="rounded-3xl shadow-sm overflow-hidden"
                 style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
               >
-                {/* The room's own photo; the bed icon stands in until one is linked. */}
+                {/* The room's own photo; the bed icon stands in until one is
+                    linked. The frame is 3:2, like every room photograph in the
+                    shoot, so the photo fills it with nothing cropped and no
+                    empty margin. */}
                 {roomPhoto.get(room.id) ? (
-                  <div className="relative w-full aspect-[4/3]">
+                  <div className="relative w-full" style={{ aspectRatio: '3 / 2', backgroundColor: 'var(--paper-sunk)' }}>
                     <Image
                       src={roomPhoto.get(room.id)!.url}
                       alt={roomPhoto.get(room.id)!.alt_text}
                       fill
                       sizes="(max-width: 640px) 100vw, 50vw"
-                      className="object-cover"
+                      style={{ objectFit: 'cover' }}
                       priority={idx < 2}
                     />
                   </div>

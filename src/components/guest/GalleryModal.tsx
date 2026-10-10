@@ -22,12 +22,17 @@ export default function GalleryModal({ images }: GalleryProps) {
 
   const hero = images[0];
 
+  // Each cell is 3:2, which is the shape of every photograph in the gallery,
+  // so the photo fills its cell with nothing cropped and no empty margin. The
+  // cells were fixed pixel heights before, which matched no photograph.
+
   return (
     <div className="w-full">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 rounded-2xl overflow-hidden shadow-lg relative">
         <button
           type="button"
-          className="col-span-2 md:row-span-2 relative h-72 sm:h-80 md:h-[520px] group overflow-hidden"
+          className="col-span-2 md:row-span-2 relative md:h-full group overflow-hidden"
+          style={{ aspectRatio: '3 / 2', backgroundColor: 'var(--paper-sunk)' }}
           onClick={() => setOpenAt(0)}
           aria-label={`Open gallery: ${hero.alt_text}`}
         >
@@ -37,7 +42,8 @@ export default function GalleryModal({ images }: GalleryProps) {
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
             priority
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="transition-transform duration-500 group-hover:scale-105"
+            style={{ objectFit: 'cover' }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 transition-opacity group-hover:opacity-40" />
         </button>
@@ -47,7 +53,8 @@ export default function GalleryModal({ images }: GalleryProps) {
           <button
             type="button"
             key={img.id}
-            className={`relative h-36 sm:h-40 md:h-[254px] group overflow-hidden ${idx >= 2 ? 'hidden md:block' : ''}`}
+            className={`relative group overflow-hidden ${idx >= 2 ? 'hidden md:block' : ''}`}
+            style={{ aspectRatio: '3 / 2', backgroundColor: 'var(--paper-sunk)' }}
             onClick={() => setOpenAt(idx + 1)}
             aria-label={`View photo: ${img.alt_text}`}
           >
@@ -56,7 +63,8 @@ export default function GalleryModal({ images }: GalleryProps) {
               alt={img.alt_text ?? `Villa photo ${idx + 2}`}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="transition-transform duration-500 group-hover:scale-105"
+              style={{ objectFit: 'cover' }}
             />
             <div className="absolute inset-0 bg-black/15 transition-colors group-hover:bg-transparent" />
             {/* opacity-0 by default and group-hover: is already wrapped in

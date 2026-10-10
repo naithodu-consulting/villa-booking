@@ -4,6 +4,196 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.21 - Landscape-only gallery, and captions in plain English - 2026-10-10
+
+Two asks from the operator: show only landscape photographs, with no border
+above or below them, and write the descriptions in ordinary language.
+
+- **Every tile is one landscape shape again**, filled edge to edge
+  (`00067_landscape_only_gallery.sql`). Masonry and letterboxing both existed
+  only to cope with the vertical frames, so both are gone. Measured in the
+  browser across all 41 photographs: 0 vertical, the largest gap between a
+  photo and its tile is 2px, which is the tile's own border, and the largest
+  difference between a photo's ratio and its rendered ratio is 0.59%.
+- **Fifteen vertical photographs were removed rather than cropped.** A 3:2 crop
+  of a vertical bathroom frame cuts the mirror or the toilet in half, which is
+  worse than not showing it. The operator chose this with the cost in front of
+  them: **the Bathrooms section is gone entirely**, because all five bathroom
+  frames in the shoot are vertical, and so are both living hall views, the
+  Villa 19 sign, the nameboard, the Buddha corner, the driver room, the
+  check-in desk, the table setting and the tea tray. 44 photographs became 29,
+  plus 11 neighbourhood ones.
+- **Nothing in the shoot can replace them.** Of its 45 landscape frames, not
+  one is of a bathroom, the living hall, the signage, the driver room or the
+  desk. The next shoot needs landscape frames of: the three bathrooms, the
+  living hall from both ends, the driver room, the check-in desk, the Villa 19
+  sign and nameboard, and the Buddha corner.
+- **The eleven Around Villa 19 photographs are now 3:2 too**
+  (`00068_around_photos_3x2.sql`). They were 4:3 and thereabouts, so the new
+  tile was cropping one of them by 36% wherever it liked. Each crop was chosen
+  by hand instead: the Kudroli gopuram and the Milagres cross keep their tops,
+  Pilikula keeps its gate and sign. The vertical Mangaladevi Temple photo went
+  with the rest.
+- **The tile's shape and fit are inline styles, not utility classes.** A tab
+  running an older stylesheet would otherwise fall back to the previous 4:3
+  tile and letterbox the photo inside it. Inline styles travel with the markup,
+  so the tile cannot come out the wrong shape.
+- **Captions and descriptions are in plain English**
+  (`00066_plain_english_captions.sql`). Out go frontage, forecourt, vessel
+  basin, alcove, marble-effect tile, uplighters, gas hob and WC; in come lawn,
+  wash basin, gas stove, toilet and fridge. Same facts, ordinary words. The
+  viewer prints the description under the photograph, so this is what a guest
+  actually reads.
+
+---
+
+## v0.9.20 - The gallery is masonry, so tiles fit the photographs - 2026-10-10
+
+Uncropping the photographs left the other half of the problem: every tile was
+a fixed 4:3 box, so a 2:3 portrait filled half of its tile and a 3:2 landscape
+filled 89% of it. About a quarter of the gallery's surface was background, and
+two photos in the same row appeared at two different sizes.
+
+- **Each tile now carries its own photograph's aspect ratio**, so fitting and
+  filling are the same thing: nothing is cropped and nothing is letterboxed.
+  The ratio comes from the `width`/`height` already stored per row, so it is
+  set when the page renders and there is no layout shift.
+- **CSS columns, not a grid with row spans.** A row span has to be computed in
+  pixels and the column width here is responsive, so it cannot be known on the
+  server. Column balancing is left to the browser; DOM order is unchanged, so
+  the viewer still opens the tile that was clicked.
+- **The homepage mosaic and the Rooms page cards are now 3:2**, which is the
+  shape of every photograph they show, so those cells fill edge to edge too.
+  The mosaic's fixed pixel heights fitted neither the old crops nor the
+  uncropped frames.
+- **The twelve Around Villa 19 rows had no dimensions** and would have fallen
+  back to 3:2 while most of them are 4:3 and one is portrait (migration
+  `00065_around_photo_dimensions.sql`).
+- Measured in the browser afterwards, across all 56 photographs: the largest
+  gap between any photo and its tile is 2px, which is the tile's 1px border,
+  and the largest difference between a photo's own ratio and its rendered
+  ratio is 0.22%, well under a pixel.
+
+---
+
+## v0.9.19 - Gallery captions and descriptions reviewed - 2026-10-10
+
+Every caption and description was re-read as a guest, as the owner and as a
+tester, against the property record rather than against the photograph alone
+(migration `00064_gallery_copy_review.sql`). The viewer prints `alt_text`
+under the photo, so these are guest-facing sentences, not just screen-reader
+text.
+
+- **A guest could have counted four bathrooms.** Two bathrooms were
+  photographed and the tiles read "Bathroom", "Basin and mirror", "Vanity",
+  "Bathroom". The property record says three. Captions now name the fixture
+  rather than implying a count, and one description says "one of the villa's
+  three bathrooms" outright.
+- **The washbasin alcove was filed as a bathroom fitting.** Two other frames
+  show it beside the dining area, which is what it now says. A guest reading
+  "bathroom" would have counted it as one more.
+- **One room was named as two.** "Double-height hall" and "Living room" are
+  the same hall from opposite ends.
+- **Claims pulled back to what the photograph shows.** "Covered parking"
+  became a covered porch you can park under; "Tea and coffee" became the
+  coffee maker, kettle and canisters actually in frame, since the old caption
+  read as a promise about supplies; "Prayer niche" became an alcove with a
+  seated Buddha, which is what it is; "Reception" became the check-in desk,
+  where the ID registration the house rules require is done; "Landing and
+  carrom" made a carrom board the subject of a photograph of a landing.
+- **Bedrooms now answer the booking question.** Bed size, floor,
+  air-conditioning and, for Room 1 only, the attached bathroom, instead of
+  wall colours and furniture. These match the rooms table.
+- **A duplicate frame is gone.** "Blue hour" and "The villa at dusk" were the
+  same evening from almost the same spot, so the second frame was dropped from
+  the gallery and from 00063's insert: 45 photographs became 44.
+- Captions are all distinct, so no two tiles read the same.
+
+---
+
+## v0.9.18 - The professional photo shoot replaces every villa photograph - 2026-10-10
+
+121 frames arrived from the operator's shoot. 44 are now live; the 16
+phone photographs from the September shoot are gone.
+
+- **What was chosen and why.** Every frame was reviewed, then shortlisted for
+  coverage first and quality second: each of the four bedrooms, both ends of
+  the kitchen, the dining room and the laid table, the double-height hall, the
+  private lounge, four bathrooms and the terracotta washbasin alcove, the
+  rooftop terrace by day and at dusk, the garden, both parking areas, the
+  gate, the nameboard, the prayer niche and the facade in daylight, at blue
+  hour and lit at night. Near-duplicates were dropped: the shoot has more than
+  twenty frames of the facade and three are published.
+- **Nothing is cropped.** The first pass cut every frame to the gallery's 4:3
+  tile and chopped a bed, a chair, the roofline, the nameplate and a washbasin
+  in half. That pass is gone. Each photo is now published whole, with only its
+  long side bounded at 1600px: landscape frames are 1600x1067 and portrait ones
+  1067x1600, and `width`/`height` in the database are each photo's own. All 45
+  were checked against their originals frame for frame, by aspect ratio and by
+  pixel difference, before publishing.
+- **The site handles the shapes instead.** Gallery tiles, the homepage mosaic
+  and the Rooms page photo use `object-contain` over the sunk-paper colour, so
+  a frame that does not fill its box is letterboxed rather than clipped. The
+  full-screen viewer no longer forces a 4:3 box either: it takes the height
+  available, so a portrait photograph fills the screen instead of sitting in a
+  landscape hole. The five photos in the homepage mosaic are all landscape,
+  since that grid's cells are wide.
+- Everything is saved without EXIF, so without GPS.
+- **Room identity** is the operator's, confirmed 2026-10-10: Room 1 is the
+  terracotta room with the loft cabinets above the wardrobe, Room 2 the
+  terracotta room photographed from both ends, Room 3 the maroon room with the
+  balcony door, Room 4 the blue one. The Rooms page photo links follow.
+- **Two weak frames**, the driver room and the reception desk, are published at
+  the operator's request with a light lift (histogram clip, shadows opened,
+  slight unsharp) and no more: anything heavier reads as a filter. Neither
+  space has a better frame in the set.
+- **New to the gallery**: the rooftop terrace, the first-floor landing with the
+  carrom board, the garden and courtyard at night, the prayer niche, the driver
+  room and the reception desk. The representative lawn stand-in is gone now
+  that the garden has real photographs.
+- The 12 "Around Villa 19" photographs are untouched and now sort after the
+  villa's own (migration `00063_new_photo_shoot.sql`).
+- **Privacy contact**: the privacy page now gives reservations@habbaa.com
+  throughout, not hello@habbaa.com. One mailbox everywhere.
+
+---
+
+## v0.9.17 - Legal policies replaced with the issued Habbaa documents - 2026-10-10
+
+The three policy documents issued by Habbaa Solutions Pvt Ltd (effective
+7 October 2026) now replace the shorter site-written versions.
+
+- **Terms of Service** (`/terms`) rewritten to the issued 27-section document:
+  booking and confirmation, guest eligibility and registration, occupancy and
+  sleeping arrangements, rates, payment, booking changes, no-show, check-in and
+  check-out, house rules, parties, smoking, pets, damage and security deposit,
+  driver accommodation, amenities, utilities, CCTV, personal belongings,
+  termination of stay, force majeure, third-party platforms, website use,
+  intellectual property, changes, governing law, contact and acceptance.
+  Check-in/check-out times and maximum occupancy still come from the property
+  record, so editing them does not leave the page stating old figures.
+- **Cancellation & Refund Policy** now has its own page at `/cancellation`,
+  carrying the full 13-section document: refund tiers, cancellation timing in
+  IST, how to cancel, refund processing, date changes, early departure,
+  no-show, cancellation by Villa 19, force majeure, promotional rates,
+  third-party platforms, security deposit and policy changes. The tiers and the
+  security deposit wording still come from `CANCELLATION_TIERS` and
+  `SECURITY_DEPOSIT_TERMS`, so the homepage card, the Terms page and this page
+  cannot drift. The footer link and the booking page link point here;
+  `/terms#cancellation` still lands on the Terms section that refers to it.
+- **Privacy Policy** (`/privacy`) rewritten to the issued document: collection,
+  use, guest identification, third-party platforms, payments, cookies,
+  marketing, sharing, CCTV, security, retention, rights, children, links,
+  international processing, changes, contact and grievances. The site-specific
+  detail that remains accurate was kept inside the matching sections: the
+  WhatsApp enquiry and ID-document practice, Razorpay as the gateway, the
+  3-year booking and 12-month enquiry retention, and the no-advertising-cookies
+  statement. The privacy contact stays reservations@habbaa.com: the issued
+  document names hello@habbaa.com, but the site uses a single mailbox.
+- `/cancellation` added to the sitemap.
+
+---
+
 ## v0.9.16 - Pricing update (14k weekday / 16k weekend) & gallery image distances removed - 2026-10-02
 
 - **Nightly rates updated** (migration `00061_pricing_and_gallery_distances.sql`):

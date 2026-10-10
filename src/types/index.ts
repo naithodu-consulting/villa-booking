@@ -60,6 +60,11 @@ export interface PropertyImage {
   /** Short label for a gallery tile, e.g. "Room 2 · Queen bed" (00060).
    *  alt_text stays the full description, which the photo viewer shows. */
   caption?: string | null;
+  /** The photograph's own pixel size (00007), kept so a consumer can reason
+   *  about shape. Every published photograph is 3:2, which is why the gallery
+   *  can use one tile shape for all of them. */
+  width?: number | null;
+  height?: number | null;
   /** Unused: credits were cleared in 00058. The columns remain. */
   credit?: string | null;
   credit_url?: string | null;

@@ -153,16 +153,17 @@ export default function PhotoViewer({ images, startIndex, onClose }: PhotoViewer
         </div>
       </div>
 
-      {/* ── Photo and its caption, kept together and centred. The photo box
-             carries the 4:3 of almost every photo here, so a phone shows the
-             pair as one block instead of a small photo marooned in the dark. ── */}
+      {/* ── Photo and its caption, kept together and centred. The box took a
+             fixed 4:3 when every file was cropped to 4:3. It now takes the
+             space that is there and contains the photo inside it, so a file of
+             any shape is shown whole and as large as the screen allows. ── */}
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-3 py-4 sm:px-6">
         {/* max-h reserves the caption's line(s). Plain max-h-full lets the
             photo take the column's whole height and push the caption off the
             bottom of the screen. The desktop figure allows for the extra
             keyboard-hint line. */}
         <div
-          className="relative aspect-[4/3] w-full max-w-5xl max-h-[calc(100%-3.5rem)] sm:max-h-[calc(100%-5rem)]"
+          className="relative w-full max-w-5xl flex-1 min-h-0 max-h-[calc(100%-3.5rem)] sm:max-h-[calc(100%-5rem)]"
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >

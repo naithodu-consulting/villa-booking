@@ -38,8 +38,11 @@ export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
             >
               {label}
             </h2>
-            {/* One grid for every section so tiles are the same size throughout; a
-                short section leaves space rather than stretching its photos. */}
+            {/* Every photograph in the gallery is landscape 3:2 (00067), so one
+                3:2 tile fits them all: the grid is even, the photo fills its
+                tile edge to edge, and nothing is cropped or left as a border
+                above and below. Masonry and letterboxing both existed to cope
+                with the vertical frames, which are no longer published. */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5">
               {imgs.map((img) => (
                 <button
@@ -49,16 +52,28 @@ export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
                   className="group block w-full rounded-2xl focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-offset-2"
                   aria-label={`View photo: ${img.alt_text}`}
                 >
+                  {/* The tile's shape is the photographs' own 3:2 (00067 for
+                      the villa, 00068 for the neighbourhood ones), so covering
+                      it has nothing to crop. */}
                   <div
-                    className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-sm"
-                    style={{ border: '1px solid var(--border-subtle)' }}
+                    className="relative rounded-2xl overflow-hidden shadow-sm"
+                    style={{
+                      // Inline, not a utility class: a tile that renders with a
+                      // stale stylesheet would otherwise fall back to the old
+                      // 4:3 and letterbox the photo. Inline styles travel with
+                      // the markup, so the tile cannot be the wrong shape.
+                      aspectRatio: '3 / 2',
+                      border: '1px solid var(--border-subtle)',
+                      backgroundColor: 'var(--paper-sunk)',
+                    }}
                   >
-                    {/* sizes matches the grid: 2 / 3 / 4 columns, capped by max-w-6xl. */}
+                    {/* sizes matches the columns: 2 / 3 / 4, capped by max-w-6xl. */}
                     <Image
                       src={img.url}
                       alt={img.alt_text}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      className="transition-transform duration-500 group-hover:scale-105"
+                      style={{ objectFit: 'cover' }}
                       sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 290px"
                     />
                   </div>
