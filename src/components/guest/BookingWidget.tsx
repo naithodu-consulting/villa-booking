@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Property, PricingRule, PricingBreakdown } from '@/types';
 import { calculateBookingPrice, MAX_STAY_NIGHTS } from '@/lib/pricing-engine';
-import { Users, ChevronDown, Info, Lock, Loader2 } from 'lucide-react';
+import { Users, ChevronDown, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
@@ -153,7 +153,7 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
         </div>
         <p className="text-[13px] text-white/70 mt-1.5">For up to {property.base_occupancy} guests</p>
         <p className="text-[13px] font-semibold text-[var(--brass-light)] mt-2">
-          Lowest rate guaranteed &middot; No platform fees
+          Lowest rate &middot; No platform fees
         </p>
       </div>
 
@@ -300,11 +300,13 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
                 </div>
 
                 <p className="text-xs text-[var(--brass-ink)] pt-2 border-t border-[rgba(0,0,0,0.09)]">
-                  Base rate includes up to {property.base_occupancy} guests.{' '}
-                  {tier2From != null && tier2From <= property.max_occupancy && property.extra_guest_tier2_rate != null
-                    ? <>Extra guests per night: ₹{extraRateDisplay} each for guests {property.base_occupancy + 1}-{tier2From - 1}, ₹{inr(property.extra_guest_tier2_rate)} each for guests {tier2From}-{property.max_occupancy}.</>
-                    : <>₹{extraRateDisplay}/night per additional guest.</>}
+                  Base rate includes up to {property.base_occupancy} guests.
                 </p>
+                {adults + children > property.base_occupancy && (
+                  <p className="text-xs pt-1.5" style={{ color: 'var(--ink-muted)' }}>
+                    Additional guests are accommodated using mattresses in select bedrooms and the lounge.
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -332,8 +334,7 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
 
               <div className="flex justify-between text-[var(--ink-muted)]">
                 <span className="flex items-center gap-1">
-                  GST (18%)
-                  <Info className="w-3 h-3 text-[var(--ink-muted)]" aria-label="Goods & Services Tax applicable on accommodation above ₹7,500/night" />
+                  GST
                 </span>
                 <span className="tabular-nums">₹{inr(breakdown.tax_amount)}</span>
               </div>

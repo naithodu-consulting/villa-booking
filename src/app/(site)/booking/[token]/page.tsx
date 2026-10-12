@@ -33,7 +33,7 @@ function pageState(status: string | null, paymentStatus: string | null): PageSta
 }
 
 const HEADINGS: Record<PageState, string> = {
-  confirmed: 'Booking Confirmed',
+  confirmed: 'Your booking is confirmed.',
   pending: 'Confirming Your Payment',
   cancelled: 'Booking Cancelled',
   expired: 'Booking Not Completed',
@@ -145,7 +145,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
             </p>
           )}
           <p className="text-base mt-2 opacity-70 break-words">
-            {state === 'confirmed' && <>A confirmation has been emailed to {booking.guest_email}</>}
+            {state === 'confirmed' && <>A confirmation email has been sent to {booking.guest_email}</>}
             {state === 'pending' && 'This usually takes a few seconds. This page updates by itself.'}
             {state === 'cancelled' && (booking.payment_status === 'refunded'
               ? 'Your payment has been refunded to the original payment method.'
@@ -181,18 +181,33 @@ export default async function BookingConfirmationPage({ params }: Props) {
                   <h2 className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>
                     {booking.id_status === 'received' ? 'ID documents received' : 'Share ID documents before you arrive'}
                   </h2>
-                  <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                    {booking.id_status === 'received'
-                      ? 'Thank you. We are checking them and will confirm on WhatsApp. If someone was missed, send theirs the same way.'
-                      : `Government photo ID is required for every adult guest (${adults} for this booking). Send a photo of each on WhatsApp. It takes a minute and saves time at check-in.`}
-                  </p>
+                  {booking.id_status === 'received' ? (
+                    <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                      Thank you. We are checking them and will confirm on WhatsApp. If someone was missed, send theirs the same way.
+                    </p>
+                  ) : (
+                    <>
+                      <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                        For a smooth check-in, a valid government-issued photo ID is required for <strong style={{ color: 'var(--ink)' }}>each adult guest</strong>. Please send a photo of each ID to us on WhatsApp before your arrival.
+                      </p>
+                      <div>
+                        <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--ink)' }}>Accepted IDs:</p>
+                        <ul className="flex flex-wrap gap-2 text-sm" aria-label="Accepted ID documents">
+                          {ACCEPTED_ID_TYPES.map((t) => (
+                            <li key={t} className="px-3 py-1.5 rounded-full" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--ink)' }}>{t}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                        Sharing your IDs in advance helps us complete the verification process before you arrive and makes check-in quicker.
+                      </p>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                        <strong style={{ color: 'var(--ink)' }}>Please send ID documents only via WhatsApp. Do not email them.</strong> ID documents are not stored on this website.
+                      </p>
+                    </>
+                  )}
                 </div>
               </div>
-              <ul className="flex flex-wrap gap-2 text-sm" aria-label="Accepted ID documents">
-                {ACCEPTED_ID_TYPES.map((t) => (
-                  <li key={t} className="px-3 py-1.5 rounded-full" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--ink)' }}>{t}</li>
-                ))}
-              </ul>
               {idShareUrl ? (
                 <ExternalLink
                   href={idShareUrl}
@@ -205,9 +220,6 @@ export default async function BookingConfirmationPage({ params }: Props) {
                   We will message you on WhatsApp to collect them before your stay.
                 </p>
               )}
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                Please do not email ID documents. We do not store copies on this website.
-              </p>
             </div>
           )
         )}
@@ -299,25 +311,43 @@ export default async function BookingConfirmationPage({ params }: Props) {
         )}
 
         {/* ── What happens next ──────────────────────────── */}
-        {/* The email and ID steps are not repeated here: the header and the ID
-            card above already say them. */}
         {isConfirmed && (
           <div
-            className="p-6 rounded-3xl space-y-3 text-base"
+            className="p-6 rounded-3xl space-y-4 text-base"
             style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
           >
-            <h2 className="font-bold" style={{ color: 'var(--maroon)' }}>What happens next</h2>
-            <ol className="space-y-2 list-decimal pl-5 marker:font-bold marker:text-[var(--brass-ink)]" style={{ color: 'var(--ink-muted)' }}>
-              <li>24 hours before check-in, we will share the exact address and access instructions on WhatsApp.</li>
-              <li>Questions? WhatsApp us. We usually reply within an hour during the day.</li>
+            <h2 className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>What happens next</h2>
+            <ol className="space-y-4 list-none" style={{ color: 'var(--ink-muted)' }}>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon)' }}>1</span>
+                <div>
+                  <p className="font-semibold" style={{ color: 'var(--ink)' }}>Before you arrive</p>
+                  <p className="mt-0.5">Around 24 hours before check-in, we'll send the exact address, directions and access instructions to you on WhatsApp.</p>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon)' }}>2</span>
+                <div>
+                  <p className="font-semibold" style={{ color: 'var(--ink)' }}>Need anything before then?</p>
+                  <p className="mt-0.5">
+                    Just WhatsApp us. We're usually available during the day and aim to respond within an hour.{' '}
+                    Plans changed?{' '}
+                    <Link href="/cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
+                      Review our cancellation policy
+                    </Link>
+                    {' '}for details.
+                  </p>
+                </div>
+              </li>
             </ol>
-            <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
-              Plans changed? See our{' '}
-              <Link href="/cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
-                cancellation policy
-              </Link>
-              .
-            </p>
+            {whatsapp && (
+              <ExternalLink
+                href={`https://wa.me/${whatsapp}`}
+                className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-2xl"
+              >
+                WhatsApp Us
+              </ExternalLink>
+            )}
           </div>
         )}
 
@@ -327,24 +357,14 @@ export default async function BookingConfirmationPage({ params }: Props) {
           </p>
         )}
 
-        {/* ── Contact quick links ───────────────────────── */}
-        <div className="grid grid-cols-2 gap-3">
-          {whatsapp && (
-            <ExternalLink
-              href={`https://wa.me/${whatsapp}`}
-              className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-2xl"
-            >
-              WhatsApp Us
-            </ExternalLink>
-          )}
-          <Link
-            href="/"
-            className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold transition-all hover:opacity-90"
-            style={{ backgroundColor: 'var(--surface)', color: 'var(--maroon)', border: '1px solid var(--border-subtle)' }}
-          >
-            Back to Home
-          </Link>
-        </div>
+        {/* ── Back to home ─────────────────────────────── */}
+        <Link
+          href="/"
+          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold transition-all hover:opacity-90"
+          style={{ backgroundColor: 'var(--surface)', color: 'var(--maroon)', border: '1px solid var(--border-subtle)' }}
+        >
+          Back to Home
+        </Link>
 
       </div>
     </div>

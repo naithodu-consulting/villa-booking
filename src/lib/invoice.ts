@@ -24,8 +24,6 @@ export interface InvoiceData {
   guestName: string;
   guestEmail: string;
   guestPhone?: string | null;
-  guestCompany?: string | null;
-  guestGstin?: string | null;
   propertyName: string;
   propertyAddress: string;  // e.g. "Urwa, Mangalore, Karnataka 575006"
   checkIn: string;          // YYYY-MM-DD
@@ -146,9 +144,7 @@ export async function buildInvoicePdf(d: InvoiceData): Promise<Uint8Array> {
   text('BILL TO', L, 8.5, bold, muted);
   y -= 14;
   const billTo = [
-    ...(d.guestCompany ? [[d.guestCompany, bold] as const] : []),
-    ...(d.guestGstin ? [[`GSTIN: ${d.guestGstin}`, regular] as const] : []),
-    [d.guestCompany ? `Attn: ${d.guestName}` : d.guestName, d.guestCompany ? regular : bold] as const,
+    [d.guestName, bold] as const,
     [d.guestEmail, regular] as const,
     ...(d.guestPhone ? [[d.guestPhone, regular] as const] : []),
   ];

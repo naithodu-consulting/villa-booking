@@ -6,12 +6,15 @@ import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
 import CtaButtons from '@/components/guest/CtaButtons';
 import PageHero from '@/components/layout/PageHero';
 
-export const metadata: Metadata = pageMetadata({
-  title: 'About Habbaa',
-  path: '/about',
-  description:
-    'Habbaa is a boutique hospitality brand offering private villa stays on the Karnataka coast. Direct booking, personal hosts and no platform fees.',
-});
+export const metadata: Metadata = {
+  ...pageMetadata({
+    title: 'About Habbaa',
+    path: '/about',
+    description:
+      'Habbaa is a boutique hospitality brand offering private villa stays on the Karnataka coast. Direct booking, personal hosts and no platform fees.',
+  }),
+  robots: { index: false, follow: false },
+};
 
 const VALUES = [
   {

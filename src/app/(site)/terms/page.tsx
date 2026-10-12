@@ -83,7 +83,7 @@ export default async function TermsPage() {
           <Section title="3. Occupancy and sleeping arrangements">
             <ul className="list-disc list-inside space-y-1">
               <li>Villa 19 has four guest bedrooms and is designed to comfortably accommodate eight guests.</li>
-              <li>The villa can accommodate additional guests through extra beds in the bedrooms and the convertible sofas in the lounge, up to the property&apos;s maximum occupancy of {maxGuests} guests.</li>
+              <li>The villa can accommodate additional guests using mattresses in select bedrooms and the lounge, up to the property&apos;s maximum occupancy of {maxGuests} guests.</li>
               <li>The dedicated driver room is separate from the guest accommodation and is not included in the maximum guest occupancy.</li>
               <li>Guests must not exceed the confirmed occupancy for their booking without prior approval from Habbaa.</li>
               <li>Habbaa may require additional charges where applicable for occupancy beyond the base number of guests.</li>

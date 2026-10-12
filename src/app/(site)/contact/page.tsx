@@ -102,7 +102,7 @@ export default async function ContactPage() {
               <Phone className="w-6 h-6" style={{ color: 'var(--brass)' }} aria-hidden="true" />
             </div>
             <div>
-              <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>Call Us</p>
+              <p className="font-bold text-base mb-0.5" style={{ color: 'var(--ink)' }}>Call</p>
               <p className="text-base" style={{ color: 'var(--ink-muted)' }}>{formatPhone(phoneNumber)}</p>
               <p className="text-sm mt-1 font-semibold" style={{ color: 'var(--brass-ink)' }}>Call Now →</p>
             </div>

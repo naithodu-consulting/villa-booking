@@ -113,16 +113,6 @@ export default async function LandingPage() {
         <div className="max-w-[1440px] mx-auto">
           <div className="px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2 mb-4 sm:mb-5">
             <div>
-              <div
-                className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold mb-3 sm:mb-5"
-                style={{
-                  backgroundColor: 'var(--maroon-tint)',
-                  border: '1px solid var(--border-brass)',
-                  color: 'var(--brass)',
-                }}
-              >
-                <ShieldCheck className="w-4 h-4" aria-hidden="true" /> Direct Property Booking
-              </div>
               {/* Lockup: the heading is exactly as wide as the name, and the
                   signature is right-aligned under it, the way the logo pairs
                   them. Width-relative, not pixel offsets, so it holds at any
@@ -148,6 +138,7 @@ export default async function LandingPage() {
                   style={{ marginTop: '-0.12em' }}
                 />
               </h1>
+              <p className="text-sm font-bold tracking-wide mb-1.5" style={{ color: 'var(--ink)' }}>A Private 4-Bedroom Villa in Mangalore</p>
               <p className="text-sm flex items-center gap-1.5" style={{ color: 'var(--ink-muted)' }}>
                 <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
                 <span>{property.address}, {property.city}, {property.state}</span>
@@ -368,7 +359,7 @@ export default async function LandingPage() {
           <div id="cancellation" className="scroll-mt-[120px] space-y-4">
             <div className="flex items-center gap-2.5">
               <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
-              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Cancellation Policy</h2>
+              <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>Cancellation & Refund Policy</h2>
             </div>
             {/* The collapsed one-liner lives inside <summary>: a closed <details>
                 renders nothing but its summary, so anything after it would vanish. */}
@@ -548,7 +539,7 @@ export default async function LandingPage() {
                   textTransform: 'uppercase',
                 }}
               >
-                <Phone className="w-4 h-4" aria-hidden="true" /> Call Us
+                <Phone className="w-4 h-4" aria-hidden="true" /> Call
               </a>
               )}
             </div>

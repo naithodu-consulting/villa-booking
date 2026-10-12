@@ -4,6 +4,33 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.22 - Content, pricing and checkout improvements - 2026-10-12
+
+### Content
+- **Home page hero** — added "A Private 4-Bedroom Villa in Mangalore" subtitle between the logo and address; bold for visual hierarchy.
+- **About the Villa** — two-paragraph description update (migration 00069).
+- **Section heading** — "Cancellation Policy" renamed to "Cancellation & Refund Policy".
+- **About page hidden** — removed from nav, footer and sitemap; page marked `noindex`.
+
+### Pricing
+- **Seasonal pricing 2026-27** (migration 00070): Dec 1-23 ₹20,000; Dec 24-30 ₹30,000; Dec 31 + Jan 1 ₹40,000; Jan 2 onwards ₹16,000. Oct/Nov weekday (₹14,000) and weekend (₹16,000) base rates unchanged.
+
+### Checkout
+- **GST company invoice removed** — checkbox, company name and GSTIN fields removed from checkout, API and invoice PDF.
+- **Booking widget** — rate no longer shown next to "Base rate includes up to N guests"; GST label simplified to "GST"; "Lowest rate guaranteed" shortened to "Lowest rate".
+- **Confirmation page** — heading changed to "Your booking is confirmed."; subtext updated; "What happens next" section redesigned with numbered steps and a WhatsApp button.
+- **ID card** — full copy update with "Accepted IDs" label, verification note and privacy notice; "Aadhaar (masked is fine)" simplified to "Aadhaar".
+
+### FAQs (migrations 00071, 00072)
+- **More than 8 guests** — answer updated to reflect mattress arrangements.
+- **Cooking policy** — answer reworded to avoid prescriptive language around specific foods.
+
+### Other
+- Additional guests note (mattresses) shown in booking widget and confirmation email when guests exceed base occupancy.
+- Terms page sleeping arrangements copy updated to match.
+
+---
+
 ## v0.9.21 - Landscape-only gallery, and captions in plain English - 2026-10-10
 
 Two asks from the operator: show only landscape photographs, with no border
@@ -711,7 +738,7 @@ the FAQ promises under-5 free and 5-12 at 50%. The booking engine has no child p
 
 ### Fixes
 
-- The home page's "Call Us" button was 14px sentence case beside a 13.5px uppercase WhatsApp
+- The home page's "Call" button was 14px sentence case beside a 13.5px uppercase WhatsApp
   button, so the pair disagreed on size, casing and height. Its type now matches; its neutral
   colour role is unchanged.
 

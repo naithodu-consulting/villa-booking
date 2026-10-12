@@ -64,7 +64,7 @@ export default async function TheVillaPage() {
     { icon: Car,       label: 'Parking',    value: 'Private Parking' },
     { icon: Sofa,      label: 'Lounge',     value: 'Lounge Area'        },
     { icon: Wifi,      label: 'Internet',   value: 'High Speed Internet'       },
-    { icon: BedSingle, label: 'Staff',      value: 'Driver Room'  },
+    { icon: BedSingle, label: 'Convenience',      value: 'Driver Room'  },
     { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },
   ];
 

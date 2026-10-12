@@ -16,7 +16,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(EVENTS_PAGE_ENABLED ? [{ path: '/events', priority: 0.75, changeFrequency: 'monthly' as const }] : []),
     ...(SHOW_STAY_GUIDE ? [{ path: '/stay-guide', priority: 0.7, changeFrequency: 'monthly' as const }] : []),
     { path: '/faq',          priority: 0.65, changeFrequency: 'monthly' },
-    { path: '/about',        priority: 0.6,  changeFrequency: 'yearly'  },
     { path: '/contact',     priority: 0.5,  changeFrequency: 'yearly' },
     { path: '/privacy',     priority: 0.3,  changeFrequency: 'yearly' },
     { path: '/terms',       priority: 0.3,  changeFrequency: 'yearly' },

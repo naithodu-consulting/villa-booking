@@ -563,7 +563,7 @@ export default function DatePicker({
                     <LegendSwatch background={STATUS.unavailableBg} border={STATUS.unavailableBorder}>Not available</LegendSwatch>
                   </div>
                   <p style={{ margin: '6px 0 0', color: 'var(--ink-muted)' }}>
-                    Prices are per night, before 18% GST.
+                    Prices are per night, before GST.
                   </p>
                 </>
               )}

@@ -86,11 +86,14 @@ INSERT INTO property_images (id, property_id, url, alt_text, caption, category, 
 ON CONFLICT (id) DO UPDATE SET room_id = EXCLUDED.room_id, category = EXCLUDED.category, alt_text = EXCLUDED.alt_text, caption = EXCLUDED.caption, url = EXCLUDED.url, display_order = EXCLUDED.display_order, credit = EXCLUDED.credit, credit_url = EXCLUDED.credit_url;
 
 -- ─────────────────────────────────────────────────────────
--- Pricing Rules (see 00021). end_date is exclusive: the last priced night is 1 Jan.
--- Other seasonal prices are set by the operator in Ooruda Villa, not seeded.
+-- Pricing Rules (see 00070). end_date is exclusive.
+-- Oct/Nov: weekday (₹14,000) and weekend (₹16,000) base rates apply — no rules needed.
 -- ─────────────────────────────────────────────────────────
 INSERT INTO pricing_rules (property_id, rule_name, start_date, end_date, nightly_rate, min_stay_nights) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'New Year''s Eve and New Year''s Day', '2026-12-31', '2027-01-02', 1600000, 1)
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'December',                     '2026-12-01', '2026-12-24', 2000000, 1),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Christmas to New Year''s Eve', '2026-12-24', '2026-12-31', 3000000, 1),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'New Year''s Eve and Day',      '2026-12-31', '2027-01-02', 4000000, 1),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'January 2027',                 '2027-01-02', '2027-04-01', 1600000, 1)
 ON CONFLICT ON CONSTRAINT uq_pricing_property_rule DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────
@@ -193,7 +196,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'What is included in the base booking price?', 'The base price includes exclusive use of the entire villa, including all 4 bedrooms, private lounge, lawn, rooftop terrace, parking and shared spaces. The base rate is for up to 8 guests.', 'About Villa 19', 30, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'How many bedrooms and bathrooms are there?', 'Villa 19 has 4 bedrooms, 3 bathrooms and a private lounge.', 'About Villa 19', 40, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the villa suitable for families and groups?', 'Yes. Villa 19 is designed for families, groups of friends, family gatherings and relaxed group stays.', 'About Villa 19', 50, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I book Villa 19 for more than 8 guests?', 'Yes. Additional guests can be accommodated up to the maximum capacity of 14 guests, with applicable additional-guest charges.', 'Booking & Guests', 60, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I book Villa 19 for more than 8 guests?', 'Villa 19 comfortably accommodates 8 guests and can host up to 14. Additional guests are accommodated on extra mattresses in three bedrooms and the lounge.', 'Booking & Guests', 60, TRUE, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are children counted towards occupancy?', 'Yes. Children are included in the total occupancy. Children below 5 years stay free. Children aged 5-12 years are charged at 50% of the applicable guest rate, while guests above 12 years are charged at the full rate.', 'Booking & Guests', 70, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is government ID required at check-in?', 'Yes. A valid government-issued photo ID is required for all registered guests at check-in. Sharing ID details in advance can help make the check-in process faster.', 'Booking & Guests', 80, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are visitors allowed at the villa?', 'Only guests included in the booking are permitted within the premises. Unregistered outside visitors are not allowed.', 'Booking & Guests', 90, TRUE, FALSE),
@@ -203,7 +206,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I request early check-in or late check-out?', 'Yes. Requests can be made in advance and will be accommodated wherever possible, subject to availability and applicable charges.', 'Check-in & Check-out', 130, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can someone else check in on my behalf?', 'The person making the booking should normally be present at check-in. Alternative arrangements should be confirmed with Villa 19 in advance.', 'Check-in & Check-out', 140, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a kitchen available for guests?', 'Yes. The villa has a fully equipped kitchen with a refrigerator, cutlery, cookware, crockery and basic cooking essentials.', 'Kitchen & Amenities', 150, TRUE, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can guests cook at the villa?', 'Yes. Guests are welcome to prepare simple meals using the kitchen facilities. Food can also be arranged from outside. Cooking pungent food items is not allowed.', 'Kitchen & Amenities', 160, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can guests cook at the villa?', 'The kitchen is available for preparing simple meals. To keep the villa comfortable for everyone, we request that guests avoid foods with strong or lingering odours.', 'Kitchen & Amenities', 160, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Wi-Fi available?', 'Yes. High-speed Wi-Fi is available throughout the villa.', 'Kitchen & Amenities', 170, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is there a TV?', 'Yes. The lounge has a 50-inch Smart TV with OTT apps.', 'Kitchen & Amenities', 180, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are indoor games available?', 'Yes. A selection of indoor games is available in the lounge.', 'Kitchen & Amenities', 190, TRUE, FALSE),

@@ -39,8 +39,8 @@ describe('buildInvoicePdf', () => {
     const pdf = await buildInvoicePdf(base);
     expect(Buffer.from(pdf.slice(0, 5)).toString()).toBe('%PDF-');
   });
-  it('renders a PDF for a business booking with extra guests', async () => {
-    const pdf = await buildInvoicePdf({ ...base, guestCompany: 'Acme Pvt Ltd', guestGstin: '29ABCDE1234F1Z5', extraGuestAmount: 300000 });
+  it('renders a PDF with extra guests', async () => {
+    const pdf = await buildInvoicePdf({ ...base, extraGuestAmount: 300000 });
     expect(pdf.length).toBeGreaterThan(1000);
   });
 });

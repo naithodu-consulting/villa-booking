@@ -42,7 +42,6 @@ const DRAWER_LINKS = [
   ...(EVENTS_PAGE_ENABLED ? [{ href: '/events', label: 'Events' }] : []),
   ...(SHOW_STAY_GUIDE ? [{ href: '/stay-guide', label: 'Stay Guide' }] : []),
   { href: '/faq',        label: 'FAQs'       },
-  { href: '/about',      label: 'About Us'   },
   { href: '/contact',    label: 'Contact Us' },
 ];
 

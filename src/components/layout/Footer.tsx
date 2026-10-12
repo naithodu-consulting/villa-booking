@@ -25,7 +25,6 @@ const EXPLORE_LINKS: [string, string][] = [
   ...(EVENTS_PAGE_ENABLED ? [['/events', 'Events'] as [string, string]] : []),
   ...(SHOW_STAY_GUIDE ? [['/stay-guide', 'Stay Guide'] as [string, string]] : []),
   ['/faq',        'FAQs'],
-  ['/about',      'About Us'],
 ];
 
 const LEGAL_LINKS: [string, string][] = [

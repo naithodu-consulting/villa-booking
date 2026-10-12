@@ -21,13 +21,13 @@ import { SITE_URL } from '@/lib/seo';
 export async function notifyConfirmedBooking(supabase: SupabaseClient, bookingId: string, channel: string) {
   const { data: b } = await supabase
     .from('bookings')
-    .select('booking_code, reference_number, access_token, invoice_number, invoice_date, guest_name, guest_email, guest_phone, guest_company, guest_gstin, check_in, check_out, num_nights, num_adults, num_children, base_amount, extra_guest_amount, tax_amount, total_amount, properties(name, address, city, state, pincode, check_in_time, check_out_time)')
+    .select('booking_code, reference_number, access_token, invoice_number, invoice_date, guest_name, guest_email, guest_phone, check_in, check_out, num_nights, num_adults, num_children, base_amount, extra_guest_amount, tax_amount, total_amount, properties(name, address, city, state, pincode, check_in_time, check_out_time, base_occupancy)')
     .eq('id', bookingId)
     .single();
   if (!b) return;
 
   const p = (Array.isArray(b.properties) ? b.properties[0] : b.properties) as {
-    name: string; address: string; city: string; state: string; pincode: string; check_in_time: string; check_out_time: string;
+    name: string; address: string; city: string; state: string; pincode: string; check_in_time: string; check_out_time: string; base_occupancy: number;
   };
   const bookingRef = b.booking_code ?? b.reference_number;
   const fmt = (d: string) =>
@@ -44,8 +44,6 @@ export async function notifyConfirmedBooking(supabase: SupabaseClient, bookingId
         guestName: b.guest_name,
         guestEmail: b.guest_email,
         guestPhone: b.guest_phone,
-        guestCompany: b.guest_company,
-        guestGstin: b.guest_gstin,
         propertyName: p.name,
         propertyAddress: `${p.address}, ${p.city}, ${p.state} ${p.pincode}`,
         checkIn: b.check_in,
@@ -81,6 +79,7 @@ export async function notifyConfirmedBooking(supabase: SupabaseClient, bookingId
       checkInTime: formatTime12(p.check_in_time),
       checkOutTime: formatTime12(p.check_out_time),
       guests,
+      additionalGuestsNote: guests > p.base_occupancy,
       totalPaise: b.total_amount,
       invoice,
     }),

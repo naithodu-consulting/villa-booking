@@ -70,6 +70,8 @@ export interface BookingConfirmationParams {
   checkIn: string;   // e.g. "14 Sep 2026"
   checkOut: string;
   guests: number;
+  /** When true, the email notes that extra guests are on mattresses. */
+  additionalGuestsNote?: boolean;
   totalPaise: number; // total in paise, formatted to INR
   checkInTime: string;  // e.g. "3:00 PM", from the property row
   checkOutTime: string;
@@ -115,6 +117,7 @@ export async function sendBookingConfirmation(p: BookingConfirmationParams) {
           <td style="padding:10px 0;color:#5C1732;font-weight:bold;">₹${totalRupees}</td>
         </tr>
       </table>
+      ${p.additionalGuestsNote ? `<p style="color:#555;font-size:13px;line-height:1.7;background:#fdf8f2;border:1px solid #e5ddd5;border-radius:8px;padding:12px 16px;">Additional guests are accommodated using mattresses in select bedrooms and the lounge.</p>` : ''}
       ${p.invoice ? `<p style="color:#555;font-size:13px;line-height:1.7;">Your GST tax invoice <strong>${esc(p.invoice.number)}</strong> is attached to this email.</p>` : ''}
       <p style="text-align:center;margin:24px 0;">
         <a href="${esc(p.bookingUrl)}" style="display:inline-block;background:#3A0E1F;color:#fff;text-decoration:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:bold;">View your booking</a>
