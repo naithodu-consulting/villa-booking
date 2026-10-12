@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { Clock, Key, Luggage, Wifi, Car, Info } from 'lucide-react';
+import { notFound } from 'next/navigation';
+import { SHOW_STAY_GUIDE } from '@/lib/site-sections';
 import { getProperty } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
 import CtaButtons from '@/components/guest/CtaButtons';
@@ -24,6 +26,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export default async function StayGuidePage() {
+  if (!SHOW_STAY_GUIDE) notFound();
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number;
   const whatsappUrl = whatsappNumber

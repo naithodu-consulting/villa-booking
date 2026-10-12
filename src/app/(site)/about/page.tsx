@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import CtaButtons from '@/components/guest/CtaButtons';
 import PageHero from '@/components/layout/PageHero';
 
@@ -40,6 +41,7 @@ const VALUES = [
 ];
 
 export default function AboutPage() {
+  notFound();
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
       <JsonLd data={breadcrumbJsonLd([{ name: 'About Us', path: '/about' }])} />

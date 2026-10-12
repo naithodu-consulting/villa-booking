@@ -4,6 +4,16 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.3 - Custom 404 page, hidden pages blocked - 2026-10-12
+
+### UI
+- **Custom 404 page added** (`not-found.tsx`): branded page with display-font heading, muted body copy, and a single "Back to Homepage" maroon button. Inherits the full site layout (header, footer, announcement bar).
+
+### Access control
+- **Hidden pages now return 404** for any direct URL: `/about` and `/testimonials` always 404; `/stay-guide` gates on `SHOW_STAY_GUIDE`; `/events` gates on `EVENTS_PAGE_ENABLED`; `/journal` and `/journal/[slug]` gate on `isJournalLive()` in production.
+
+---
+
 ## v1.2 - Page hero cleanup, amenity label fixes, Room 2 photo - 2026-10-12
 
 ### UI

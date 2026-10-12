@@ -2,6 +2,7 @@ import React from 'react';
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
 import { Star } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { getProperty } from '@/lib/data';
 import CtaButtons from '@/components/guest/CtaButtons';
 import PageHero from '@/components/layout/PageHero';
@@ -22,6 +23,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default async function ReviewsPage() {
+  notFound();
   const property = await getProperty();
   const whatsappNumber = property?.whatsapp_number;
   const whatsappUrl = whatsappNumber

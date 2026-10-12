@@ -9,7 +9,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import CtaButtons from '@/components/guest/CtaButtons';
 import {
-  getJournalPost, getJournalPosts, formatJournalDate, JOURNAL_CATEGORIES, SITE_URL,
+  getJournalPost, getJournalPosts, isJournalLive, formatJournalDate, JOURNAL_CATEGORIES, SITE_URL,
 } from '@/lib/journal';
 
 // Posts published later from Ooruda Villa render on first visit, then stay cached.
@@ -41,6 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export default async function JournalPostPage({ params }: { params: Promise<{ slug: string }> }) {
+  if (process.env.NODE_ENV === 'production' && !(await isJournalLive())) notFound();
   const { slug } = await params;
   const post = await getJournalPost(slug);
   if (!post) notFound();
