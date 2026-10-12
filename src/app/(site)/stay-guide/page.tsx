@@ -67,7 +67,7 @@ export default async function StayGuidePage() {
       icon: Wifi,
       title: 'WiFi & Connectivity',
       items: [
-        'High-speed WiFi throughout the villa',
+        'High-speed internet throughout the villa',
         'Network name and password in the welcome guide on arrival',
         'Power backup available. Generator kicks in during outages.',
       ],
@@ -88,9 +88,9 @@ export default async function StayGuidePage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'Stay Guide', path: '/stay-guide' }])} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="Stay Guide" intro="Everything you need for a smooth, enjoyable stay at Villa 19." />
+      <PageHero title="Stay Guide" />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-12">
 
         {/* ── WhatsApp prompt ───────────────────────────────── */}
         <div

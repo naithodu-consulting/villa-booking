@@ -182,7 +182,7 @@ export default async function LandingPage() {
                   { icon: Sofa,      value: 'Lounge Area'         },
                   { icon: Wifi,      value: 'High Speed Internet'        },
                   { icon: AirVent,   value: 'Air Conditioning'   },
-                  { icon: Trees,     value: 'Landscaped Garden'       },
+                  { icon: Trees,     value: 'Private lawn'       },
                 ].map(({ icon: Icon, value }) => (
                   <div
                     key={value}

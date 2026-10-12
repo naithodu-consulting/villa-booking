@@ -45,9 +45,9 @@ export default function AboutPage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'About Us', path: '/about' }])} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="About Us" intro="A boutique hospitality brand born on the Karnataka coast." />
+      <PageHero title="About Us" />
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-16">
 
         {/* ── Story ────────────────────────────────────────── */}
         <section className="space-y-4 max-w-2xl">

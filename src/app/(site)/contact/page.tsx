@@ -37,9 +37,9 @@ export default async function ContactPage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'Contact Us', path: '/contact' }])} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="Contact Us" intro="WhatsApp is the fastest way to reach us. We reply as quickly as we can." />
+      <PageHero title="Contact Us" />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-6">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-6">
 
         {/* ── Contact options ──────────────────────────────── */}
         {/* Columns follow the number of channels actually configured, so a missing

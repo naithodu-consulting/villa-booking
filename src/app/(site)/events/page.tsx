@@ -85,7 +85,7 @@ export default async function EventsPage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'Events', path: '/events' }])} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="Events & Celebrations" intro={<>Make your celebration memorable with a private villa stay for up to {maxGuests} guests.</>}>
+      <PageHero title="Events & Celebrations">
         {whatsappUrl && (
             <a
               href={whatsappUrl}
@@ -98,7 +98,7 @@ export default async function EventsPage() {
           )}
       </PageHero>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-14">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-14">
 
         {/* ── Event types ──────────────────────────────────── */}
         <section className="space-y-4">

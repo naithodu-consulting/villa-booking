@@ -45,9 +45,9 @@ export default async function JournalPage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'Journal', path: '/journal' }])} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="Journal" intro="Local knowledge of Mangalore and honest advice for planning your stay, from the people who host it." />
+      <PageHero title="Journal" />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-12">
 
         {featured && (
           <Link

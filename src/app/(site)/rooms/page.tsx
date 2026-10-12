@@ -46,10 +46,10 @@ export default async function RoomsPage() {
       <JsonLd data={breadcrumbJsonLd([{ name: 'Rooms', path: '/rooms' }])} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="Rooms" intro={<>{bedroomCount} bedrooms, a private lounge and {property.bathroom_count} bathrooms, comfortably accommodating {property.ideal_occupancy} guests and sleeping up to {property.max_occupancy}. Thoughtfully designed for comfort, privacy and time together.</>} />
+      <PageHero title="Rooms" />
 
       {/* ── Room Cards ────────────────────────────────────── */}
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-16">
 
         <section className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

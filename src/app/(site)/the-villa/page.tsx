@@ -65,7 +65,7 @@ export default async function TheVillaPage() {
     { icon: Sofa,      label: 'Lounge',     value: 'Lounge Area'        },
     { icon: Wifi,      label: 'Internet',   value: 'High Speed Internet'       },
     { icon: AirVent,   label: 'Comfort',    value: 'Air Conditioning'  },
-    { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },
+    { icon: Trees,     label: 'Outdoors',   value: 'Private lawn'      },
   ];
 
   return (
@@ -73,9 +73,9 @@ export default async function TheVillaPage() {
       <JsonLd data={[breadcrumbJsonLd([{ name: 'The Villa', path: '/the-villa' }]), lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })]} />
 
       {/* ── Page Hero ── */}
-      <PageHero title="The Villa" intro={<>{property.tagline}</>} />
+      <PageHero title="The Villa" />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-16">
 
         {/* ── Description ──────────────────────────────────── */}
         <section className="space-y-4">

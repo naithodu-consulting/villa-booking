@@ -34,12 +34,9 @@ export default async function FaqPage() {
       {/* The full list carries the FAQPage markup; the home page shows a subset. */}
       <JsonLd data={[breadcrumbJsonLd([{ name: 'FAQs', path: '/faq' }]), ...(faqs.length ? [faqJsonLd(faqs)] : [])]} />
 
-      <PageHero
-        title="Frequently Asked Questions"
-        intro="Everything guests usually ask before booking Villa 19. Can't find your answer? Message us on WhatsApp."
-      />
+      <PageHero title="Frequently Asked Questions" />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-12 space-y-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-12 space-y-10">
         {sections.map(({ name, items }) => (
           <section key={name} className="space-y-4" aria-labelledby={`faq-${name}`}>
             <h2

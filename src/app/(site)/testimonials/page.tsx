@@ -32,9 +32,9 @@ export default async function ReviewsPage() {
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
 
       {/* ── Page Hero ── */}
-      <PageHero title="Guest Testimonials" intro="Verified guest reviews will appear here once we open our doors." />
+      <PageHero title="Guest Testimonials" />
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-12 space-y-8">
 
         {/* ── Empty state ──────────────────────────────────── */}
         <div

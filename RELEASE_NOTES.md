@@ -4,6 +4,21 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.2 - Page hero cleanup, amenity label fixes, Room 2 photo - 2026-10-12
+
+### UI
+- **Page hero subtext removed** across all inner pages (Rooms, The Villa, Gallery, FAQ, Events, Contact, Stay Guide, Journal, Testimonials, About Us). The `intro` prop is gone from `PageHero`; the component now renders the title only.
+- **Hero background unified** with the page ground: was `--paper-band` with a bottom border, now `--paper` with no border.
+- **Hero spacing tightened**: padding reduced from `py-10 sm:py-12` to `pt-6 pb-2 sm:pt-8 sm:pb-3`, and every content section's top padding cut from `py-12` to `pt-6 sm:pt-8 pb-12` to close the gap between title and content.
+
+### Content
+- **Amenity label "Landscaped Garden"** renamed to "Private lawn" in homepage tiles and The Villa quick-facts.
+- **Amenity label "Private manicured lawn"** renamed to "Private lawn" in the DB (migration 00084).
+- **Amenity label "High-speed Wi-Fi"** renamed to "High-speed internet" in the DB (migration 00084) and in the Stay Guide page copy.
+- **Room 2 photo updated** (`/gallery/bedroom-2.jpg` replaced with new image).
+
+---
+
 ## v1.1 - Cream ground, and the palette resynced to it - 2026-10-12
 
 ### Palette
