@@ -21,7 +21,13 @@ INSERT INTO properties (
   'Premium 4-Bedroom Private Urban Villa',
   E'**Villa 19** is a spacious **4-bedroom private villa in Mangalore**, thoughtfully designed for families and groups seeking comfort, privacy and space to be together. Set amidst lush greenery in Urwa, the villa features generous living spaces, a manicured lawn, balconies across every floor, and ample private parking.
 
-Set in **Urwa,** one of Mangalore\'s well-connected residential neighbourhoods, Villa 19 is tucked away in a peaceful setting yet close to the heart of the city. Just minutes from the main road, local markets, shops and everyday conveniences, its location makes it easy to explore Mangalore while giving you a quiet space to return to at the end of the day.',
+Set in **Urwa,** one of Mangalore\'s well-connected residential neighbourhoods, Villa 19 is tucked away in a peaceful setting yet close to the heart of the city. Just minutes from the main road, local markets, shops and everyday conveniences, its location makes it easy to explore Mangalore while giving you a quiet space to return to at the end of the day.
+
+Designed with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.
+
+**Ideal for 8 guests** and comfortably accommodating up to 14, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore. For larger groups, the spacious lounge can also be used as additional sleeping space with its convertible sofas.
+
+Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
   E'**A private space to stay together**
 
 Villa 19 is designed around a simple idea - **when you travel together, you shouldn\'t have to stay apart.**

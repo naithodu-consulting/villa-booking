@@ -15,7 +15,7 @@ export const HOMEPAGE_TABS: SectionTab[] = [
   { id: 'reviews',      label: 'Reviews' },
   { id: 'cancellation', label: 'Refund Policy' },
   { id: 'policies',     label: 'Villa Rules' },
-  { id: 'faq',          label: "FAQ's" },
+  { id: 'faq',          label: 'FAQs' },
 ];
 
 interface SectionNavProps {

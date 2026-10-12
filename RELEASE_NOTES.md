@@ -4,6 +4,18 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.24 - Homepage FAQs, section nav label, and content additions - 2026-10-12
+
+### Content
+- **Home page description extended** (migration 00080): three new paragraphs added after the existing two — covering the villa's relaxed contemporary character, ideal and max occupancy, and use cases (family gatherings, celebrations, group trips).
+- **Driver room FAQ corrected** (migration 00081): "Is the driver room included in the four bedrooms?" answer now ends with "It can be arranged upon prior request."
+
+### UI
+- **Homepage FAQs reduced to 6** (migration 00079): "How many guests can Villa 19 accommodate?" and "Is smoking allowed?" unfeatured from the home page; both remain on the full FAQ section.
+- **Section nav label fixed**: "FAQ's" corrected to "FAQs" (no apostrophe; plural, not possessive), now consistent with the footer.
+
+---
+
 ## v0.9.23 - Guest requests reach the host, and content split per page - 2026-10-12
 
 ### Fixed
