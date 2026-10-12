@@ -4,6 +4,26 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v0.9.23 - Guest requests reach the host, and content split per page - 2026-10-12
+
+### Fixed
+- **Special requests now reach the host.** They were captured at checkout, stored, and shown back to the guest on their confirmation page, but were never included in the host's "New Booking" email. A guest could ask for an early check-in, see it echoed on their own confirmation, and reasonably assume it had been passed on while the host never saw it. The admin email now carries them in a highlighted block with a prompt to confirm with the guest, and the subject line flags "has special requests" so it is visible without opening the mail. Covers both confirmation paths (verify-payment and the Razorpay webhook).
+- **Checkout now highlights which fields are missing.** The form is `noValidate`, so submitting it empty went straight to the API with no indication of what was wrong. Name, email and phone are now validated client-side before any request, each showing a red border and its own message; errors clear per field as the guest types.
+
+### Content
+- **Home page and The Villa page descriptions split** (migrations 00076-00078). Both pages rendered the same `properties.description`, so updating one changed the other. Added a `long_description` column: the home page keeps the short pitch, The Villa page carries the fuller editorial copy ("A private space to stay together").
+- **Address shortened** to "Urwa" (migration 00075); the street name is no longer shown on the hero or location card.
+- **Driver room is now on request** (migrations 00073, 00074). The amenity reads "Driver's room with bathroom (Upon Request)" and the FAQ adds "It can be arranged upon prior request." The home and The Villa highlight tiles now lead with Air Conditioning, which applies to every stay.
+
+### UI
+- **Section nav made prominent.** Sticky detection was comparing against 73px while the bar parks at 80px, so the stuck styling never fired at all. Fixed the threshold, then dropped the conflicting white-pill-plus-underline treatment for a single underline language, raised the label size, and gave the bar a brass bottom edge and elevation on scroll.
+- **Confirmation page buttons.** "Back to Home" was built from ad-hoc inline styles that matched the page's white content cards exactly, so it read as an empty card rather than a button. Added a `btn-secondary-solid` variant (surface fill, brass edge) for quiet buttons sitting directly on the paper ground, and used the system typography.
+- **Confirmation page copy.** Fixed a body paragraph in the ID card that sat a size below its siblings; "WhatsApp Us" button demoted to an inline link, since a second full-width WhatsApp button duplicated the primary one; "Review our cancellation policy" now links only "cancellation policy".
+- **Checkout header** matches the site header: "Villa 19 by Habbaa", centred, 80px.
+- **Footer** Explore column spacing tightened.
+
+---
+
 ## v0.9.22 - Content, pricing and checkout improvements - 2026-10-12
 
 ### Content

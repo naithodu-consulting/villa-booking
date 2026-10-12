@@ -13,15 +13,15 @@ import { organizationJsonLd } from '@/lib/seo';
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
-    id: 'reservations',
-    text: 'For reservations, contact: reservations@habbaa.com  /  +91 80504 84123',
-    shortText: 'Reservations: +91 80504 84123',
-  },
-  {
     id: 'promo-1',
     text: 'Book directly and save 15%. Use code:',
     shortText: 'Save 15% with code:',
     code: 'VILLA19',
+  },
+  {
+    id: 'reservations',
+    text: 'For reservations, contact: reservations@habbaa.com  /  +91 80504 84123',
+    shortText: 'Reservations: +91 80504 84123',
   },
 ];
 

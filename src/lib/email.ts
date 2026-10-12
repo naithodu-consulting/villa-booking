@@ -154,6 +154,7 @@ export interface AdminNewBookingParams {
   guests: number;
   totalPaise: number;
   channel: string; // 'online' | 'manual'
+  specialRequests?: string;
 }
 
 export async function sendAdminNewBookingNotification(p: AdminNewBookingParams) {
@@ -203,12 +204,22 @@ export async function sendAdminNewBookingNotification(p: AdminNewBookingParams) 
           <td style="padding:8px 0;">${esc(p.channel)}</td>
         </tr>
       </table>
+      ${p.specialRequests?.trim() ? `
+      <div style="margin-top:20px;padding:16px;background:#fdf6e8;border:1px solid #d9b877;border-radius:8px;">
+        <p style="margin:0 0 6px;font-weight:bold;color:#5C1732;font-size:14px;">Special requests</p>
+        <p style="margin:0;white-space:pre-wrap;color:#333;font-size:14px;line-height:1.5;">${esc(p.specialRequests.trim())}</p>
+        <p style="margin:10px 0 0;color:#888;font-size:12px;">Confirm with the guest whether this can be accommodated.</p>
+      </div>` : ''}
     </div>
   </div>
 </body>
 </html>`;
 
-  return send(ADMIN_EMAIL, `New Booking: ${p.bookingRef} (₹${totalRupees})`, html, 'admin_new_booking');
+  const subject = p.specialRequests?.trim()
+    ? `New Booking: ${p.bookingRef} (₹${totalRupees}) - has special requests`
+    : `New Booking: ${p.bookingRef} (₹${totalRupees})`;
+
+  return send(ADMIN_EMAIL, subject, html, 'admin_new_booking');
 }
 
 export interface RefundProcessedParams {

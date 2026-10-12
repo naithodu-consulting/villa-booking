@@ -92,7 +92,7 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
           {/* ── Col 2: Explore — desktop only ─────────────────────────────── */}
           <div className="hidden lg:block">
             <p className={COL_HEADING}>Explore</p>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {(showJournal ? [...EXPLORE_LINKS, ['/journal', 'Journal'] as [string, string]] : EXPLORE_LINKS).map(([href, label]) => (
                 <li key={href}>
                   <NavLinkBase href={href} className={COL_LINK}>{label}</NavLinkBase>

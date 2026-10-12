@@ -4,7 +4,7 @@ import { pageMetadata, breadcrumbJsonLd, lodgingJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import {
   MapPin, Users, Wifi, Car, Bed,
-  Sofa, Trees, BedSingle,
+  Sofa, Trees, AirVent,
 } from 'lucide-react';
 import { getProperty, getAmenities, getNearbyPlaces, getImages, formatDistance } from '@/lib/data';
 import { renderBoldText } from '@/lib/bold';
@@ -64,7 +64,7 @@ export default async function TheVillaPage() {
     { icon: Car,       label: 'Parking',    value: 'Private Parking' },
     { icon: Sofa,      label: 'Lounge',     value: 'Lounge Area'        },
     { icon: Wifi,      label: 'Internet',   value: 'High Speed Internet'       },
-    { icon: BedSingle, label: 'Convenience',      value: 'Driver Room'  },
+    { icon: AirVent,   label: 'Comfort',    value: 'Air Conditioning'  },
     { icon: Trees,     label: 'Outdoors',   value: 'Landscaped Garden'      },
   ];
 
@@ -83,7 +83,7 @@ export default async function TheVillaPage() {
             <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} />
             <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>About the Villa</h2>
           </div>
-          {property.description?.split(/\n\s*\n/).map((para) => (
+          {(property.long_description ?? property.description)?.split(/\n\s*\n/).map((para) => (
             <p key={para.slice(0, 32)} className="leading-relaxed text-base" style={{ color: 'var(--ink-muted)' }}>{renderBoldText(para)}</p>
           ))}
         </section>

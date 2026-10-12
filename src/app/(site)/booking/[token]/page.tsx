@@ -201,7 +201,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
                       <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
                         Sharing your IDs in advance helps us complete the verification process before you arrive and makes check-in quicker.
                       </p>
-                      <p className="text-sm leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                      <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
                         <strong style={{ color: 'var(--ink)' }}>Please send ID documents only via WhatsApp. Do not email them.</strong> ID documents are not stored on this website.
                       </p>
                     </>
@@ -330,24 +330,26 @@ export default async function BookingConfirmationPage({ params }: Props) {
                 <div>
                   <p className="font-semibold" style={{ color: 'var(--ink)' }}>Need anything before then?</p>
                   <p className="mt-0.5">
-                    Just WhatsApp us. We're usually available during the day and aim to respond within an hour.{' '}
-                    Plans changed?{' '}
+                    Just{' '}
+                    {whatsapp ? (
+                      <ExternalLink
+                        href={`https://wa.me/${whatsapp}`}
+                        className="font-semibold underline"
+                        style={{ color: 'var(--maroon)' }}
+                      >
+                        WhatsApp
+                      </ExternalLink>
+                    ) : 'WhatsApp'}
+                    {' '}us. We're usually available during the day and aim to respond within an hour.{' '}
+                    Plans changed? Review our{' '}
                     <Link href="/cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
-                      Review our cancellation policy
+                      cancellation policy
                     </Link>
                     {' '}for details.
                   </p>
                 </div>
               </li>
             </ol>
-            {whatsapp && (
-              <ExternalLink
-                href={`https://wa.me/${whatsapp}`}
-                className="btn-wa-ghost flex items-center justify-center gap-2 py-3.5 rounded-2xl"
-              >
-                WhatsApp Us
-              </ExternalLink>
-            )}
           </div>
         )}
 
@@ -358,11 +360,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
         )}
 
         {/* ── Back to home ─────────────────────────────── */}
-        <Link
-          href="/"
-          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-base font-bold transition-all hover:opacity-90"
-          style={{ backgroundColor: 'var(--surface)', color: 'var(--maroon)', border: '1px solid var(--border-subtle)' }}
-        >
+        <Link href="/" className="btn-secondary btn-secondary-solid w-full py-3.5 rounded-2xl">
           Back to Home
         </Link>
 

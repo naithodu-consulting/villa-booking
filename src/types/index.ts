@@ -6,6 +6,7 @@ export interface Property {
   name: string;
   tagline: string;
   description: string;
+  long_description?: string | null;
   address: string;
   city: string;
   state: string;

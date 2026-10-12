@@ -26,4 +26,4 @@ export const CANCELLATION_TIERS: CancellationTier[] = [
 ];
 
 export const SECURITY_DEPOSIT_TERMS =
-  'A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.';
+  'A security deposit, where applicable, will be collected upon check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.';

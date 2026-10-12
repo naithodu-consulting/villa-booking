@@ -6,7 +6,7 @@
 -- Property
 -- ─────────────────────────────────────────────────────────
 INSERT INTO properties (
-  id, slug, name, tagline, description,
+  id, slug, name, tagline, description, long_description,
   address, city, state, pincode,
   geo_lat, geo_lng,
   base_occupancy, max_occupancy, ideal_occupancy,
@@ -19,16 +19,23 @@ INSERT INTO properties (
   'villa-19',
   'Villa 19',
   'Premium 4-Bedroom Private Urban Villa',
-  E'**Villa 19 by Habbaa** is a spacious **4-bedroom private urban villa** set amidst lush greenery in Urwa, Mangalore. Spread across **5,000 sq. ft.**, it offers generous living spaces, a manicured lawn, balconies across every floor, and ample private parking.
+  E'**Villa 19** is a spacious **4-bedroom private villa in Mangalore**, thoughtfully designed for families and groups seeking comfort, privacy and space to be together. Set amidst lush greenery in Urwa, the villa features generous living spaces, a manicured lawn, balconies across every floor, and ample private parking.
 
-Tucked away in a peaceful setting yet close to the heart of the city, the villa is just minutes from the main road, local markets, shops, and everyday conveniences. Its location makes it easy to explore Mangalore while giving you a quiet space to return to at the end of the day.
+Set in **Urwa,** one of Mangalore\'s well-connected residential neighbourhoods, Villa 19 is tucked away in a peaceful setting yet close to the heart of the city. Just minutes from the main road, local markets, shops and everyday conveniences, its location makes it easy to explore Mangalore while giving you a quiet space to return to at the end of the day.',
+  E'**A private space to stay together**
 
-Designed with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.
+Villa 19 is designed around a simple idea - **when you travel together, you shouldn\'t have to stay apart.**
 
-**Ideal for 8 guests** and comfortably **accommodating up to 14**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore. For larger groups, the spacious lounge can also be used as additional sleeping space with its convertible sofas.
+**The entire villa is yours for the duration of your stay** - a place to slow down, settle in and enjoy time together, without the schedules and shared spaces of a hotel.
 
-Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
-  'Urwa Marigudi Cross Road, Urwa', 'Mangalore', 'Karnataka', '575006',
+With four comfortable air-conditioned bedrooms, generous living and dining spaces, a fully equipped kitchen and plenty of room to relax, Villa 19 brings together the comfort of a well-appointed home with the privacy of an entire villa.
+
+The shared spaces are made for easy, unhurried moments - enjoy a meal together, pick up a book, challenge each other to a board game, or simply unwind after a day exploring Mangalore. There\'s room for everyone to find their own corner, while still coming together when it matters.
+
+A landscaped lawn, balconies across the floors and ample private parking add to the sense of space, making Villa 19 feel less like a place to simply stay and more like a home that\'s yours for a while.
+
+**Your space. Your people. Your stay.**',
+  'Urwa', 'Mangalore', 'Karnataka', '575006',
   12.895188, 74.830676,
   8, 14, 8,  -- base 8 included, hard cap 14, ideal party size 8
   100000,   -- ₹1,000/extra guest per night, guests 9-11
@@ -38,7 +45,7 @@ Whether it is a family gathering, a weekend with friends, a milestone celebratio
   '14:00:00', '10:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
-  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, base_nightly_rate = EXCLUDED.base_nightly_rate, weekend_nightly_rate = EXCLUDED.weekend_nightly_rate, is_active = EXCLUDED.is_active;
+  slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, long_description = EXCLUDED.long_description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, base_nightly_rate = EXCLUDED.base_nightly_rate, weekend_nightly_rate = EXCLUDED.weekend_nightly_rate, is_active = EXCLUDED.is_active;
 
 -- ─────────────────────────────────────────────────────────
 -- Rooms (4 bedrooms)
@@ -117,7 +124,7 @@ INSERT INTO property_amenities (property_id, category, label, icon, is_available
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Outdoor seating', 'Armchair', TRUE, FALSE, 32),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Private parking for up to 8 vehicles', 'Car', TRUE, TRUE , 33),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Lush green surroundings', 'Leaf', TRUE, FALSE, 34),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Dedicated driver''s room with bathroom', 'BedSingle', TRUE, FALSE, 35),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'Driver''s room with bathroom (Upon Request)', 'BedSingle', TRUE, FALSE, 35),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'CCTV surveillance in common outdoor areas', 'Camera', TRUE, FALSE, 36),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Fully equipped kitchen', 'ChefHat', TRUE, TRUE , 40),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'High-speed Wi-Fi', 'Wifi', TRUE, TRUE , 41),
@@ -232,7 +239,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Villa 19 close to the city?', 'Yes. The villa offers a quiet setting while remaining conveniently connected to Mangalore''s key areas.', 'Location', 390, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the villa suitable as a base for exploring Mangalore?', 'Yes. Its location in Urwa provides convenient access to the city, while the private villa offers a relaxed space to return to after exploring Mangalore.', 'Location', 400, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the driver room included in the four bedrooms?', 'No. The dedicated Driver Room is separate from the four guest bedrooms and is intended for driver/staff accommodation.', 'Additional Accommodation', 410, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can the driver stay at the property?', 'Yes. A dedicated driver room with an attached bathroom is available separately from the guest accommodation.', 'Additional Accommodation', 420, TRUE, FALSE)
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Can the driver stay at the property?', 'Yes. A driver room with an attached bathroom is available separately from the guest accommodation. It can be arranged upon prior request.', 'Additional Accommodation', 420, TRUE, FALSE)
 ON CONFLICT ON CONSTRAINT uq_faq_property_question DO UPDATE SET answer = EXCLUDED.answer, category = EXCLUDED.category, display_order = EXCLUDED.display_order, is_featured = EXCLUDED.is_featured;
 
 -- ─────────────────────────────────────────────────────────

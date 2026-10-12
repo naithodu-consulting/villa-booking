@@ -68,6 +68,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
 
   const [isProcessing,     setIsProcessing]     = useState(false);
   const [serverError,      setServerError]      = useState('');
+  const [fieldErrors,      setFieldErrors]      = useState<{ name?: string; email?: string; phone?: string }>({});
   const [promoInput,       setPromoInput]       = useState('');
   const [promoCode,        setPromoCode]        = useState<string | null>(null);
   const [promoDiscount,    setPromoDiscount]    = useState(0); // paise
@@ -205,6 +206,22 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!breakdown) return;
+
+    // Validate fields and surface per-field errors before hitting the API.
+    const errs: typeof fieldErrors = {};
+    if (!guestName.trim()) errs.name = 'Please enter your full name.';
+    if (!guestEmail.trim()) {
+      errs.email = 'Please enter your email address.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail.trim())) {
+      errs.email = 'Please enter a valid email address.';
+    }
+    if (!guestPhone.trim()) {
+      errs.phone = 'Please enter your mobile number.';
+    } else if (!/^[6-9][0-9]{9}$/.test(guestPhone.trim())) {
+      errs.phone = 'Please enter a valid 10-digit Indian mobile number.';
+    }
+    setFieldErrors(errs);
+    if (Object.keys(errs).length > 0) return;
 
     setServerError('');
     setIsProcessing(true);
@@ -386,47 +403,61 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
               <form onSubmit={handlePayment} className="space-y-4" noValidate>
                 <div>
                   <label htmlFor="guestName" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
-                    Name *
+                    Name
                   </label>
                   <input
                     id="guestName"
                     type="text"
                     required
                     value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
+                    onChange={(e) => { setGuestName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: undefined })); }}
                     placeholder="Full name as per Govt ID"
-                    className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
+                    className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
                     style={{
                       backgroundColor: 'var(--paper)',
-                      border: '1px solid var(--border-subtle)',
+                      border: fieldErrors.name ? '1.5px solid var(--error)' : '1px solid var(--border-subtle)',
                       color: 'var(--ink)',
-                    }}
+                      '--tw-ring-color': fieldErrors.name ? 'var(--error)' : 'var(--brass)',
+                    } as React.CSSProperties}
                   />
+                  {fieldErrors.name && (
+                    <p className="mt-1 text-xs flex items-center gap-1" style={{ color: 'var(--error)' }}>
+                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                      {fieldErrors.name}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="guestEmail" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
-                      Email Id *
+                      Email Id
                     </label>
                     <input
                       id="guestEmail"
                       type="email"
                       required
                       value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
+                      onChange={(e) => { setGuestEmail(e.target.value); if (fieldErrors.email) setFieldErrors(p => ({ ...p, email: undefined })); }}
                       placeholder="Email id"
-                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
+                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
                       style={{
                         backgroundColor: 'var(--paper)',
-                        border: '1px solid var(--border-subtle)',
+                        border: fieldErrors.email ? '1.5px solid var(--error)' : '1px solid var(--border-subtle)',
                         color: 'var(--ink)',
-                      }}
+                        '--tw-ring-color': fieldErrors.email ? 'var(--error)' : 'var(--brass)',
+                      } as React.CSSProperties}
                     />
+                    {fieldErrors.email && (
+                      <p className="mt-1 text-xs flex items-center gap-1" style={{ color: 'var(--error)' }}>
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                        {fieldErrors.email}
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label htmlFor="guestPhone" className="text-sm font-bold block mb-1" style={{ color: 'var(--ink-muted)' }}>
-                      Mobile Number *
+                      Mobile Number
                     </label>
                     <input
                       id="guestPhone"
@@ -434,16 +465,22 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                       required
                       pattern="[6-9][0-9]{9}"
                       value={guestPhone}
-                      onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      onChange={(e) => { setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10)); if (fieldErrors.phone) setFieldErrors(p => ({ ...p, phone: undefined })); }}
                       placeholder="10-digit mobile no"
-                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
+                      className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
                       style={{
                         backgroundColor: 'var(--paper)',
-                        border: '1px solid var(--border-subtle)',
+                        border: fieldErrors.phone ? '1.5px solid var(--error)' : '1px solid var(--border-subtle)',
                         color: 'var(--ink)',
-                      }}
+                        '--tw-ring-color': fieldErrors.phone ? 'var(--error)' : 'var(--brass)',
+                      } as React.CSSProperties}
                     />
-                    <p className="text-xs mt-1" style={{ color: 'var(--ink-muted)' }}>10-digit Indian mobile number</p>
+                    {fieldErrors.phone && (
+                      <p className="mt-1 text-xs flex items-center gap-1" style={{ color: 'var(--error)' }}>
+                        <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                        {fieldErrors.phone}
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -662,7 +699,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     </div>
                   )}
                   <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
-                    All prices in INR and inclusive of GST. A security deposit, where applicable, is collected at check-in.
+                    All prices in INR and inclusive of GST. A security deposit, where applicable, is collected upon check-in.
                   </p>
                 </div>
               )}
@@ -686,11 +723,30 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
 function CheckoutHeader({ property }: { property: Property }) {
   return (
     <header
-      className="sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between"
-      style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+      className="sticky top-0 z-40 px-4 sm:px-8 h-[80px] flex items-center justify-center"
+      style={{ backgroundColor: 'var(--maroon-deep)', borderBottom: '1px solid rgba(168,116,50,0.28)' }}
     >
-      <Link href="/" className="flex items-center gap-3" aria-label="Back to villa">
-        <Image src="/villa19-wordmark-knockout.svg" alt={property.name} width={107} height={24} className="flex-shrink-0" priority />
+      <Link
+        href="/"
+        className="flex flex-col items-end group py-2"
+        aria-label={`${property.name} by Habbaa home`}
+      >
+        <Image
+          src="/villa19-wordmark-knockout.svg"
+          alt={property.name}
+          width={132}
+          height={30}
+          priority
+          className="block w-[107px] md:w-[132px] h-auto transition-opacity group-hover:opacity-90"
+        />
+        <Image
+          src="/by-habbaa-white.svg"
+          alt="by Habbaa"
+          width={70}
+          height={25}
+          priority
+          className="block w-[46px] md:w-[60px] h-auto mt-[-3px] md:mt-[6px]"
+        />
       </Link>
     </header>
   );

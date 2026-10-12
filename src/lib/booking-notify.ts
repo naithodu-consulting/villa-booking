@@ -21,7 +21,7 @@ import { SITE_URL } from '@/lib/seo';
 export async function notifyConfirmedBooking(supabase: SupabaseClient, bookingId: string, channel: string) {
   const { data: b } = await supabase
     .from('bookings')
-    .select('booking_code, reference_number, access_token, invoice_number, invoice_date, guest_name, guest_email, guest_phone, check_in, check_out, num_nights, num_adults, num_children, base_amount, extra_guest_amount, tax_amount, total_amount, properties(name, address, city, state, pincode, check_in_time, check_out_time, base_occupancy)')
+    .select('booking_code, reference_number, access_token, invoice_number, invoice_date, guest_name, guest_email, guest_phone, check_in, check_out, num_nights, num_adults, num_children, base_amount, extra_guest_amount, tax_amount, total_amount, special_requests, properties(name, address, city, state, pincode, check_in_time, check_out_time, base_occupancy)')
     .eq('id', bookingId)
     .single();
   if (!b) return;
@@ -93,6 +93,7 @@ export async function notifyConfirmedBooking(supabase: SupabaseClient, bookingId
       guests,
       totalPaise: b.total_amount,
       channel,
+      specialRequests: b.special_requests ?? undefined,
     }),
   ]);
 }

@@ -26,7 +26,7 @@ const TIER_COLOURS = [
 ];
 import {
   ShieldCheck, MapPin, Users, Wifi, Bed,
-  Car, Sofa, Trees, BedSingle,
+  Car, Sofa, Trees, AirVent,
   Sparkles, Phone,
   Clock, ChevronDown, ArrowRight,
 } from 'lucide-react';
@@ -181,7 +181,7 @@ export default async function LandingPage() {
                   { icon: Car,       value: 'Private Parking'  },
                   { icon: Sofa,      value: 'Lounge Area'         },
                   { icon: Wifi,      value: 'High Speed Internet'        },
-                  { icon: BedSingle, value: 'Driver Room'   },
+                  { icon: AirVent,   value: 'Air Conditioning'   },
                   { icon: Trees,     value: 'Landscaped Garden'       },
                 ].map(({ icon: Icon, value }) => (
                   <div

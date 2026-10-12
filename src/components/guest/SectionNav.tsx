@@ -71,8 +71,9 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
       // 1. Detect if bar is sticky
       if (navRef.current) {
         const navRect = navRef.current.getBoundingClientRect();
-        // Site header is 72px high. When nav hits top <= 73px, it is stuck.
-        setIsSticky(navRect.top <= 73);
+        // Must match the sticky offset below: the bar parks at exactly 80px, so
+        // a threshold under that never fires and the stuck styling never shows.
+        setIsSticky(navRect.top <= 81);
       }
 
       // If user recently clicked a tab, let the smooth scroll finish
@@ -187,36 +188,33 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
     <nav
       ref={navRef}
       aria-label="Villa sections"
-      className="sticky top-[80px] z-30 w-full transition-all duration-200"
+      className="sticky top-[80px] z-30 w-full"
       style={{
-        backgroundColor: isSticky ? 'rgba(250, 247, 242, 0.96)' : 'var(--paper)',
-        backdropFilter: isSticky ? 'blur(12px)' : 'none',
-        WebkitBackdropFilter: isSticky ? 'blur(12px)' : 'none',
-        borderBottom: '1px solid var(--border-subtle)',
-        boxShadow: isSticky ? '0 4px 16px rgba(0, 0, 0, 0.05)' : 'none',
+        backgroundColor: 'var(--paper-sunk)',
+        borderBottom: '2.5px solid rgba(168, 116, 50, 0.45)',
+        boxShadow: isSticky
+          ? '0 4px 20px rgba(58, 14, 31, 0.14)'
+          : '0 2px 4px rgba(58, 14, 31, 0.07)',
+        transition: 'box-shadow 0.2s ease',
       }}
     >
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Left gradient fade for mobile scroll affordance */}
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute left-4 sm:left-6 lg:left-8 top-0 bottom-0 w-8 z-10 transition-opacity duration-200 ${
+          className={`pointer-events-none absolute left-4 sm:left-6 lg:left-8 top-0 bottom-0 w-10 z-10 transition-opacity duration-200 ${
             canScrollLeft ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{
-            background: 'linear-gradient(to right, var(--paper), transparent)',
-          }}
+          style={{ background: 'linear-gradient(to right, var(--paper-sunk), transparent)' }}
         />
 
         {/* Right gradient fade for mobile scroll affordance */}
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute right-4 sm:right-6 lg:right-8 top-0 bottom-0 w-8 z-10 transition-opacity duration-200 ${
+          className={`pointer-events-none absolute right-4 sm:right-6 lg:right-8 top-0 bottom-0 w-10 z-10 transition-opacity duration-200 ${
             canScrollRight ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{
-            background: 'linear-gradient(to left, var(--paper), transparent)',
-          }}
+          style={{ background: 'linear-gradient(to left, var(--paper-sunk), transparent)' }}
         />
 
         {/* Horizontal tabs list */}
@@ -224,16 +222,14 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
           ref={scrollContainerRef}
           role="tablist"
           aria-label="Section navigation"
-          className="shelf-x flex items-center gap-1 sm:gap-2 overflow-x-auto py-0 -mx-1"
+          className="shelf-x flex items-stretch overflow-x-auto"
         >
           {tabs.map((tab, index) => {
             const isActive = activeId === tab.id;
             return (
               <button
                 key={tab.id}
-                ref={(el) => {
-                  tabRefs.current[tab.id] = el;
-                }}
+                ref={(el) => { tabRefs.current[tab.id] = el; }}
                 role="tab"
                 id={`tab-${tab.id}`}
                 aria-controls={tab.id}
@@ -241,29 +237,24 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
                 tabIndex={isActive ? 0 : -1}
                 onClick={() => handleTabClick(tab.id)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className={`group relative flex items-center justify-center px-3 sm:px-4 py-3 sm:py-3.5 whitespace-nowrap text-[14px] sm:text-[15px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--paper)] rounded-t-sm cursor-pointer select-none ${
+                className={`relative flex items-center justify-center px-4 sm:px-5 py-4 sm:py-[18px] whitespace-nowrap text-[14.5px] sm:text-[15.5px] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brass)] focus-visible:ring-inset cursor-pointer select-none ${
                   isActive
-                    ? 'font-bold text-[var(--maroon)]'
-                    : 'font-medium text-[var(--ink-muted)] hover:text-[var(--maroon)]'
+                    ? 'font-bold text-[var(--maroon-deep)]'
+                    : 'font-semibold text-[var(--ink)] opacity-60 hover:opacity-100'
                 }`}
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  letterSpacing: '0.01em',
-                }}
+                style={{ fontFamily: 'var(--font-sans)', letterSpacing: '0.015em' }}
               >
-                <span>{tab.label}</span>
+                {tab.label}
 
-                {/* Active accent underline indicator */}
-                {isActive && (
-                  <span
-                    className="absolute bottom-0 inset-x-2 sm:inset-x-2.5 h-[2.5px] rounded-full transition-all duration-200"
-                    style={{
-                      backgroundColor: 'var(--brass)',
-                      boxShadow: '0 1px 4px rgba(196, 154, 69, 0.4)',
-                    }}
-                    aria-hidden="true"
-                  />
-                )}
+                {/* Active brass underline — sits on top of the nav's bottom border */}
+                <span
+                  aria-hidden="true"
+                  className="absolute bottom-[-2.5px] left-0 right-0 h-[2.5px] transition-opacity duration-150"
+                  style={{
+                    backgroundColor: 'var(--brass)',
+                    opacity: isActive ? 1 : 0,
+                  }}
+                />
               </button>
             );
           })}

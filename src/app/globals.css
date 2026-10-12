@@ -336,6 +336,21 @@
     border-color: var(--brass);
   }
 
+  /* btn-secondary sits inside a white card, where a transparent fill reads as
+     white. Directly on the paper ground it looks washed out instead, so this
+     variant gives it a surface of its own and a brass edge to match the
+     filled buttons it pairs with. */
+  .btn-secondary-solid {
+    background: var(--surface);
+    border-color: var(--border-brass);
+    color: var(--maroon);
+    box-shadow: 0 1px 3px rgba(58, 14, 31, 0.06);
+  }
+  .btn-secondary-solid:hover {
+    background: var(--paper-sunk);
+    border-color: var(--brass);
+  }
+
   .btn-ghost {
     display: inline-flex;
     align-items: center;
