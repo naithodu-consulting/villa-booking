@@ -77,7 +77,7 @@ export default async function JournalPostPage({ params }: { params: Promise<{ sl
       {/* ── Title band ────────────────────────────────────── */}
       <section
         className="py-10 sm:py-14"
-        style={{ backgroundColor: 'var(--paper-sunk)', borderBottom: '1px solid var(--border-subtle)' }}
+        style={{ backgroundColor: 'var(--paper-band)', borderBottom: '1px solid var(--border-subtle)' }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <Link

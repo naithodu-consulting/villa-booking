@@ -22,7 +22,7 @@ export default function PageHero({
     <section
       className="py-10 sm:py-12"
       style={{
-        backgroundColor: 'var(--paper-sunk)',
+        backgroundColor: 'var(--paper-band)',
         color: 'var(--ink)',
         borderBottom: '1px solid var(--border-subtle)',
       }}

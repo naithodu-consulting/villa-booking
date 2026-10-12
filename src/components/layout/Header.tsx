@@ -262,10 +262,10 @@ export default function Header({ propertyName, whatsappUrl, showJournal = false 
                     className="flex items-center px-3 py-3.5 text-[15px] font-semibold rounded-lg transition-colors duration-150"
                     style={{
                       color: active ? 'var(--maroon)' : 'var(--ink)',
-                      backgroundColor: active ? 'rgba(90,38,38,0.07)' : '',
+                      backgroundColor: active ? 'rgba(92,23,50,0.07)' : '',
                       borderBottom: '1px solid rgba(0,0,0,0.05)',
                     }}
-                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'rgba(90,38,38,0.05)'; }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = 'rgba(92,23,50,0.05)'; }}
                     onMouseLeave={e => { if (!active) (e.currentTarget as HTMLAnchorElement).style.backgroundColor = ''; }}
                   >
                     {label}

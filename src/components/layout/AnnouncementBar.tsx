@@ -127,7 +127,7 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
               style={{
                 width: i === index ? '12px' : '4px',
                 height: '3px',
-                backgroundColor: i === index ? 'var(--brass)' : 'rgba(90,38,38,0.2)',
+                backgroundColor: i === index ? 'var(--brass)' : 'rgba(92,23,50,0.2)',
               }}
             />
           ))}

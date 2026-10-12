@@ -3,9 +3,15 @@
 /* ── Design tokens ───────────────────────────────────────────────────── */
 :root {
   /* Ground */
-  --paper:        #FBF8F3;
+  --paper:        #FFFCF0;
   --paper-sunk:   #F2EDE4;
   --paper-sunk-hover: #E8E2D5;  /* hover state for sunk controls */
+  /* Recessed bands sitting directly on --paper. A sunk tone reads differently
+     by ground: against white (W=0) its full warmth shows, against cream (W=15)
+     only the remainder does. --paper-sunk is tuned for fields inside white
+     cards; on the cream page the same value loses its warmth and goes grey, so
+     bands need their own, warmer step. One value cannot serve both. */
+  --paper-band:   #F9F3DE;
   --cream:        #FFFCF0;      /* warm attention ground: announcement bar, inputs */
   --surface:      #FFFFFF;
 
@@ -203,7 +209,7 @@
 
   /* Scrollbar */
   ::-webkit-scrollbar        { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track  { background: var(--paper-sunk); }
+  ::-webkit-scrollbar-track  { background: var(--paper-band); }
   ::-webkit-scrollbar-thumb  { background: #C9AE8A; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--brass); }
 
@@ -296,12 +302,12 @@
     transition: background 0.2s var(--ease-out-expo),
                 box-shadow 0.2s var(--ease-out-expo),
                 transform 0.15s var(--ease-out-expo);
-    box-shadow: 0 2px 8px rgba(90, 38, 38, 0.25);
+    box-shadow: 0 2px 8px rgba(92, 23, 50, 0.25);
     min-height: 44px;
   }
   .btn-primary:hover:not(:disabled) {
     background: var(--maroon-deep);
-    box-shadow: 0 4px 16px rgba(90, 38, 38, 0.35);
+    box-shadow: 0 4px 16px rgba(92, 23, 50, 0.35);
     transform: translateY(-1px);
   }
   .btn-primary:disabled {

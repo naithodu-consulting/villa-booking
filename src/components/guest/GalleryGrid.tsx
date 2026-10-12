@@ -64,7 +64,7 @@ export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
                       // the markup, so the tile cannot be the wrong shape.
                       aspectRatio: '3 / 2',
                       border: '1px solid var(--border-subtle)',
-                      backgroundColor: 'var(--paper-sunk)',
+                      backgroundColor: 'var(--paper-band)',
                     }}
                   >
                     {/* sizes matches the columns: 2 / 3 / 4, capped by max-w-6xl. */}

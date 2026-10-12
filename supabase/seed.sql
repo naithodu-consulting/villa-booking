@@ -25,7 +25,7 @@ Set in **Urwa,** one of Mangalore\'s well-connected residential neighbourhoods, 
 
 Designed with a relaxed, contemporary character, Villa 19 brings together the comforts of a well-appointed home with the space and privacy of a private getaway. The spacious lounge is made for conversations, family time and unwinding together, while the bedrooms offer a comfortable retreat after a day out in the city.
 
-**Ideal for 8 guests** and comfortably accommodating up to 14, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore. For larger groups, the spacious lounge can also be used as additional sleeping space with its convertible sofas.
+**Ideal for 8 guests** and **comfortably accommodating up to 14**, Villa 19 is designed for families and groups to come together, slow down, and enjoy their own private space in Mangalore. For larger groups, the spacious lounge can also be used as additional sleeping space with its convertible sofas.
 
 Whether it is a family gathering, a weekend with friends, a milestone celebration, or simply a few days away together, Villa 19 offers the space, privacy and convenience to make the stay feel like your own.',
   E'**A private space to stay together**
@@ -134,7 +134,7 @@ INSERT INTO property_amenities (property_id, category, label, icon, is_available
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Outdoors & Spaces', 'CCTV surveillance in common outdoor areas', 'Camera', TRUE, FALSE, 36),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Fully equipped kitchen', 'ChefHat', TRUE, TRUE , 40),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'High-speed Wi-Fi', 'Wifi', TRUE, TRUE , 41),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Washing machine & refrigerator', 'WashingMachine', TRUE, FALSE, 42),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Washing machine & Refrigerator', 'WashingMachine', TRUE, FALSE, 42),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', '24/7 hot water', 'Droplets', TRUE, FALSE, 43),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Inverter power backup', 'Zap', TRUE, FALSE, 44),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Convenience & Essentials', 'Premium toiletries', 'Sparkles', TRUE, FALSE, 45),

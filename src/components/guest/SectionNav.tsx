@@ -190,7 +190,7 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
       aria-label="Villa sections"
       className="sticky top-[80px] z-30 w-full"
       style={{
-        backgroundColor: 'var(--paper-sunk)',
+        backgroundColor: 'var(--paper-band)',
         borderBottom: '2.5px solid rgba(168, 116, 50, 0.45)',
         boxShadow: isSticky
           ? '0 4px 20px rgba(58, 14, 31, 0.14)'
@@ -205,7 +205,7 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
           className={`pointer-events-none absolute left-4 sm:left-6 lg:left-8 top-0 bottom-0 w-10 z-10 transition-opacity duration-200 ${
             canScrollLeft ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{ background: 'linear-gradient(to right, var(--paper-sunk), transparent)' }}
+          style={{ background: 'linear-gradient(to right, var(--paper-band), transparent)' }}
         />
 
         {/* Right gradient fade for mobile scroll affordance */}
@@ -214,7 +214,7 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
           className={`pointer-events-none absolute right-4 sm:right-6 lg:right-8 top-0 bottom-0 w-10 z-10 transition-opacity duration-200 ${
             canScrollRight ? 'opacity-100' : 'opacity-0'
           }`}
-          style={{ background: 'linear-gradient(to left, var(--paper-sunk), transparent)' }}
+          style={{ background: 'linear-gradient(to left, var(--paper-band), transparent)' }}
         />
 
         {/* Horizontal tabs list */}
