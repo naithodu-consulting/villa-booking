@@ -13,10 +13,10 @@ interface Secondary {
  * The button pair at the foot of every dark booking panel: brass "Check
  * Availability" first, then one frosted secondary. The Villa page set the
  * pattern; pages used to hand-roll it with drifting sizes, order and labels, so
- * it lives here. Pages without a more useful secondary get "Back to Overview".
+ * it lives here. Pages without a more useful secondary get "Homepage".
  */
 export default function CtaButtons({
-  secondary = { href: '/', label: 'Back to Overview' },
+  secondary = { href: '/', label: 'Homepage' },
   className = 'justify-center',
 }: {
   secondary?: Secondary;

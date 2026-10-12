@@ -414,7 +414,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     placeholder="Full name as per Govt ID"
                     className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
                     style={{
-                      backgroundColor: 'var(--paper)',
+                      backgroundColor: 'var(--paper-sunk)',
                       border: fieldErrors.name ? '1.5px solid var(--error)' : '1px solid var(--border-subtle)',
                       color: 'var(--ink)',
                       '--tw-ring-color': fieldErrors.name ? 'var(--error)' : 'var(--brass)',
@@ -442,7 +442,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                       placeholder="Email id"
                       className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
                       style={{
-                        backgroundColor: 'var(--paper)',
+                        backgroundColor: 'var(--paper-sunk)',
                         border: fieldErrors.email ? '1.5px solid var(--error)' : '1px solid var(--border-subtle)',
                         color: 'var(--ink)',
                         '--tw-ring-color': fieldErrors.email ? 'var(--error)' : 'var(--brass)',
@@ -469,7 +469,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                       placeholder="10-digit mobile no"
                       className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
                       style={{
-                        backgroundColor: 'var(--paper)',
+                        backgroundColor: 'var(--paper-sunk)',
                         border: fieldErrors.phone ? '1.5px solid var(--error)' : '1px solid var(--border-subtle)',
                         color: 'var(--ink)',
                         '--tw-ring-color': fieldErrors.phone ? 'var(--error)' : 'var(--brass)',
@@ -496,7 +496,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     placeholder="Early check-in, dietary restrictions, extra towels…"
                     className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 resize-none transition-shadow"
                     style={{
-                      backgroundColor: 'var(--paper)',
+                      backgroundColor: 'var(--paper-sunk)',
                       border: '1px solid var(--border-subtle)',
                       color: 'var(--ink)',
                     }}
@@ -553,7 +553,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                           disabled={promoStatus === 'checking'}
                           className="w-full rounded-xl pl-9 pr-4 py-3 text-sm tracking-wider focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 transition-shadow"
                           style={{
-                            backgroundColor: 'var(--paper)',
+                            backgroundColor: 'var(--paper-sunk)',
                             border: promoStatus === 'invalid'
                               ? '1px solid rgba(179,38,30,0.5)'
                               : '1px solid var(--border-subtle)',
@@ -637,7 +637,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
               style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
             >
               <h2 className="text-lg font-bold pb-3" style={{ color: 'var(--maroon)', borderBottom: '1px solid var(--border-subtle)' }}>
-                Stay Summary
+                Booking Summary
               </h2>
 
               <div className="text-sm space-y-2.5">

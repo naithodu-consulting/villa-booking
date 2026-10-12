@@ -4,6 +4,25 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.1 - Cream ground, and the palette resynced to it - 2026-10-12
+
+### Palette
+- **Page ground is now cream** (`--paper` `#FBF8F3` → `#FFFCF0`).
+- **Sunk tones split into two tokens.** A recessed tone reads differently depending on what it sits on: against a white card its full warmth shows, against the cream page only the remainder does. The old single `--paper-sunk` was tuned for fields inside white cards, so on the cream ground it lost its warmth and read grey - the hero band on every inner page looked like faded newsprint. One value cannot satisfy both: neutral enough for white is grey on cream, warm enough for cream is yellow on white. `--paper-sunk` keeps its original `#F2EDE4` for fields and tiles inside cards; new `--paper-band` `#F9F3DE` carries the recessed bands that sit directly on the page (page heroes, section nav and its edge fades, the legal and confirmation banners, gallery placeholders, scrollbar track).
+- **Retired brand maroon removed.** `#5A2626`, replaced by `#5C1732` in the earlier palette migration, was still live in seven places: the primary button's shadow, the location map's radius disc, the announcement-bar dot, and the mobile nav's active and hover fills. The dot and the disc were mixing both maroons in a single element.
+
+### Checkout
+- **Form fields no longer vanish.** Guest name, email, mobile, special requests and coupon drew their fill from `--paper`, which is now the page ground, so each field read as a hole punched through the card rather than an input. They now use `--paper-sunk`, matching the booking widget's date fields - the same treatment for the same role across the flow.
+
+### Content
+- **Home page description extended** (migration 00080) and **"comfortably accommodating up to 14" set bold** (migration 00082).
+- **Homepage FAQs reduced to 6** (migration 00079); **driver room FAQ** now ends "It can be arranged upon prior request." (migration 00081); **amenity** reads "Washing machine & Refrigerator" (migration 00083).
+- **Room photographs replaced** for all four bedrooms.
+- **Rooms page**: "Fresh linens & towels provided" is now "Fresh Linens & Towels", with "Amenity Kit & Toiletries" added beneath it.
+- **Section nav** label "FAQ's" corrected to "FAQs"; the secondary CTA now reads "Homepage" rather than "Back to Overview".
+
+---
+
 ## v0.9.24 - Homepage FAQs, section nav label, and content additions - 2026-10-12
 
 ### Content
@@ -699,7 +718,7 @@ the FAQ promises under-5 free and 5-12 at 50%. The booking engine has no child p
 - **Header back to a single-line mark** at 72px. The desktop nav tightens at tablet width
   (768-1023px) so "The Villa" no longer wraps into the logo.
 - **Duplicate names removed:** the About hero no longer repeats the header's wordmark, the
-  journal cover label reads "Journal" under the mark, and the checkout Stay Summary shows the
+  journal cover label reads "Journal" under the mark, and the checkout Booking Summary shows the
   wordmark in place of the typed name.
 - **Share image** uses the wordmark instead of system-font "VILLA 19", on the new palette.
 
@@ -1177,7 +1196,7 @@ sans on the homepage. The rule now:
 - Room names are sans in both places; "Send an Enquiry", "Testimonials coming soon" and "Enquiry
   Received" moved to sans as card titles.
 - Unchanged and confirmed correct: "Room Breakdown" and the amenities dialog title stay serif; gallery
-  category labels, "Stay Details", "Stay Summary", "Emergency Contacts" and "Important Notes" stay sans.
+  category labels, "Stay Details", "Booking Summary", "Emergency Contacts" and "Important Notes" stay sans.
 
 ### One field style in the booking form
 

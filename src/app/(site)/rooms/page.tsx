@@ -160,7 +160,11 @@ export default async function RoomsPage() {
                     )}
                     <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
                       <Check className="w-3.5 h-3.5" aria-hidden="true" />
-                      <span>Fresh linens & towels provided</span>
+                      <span>Fresh Linens &amp; Towels</span>
+                    </div>
+                    <div className="flex items-center gap-2" style={{ color: 'var(--ink-muted)' }}>
+                      <Check className="w-3.5 h-3.5" aria-hidden="true" />
+                      <span>Amenity Kit &amp; Toiletries</span>
                     </div>
                   </div>
                 </div>

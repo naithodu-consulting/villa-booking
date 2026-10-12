@@ -29,7 +29,7 @@ export default async function TermsPage() {
       <section
         className="py-8 sm:py-10"
         style={{
-          backgroundColor: 'var(--paper-sunk)',
+          backgroundColor: 'var(--paper-band)',
           color: 'var(--ink)',
           borderBottom: '1px solid var(--border-subtle)',
         }}

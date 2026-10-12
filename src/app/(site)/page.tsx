@@ -295,8 +295,8 @@ export default async function LandingPage() {
                   className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                   style={{
                     width: '38%', aspectRatio: '1',
-                    backgroundColor: 'rgba(90,38,38,0.18)',
-                    border: '2px solid rgba(90,38,38,0.55)',
+                    backgroundColor: 'rgba(92,23,50,0.18)',
+                    border: '2px solid rgba(92,23,50,0.55)',
                   }}
                   aria-hidden="true"
                 />

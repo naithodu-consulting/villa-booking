@@ -126,7 +126,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
       <section
         className="py-16 sm:py-20 text-center"
         style={{
-          backgroundColor: 'var(--paper-sunk)',
+          backgroundColor: 'var(--paper-band)',
           color: 'var(--ink)',
           borderBottom: '1px solid var(--border-subtle)',
         }}
