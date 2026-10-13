@@ -58,12 +58,22 @@ export interface CancellationOutlook {
   lastRefundableAt?: string;
 }
 
-/** A calendar date and 24-hour time at the property, as an instant. */
-function istInstant(iso: string, time: string): Date {
-  const m = /^(\d{1,2}):(\d{2})/.exec(time.trim());
-  const hh = m ? m[1].padStart(2, '0') : '14';
-  const mm = m ? m[2] : '00';
-  return new Date(`${iso}T${hh}:${mm}:00+05:30`);
+/**
+ * Deadlines land at the end of the day *before* the tier's day, not at the
+ * check-in time.
+ *
+ * Counting back from a 2:00 pm check-in produced deadlines like "Wed 16 Sept,
+ * 2:00 pm": an arbitrary hour a guest has no reason to expect, and one that
+ * invites a dispute from anyone who cancels at 3pm that day. An end-of-day
+ * deadline is unambiguous, and taking the previous day means the stated
+ * deadline is always a little *earlier* than the policy's own, so the email
+ * can never promise less than we will honour.
+ */
+const DEADLINE_TIME = '11:59 pm';
+
+/** 23:59:59 at the property on the given date. */
+function endOfDayIST(iso: string): Date {
+  return new Date(`${iso}T23:59:59+05:30`);
 }
 
 /**
@@ -78,15 +88,14 @@ function istInstant(iso: string, time: string): Date {
  * So tiers are filtered against `asOf`, the moment the booking was made, and
  * what survives decides how the email speaks: a full ladder, a narrowed one
  * with the last refundable date called out, or a plain statement that nothing
- * is refundable.
+ * is refundable. The filter uses the same instant the guest is shown, so a
+ * surviving row can never carry a deadline that has already gone.
  *
  * Derived from CANCELLATION_TIERS rather than restating the windows, so a
  * change to the policy reaches the email without a second edit.
  */
 export function cancellationOutlook(
   checkIn: string,
-  /** 'HH:MM' at the property. */
-  checkInTime: string,
   totalPaise: number,
   /** When the booking was made, as an ISO timestamp. */
   asOf: string,
@@ -95,16 +104,12 @@ export function cancellationOutlook(
     long: (iso: string) => string;
     /** "21 Oct" */
     short: (iso: string) => string;
-    /** "14:00" to "2:00 pm" */
-    time: (t: string) => string;
   },
 ): CancellationOutlook {
-  const at = fmt.time(checkInTime);
   const booked = new Date(asOf);
-  const deadlineISO = (days: number) => addDaysISO(checkIn, -days);
-  // Inclusive: "30 or more days before" pays the top tier, so a booking made at
-  // the deadline itself could still be cancelled at that same moment for 100%.
-  const reachable = (days: number) => istInstant(deadlineISO(days), checkInTime) >= booked;
+  /** The tier's last full day: one before the day it counts back to. */
+  const deadlineISO = (days: number) => addDaysISO(checkIn, -(days + 1));
+  const reachable = (days: number) => endOfDayIST(deadlineISO(days)) >= booked;
 
   const refundable = CANCELLATION_TIERS.filter((t) => t.fraction > 0);
   const live = refundable.filter((t) => reachable(t.minDaysBefore));
@@ -115,15 +120,15 @@ export function cancellationOutlook(
   const rows: CancellationDeadline[] = live.map((tier, i) => {
     const prev = live[i - 1];
     const when = i === 0
-      ? `Until ${fmt.long(deadlineISO(tier.minDaysBefore))}, ${at}`
-      : `${fmt.short(deadlineISO(prev.minDaysBefore))} ${at} to ${fmt.short(deadlineISO(tier.minDaysBefore))} ${at}`;
+      ? `Until ${fmt.long(deadlineISO(tier.minDaysBefore))}, ${DEADLINE_TIME}`
+      : `${fmt.short(deadlineISO(prev.minDaysBefore))} ${DEADLINE_TIME} to ${fmt.short(deadlineISO(tier.minDaysBefore))} ${DEADLINE_TIME}`;
     return { when, refundPaise: Math.round(totalPaise * tier.fraction), amount: tier.amount };
   });
 
   // The closing row is what happens after the last refundable deadline.
   const zero = CANCELLATION_TIERS[CANCELLATION_TIERS.length - 1];
   rows.push({
-    when: `After ${fmt.long(deadlineISO(last.minDaysBefore))}, ${at}`,
+    when: `After ${fmt.long(deadlineISO(last.minDaysBefore))}, ${DEADLINE_TIME}`,
     refundPaise: 0,
     amount: zero.amount,
   });
@@ -131,7 +136,7 @@ export function cancellationOutlook(
   return {
     state: live.length === refundable.length ? 'full' : 'partial',
     rows,
-    lastRefundableAt: `${fmt.long(deadlineISO(last.minDaysBefore))}, ${at}`,
+    lastRefundableAt: `${fmt.long(deadlineISO(last.minDaysBefore))}, ${DEADLINE_TIME}`,
   };
 }
 

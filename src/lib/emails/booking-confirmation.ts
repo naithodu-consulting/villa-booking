@@ -168,8 +168,8 @@ export function renderBookingConfirmation(
   // Filtered against when the booking was actually made: a guest booking close
   // in must not be shown deadlines that passed before they paid.
   const refunds = cancellationOutlook(
-    c.checkIn, c.checkInTime, c.totalAmount, c.bookedAt,
-    { long: dateDayMonth, short: dateShort, time: time12 },
+    c.checkIn, c.totalAmount, c.bookedAt,
+    { long: dateDayMonth, short: dateShort },
   );
 
 

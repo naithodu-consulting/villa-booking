@@ -4,6 +4,27 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.8 - Refund deadlines land at end of day - 2026-10-13
+
+### Cancellation deadlines
+- **Deadlines are stated as 11:59 pm on the day before the tier's day**, not at the check-in time.
+  Counting back from a 2:00 pm check-in produced "Wed 16 Sept, 2:00 pm": an arbitrary hour a guest
+  has no reason to expect, and an invitation to dispute from anyone cancelling at 3pm that day.
+- **This narrows the window slightly, deliberately.** The stated deadline is now always a little
+  earlier than the policy's own, so the email can never promise more than will be honoured. A guest
+  who cancels inside the gap is better off than the email implied, never worse.
+- `cancellationOutlook` no longer takes a check-in time: a "days before" policy is a date
+  calculation, and the hour was an implementation detail leaking into guest-facing copy.
+- The reachability filter uses the same instant the guest is shown, so a surviving row can never
+  carry a deadline that has already passed.
+
+### Enquiry surface removed
+- **`EnquiryForm` and `POST /api/enquiries` deleted.** Both existed only to serve `/contact`, which
+  v1.7 retired, leaving a publicly reachable endpoint with no caller. The `enquiries` table is left
+  in place; dropping it needs a migration and is not reversible.
+
+---
+
 ## v1.7 - Refunds told truthfully, contact page retired - 2026-10-13
 
 ### The cancellation ladder now describes the guest's own booking
