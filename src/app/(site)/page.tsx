@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { ENTITY } from '@/lib/entity';
 import { pageMetadata, lodgingJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import Image from 'next/image';
@@ -346,7 +347,7 @@ export default async function LandingPage() {
             >
               <p className="text-base" style={{ color: 'var(--ink)' }}>
                 We are gathering our first verified reviews. In the meantime,{' '}
-                <a href={whatsappUrl ?? '/contact'} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>
+                <a href={whatsappUrl ?? `mailto:${ENTITY.email}`} className="font-semibold underline underline-offset-2" style={{ color: 'var(--brass)' }}>
                   {whatsappUrl ? 'message us on WhatsApp' : 'get in touch'}
                 </a>{' '}
                 and we will be happy to connect you with past guests.

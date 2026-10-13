@@ -1,5 +1,5 @@
 import { ENTITY } from '@/lib/entity';
-import { cancellationSchedule } from '@/lib/cancellation';
+import { cancellationOutlook, type CancellationOutlook } from '@/lib/cancellation';
 import { formatPhone } from '@/lib/format';
 import {
   esc, inr, dateTimeMedium, timestampDate, dateWithWeekday, dateDayMonth, dateShort,
@@ -82,6 +82,15 @@ const RULE = '#e9e0d6';
 const INK = '#2e2a28';
 const MUTED = '#73685f';
 const GREEN = '#2f6b45';
+/** The site's success token (--ok). Emails cannot read CSS variables. */
+const OK = '#2E7D5B';
+/** --error, and the deeper amber the admin notice already uses. */
+const RED = '#B3261E';
+const RED_TINT = '#FDF0EF';
+const RED_EDGE = '#EFC9C6';
+const AMBER = '#8a5a12';
+const AMBER_TINT = '#fdf2e3';
+const AMBER_EDGE = '#e6cfa8';
 
 const SANS = 'Helvetica,Arial,sans-serif';
 // Single quotes: these stacks are interpolated into style="..." attributes, and
@@ -103,8 +112,8 @@ function rule(): string {
 /** A label/value row in the details list. */
 function detailRow(label: string, value: string, sub?: string): string {
   return `<tr>
-    <td style="padding:7px 0;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">${esc(label)}</td>
-    <td style="padding:7px 0;font-family:${SANS};font-size:14px;color:${INK};vertical-align:top;">${value}${
+    <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">${esc(label)}</td>
+    <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${INK};vertical-align:top;">${value}${
       sub ? `<br><span style="color:${MUTED};font-size:13px;">${esc(sub)}</span>` : ''
     }</td>
   </tr>`;
@@ -113,8 +122,8 @@ function detailRow(label: string, value: string, sub?: string): string {
 /** A line in the payment breakdown. `tone` colours a discount green. */
 function payRow(label: string, amount: string, tone?: 'credit'): string {
   return `<tr>
-    <td style="padding:7px 0;font-family:${SANS};font-size:14px;color:${INK};">${label}</td>
-    <td style="padding:7px 0;font-family:${SANS};font-size:14px;color:${tone === 'credit' ? GREEN : INK};text-align:right;white-space:nowrap;">${esc(amount)}</td>
+    <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${INK};">${label}</td>
+    <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${tone === 'credit' ? GREEN : INK};text-align:right;white-space:nowrap;">${esc(amount)}</td>
   </tr>`;
 }
 
@@ -156,8 +165,11 @@ export function renderBookingConfirmation(
       c.paidInFull ? `${inr(c.totalAmount)} paid in full` : `${inr(balanceDue)} balance due`
     }`;
 
-  const refunds = cancellationSchedule(
-    c.checkIn, checkInAt, c.totalAmount, dateDayMonth, dateShort,
+  // Filtered against when the booking was actually made: a guest booking close
+  // in must not be shown deadlines that passed before they paid.
+  const refunds = cancellationOutlook(
+    c.checkIn, c.checkInTime, c.totalAmount, c.bookedAt,
+    { long: dateDayMonth, short: dateShort, time: time12 },
   );
 
 
@@ -194,7 +206,7 @@ export function renderBookingConfirmation(
   <!-- Header -->
   <tr><td class="pad" style="background:${MAROON};padding:30px 36px 34px;text-align:center;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
-      <td width="34" height="34" align="center" style="width:34px;height:34px;background:#ffffff;border-radius:17px;font-family:${SANS};font-size:17px;color:${MAROON};line-height:34px;">&#10003;</td>
+      <td width="34" height="34" align="center" style="width:34px;height:34px;background:${OK};border-radius:17px;font-family:${SANS};font-size:19px;font-weight:bold;color:#ffffff;line-height:34px;">&#10003;</td>
     </tr></table>
     <h1 style="margin:16px 0 6px;font-family:${SERIF};font-size:28px;font-weight:normal;color:#ffffff;">Your booking is confirmed</h1>
     <p style="margin:0;font-family:${SANS};font-size:14px;color:rgba(255,255,255,0.78);">${esc(stayLine)}</p>
@@ -264,8 +276,8 @@ export function renderBookingConfirmation(
       ${c.taxAmount > 0 ? payRow(gstLabel(c.taxAmount, taxable), inr(c.taxAmount)) : ''}
       <tr><td colspan="2" style="padding:4px 0 0;"><div style="height:1px;background:${RULE};"></div></td></tr>
       <tr>
-        <td style="padding:11px 0 2px;font-family:${SANS};font-size:16px;font-weight:bold;color:${INK};">Total</td>
-        <td style="padding:11px 0 2px;font-family:${SANS};font-size:16px;font-weight:bold;color:${INK};text-align:right;white-space:nowrap;">${esc(inr(c.totalAmount))}</td>
+        <td style="padding:9px 0 2px;font-family:${SANS};font-size:16px;font-weight:bold;color:${INK};">Total</td>
+        <td style="padding:9px 0 2px;font-family:${SANS};font-size:16px;font-weight:bold;color:${INK};text-align:right;white-space:nowrap;">${esc(inr(c.totalAmount))}</td>
       </tr>
       <tr>
         <td style="padding:0 0 4px;font-family:${SANS};font-size:13px;color:${MUTED};">Paid ${esc(timestampDate(c.bookedAt))}${c.paymentMethod ? ` · ${esc(c.paymentMethod)}` : ''}</td>
@@ -303,27 +315,42 @@ export function renderBookingConfirmation(
       ${step(2, 'Need anything before then?',
         `Just ${c.whatsappNumber
           ? `<a href="https://wa.me/${esc(c.whatsappNumber.replace(/\D/g, ''))}" style="color:${MAROON};font-weight:bold;">WhatsApp</a>`
-          : 'WhatsApp'} us. We&#39;re usually available during the day and aim to respond within an hour. Plans changed? Review our <a href="${esc(c.cancellationUrl)}" style="color:${MAROON};font-weight:bold;">cancellation policy</a> for details.`)}
+          : 'WhatsApp'} us. We&#39;re usually available during the day and aim to respond within an hour.`)}
     </table>
 
     ${rule()}
 
     <!-- Cancellation -->
-    ${sectionLabel('If your plans change')}
+    ${sectionLabel('Cancellations & refund')}
+    ${refunds.state === 'none' ? `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${RED_TINT};border:1px solid ${RED_EDGE};border-radius:10px;">
+      <tr><td style="padding:13px 16px;font-family:${SANS};font-size:14px;font-weight:bold;color:${RED};">This booking is non-refundable.</td></tr>
+    </table>` : `
+    ${refunds.state === 'partial' ? `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${AMBER_TINT};border:1px solid ${AMBER_EDGE};border-radius:10px;margin-bottom:12px;">
+      <tr><td style="padding:13px 16px;font-family:${SANS};font-size:14px;line-height:1.5;color:${AMBER};">
+        <strong>This booking may be eligible for a refund</strong> if cancelled on or before ${esc(refunds.lastRefundableAt ?? '')}.
+      </td></tr>
+    </table>` : ''}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:${CARD};border:1px solid ${RULE};border-radius:10px;">
-      ${refunds.map((r, i) => `<tr>
-        <td style="padding:${i === 0 ? '13px' : '9px'} 14px ${i === refunds.length - 1 ? '13px' : '9px'};font-family:${SANS};font-size:13px;color:${INK};">${esc(r.when)}</td>
-        <td style="padding:${i === 0 ? '13px' : '9px'} 14px ${i === refunds.length - 1 ? '13px' : '9px'};font-family:${SANS};font-size:13px;color:${INK};text-align:right;">${
+      ${refunds.rows.map((r, i) => `<tr>
+        <td style="padding:${i === 0 ? '11px' : '6px'} 14px ${i === refunds.rows.length - 1 ? '11px' : '6px'};font-family:${SANS};font-size:13px;color:${INK};">${esc(r.when)}</td>
+        <td style="padding:${i === 0 ? '11px' : '6px'} 14px ${i === refunds.rows.length - 1 ? '11px' : '6px'};font-family:${SANS};font-size:13px;color:${INK};text-align:right;">${
           r.refundPaise > 0
             ? `<strong style="white-space:nowrap;">${esc(inr(r.refundPaise))}</strong> will be refunded`
             : '<span style="white-space:nowrap;">No refund</span>'
         }</td>
       </tr>`).join('')}
-    </table>
-    <p style="margin:10px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:${MUTED};">
-      To cancel, write to <a href="mailto:${esc(ENTITY.email)}" style="color:${MUTED};">${esc(ENTITY.email)}</a> with your booking reference.
+    </table>`}
+    <p style="margin:10px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:${MUTED};">${
+      // Nothing is coming back, so a refund address and a processing time would
+      // contradict the line directly above it.
+      refunds.state === 'none'
+        ? `Refer to our <a href="${esc(c.cancellationUrl)}" style="color:${MAROON};font-weight:bold;">Cancellation Policy</a> for more details.`
+        : `For cancellations, email us at <a href="mailto:${esc(ENTITY.email)}" style="color:${MAROON};font-weight:bold;">${esc(ENTITY.email)}</a> with your booking reference.
       Approved refunds are generally processed to the original payment method within 5 to 7 working days.
-    </p>
+      Refer to our <a href="${esc(c.cancellationUrl)}" style="color:${MAROON};font-weight:bold;">Cancellation Policy</a> for more details.`
+    }</p>
 
     ${rule()}
 
@@ -331,8 +358,8 @@ export function renderBookingConfirmation(
     ${sectionLabel('If you need us')}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       ${c.whatsappNumber ? `<tr>
-        <td style="padding:0 0 12px;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">WhatsApp</td>
-        <td style="padding:0 0 12px;vertical-align:top;">
+        <td style="padding:0 0 8px;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">WhatsApp</td>
+        <td style="padding:0 0 8px;vertical-align:top;">
           <a href="https://wa.me/${esc(c.whatsappNumber.replace(/\D/g, ''))}" style="font-family:${SANS};font-size:14px;color:${MAROON};font-weight:bold;">${esc(formatPhone(c.whatsappNumber))}</a>
           <br><span style="font-family:${SANS};font-size:13px;color:${MUTED};">The fastest way to reach us.</span>
         </td>
@@ -358,7 +385,7 @@ export function renderBookingConfirmation(
       CIN: ${esc(ENTITY.cin)}<br>
       GSTIN: ${esc(ENTITY.gstin)}
     </p>
-    <p style="margin:12px 0 0;font-family:${SANS};font-size:11px;color:${MUTED};">You are receiving this because you booked a stay with us.</p>
+    <p style="margin:12px 0 0;font-family:${SANS};font-size:11px;color:${MUTED};">You are receiving this email because you have booked a stay with us.</p>
   </td></tr>
 
 </table>
@@ -383,7 +410,7 @@ function renderText(
   c: BookingConfirmationContext,
   v: {
     checkInAt: string; checkOutAt: string; firstName: string; phone: string;
-    stayLine: string; refunds: { when: string; refundPaise: number }[];
+    stayLine: string; refunds: CancellationOutlook;
     taxable: number; balanceDue: number;
   },
 ): string {
@@ -438,16 +465,26 @@ function renderText(
     '2. Need anything before then?',
     `   Just WhatsApp us${c.whatsappNumber ? ` on ${formatPhone(c.whatsappNumber)}` : ''}. We are usually available during the day`,
     '   and aim to respond within an hour.',
-    `   Plans changed? Review our cancellation policy: ${c.cancellationUrl}`,
     '',
-    'IF YOUR PLANS CHANGE',
-    ...v.refunds.map((r) =>
-      `  ${r.when} - ${r.refundPaise > 0 ? `${inr(r.refundPaise)} will be refunded` : 'no refund'}`),
+    'CANCELLATIONS & REFUND',
+    ...(v.refunds.state === 'none'
+      ? ['This booking is non-refundable.',
+         `Refer to our Cancellation Policy for more details: ${c.cancellationUrl}`]
+      : [
+          ...(v.refunds.state === 'partial'
+            ? [`This booking may be eligible for a refund if cancelled on or before ${v.refunds.lastRefundableAt}.`, '']
+            : []),
+          ...v.refunds.rows.map((r) =>
+            `  ${r.when} - ${r.refundPaise > 0 ? `${inr(r.refundPaise)} will be refunded` : 'no refund'}`),
+        ]),
     '',
-    `To cancel, write to ${ENTITY.email} with your booking reference. Approved`,
-    'refunds are generally processed to the original payment method within 5 to 7',
-    'working days.',
-    '',
+    ...(v.refunds.state === 'none' ? [] : [
+      `For cancellations, email us at ${ENTITY.email} with your booking reference.`,
+      'Approved refunds are generally processed to the original payment method',
+      'within 5 to 7 working days.',
+      `Refer to our Cancellation Policy for more details: ${c.cancellationUrl}`,
+      '',
+    ]),
     'IF YOU NEED US',
     ...(c.whatsappNumber ? [`WhatsApp: ${formatPhone(c.whatsappNumber)}`] : []),
     `Email: ${ENTITY.email}`,

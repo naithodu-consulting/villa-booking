@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { ENTITY } from '@/lib/entity';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { ShieldCheck, Heart, Headphones, Star } from 'lucide-react';
@@ -107,7 +108,7 @@ export default function AboutPage() {
             Ready to experience it?
           </h2>
           <p className="text-white/70 text-base">Book Villa 19 directly. No platform fees, personal host service.</p>
-          <CtaButtons secondary={{ href: '/contact', label: 'Contact Us' }} />
+          <CtaButtons secondary={{ href: `mailto:${ENTITY.email}`, external: true, label: 'Email Us' }} />
         </section>
 
       </div>

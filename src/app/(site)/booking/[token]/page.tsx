@@ -48,6 +48,11 @@ const STATUS_LABEL: Record<PageState, string> = {
 
 const inr = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
 
+/** "Aadhaar, Passport, or Driving Licence" from the shared list. */
+const acceptedIdsLine = ACCEPTED_ID_TYPES.length > 1
+  ? `${ACCEPTED_ID_TYPES.slice(0, -1).join(', ')}, or ${ACCEPTED_ID_TYPES[ACCEPTED_ID_TYPES.length - 1]}`
+  : ACCEPTED_ID_TYPES[0];
+
 /** "20260928T140000", the local-time form Google Calendar takes with ctz. */
 const calStamp = (date: string, time: string) => `${date.replace(/-/g, '')}T${time.replace(':', '').padEnd(4, '0')}00`;
 
@@ -206,27 +211,13 @@ export default async function BookingConfirmationPage({ params }: Props) {
                   ) : (
                     <>
                       <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                        For a smooth check-in, a valid government-issued photo ID is required for <strong style={{ color: 'var(--ink)' }}>each adult guest</strong>. Please send a photo of each ID to us on WhatsApp before your arrival.
-                      </p>
-                      <div>
-                        <p className={`${LABEL_CLASS} mb-2`} style={{ color: 'var(--ink-muted)' }}>Accepted IDs</p>
-                        <ul className="flex flex-wrap gap-2 text-sm" aria-label="Accepted ID documents">
-                          {ACCEPTED_ID_TYPES.map((t) => (
-                            <li
-                              key={t}
-                              className="px-3 py-1.5 rounded-full"
-                              style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)', color: 'var(--ink)' }}
-                            >
-                              {t}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                        Sharing your IDs in advance helps us complete the verification process before you arrive and makes check-in quicker.
+                        For a smooth check-in, please <strong style={{ color: 'var(--ink)' }}>share</strong> a valid <strong style={{ color: 'var(--ink)' }}>government-issued photo ID</strong> for <strong style={{ color: 'var(--ink)' }}>each adult guest</strong> with us on WhatsApp before arrival.
                       </p>
                       <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                        <strong style={{ color: 'var(--ink)' }}>Please send ID documents only via WhatsApp. Do not email them.</strong> ID documents are not stored on this website.
+                        <strong style={{ color: 'var(--ink)' }}>Accepted IDs:</strong> {acceptedIdsLine}.
+                      </p>
+                      <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
+                        Sharing these in advance helps us complete the check-in formalities before you arrive.
                       </p>
                     </>
                   )}
@@ -237,7 +228,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
                   href={idShareUrl}
                   className="btn-brass-filled flex items-center justify-center gap-2 py-3.5 rounded-2xl"
                 >
-                  {booking.id_status === 'received' ? 'Send more IDs on WhatsApp' : 'Send IDs on WhatsApp'}
+                  {booking.id_status === 'received' ? 'Share more on WhatsApp' : 'Share on WhatsApp'}
                 </ExternalLink>
               ) : (
                 <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
@@ -358,7 +349,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
                     {' '}us. We&apos;re usually available during the day and aim to respond within an hour.{' '}
                     Plans changed? Review our{' '}
                     <Link href="/cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
-                      cancellation policy
+                      Cancellation Policy
                     </Link>
                     {' '}for details.
                   </p>
@@ -377,7 +368,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
 
         {/* ── Back to home ─────────────────────────────── */}
         <Link href="/" className="btn-secondary btn-secondary-solid w-full py-3.5 rounded-2xl">
-          Back to Home
+          Homepage
         </Link>
 
       </div>

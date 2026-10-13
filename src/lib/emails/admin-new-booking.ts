@@ -200,7 +200,7 @@ export function renderAdminNewBooking(
         : payRow('Balance due', inr(Math.max(0, c.totalAmount - c.amountPaidPaise)), true)}
     </table>
 
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;"><tr>
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:20px auto 0;"><tr>
       <td style="background:${MAROON};border-radius:8px;">
         <a href="${esc(c.bookingUrl)}" style="display:inline-block;padding:11px 24px;font-family:${SANS};font-size:14px;font-weight:bold;color:#ffffff;text-decoration:none;">Open the booking</a>
       </td>

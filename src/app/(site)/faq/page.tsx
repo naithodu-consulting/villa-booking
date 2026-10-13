@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { ENTITY } from '@/lib/entity';
 import { pageMetadata, breadcrumbJsonLd, faqJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import PageHero from '@/components/layout/PageHero';
@@ -20,6 +21,9 @@ export default async function FaqPage() {
   const property = await getProperty();
   if (!property) notFound();
   const faqs = await getFAQs(property.id);
+  const whatsappUrl = property.whatsapp_number
+    ? `https://wa.me/${property.whatsapp_number}?text=${encodeURIComponent(`Hi, I have a question about ${property.name}`)}`
+    : undefined;
 
   // Sections in the order their first question appears (display_order).
   const sections = faqs.reduce<{ name: string; items: FAQ[] }[]>((acc, f) => {
@@ -58,7 +62,11 @@ export default async function FaqPage() {
             Still have questions?
           </h2>
           <p className="text-white/70 text-base">We are happy to help before and during your stay.</p>
-          <CtaButtons secondary={{ href: '/contact', label: 'Contact Us' }} />
+          <CtaButtons
+            secondary={whatsappUrl
+              ? { href: whatsappUrl, external: true, label: 'WhatsApp Us' }
+              : { href: `mailto:${ENTITY.email}`, external: true, label: 'Email Us' }}
+          />
         </section>
       </div>
     </div>

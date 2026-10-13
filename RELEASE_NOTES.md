@@ -4,6 +4,51 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.7 - Refunds told truthfully, contact page retired - 2026-10-13
+
+### The cancellation ladder now describes the guest's own booking
+- **Tiers are filtered against when the booking was made.** The ladder was rendered in full from
+  the check-in date alone, so a guest booking close in was shown deadlines that had passed before
+  they paid: a stay booked three days out still advertised "₹37,760 refunded until 16 Sept", a
+  date from the previous month. Technically true of the policy, and materially misleading about
+  their own booking.
+- **Three states**, decided by which tiers are still reachable. `cancellationSchedule` is replaced
+  by `cancellationOutlook`, which takes the booking timestamp and returns the state with only the
+  live rows:
+  - **full** - the whole ladder, as before;
+  - **partial** - an amber note naming the last refundable moment, then the surviving rows, with
+    the top one relabelled "Until …" rather than starting mid-ladder;
+  - **none** - a red "This booking is non-refundable." and no table at all.
+- **The closing paragraph follows the state.** A non-refundable booking no longer carries a refund
+  address or a "processed within 5 to 7 working days" promise, which contradicted the line above
+  it; it links to the Cancellation Policy instead. Every state now carries exactly one policy link.
+- **Boundary fixed**: the deadline comparison was strict, so a booking made at the exact 30-day
+  deadline lost the top tier despite the policy reading "30 or more days before". Now inclusive,
+  with tests covering both sides of each deadline.
+- Section renamed **Cancellations & refund**, and every link in the email is maroon; two in this
+  section were muted.
+
+### Contact page retired
+- **`/contact` returns 404**, with its enquiry form. Guests already reach us by WhatsApp from the
+  header and sticky bar, and by phone and email in the footer; the page was a fourth and slowest
+  path. Unlike `/about`, the body is not kept behind the `notFound()`: the page narrowed a nullable
+  property inside JSX, and code after a never-returning call is unreachable, where TypeScript drops
+  that narrowing. Restore from git history if it comes back.
+- **Six links redirected** so nothing routes into the 404: the header nav entry and the sitemap are
+  gone, and the homepage, FAQ, Events, Stay Guide and About calls to action fall back to
+  `mailto:` instead. The FAQ one mattered most, having linked to `/contact` unconditionally.
+- `EnquiryForm` and `POST /api/enquiries` are now orphaned. Left in place pending a decision.
+
+### Smaller things
+- **Razorpay checkout shows "Villa 19"**, not "Villa 19 by Habbaa".
+- **The confirmation's tick is white on green** (`--ok`), was maroon on white, and a point larger
+  so it holds up reversed out of colour.
+- **The admin notice's "Open the booking" button is centred.**
+- **A stray `r` fixed** in the cancellation paragraph, which rendered the refund address as
+  `rreservations@habbaa.com` in every confirmation.
+
+---
+
 ## v1.6 - Host notification rebuilt, cream bands corrected - 2026-10-13
 
 ### New-booking notice to the host

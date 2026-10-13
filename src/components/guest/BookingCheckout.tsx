@@ -267,7 +267,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
           order_id:  razorpayOrderId,
           amount,
           currency:  'INR',
-          name:      `${property.name} by Habbaa`,
+          name:      property.name,
           description: `Stay: ${checkIn} to ${checkOut}`,
           prefill: { name: guestName, email: guestEmail, contact: guestPhone },
           theme: { color: '#5A2626' },

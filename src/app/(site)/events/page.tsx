@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import { ENTITY } from '@/lib/entity';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { Users, Music, Briefcase, Heart, Check } from 'lucide-react';
@@ -189,7 +190,7 @@ export default async function EventsPage() {
           <CtaButtons
             secondary={whatsappUrl
               ? { href: whatsappUrl, external: true, label: <><WhatsAppIcon className="w-4 h-4" /> Enquire on WhatsApp</> }
-              : { href: '/contact', label: 'Contact Us' }}
+              : { href: `mailto:${ENTITY.email}`, external: true, label: 'Email Us' }}
           />
         </section>
 

@@ -5,7 +5,7 @@
  * no dates. The link text passes through WhatsApp's servers and the guest's
  * browser history, so it holds nothing a booking number does not already say.
  */
-export const ACCEPTED_ID_TYPES = ['Aadhaar', 'Passport', 'Driving licence'] as const;
+export const ACCEPTED_ID_TYPES = ['Aadhaar', 'Passport', 'Driving Licence'] as const;
 
 export function idShareWhatsAppUrl(whatsappNumber: string, bookingCode: string, adults: number): string {
   const count = adults === 1 ? '1 adult' : `${adults} adults`;

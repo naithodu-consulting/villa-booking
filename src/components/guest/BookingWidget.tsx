@@ -361,7 +361,7 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
           </button>
 
           <p className="text-center text-xs text-[var(--ink-muted)]">
-            No platform fees · Best rate guaranteed
+            Secure booking · No hidden fees
           </p>
         </form>
       </div>
