@@ -12,8 +12,23 @@ import { guestLinkBase } from '@/lib/origin';
  *
  * No GST invoice is attached: the invoice number is still issued here by the
  * database trigger, but the document itself belongs to the post-check-out mail.
+ *
+ * Never throws. Both callers run this inside the try that answers the payment,
+ * so an unreachable mail provider would otherwise turn a captured payment into
+ * a 500: the guest would see the booking fail despite being charged, and the
+ * Razorpay webhook would retry an already-confirmed booking. The booking is
+ * already confirmed by the time this runs, so a failed email is logged and
+ * resent by hand rather than allowed to undo any of that.
  */
 export async function notifyConfirmedBooking(supabase: SupabaseClient, bookingId: string, channel: string) {
+  try {
+    await sendConfirmationEmails(supabase, bookingId, channel);
+  } catch (err) {
+    console.error(`[notify] Emails for booking ${bookingId} failed; the booking stands:`, err);
+  }
+}
+
+async function sendConfirmationEmails(supabase: SupabaseClient, bookingId: string, channel: string) {
   const { data: b } = await supabase
     .from('bookings')
     .select('origin_url, booking_code, reference_number, access_token, payment_status, guest_name, guest_email, guest_phone, check_in, check_out, num_nights, num_adults, num_children, base_amount, extra_guest_amount, discount_amount, discount_code, tax_amount, total_amount, special_requests, confirmed_at, created_at, properties(name, address, city, state, check_in_time, check_out_time, base_occupancy)')

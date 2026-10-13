@@ -5,34 +5,28 @@
       send-only (restricted), so it cannot list domains — that is intentional.
 - [ ] Refund confirmation email — wire in `POST /api/bookings/webhook` `refund.processed` handler once Resend is live (see `src/lib/email.ts`)
 
-### Sender domain — BLOCKER, nothing sends in production until this is done
-Resend currently rejects every send: `403 The habbaa.com domain is not verified`. Only
-`villa19.in` is verified in the Resend account, and that is the new production website domain,
-not a mail domain.
+### Sender domain — resolved 2026-10-13
+`habbaa.com` itself is verified in Resend (not a subdomain), so
+`reservations@habbaa.com` sends. Confirmed by a real send through the production
+code path, not just a rendered preview.
 
-Decided approach (2026-10-13): verify a **subdomain of habbaa.com** in Resend.
+- [x] `habbaa.com` verified in Resend.
+- [x] `RESEND_FROM_EMAIL=Villa 19 by Habbaa <reservations@habbaa.com>` in `.env.local`.
+- [ ] Set `RESEND_API_KEY` and `RESEND_FROM_EMAIL` in every Vercel environment. Without the key,
+      `send()` takes its `RESEND_API_KEY not set, skipping send` branch: no email, no error, and
+      nothing in the Resend dashboard to show for it.
+- [x] `reply_to` points at `reservations@habbaa.com` (`src/lib/email.ts`). Redundant while the
+      sender is the same mailbox, but `RESEND_FROM_EMAIL` is configurable and the two drifted
+      apart once already.
 
-- [ ] Verify `villa19.habbaa.com` in Resend (it has no DNS records today, so it is free to use).
-- [ ] Set `RESEND_FROM_EMAIL=Villa 19 by Habbaa <reservations@villa19.habbaa.com>` in
-      `.env.local` and in every Vercel environment.
-- [ ] Keep `reply_to` pointing at `reservations@habbaa.com` (already wired in `src/lib/email.ts`).
-      It is load-bearing: the From address is on the subdomain, the inbox is on the root.
+DMARC on `habbaa.com` is `p=reject` with `adkim=s; aspf=s`. That works here because DKIM signs
+`d=habbaa.com`, matching the From domain exactly. It is also why sending from a subdomain while
+keeping a root From address would have been **rejected**, not junked — worth remembering before
+anyone changes the sender.
 
-Why not send from `reservations@habbaa.com` off a `villa19.habbaa.com` verification:
-1. Resend requires the From domain to be a verified entry. Verifying a child grants nothing
-   for the parent.
-2. `habbaa.com` publishes `v=DMARC1; p=reject; adkim=s; aspf=s`. Strict DKIM alignment means the
-   signing domain must equal the From domain exactly, so a root From signed by the subdomain
-   fails DMARC and is **rejected**, not junked.
-
-To send from the root `reservations@habbaa.com` instead, `habbaa.com` itself must be verified:
-add Resend's DKIM record, and **merge** Resend's include into the single existing SPF record
-(`v=spf1 include:_spf.google.com include:shops.shopify.com ~all`). A second SPF TXT record would
-break Google Workspace and Shopify mail as well.
-
-- [ ] Fix the DMARC `rua` on `habbaa.com`: it currently points at
-      `postmaster@example.com` / `dmarc@example.com` — placeholder addresses, so all aggregate
-      reports are discarded and DMARC failures are invisible under `p=reject`.
+- [ ] Fix the DMARC `rua` on `habbaa.com`: it points at `postmaster@example.com` /
+      `dmarc@example.com` — placeholder addresses, so all aggregate reports are discarded and
+      DMARC failures are invisible under `p=reject`.
 
 ### Post-checkout GST invoice email — not built
 The booking confirmation no longer carries the invoice (removed 2026-10-13): the invoice is

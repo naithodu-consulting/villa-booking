@@ -101,6 +101,11 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
   `light only`, with `supported-color-schemes` and a matching `:root` rule.
 
 ### Fixes
+- **A failed guest email can no longer undo a captured payment.** `notifyConfirmedBooking` is
+  called inside the try block that answers the payment in both confirmation paths, so a thrown
+  `fetch` (Resend unreachable, DNS failure) would have returned a 500: the guest would see the
+  booking fail despite being charged, and Razorpay would retry an already-confirmed booking. It
+  now logs its own failures and never throws.
 - **Two `react/no-unescaped-entities` lint errors fixed** on the booking confirmation page
   (`we'll`, `We're` → `&apos;`). `npx eslint src` was exiting non-zero before this.
 - **Migration `00028` no longer breaks a from-scratch database.** It inserted the lounge room
