@@ -62,6 +62,8 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
   `light only`, with `supported-color-schemes` and a matching `:root` rule.
 
 ### Fixes
+- **Two `react/no-unescaped-entities` lint errors fixed** on the booking confirmation page
+  (`we'll`, `We're` → `&apos;`). `npx eslint src` was exiting non-zero before this.
 - **Migration `00028` no longer breaks a from-scratch database.** It inserted the lounge room
   referencing a property that only `seed.sql` creates, and Supabase applies migrations before
   seeds, so `supabase db reset` aborted there: migrations `00028` onward never applied locally

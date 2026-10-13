@@ -322,7 +322,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
                 <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon)' }}>1</span>
                 <div>
                   <p className="font-semibold" style={{ color: 'var(--ink)' }}>Before you arrive</p>
-                  <p className="mt-0.5">Around 24 hours before check-in, we'll send the exact address, directions and access instructions to you on WhatsApp.</p>
+                  <p className="mt-0.5">Around 24 hours before check-in, we&apos;ll send the exact address, directions and access instructions to you on WhatsApp.</p>
                 </div>
               </li>
               <li className="flex gap-3">
@@ -340,7 +340,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
                         WhatsApp
                       </ExternalLink>
                     ) : 'WhatsApp'}
-                    {' '}us. We're usually available during the day and aim to respond within an hour.{' '}
+                    {' '}us. We&apos;re usually available during the day and aim to respond within an hour.{' '}
                     Plans changed? Review our{' '}
                     <Link href="/cancellation" className="font-semibold underline" style={{ color: 'var(--maroon)' }}>
                       cancellation policy
