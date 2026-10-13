@@ -257,7 +257,7 @@ export function renderBookingConfirmation(
       ${detailRow('Mobile', esc(phone))}
     </table>
     <p style="margin:10px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:${MUTED};">
-      We will send the villa&#39;s address and check-in details to this mobile number on WhatsApp.
+      We will send the exact address and check-in details to this mobile number on WhatsApp.
       If the email or mobile number mentioned above is wrong, please let us know.
     </p>
     ${c.additionalGuestsNote ? `<p style="margin:14px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:#5d5550;background:${CARD};border:1px solid ${RULE};border-radius:8px;padding:12px 14px;">Additional guests are accommodated using mattresses in select bedrooms and the lounge.</p>` : ''}
@@ -436,7 +436,7 @@ function renderText(
     `Email      ${c.guestEmail}`,
     `Mobile     ${v.phone}`,
     '',
-    'We will send the villa\'s address and check-in details to this mobile number',
+    'We will send the exact address and check-in details to this mobile number',
     'on WhatsApp. If the email or mobile number mentioned above is wrong, please',
     'let us know.',
     '',

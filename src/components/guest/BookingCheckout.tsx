@@ -338,7 +338,21 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
   }
 
   // ── Param error screen: dates were supplied but do not make sense ─────
-  if (paramError) {
+  //
+  // Not once payment is under way, and not over a server error.
+  //
+  // The availability refresh on visibilitychange fires when a guest returns
+  // from their UPI app, and by then their own just-confirmed booking holds
+  // those nights. Without the isProcessing guard the page answered a successful
+  // payment with "Some of those nights are already booked" while the redirect
+  // to the confirmation was still in flight.
+  //
+  // serverError matters for the same reason one step later: if verification
+  // fails but the Razorpay webhook confirms the booking anyway, isProcessing is
+  // back to false and the nights are genuinely taken, so this card would hide
+  // the real message behind an availability one. serverError only renders
+  // inside the form below, so it has to win here.
+  if (paramError && !isProcessing && !serverError) {
     return (
       <>
       <CheckoutHeader property={property} />

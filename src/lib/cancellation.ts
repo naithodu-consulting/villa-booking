@@ -70,6 +70,8 @@ export interface CancellationOutlook {
  * can never promise less than we will honour.
  */
 const DEADLINE_TIME = '11:59 pm';
+/** The instant after a deadline, for the window that takes over from it. */
+const WINDOW_OPENS = '12:00 am';
 
 /** 23:59:59 at the property on the given date. */
 function endOfDayIST(iso: string): Date {
@@ -121,7 +123,9 @@ export function cancellationOutlook(
     const prev = live[i - 1];
     const when = i === 0
       ? `Until ${fmt.long(deadlineISO(tier.minDaysBefore))}, ${DEADLINE_TIME}`
-      : `${fmt.short(deadlineISO(prev.minDaysBefore))} ${DEADLINE_TIME} to ${fmt.short(deadlineISO(tier.minDaysBefore))} ${DEADLINE_TIME}`;
+      // Opens the morning after the previous tier closed, rather than restating
+      // the same instant as both an end and a beginning.
+      : `${fmt.short(addDaysISO(deadlineISO(prev.minDaysBefore), 1))} ${WINDOW_OPENS} to ${fmt.short(deadlineISO(tier.minDaysBefore))} ${DEADLINE_TIME}`;
     return { when, refundPaise: Math.round(totalPaise * tier.fraction), amount: tier.amount };
   });
 

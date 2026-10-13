@@ -4,6 +4,40 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.9 - ID sharing inline, checkout error precedence - 2026-10-13
+
+### Booking confirmation page
+- **The brass "Share on WhatsApp" button is gone.** The action now lives in the sentence that
+  closes the ID card: "Share IDs on **WhatsApp** in advance to help us complete the check-in
+  formalities before you arrive." Only the word WhatsApp is the link, matching the inline links
+  already used further down the page. The `id_status === 'received'` variant carries the same link,
+  and the no-WhatsApp-number case still falls back to its note, so the card is never left without
+  an instruction.
+- **Accepted IDs read as a sentence** rather than a chip row, built from `ACCEPTED_ID_TYPES` so the
+  list stays in one place. The constant's casing moved to "Driving Licence" to match the copy.
+- **The Homepage button is now `btn-primary`** — maroon with white text, like every other closing
+  action on the site, instead of the white outlined secondary.
+
+### Checkout error precedence
+- **The "nights already booked" screen no longer hides a payment in flight or a server error.**
+  The availability refresh on `visibilitychange` fires when a guest returns from their UPI app, and
+  by then their own just-confirmed booking holds those nights, so a successful payment was being
+  answered with "Some of those nights are already booked" while the redirect was still running.
+  The param-error screen now yields to `isProcessing` and to `serverError`, the latter because a
+  failed verification that the webhook later confirms leaves the nights genuinely taken.
+
+### Cancellation ladder
+- **Each window opens the morning after the previous one closed** instead of restating the same
+  instant as both an end and a beginning: "16 Sep 12:00 am to 30 Sep 11:59 pm".
+
+### Confirmation email
+- **Row spacing tightened** across the stay details, the payment breakdown, the refund ladder and
+  the contact block. Every cell carried 7px top and bottom, so adjacent rows sat 14px apart.
+- **"the villa's address" is now "the exact address"**, matching the wording used on the
+  confirmation page and in the WhatsApp message.
+
+---
+
 ## v1.8 - Refund deadlines land at end of day - 2026-10-13
 
 ### Cancellation deadlines

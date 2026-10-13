@@ -206,7 +206,12 @@ export default async function BookingConfirmationPage({ params }: Props) {
                   </h2>
                   {booking.id_status === 'received' ? (
                     <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                      Thank you. We are checking them and will confirm on WhatsApp. If someone was missed, send theirs the same way.
+                      Thank you. We are checking them and will confirm on WhatsApp. If someone was missed,{' '}
+                      share theirs on{' '}
+                      {idShareUrl
+                        ? <ExternalLink href={idShareUrl} className="font-semibold underline" style={{ color: 'var(--maroon)' }}>WhatsApp</ExternalLink>
+                        : 'WhatsApp'}{' '}
+                      the same way.
                     </p>
                   ) : (
                     <>
@@ -217,20 +222,17 @@ export default async function BookingConfirmationPage({ params }: Props) {
                         <strong style={{ color: 'var(--ink)' }}>Accepted IDs:</strong> {acceptedIdsLine}.
                       </p>
                       <p className="text-base leading-relaxed" style={{ color: 'var(--ink-muted)' }}>
-                        Sharing these in advance helps us complete the check-in formalities before you arrive.
+                        Share IDs on{' '}
+                        {idShareUrl
+                          ? <ExternalLink href={idShareUrl} className="font-semibold underline" style={{ color: 'var(--maroon)' }}>WhatsApp</ExternalLink>
+                          : 'WhatsApp'}{' '}
+                        in advance to help us complete the check-in formalities before you arrive.
                       </p>
                     </>
                   )}
                 </div>
               </div>
-              {idShareUrl ? (
-                <ExternalLink
-                  href={idShareUrl}
-                  className="btn-brass-filled flex items-center justify-center gap-2 py-3.5 rounded-2xl"
-                >
-                  {booking.id_status === 'received' ? 'Share more on WhatsApp' : 'Share on WhatsApp'}
-                </ExternalLink>
-              ) : (
+              {!idShareUrl && (
                 <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>
                   We will message you on WhatsApp to collect them before your stay.
                 </p>
@@ -367,7 +369,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
         )}
 
         {/* ── Back to home ─────────────────────────────── */}
-        <Link href="/" className="btn-secondary btn-secondary-solid w-full py-3.5 rounded-2xl">
+        <Link href="/" className="btn-primary w-full py-3.5 rounded-2xl">
           Homepage
         </Link>
 

@@ -71,6 +71,11 @@ describe('cancellationOutlook', () => {
     expect(o.lastRefundableAt).toBe('2026-09-30, 11:59 pm');
   });
 
+  it('opens the next window the morning after the previous one closed', () => {
+    const o = outlook('2026-08-01T06:00:00Z');
+    expect(o.rows[1].when).toBe('2026-09-16 12:00 am to 2026-09-30 11:59 pm');
+  });
+
   it('closes with what happens after the last refundable deadline', () => {
     const o = outlook('2026-09-20T06:00:00Z');
     expect(o.rows[o.rows.length - 1].when).toBe('After 2026-09-30, 11:59 pm');
