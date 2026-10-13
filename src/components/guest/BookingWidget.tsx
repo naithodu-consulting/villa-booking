@@ -7,7 +7,7 @@ import { calculateBookingPrice, MAX_STAY_NIGHTS } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
-import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
+import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 
 interface BookingWidgetProps {
@@ -34,8 +34,11 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
   // yesterday in India between 00:00 and 05:30 IST.
   const todayStr = todayISO();
 
-  const [checkIn, setCheckIn] = useState<string>(addDaysISO(todayStr, 3));
-  const [checkOut, setCheckOut] = useState<string>(addDaysISO(todayStr, 5));
+  // Only the guest's own choices are state; the opening dates are derived, so
+  // they can follow availability as it loads without a correcting effect.
+  // A null pick means "still on the default".
+  const [pickedIn, setPickedIn] = useState<string | null>(null);
+  const [pickedOut, setPickedOut] = useState<string | null>(null);
   // Defaults to the villa's ideal party size, not 2: this is a whole-villa
   // booking, so a couple is never the expected starting point.
   const [adults, setAdults] = useState<number>(property.ideal_occupancy);
@@ -46,6 +49,15 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
   const guestMenuRef = useRef<HTMLDivElement>(null);
   const { unavailable, infoFor, rateForSince, monthStatus, loadMonth, loadRange } = useNightCalendar(property.id);
   const rateFor = rateForSince(ratesReadAt);
+
+  // One night from the first bookable date: the shortest stay, on a night a
+  // guest can actually have. The form used to open on today+3 to today+5, an
+  // arbitrary two-night span that ignored the calendar, so the villa often
+  // greeted arrivals with "Some of those nights are already booked" before
+  // anyone had chosen anything. Availability lands after the first render, so
+  // this re-derives rather than correcting itself in an effect.
+  const checkIn = pickedIn ?? firstAvailableNight(unavailable, todayStr) ?? todayStr;
+  const checkOut = pickedOut ?? addDaysISO(checkIn, 1);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out
   // calendar shows it as open rather than booked.
@@ -174,8 +186,10 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
               getMonthStatus={monthStatus}
               onViewMonthChange={loadMonth}
               onChange={(v) => {
-                setCheckIn(v);
-                if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setCheckOut(addDaysISO(v, 1));
+                setPickedIn(v);
+                // Back to the derived night-after when the old check-out no
+                // longer makes sense against the new check-in.
+                if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setPickedOut(null);
               }}
               clearable={false}
               compact
@@ -190,7 +204,7 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
               getDayInfo={checkOutInfo}
               getMonthStatus={monthStatus}
               onViewMonthChange={loadMonth}
-              onChange={setCheckOut}
+              onChange={setPickedOut}
               clearable={false}
               compact
               placeholder="Select check-out"

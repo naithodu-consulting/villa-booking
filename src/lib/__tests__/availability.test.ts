@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isRangeAvailable, latestCheckOut } from '../availability';
+import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '../availability';
 
 const taken = new Set(['2026-10-10', '2026-10-11', '2026-10-20']);
 
@@ -39,5 +39,33 @@ describe('latestCheckOut', () => {
 
   it('equals check-in when the check-in night itself is taken', () => {
     expect(latestCheckOut(taken, '2026-10-10')).toBe('2026-10-10');
+  });
+});
+
+describe('firstAvailableNight', () => {
+  it('returns the date itself when that night is free', () => {
+    expect(firstAvailableNight(new Set(), '2026-10-13')).toBe('2026-10-13');
+  });
+
+  it('skips a run of taken nights', () => {
+    const taken = new Set(['2026-10-13', '2026-10-14', '2026-10-15']);
+    expect(firstAvailableNight(taken, '2026-10-13')).toBe('2026-10-16');
+  });
+
+  it('crosses a month boundary', () => {
+    const taken = new Set(['2026-10-30', '2026-10-31']);
+    expect(firstAvailableNight(taken, '2026-10-30')).toBe('2026-11-01');
+  });
+
+  it('gives up at the horizon rather than guessing past what is loaded', () => {
+    // Every night in the window is taken, so there is no verified answer.
+    const taken = new Set<string>();
+    let d = '2026-10-13';
+    for (let i = 0; i <= 10; i++) {
+      taken.add(d);
+      const [y, m, day] = d.split('-').map(Number);
+      d = new Date(Date.UTC(y, m - 1, day + 1)).toISOString().slice(0, 10);
+    }
+    expect(firstAvailableNight(taken, '2026-10-13', 5)).toBeNull();
   });
 });

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO } from '@/lib/format';
-import { isRangeAvailable, latestCheckOut } from '@/lib/availability';
+import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 import { MAX_STAY_NIGHTS, MAX_STAY_MESSAGE } from '@/lib/pricing-engine';
 
@@ -27,10 +27,17 @@ interface Props {
  */
 export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyId, onContinue }: Props) {
   const todayStr = todayISO();
-  const [checkIn, setCheckIn] = useState(todayStr);
-  const [checkOut, setCheckOut] = useState(addDaysISO(todayStr, 1));
+  // Only the guest's own choices are state; a null pick means "still on the
+  // default", so the opening dates can follow availability as it loads.
+  const [pickedIn, setPickedIn] = useState<string | null>(null);
+  const [pickedOut, setPickedOut] = useState<string | null>(null);
   const [adults, setAdults] = useState(Math.min(idealOccupancy, maxOccupancy));
   const { unavailable, infoFor, monthStatus, loadMonth, loadRange } = useNightCalendar(propertyId);
+
+  // One night from the first bookable date. Availability lands after the first
+  // render, so this re-derives rather than opening on a night already taken.
+  const checkIn = pickedIn ?? firstAvailableNight(unavailable, todayStr) ?? todayStr;
+  const checkOut = pickedOut ?? addDaysISO(checkIn, 1);
   useEffect(() => { loadRange(checkIn, checkOut); }, [checkIn, checkOut, loadRange]);
   // The morning of the first taken night is a valid check-out, so the check-out
   // calendar shows it as open rather than booked.
@@ -68,8 +75,8 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
           getMonthStatus={monthStatus}
           onViewMonthChange={loadMonth}
           onChange={(v) => {
-            setCheckIn(v);
-            if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setCheckOut(addDaysISO(v, 1));
+            setPickedIn(v);
+            if (v >= checkOut || !isRangeAvailable(unavailable, v, checkOut)) setPickedOut(null);
           }}
         />
         <DatePicker
@@ -82,7 +89,7 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
           getMonthStatus={monthStatus}
           onViewMonthChange={loadMonth}
           clearable={false}
-          onChange={setCheckOut}
+          onChange={setPickedOut}
         />
       </div>
 

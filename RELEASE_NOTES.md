@@ -4,6 +4,26 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.10 - Booking forms open on a bookable night - 2026-10-13
+
+### Default dates
+- **The booking widget opened on an arbitrary future date.** It used `today + 3` to `today + 5`:
+  a two-night span picked without consulting the calendar, so whenever that night was taken the
+  homepage greeted every visitor with "Some of those nights are already booked" before they had
+  chosen anything.
+- **Both forms now open on the first bookable night, for one night.** New `firstAvailableNight()`
+  in `lib/availability.ts`, bounded to 120 days because `unavailable` only holds the months loaded
+  so far and walking past them would return a date nothing has verified.
+- **`DateSelectForm` already used today to today+1**, so the two forms doing the same job disagreed.
+  They now match, and both gained the availability check: the second had the same flaw, hidden
+  only because its default was today.
+- **Dates are derived during render, not corrected in an effect.** Availability arrives after the
+  first paint, so an effect that reset the dates would fire a cascading render; the lint rule
+  caught it. Only the guest's own picks are state now, and a null pick means "still on the
+  default", which also removes the need for a separate touched flag.
+
+---
+
 ## v1.9 - ID sharing inline, checkout error precedence - 2026-10-13
 
 ### Booking confirmation page
