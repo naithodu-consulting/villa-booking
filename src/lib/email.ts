@@ -5,6 +5,10 @@ import {
   renderBookingConfirmation,
   type BookingConfirmationContext,
 } from '@/lib/emails/booking-confirmation';
+import {
+  renderAdminNewBooking,
+  type AdminNewBookingContext,
+} from '@/lib/emails/admin-new-booking';
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? `Villa 19 by Habbaa <${ENTITY.email}>`;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? ENTITY.email;
@@ -78,82 +82,12 @@ export async function sendBookingConfirmation(p: BookingConfirmationContext) {
   return send(p.guestEmail, subject, html, 'booking_confirmation', { text });
 }
 
-export interface AdminNewBookingParams {
-  bookingRef: string;
-  guestName: string;
-  guestEmail: string;
-  guestPhone?: string;
-  checkIn: string;
-  checkOut: string;
-  guests: number;
-  totalPaise: number;
-  channel: string; // 'online' | 'manual'
-  specialRequests?: string;
-}
-
-export async function sendAdminNewBookingNotification(p: AdminNewBookingParams) {
-  const totalRupees = (p.totalPaise / 100).toLocaleString('en-IN');
-
-  const html = `
-<!DOCTYPE html>
-<html lang="en">
-<head><meta charset="UTF-8"><title>New Booking</title></head>
-<body style="margin:0;padding:0;background:#f9f6f1;font-family:Georgia,serif;">
-  <div style="max-width:580px;margin:32px auto;background:#fff;border-radius:12px;overflow:hidden;border:1px solid #e5ddd5;">
-    <div style="background:#5C1732;padding:24px 40px;">
-      <h1 style="margin:0;color:#fff;font-size:20px;">New Booking: ${esc(p.bookingRef)}</h1>
-    </div>
-    <div style="padding:28px 40px;font-size:14px;color:#333;">
-      <table style="width:100%;border-collapse:collapse;">
-        <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;width:40%;">Guest</td>
-          <td style="padding:8px 0;">${esc(p.guestName)}</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;">Email</td>
-          <td style="padding:8px 0;">${esc(p.guestEmail)}</td>
-        </tr>
-        ${p.guestPhone ? `<tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;">Phone</td>
-          <td style="padding:8px 0;">${esc(p.guestPhone)}</td>
-        </tr>` : ''}
-        <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;">Check-in</td>
-          <td style="padding:8px 0;">${esc(p.checkIn)}</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;">Check-out</td>
-          <td style="padding:8px 0;">${esc(p.checkOut)}</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;">Guests</td>
-          <td style="padding:8px 0;">${p.guests}</td>
-        </tr>
-        <tr style="border-bottom:1px solid #f0ebe4;">
-          <td style="padding:8px 0;color:#888;">Total</td>
-          <td style="padding:8px 0;font-weight:bold;color:#5C1732;">₹${totalRupees}</td>
-        </tr>
-        <tr>
-          <td style="padding:8px 0;color:#888;">Channel</td>
-          <td style="padding:8px 0;">${esc(p.channel)}</td>
-        </tr>
-      </table>
-      ${p.specialRequests?.trim() ? `
-      <div style="margin-top:20px;padding:16px;background:#fdf6e8;border:1px solid #d9b877;border-radius:8px;">
-        <p style="margin:0 0 6px;font-weight:bold;color:#5C1732;font-size:14px;">Special requests</p>
-        <p style="margin:0;white-space:pre-wrap;color:#333;font-size:14px;line-height:1.5;">${esc(p.specialRequests.trim())}</p>
-        <p style="margin:10px 0 0;color:#888;font-size:12px;">Confirm with the guest whether this can be accommodated.</p>
-      </div>` : ''}
-    </div>
-  </div>
-</body>
-</html>`;
-
-  const subject = p.specialRequests?.trim()
-    ? `New Booking: ${p.bookingRef} (₹${totalRupees}) - has special requests`
-    : `New Booking: ${p.bookingRef} (₹${totalRupees})`;
-
-  return send(ADMIN_EMAIL, subject, html, 'admin_new_booking');
+/**
+ * The host's new-booking notice. The template lives in emails/admin-new-booking.ts.
+ */
+export async function sendAdminNewBookingNotification(p: AdminNewBookingContext) {
+  const { subject, html, text } = renderAdminNewBooking(p);
+  return send(ADMIN_EMAIL, subject, html, 'admin_new_booking', { text });
 }
 
 export interface RefundProcessedParams {

@@ -29,9 +29,8 @@ export default async function TermsPage() {
       <section
         className="py-8 sm:py-10"
         style={{
-          backgroundColor: 'var(--paper-band)',
+          backgroundColor: 'var(--paper)',
           color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
         }}
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">

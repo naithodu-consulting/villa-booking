@@ -2,6 +2,7 @@ import 'server-only';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { sendBookingConfirmation, sendAdminNewBookingNotification } from '@/lib/email';
 import { guestLinkBase } from '@/lib/origin';
+import { todayISO } from '@/lib/format';
 
 /**
  * The guest confirmation and the admin notice for a booking that has just been
@@ -43,8 +44,6 @@ async function sendConfirmationEmails(supabase: SupabaseClient, bookingId: strin
   // Links point back to wherever the guest booked, not to this deployment's
   // APP_URL: the webhook path has no request origin of its own.
   const base = guestLinkBase(b.origin_url);
-  const fmt = (d: string) =>
-    new Date(`${d}T12:00:00Z`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
   const guests = (b.num_adults ?? 0) + (b.num_children ?? 0);
 
   // The strip claiming payment in full must not outrun the money: a booking
@@ -94,12 +93,26 @@ async function sendConfirmationEmails(supabase: SupabaseClient, bookingId: strin
       guestName: b.guest_name,
       guestEmail: b.guest_email,
       guestPhone: b.guest_phone ?? undefined,
-      checkIn: fmt(b.check_in),
-      checkOut: fmt(b.check_out),
-      guests,
-      totalPaise: b.total_amount,
+      checkIn: b.check_in,
+      checkOut: b.check_out,
+      checkInTime: p.check_in_time,
+      checkOutTime: p.check_out_time,
+      nights: b.num_nights,
+      adults: b.num_adults ?? 0,
+      children: b.num_children ?? 0,
+      baseAmount: b.base_amount,
+      extraGuestAmount: b.extra_guest_amount ?? 0,
+      discountAmount: b.discount_amount ?? 0,
+      discountCode: b.discount_code ?? undefined,
+      taxAmount: b.tax_amount,
+      totalAmount: b.total_amount,
+      amountPaidPaise: paidInFull ? b.total_amount : captured,
+      paidInFull,
       channel,
+      bookedAt: b.confirmed_at ?? b.created_at ?? new Date().toISOString(),
+      bookingUrl: `${base}/booking/${b.access_token}`,
       specialRequests: b.special_requests ?? undefined,
+      today: todayISO(),
     }),
   ]);
 }

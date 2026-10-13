@@ -88,8 +88,8 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
             className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded font-bold text-xs transition-all"
             style={{
               letterSpacing: '1.2px',
-              backgroundColor: 'rgba(168,116,50,0.10)',
-              border: '1px solid rgba(168,116,50,0.35)',
+              backgroundColor: 'rgba(168,116,50,0.16)',
+              border: '1px solid rgba(168,116,50,0.55)',
               color: 'var(--brass-ink)',
             }}
             aria-label={`Copy code ${current.code}`}

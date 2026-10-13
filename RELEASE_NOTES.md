@@ -4,6 +4,48 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.6 - Host notification rebuilt, cream bands corrected - 2026-10-13
+
+### New-booking notice to the host
+- **Template rewritten** as a pure `renderAdminNewBooking(ctx)` in
+  `src/lib/emails/admin-new-booking.ts`, returning `{ subject, html, text }`. The old markup lived
+  inline in `email.ts`, which now only carries transport.
+- **Arrival flag added.** A same-day or next-day check-in shows an amber "Arriving today / tomorrow"
+  strip and leads the subject line. Previously the reader had to compare two dates to notice that a
+  guest was arriving in hours, which is the one case that changes what the host does next.
+- **The phone number is actionable**: formatted `+91 99999 99999`, linked as `tel:`, with a
+  "Message <guest> on WhatsApp" button. It used to render as a raw unformatted string.
+- **Nights, guest breakdown and a payment breakdown** (stay, extra guests, discount with code, GST,
+  total, received or balance due) replace a bare total and a guest count.
+- **Special requests promoted** above the payment block, since that is the part needing a decision.
+- **Subject carries the facts**: `Arriving today · New booking V19-8PE-1D8 · Tue 13 to Wed 14 Oct
+  2026 · ₹16,520 · special requests`, was `New Booking: V19-8PE-1D8 (₹16,520)`.
+- **Preheader, plain-text part, `color-scheme: light only` and AA-contrast greys**, matching the
+  guest confirmation.
+
+### Cream bands corrected
+- **Section nav and the cancellation, privacy and terms page headers moved from `--paper-band` to
+  `--paper`.** v1.5 repointed `--paper-band` at a near-white (`#FBF9F8`) for scrollbar tracks and
+  wide fills, but these surfaces were still using it as a band on the cream ground. Against
+  `--paper` (`#FFFCF0`) the new value differs in hue as well as lightness, so a warm page carried a
+  cool grey strip. The nav keeps its brass bottom rule and shadow, which were always what separated
+  it; `SectionNav`'s own doc comment had said it used `--paper` all along.
+- **The three legal page headers also lose their bottom rule**, matching what `2bc5b15` did to
+  `PageHero` when it made the same move.
+- `--paper-band` is now used only by the scrollbar track, which is the role v1.5 gave it.
+
+### Announcement bar
+- **The promo code chip is defined by its edge, not its fill**: border `0.35` → `0.55` alpha, fill
+  `0.10` → `0.16`. The chip reads as faint against the cream bar, but darkening the fill is a trap:
+  its text is `--brass-ink` sitting on that fill, and past roughly `0.17` alpha the code drops below
+  4.5:1. The border takes edge definition from 1.52:1 to 1.98:1 against the bar at no cost to the
+  text, which stays at 4.59:1.
+
+### Section nav
+- **Tab labels enlarged** from `14.5px / 15.5px` to `16px / 17px`.
+
+---
+
 ## v1.5 - Sunk tones resynced, confirmation page aligned - 2026-10-13
 
 ### Recessed surfaces repalettised
