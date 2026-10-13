@@ -4,6 +4,71 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.4 - Booking confirmation email rebuilt - 2026-10-13
+
+### Booking confirmation email
+- **Template rewritten** to the reviewed design. New `renderBookingConfirmation(ctx)` in
+  `src/lib/emails/booking-confirmation.ts` is pure: it returns `{ subject, html, text }` and does
+  no sending, so it can be tested and later moved without touching the transport.
+- **New sections**: confirmation header with the stay range, booking reference card, check-in /
+  nights / check-out panel, guest and contact details, a full payment breakdown (stay, extra
+  guests, discount with code, GST, total, amount paid), a security-deposit note, "What happens
+  next", a dated cancellation ladder and the registered-entity footer.
+- **Cancellation ladder now shows real dates and amounts** for the specific booking. New
+  `cancellationSchedule()` in `src/lib/cancellation.ts` derives them from `CANCELLATION_TIERS`
+  rather than restating the policy, so the homepage, Terms page and this email cannot drift. The
+  tiers gained `minDaysBefore` and `fraction`; `when`/`amount` are unchanged for existing callers.
+- **Plain-text alternative added.** Every send is now multipart; `send()` takes a `text` part.
+  A transactional sender without one reads as bulk mail to the filters that matter.
+- **Preheader added**, so the inbox preview line shows the booking reference, dates and amount
+  instead of "Dear <name>,".
+- **GST rate is derived** from the amounts charged rather than hardcoded at 18%, and the row is
+  omitted when there is no tax.
+- **"Amount is paid in full" is now guarded** by `payment_status`. A part-paid booking shows a
+  **Balance due** row instead of claiming full settlement.
+- **No GST invoice attached.** The invoice is issued after check-out, not at booking. The
+  `00038` trigger still assigns `invoice_number`; sending the document is pending (see `TODO.md`).
+
+### Guest links point at the right deployment
+- **`bookings.origin_url` added** (migration `00085`). `create-order` records the host the guest
+  booked from, and both confirmation paths build `bookingUrl` and `cancellationUrl` from it,
+  falling back to `APP_URL`. Previously every link came from one `APP_URL` per deployment, so a
+  booking made on a Vercel preview was emailed a production link, and a confirmation triggered
+  from a developer's machine was emailed a `localhost` link. The Razorpay webhook is
+  server-to-server and has no guest origin of its own, which is why this is stored.
+- **The `Origin` header is allowlisted before it is stored** (`src/lib/origin.ts`). It is set by
+  the caller, so an unchecked value would let anyone have the confirmation — sent from our own
+  verified domain — carry a link to their site. Only the configured site host, its `www` form,
+  `*.vercel.app` previews and local development hosts are accepted. 14 tests cover suffix
+  lookalikes, prefix attacks, embedded credentials, non-https and non-http schemes.
+
+### Email configuration
+- **`reply_to` set** on every send, to the address the emails themselves print. The sender is
+  configurable and had already drifted away from it once.
+- **`.env.example` corrected**: it declared `EMAIL_FROM`, which nothing reads — the code reads
+  `RESEND_FROM_EMAIL`. `ADMIN_EMAIL` was missing entirely. The note claiming local mail is
+  captured by Inbucket was wrong; every send goes to the Resend API, including in development.
+- **`ENTITY.email` added** so the contact address has one source.
+
+### Copy
+- **Refund window is consistent everywhere**: "5 to 7 working days", matching the cancellation
+  policy page. The refund email said "5 to 7 business days".
+- **Security deposit stated once**, in the payment note; the duplicate sentence in the
+  cancellation paragraph made a firmer commitment than the note did.
+- **Times no longer carry an "IST" suffix** — every time shown is villa-local by definition.
+- **Muted text darkened** from `#8a7f77` to `#73685f` for WCAG AA. The old grey measured 3.90:1
+  on white and the footer greys 2.58:1 and 1.95:1; all now clear 4.5:1.
+- **Dark mode pinned to light.** `content="only"` is not a valid `color-scheme` value; it is now
+  `light only`, with `supported-color-schemes` and a matching `:root` rule.
+
+### Fixes
+- **Migration `00028` no longer breaks a from-scratch database.** It inserted the lounge room
+  referencing a property that only `seed.sql` creates, and Supabase applies migrations before
+  seeds, so `supabase db reset` aborted there: migrations `00028` onward never applied locally
+  and the DB-backed tests silently skipped. The insert is now guarded on the property existing.
+
+---
+
 ## v1.3 - Custom 404 page, hidden pages blocked - 2026-10-12
 
 ### UI

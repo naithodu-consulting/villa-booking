@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import Script from 'next/script';
 import type { Property, PricingRule } from '@/types';
-import { calculateBookingPrice } from '@/lib/pricing-engine';
+import { calculateBookingPrice, GST_PERCENT } from '@/lib/pricing-engine';
 import DateSelectForm from '@/components/guest/DateSelectForm';
 import { isRangeAvailable } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
@@ -664,7 +664,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
               {breakdown && (
                 <div className="pt-3 text-sm space-y-2.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                   <div className="flex justify-between" style={{ color: 'var(--ink-muted)' }}>
-                    <span>Base stay ({breakdown.num_nights} night{breakdown.num_nights === 1 ? '' : 's'})</span>
+                    <span>Base price ({breakdown.num_nights} night{breakdown.num_nights === 1 ? '' : 's'})</span>
                     <span>₹{(breakdown.base_amount / 100).toLocaleString('en-IN')}</span>
                   </div>
                   {breakdown.extra_guest_amount > 0 && (
@@ -680,7 +680,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     </div>
                   )}
                   <div className="flex justify-between" style={{ color: 'var(--ink-muted)' }}>
-                    <span>GST (18%)</span>
+                    <span>GST ({GST_PERCENT}%)</span>
                     <span>₹{(shownTax / 100).toLocaleString("en-IN")}</span>
                   </div>
                   <div

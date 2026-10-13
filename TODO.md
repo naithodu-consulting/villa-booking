@@ -1,8 +1,64 @@
 # TODO
 
 ## Email (Resend)
-- [ ] Add `RESEND_API_KEY` and `RESEND_FROM_EMAIL` to `.env.local` and Supabase secrets
+- [x] `RESEND_API_KEY` and `RESEND_FROM_EMAIL` set in `.env.local` (2026-10-13). The key is
+      send-only (restricted), so it cannot list domains — that is intentional.
 - [ ] Refund confirmation email — wire in `POST /api/bookings/webhook` `refund.processed` handler once Resend is live (see `src/lib/email.ts`)
+
+### Sender domain — BLOCKER, nothing sends in production until this is done
+Resend currently rejects every send: `403 The habbaa.com domain is not verified`. Only
+`villa19.in` is verified in the Resend account, and that is the new production website domain,
+not a mail domain.
+
+Decided approach (2026-10-13): verify a **subdomain of habbaa.com** in Resend.
+
+- [ ] Verify `villa19.habbaa.com` in Resend (it has no DNS records today, so it is free to use).
+- [ ] Set `RESEND_FROM_EMAIL=Villa 19 by Habbaa <reservations@villa19.habbaa.com>` in
+      `.env.local` and in every Vercel environment.
+- [ ] Keep `reply_to` pointing at `reservations@habbaa.com` (already wired in `src/lib/email.ts`).
+      It is load-bearing: the From address is on the subdomain, the inbox is on the root.
+
+Why not send from `reservations@habbaa.com` off a `villa19.habbaa.com` verification:
+1. Resend requires the From domain to be a verified entry. Verifying a child grants nothing
+   for the parent.
+2. `habbaa.com` publishes `v=DMARC1; p=reject; adkim=s; aspf=s`. Strict DKIM alignment means the
+   signing domain must equal the From domain exactly, so a root From signed by the subdomain
+   fails DMARC and is **rejected**, not junked.
+
+To send from the root `reservations@habbaa.com` instead, `habbaa.com` itself must be verified:
+add Resend's DKIM record, and **merge** Resend's include into the single existing SPF record
+(`v=spf1 include:_spf.google.com include:shops.shopify.com ~all`). A second SPF TXT record would
+break Google Workspace and Shopify mail as well.
+
+- [ ] Fix the DMARC `rua` on `habbaa.com`: it currently points at
+      `postmaster@example.com` / `dmarc@example.com` — placeholder addresses, so all aggregate
+      reports are discarded and DMARC failures are invisible under `p=reject`.
+
+### Post-checkout GST invoice email — not built
+The booking confirmation no longer carries the invoice (removed 2026-10-13): the invoice is
+issued after check-out, not before. `invoice_number` is still assigned on confirmation by the
+`00038` trigger and `buildInvoicePdf` still exists, but nothing sends the document.
+
+- [ ] Decide the trigger. There is no `vercel.json`, so no cron exists today:
+      (a) Ooruda calls an authenticated endpoint here when staff press Check out — matches the
+          ownership split (lifecycle events are Ooruda's), fires at the real moment;
+      (b) a Vercel cron here, daily, over bookings with `check_out < today` — self-contained but
+          fires on the calendar date rather than actual check-out;
+      (c) Ooruda owns the whole email and pulls invoice data from here over the API.
+- [ ] Add an `invoice_sent_at` column before building any of them, so a guest cannot be invoiced twice.
+
+### Delivery failure visibility
+The Resend dashboard shows delivered / bounced / complained for anything that reached their API.
+It cannot show a send that never got there — an invalid key, a 403, a network error. Those only
+produce a `console.error` nobody reads, and the guest silently gets nothing.
+
+- [ ] Notify `ADMIN_EMAIL` when a guest confirmation fails to send.
+- [ ] Optional: subscribe to Resend webhooks for bounce and complaint events.
+
+### Staff "send again" — optional, not required
+A staff button to re-send a guest email, backed by a log table so automatic sends can never fire
+twice. Ooruda already has this pattern (`villa_message_log`). Nothing built here depends on it.
+- [ ] Decide whether this is wanted at all.
 
 ## Admin — removed from this repo (2026-09-11)
 Admin login and all admin tooling belong to the **Ooruda Villa** project (separate repo, separate
@@ -28,10 +84,47 @@ cookie-session helper in `src/lib/supabase/server.ts` (both only used by the adm
 - [ ] Post-launch: shortlist STAAH / Beds24 on live two-way MMT + Goibibo connectivity and webhooks
       (Master Plan section 7.2).
 
+## Local database rebuild
+- [x] `supabase db reset` works again (2026-10-13). It used to abort at migration `00028`, so
+      `00028`-`00085` never applied locally and the DB-backed tests (`booking-code-db`,
+      `booking-concurrency`) silently skipped via `skipIf(!db)`. Cause: Supabase applies
+      migrations before `seed.sql`, but 16 data migrations insert rows referencing the property
+      and rooms that only the seed creates. Fixed in `00028` by upserting the property and the
+      four bedrooms instead of updating them; no-ops on every deployed database.
+- [ ] `seed.sql` still fails at the end of a reset:
+      `cannot insert multiple commands into a prepared statement (SQLSTATE 42601)`.
+      Migrations now carry enough data for the app and the tests to run (1 property, 5 rooms,
+      41 images), so this is not blocking, but the seed is not doing its job. Likely a statement
+      in `seed.sql` that the CLI sends as one prepared statement; needs splitting.
+
 ## Production
 - [ ] Fill in `PROD_REF` in `scripts/db-push.sh` once prod Supabase project is created
-- [ ] Set `NEXT_PUBLIC_SITE_URL` to `https://habbaa.in` in prod env
 - [ ] Add `PROPERTY_WHATSAPP` and `PROPERTY_EMAIL` to prod Vercel env
+
+### APP_URL per environment
+`APP_URL` feeds `SITE_URL` (`src/lib/seo.ts`), which drives canonical tags, the sitemap, JSON-LD
+and the fallback for guest links in email. Guest links themselves no longer depend on it:
+`bookings.origin_url` (migration `00085`) records the host the guest actually booked from.
+
+| Environment | Where | Value |
+|---|---|---|
+| Local | `.env.local` | `http://localhost:3000` (already set) |
+| Remote dev | Vercel env vars, Preview scope | the stable `https://<project>.vercel.app` |
+| Production | Vercel env vars, Production scope | `https://villa19.in` |
+
+- [ ] Set `APP_URL` in the Vercel Preview environment.
+- [ ] Set `APP_URL` in the Vercel Production environment once `villa19.in` is deployed.
+- [ ] Consider a `VERCEL_URL` fallback in `src/lib/seo.ts` so preview deployments configure
+      themselves, and change the hardcoded default away from `habbaa.in` (a parked page).
+
+### Domains in play
+- `villa19.in` — production website, bought recently, **currently a parked Hostinger page**; not
+  yet pointed at Vercel. Also the domain verified in Resend today.
+- `villa19.habbaa.com` — proposed mail sending subdomain, no DNS yet.
+- `habbaa.com` — registered entity, Google Workspace mail, Shopify web. Reply-to address.
+- `habbaa.in` — parked, and the current hardcoded `SITE_URL` default. Decide whether to keep it.
+
+- [ ] Point `villa19.in` at Vercel.
 
 ## Content
 - [ ] Add real property photos to Supabase Storage and update `property_images` rows with real URLs

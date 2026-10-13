@@ -4,6 +4,7 @@ import { applyDiscount, calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, PricingRule } from '@/types';
 import { todayISO } from '@/lib/format';
+import { safeOrigin } from '@/lib/origin';
 
 // Deferred so build-time static analysis doesn't throw when env vars are absent
 function getRazorpay() {
@@ -277,6 +278,14 @@ export async function POST(request: NextRequest) {
         .eq('id', bookingId)
         .eq('status', 'pending');
       return NextResponse.json({ error: 'Payment could not be started. Please try again.' }, { status: 503 });
+    }
+
+    // Record where the guest is booking from, so the confirmation email links
+    // back to this deployment rather than to whatever APP_URL happens to be.
+    // Only an allowlisted host is stored; see lib/origin.ts.
+    const origin = safeOrigin(request.headers.get('origin'));
+    if (origin) {
+      await supabase.from('bookings').update({ origin_url: origin }).eq('id', bookingId);
     }
 
     // Insert payments row so the webhook can find it by razorpay_order_id
