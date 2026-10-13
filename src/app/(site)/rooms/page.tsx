@@ -112,7 +112,7 @@ export default async function RoomsPage() {
                       style={{ backgroundColor: 'var(--paper-sunk)' }}
                     >
                       <Bed className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                      <span style={{ color: 'var(--ink-muted)' }}>
+                      <span style={{ color: 'var(--ink)' }}>
                         {room.bed_count}× {BED_TYPE_LABEL[room.bed_type] ?? room.bed_type}
                       </span>
                     </div>
@@ -123,7 +123,7 @@ export default async function RoomsPage() {
                         style={{ backgroundColor: 'var(--paper-sunk)' }}
                       >
                         <Building className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                        <span style={{ color: 'var(--ink-muted)' }}>{room.floor}</span>
+                        <span style={{ color: 'var(--ink)' }}>{room.floor}</span>
                       </div>
                     )}
 
@@ -133,7 +133,7 @@ export default async function RoomsPage() {
                         style={{ backgroundColor: 'var(--paper-sunk)' }}
                       >
                         <Maximize className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                        <span style={{ color: 'var(--ink-muted)' }}>{room.size_sqft} sq ft</span>
+                        <span style={{ color: 'var(--ink)' }}>{room.size_sqft} sq ft</span>
                       </div>
                     )}
                   </div>

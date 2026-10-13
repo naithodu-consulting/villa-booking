@@ -326,7 +326,7 @@ export default async function LandingPage() {
                     className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-2 p-2.5 rounded-xl"
                     style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
                   >
-                    <span className="text-xs sm:text-sm leading-tight sm:truncate" style={{ color: 'var(--ink-muted)' }}>{place}</span>
+                    <span className="text-xs sm:text-sm leading-tight sm:truncate" style={{ color: 'var(--ink)' }}>{place}</span>
                     <span className="font-semibold text-[13px] sm:text-sm leading-tight sm:flex-shrink-0">{time}</span>
                   </div>
                 ))}

@@ -51,6 +51,28 @@ const inr = (paise: number) => `₹${(paise / 100).toLocaleString('en-IN')}`;
 /** "20260928T140000", the local-time form Google Calendar takes with ctz. */
 const calStamp = (date: string, time: string) => `${date.replace(/-/g, '')}T${time.replace(':', '').padEnd(4, '0')}00`;
 
+/* The site's section heading: a brass rule, then a Cormorant title sitting on
+   the page ground with the card below it. Used on the home, villa, rooms and
+   policy pages; this page previously put its titles inside a --maroon-tint
+   strip at the top of each card, which exists nowhere else. */
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="w-1 h-5 rounded-full" style={{ backgroundColor: 'var(--brass)' }} aria-hidden="true" />
+      <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
+        {children}
+      </h2>
+    </div>
+  );
+}
+
+/* Small label above a value, matching the uppercase micro-label used in the
+   booking widget and the villa-rules tiles. */
+const LABEL_CLASS = 'text-[11px] font-bold uppercase tracking-[1px]';
+
+const CARD_CLASS = 'rounded-3xl shadow-sm overflow-hidden';
+const CARD_STYLE = { backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' } as const;
+
 export default async function BookingConfirmationPage({ params }: Props) {
   const { token } = await params;
   // The token is the only key to this page. Reject anything that is not one
@@ -123,14 +145,10 @@ export default async function BookingConfirmationPage({ params }: Props) {
       {state === 'pending' && <RefreshWhilePending />}
 
       {/* ── Header ────────────────────────────────────────── */}
-      <section
-        className="py-16 sm:py-20 text-center"
-        style={{
-          backgroundColor: 'var(--paper-band)',
-          color: 'var(--ink)',
-          borderBottom: '1px solid var(--border-subtle)',
-        }}
-      >
+      {/* The hero sits on the page ground. It used to be a --paper-band slab
+          with a border under it, which since the sunk tones were resynced is a
+          near-white block against cream: a hard seam across the page. */}
+      <section className="pt-14 sm:pt-16 pb-8 text-center" style={{ color: 'var(--ink)' }}>
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <StateIcon className="w-14 h-14 mx-auto mb-5" style={{ color: iconColor }} aria-hidden="true" />
           <h1
@@ -140,11 +158,12 @@ export default async function BookingConfirmationPage({ params }: Props) {
             {HEADINGS[state]}
           </h1>
           {booking.booking_code && (
-            <p className="text-xl opacity-80">
-              Booking number: <span className="font-bold" style={{ letterSpacing: '1.2px' }}>{booking.booking_code}</span>
+            <p className="text-xl" style={{ color: 'var(--ink-muted)' }}>
+              Booking number:{' '}
+              <span className="font-bold" style={{ color: 'var(--ink)', letterSpacing: '1.2px' }}>{booking.booking_code}</span>
             </p>
           )}
-          <p className="text-base mt-2 opacity-70 break-words">
+          <p className="text-base mt-2 break-words" style={{ color: 'var(--ink-muted)' }}>
             {state === 'confirmed' && <>A confirmation email has been sent to {booking.guest_email}</>}
             {state === 'pending' && 'This usually takes a few seconds. This page updates by itself.'}
             {state === 'cancelled' && (booking.payment_status === 'refunded'
@@ -156,29 +175,28 @@ export default async function BookingConfirmationPage({ params }: Props) {
       </section>
 
       {/* ── Booking Details ───────────────────────────────── */}
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-5">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pb-10 space-y-8">
 
         {/* ── Guest IDs ─────────────────────────────────── */}
         {showIdCard && (
           booking.id_status === 'verified' ? (
-            <div
-              className="flex items-center gap-3 p-5 rounded-3xl"
-              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-            >
+            <div className="flex items-center gap-3 p-5 rounded-3xl shadow-sm" style={CARD_STYLE}>
               <ShieldCheck className="w-5 h-5 flex-shrink-0" style={{ color: 'var(--ok)' }} aria-hidden="true" />
               <p className="text-base font-semibold" style={{ color: 'var(--ink)' }}>
                 ID documents received and checked. You are all set for check-in.
               </p>
             </div>
           ) : (
+            /* A callout, so it keeps a brass edge, but --border-brass like the
+               stay-guide callout rather than a solid --brass hairline. */
             <div
-              className="p-6 rounded-3xl space-y-4"
-              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--brass)' }}
+              className="p-6 rounded-3xl shadow-sm space-y-4"
+              style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-brass)' }}
             >
               <div className="flex items-start gap-3">
                 <IdCard className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
                 <div className="space-y-1.5">
-                  <h2 className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>
+                  <h2 className="text-2xl font-black tracking-tight" style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)' }}>
                     {booking.id_status === 'received' ? 'ID documents received' : 'Share ID documents before you arrive'}
                   </h2>
                   {booking.id_status === 'received' ? (
@@ -191,10 +209,16 @@ export default async function BookingConfirmationPage({ params }: Props) {
                         For a smooth check-in, a valid government-issued photo ID is required for <strong style={{ color: 'var(--ink)' }}>each adult guest</strong>. Please send a photo of each ID to us on WhatsApp before your arrival.
                       </p>
                       <div>
-                        <p className="text-sm font-bold mb-1.5" style={{ color: 'var(--ink)' }}>Accepted IDs:</p>
+                        <p className={`${LABEL_CLASS} mb-2`} style={{ color: 'var(--ink-muted)' }}>Accepted IDs</p>
                         <ul className="flex flex-wrap gap-2 text-sm" aria-label="Accepted ID documents">
                           {ACCEPTED_ID_TYPES.map((t) => (
-                            <li key={t} className="px-3 py-1.5 rounded-full" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--ink)' }}>{t}</li>
+                            <li
+                              key={t}
+                              className="px-3 py-1.5 rounded-full"
+                              style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)', color: 'var(--ink)' }}
+                            >
+                              {t}
+                            </li>
                           ))}
                         </ul>
                       </div>
@@ -225,14 +249,10 @@ export default async function BookingConfirmationPage({ params }: Props) {
         )}
 
         {/* ── Stay Details ──────────────────────────────── */}
-        <div
-          className="rounded-3xl overflow-hidden"
-          style={{ border: '1px solid var(--border-subtle)' }}
-        >
-          <div className="p-5" style={{ backgroundColor: 'var(--maroon-tint)', borderBottom: '1px solid var(--border-subtle)' }}>
-            <h2 className="font-bold text-base" style={{ color: 'var(--maroon)' }}>Stay Details</h2>
-          </div>
-          <div className="divide-y divide-[var(--border-subtle)]" style={{ backgroundColor: 'var(--surface)' }}>
+        <div className="space-y-4">
+          <SectionHeading>Stay Details</SectionHeading>
+          <div className={CARD_CLASS} style={CARD_STYLE}>
+            <div className="divide-y divide-[var(--border-subtle)]">
             {[
               { icon: Calendar, label: 'Check-in',  value: `${fmt(booking.check_in)} from ${checkInTime}` },
               { icon: Calendar, label: 'Check-out', value: `${fmt(booking.check_out)} by ${checkOutTime}` },
@@ -243,14 +263,14 @@ export default async function BookingConfirmationPage({ params }: Props) {
               <div key={label} className="flex items-start gap-4 px-5 py-4">
                 <Icon className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: 'var(--brass)' }} aria-hidden="true" />
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: 'var(--ink-muted)' }}>{label}</p>
+                  <p className={`${LABEL_CLASS} mb-1`} style={{ color: 'var(--ink-muted)' }}>{label}</p>
                   <p className="text-base font-medium" style={{ color: 'var(--ink)' }}>{value}</p>
                 </div>
               </div>
             ))}
           </div>
           {calendarUrl && (
-            <div className="px-5 py-4" style={{ backgroundColor: 'var(--surface)', borderTop: '1px solid var(--border-subtle)' }}>
+            <div className="px-5 py-4" style={{ borderTop: '1px solid var(--border-subtle)' }}>
               <ExternalLink
                 href={calendarUrl}
                 className="inline-flex items-center gap-2 text-sm font-bold"
@@ -261,32 +281,29 @@ export default async function BookingConfirmationPage({ params }: Props) {
               </ExternalLink>
             </div>
           )}
+          </div>
         </div>
 
         {/* ── Guest & Payment ───────────────────────────── */}
-        <div
-          className="rounded-3xl overflow-hidden"
-          style={{ border: '1px solid var(--border-subtle)' }}
-        >
-          <div className="p-5" style={{ backgroundColor: 'var(--maroon-tint)', borderBottom: '1px solid var(--border-subtle)' }}>
-            <h2 className="font-bold text-base" style={{ color: 'var(--maroon)' }}>Guest & Payment</h2>
-          </div>
-          <div className="divide-y divide-[var(--border-subtle)]" style={{ backgroundColor: 'var(--surface)' }}>
+        <div className="space-y-4">
+          <SectionHeading>Guest &amp; Payment</SectionHeading>
+          <div className={CARD_CLASS} style={CARD_STYLE}>
+            <div className="divide-y divide-[var(--border-subtle)]">
             {[
               { label: 'Guest Name', value: booking.guest_name },
               { label: 'Email',      value: booking.guest_email },
               { label: 'Phone',      value: booking.guest_phone ? formatPhone(booking.guest_phone) : 'Not provided' },
               { label: 'Status',     value: STATUS_LABEL[state] },
             ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between items-start gap-4 px-5 py-4">
-                <p className="text-sm font-semibold flex-shrink-0 pt-0.5" style={{ color: 'var(--ink-muted)' }}>{label}</p>
+              <div key={label} className="flex justify-between items-center gap-4 px-5 py-4">
+                <p className={`${LABEL_CLASS} flex-shrink-0`} style={{ color: 'var(--ink-muted)' }}>{label}</p>
                 <p className="text-base font-medium text-right min-w-0 break-words" style={{ color: 'var(--ink)' }}>{value}</p>
               </div>
             ))}
           </div>
 
           {/* The stored breakdown, not a recalculation: rates can change after booking. */}
-          <div className="px-5 py-4 space-y-2 text-sm" style={{ backgroundColor: 'var(--surface)', borderTop: '1px solid var(--border-subtle)' }}>
+          <div className="px-5 py-4 space-y-2 text-sm" style={{ borderTop: '1px solid var(--border-subtle)' }}>
             {priceRows.map(([label, amount]) => (
               <div key={label} className="flex justify-between gap-4" style={{ color: 'var(--ink-muted)' }}>
                 <span>{label}</span>
@@ -298,25 +315,23 @@ export default async function BookingConfirmationPage({ params }: Props) {
               <span className="tabular-nums" style={{ color: 'var(--maroon)' }}>{inr(booking.total_amount)}</span>
             </div>
           </div>
+          </div>
         </div>
 
         {booking.special_requests && (
-          <div
-            className="p-5 rounded-3xl text-base"
-            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-          >
-            <p className="font-semibold mb-1.5" style={{ color: 'var(--maroon)' }}>Special Requests</p>
-            <p className="break-words" style={{ color: 'var(--ink-muted)' }}>{booking.special_requests}</p>
+          <div className="space-y-4">
+            <SectionHeading>Special Requests</SectionHeading>
+            <div className="p-5 rounded-3xl shadow-sm text-base" style={CARD_STYLE}>
+              <p className="break-words" style={{ color: 'var(--ink-muted)' }}>{booking.special_requests}</p>
+            </div>
           </div>
         )}
 
         {/* ── What happens next ──────────────────────────── */}
         {isConfirmed && (
-          <div
-            className="p-6 rounded-3xl space-y-4 text-base"
-            style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
-          >
-            <h2 className="font-bold text-lg" style={{ color: 'var(--maroon)' }}>What happens next</h2>
+          <div className="space-y-4">
+          <SectionHeading>What happens next</SectionHeading>
+          <div className="p-6 rounded-3xl shadow-sm text-base" style={CARD_STYLE}>
             <ol className="space-y-4 list-none" style={{ color: 'var(--ink-muted)' }}>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: 'var(--maroon-tint)', color: 'var(--maroon)' }}>1</span>
@@ -350,6 +365,7 @@ export default async function BookingConfirmationPage({ params }: Props) {
                 </div>
               </li>
             </ol>
+          </div>
           </div>
         )}
 

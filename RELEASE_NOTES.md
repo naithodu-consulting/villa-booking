@@ -4,6 +4,45 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.5 - Sunk tones resynced, confirmation page aligned - 2026-10-13
+
+### Recessed surfaces repalettised
+- **`--paper-sunk`, `--paper-sunk-hover` and `--paper-band` replaced** with a faint rose family
+  (`#F6F2F1` / `#EDE4E1` / `#FBF9F8`). The previous beige was tuned for fields inside white cards;
+  on the cream page ground its warmth was cancelled and only the grey remainder read, so every
+  field, chip and tile on a cream section looked dull. One token change covers the booking widget
+  fields, rules tiles, nearby rows, room spec rows, datepicker day cells, section-nav chips and
+  the legal pages.
+- **Two hardcoded scrims warmed to the brand.** The date dialog's backdrop was `slate-950/70`, a
+  cold blue-grey, and the amenities sheet's was neutral `black/50`; both now use `--maroon-deep`
+  at 62% and 55%. No token reaches a Tailwind `backdrop:` utility, so these had to be literal.
+
+### Legibility in recessed rows
+- **Row content promoted from `--ink-muted` to `--ink`** in the nearby lists (home and The Villa)
+  and the room spec rows. These carry the content of the row, not meta, and were sitting at
+  5.3:1 inside a field only 1.1:1 off the page ground. The distances beside them keep
+  `--brass-ink`, so the two-tone split in each row is intact.
+
+### Date dialog
+- **Removed the duplicated fill** in `DateSelectForm`. The wrapper painted `--paper-sunk` and each
+  `DatePicker` trigger painted it again, so the two fields merged into one slab. The fields now
+  sit on the dialog's white surface, matching the booking widget.
+
+### Booking confirmation page brought in line with the site
+- **Section headings moved out of the cards.** Each section now uses the pattern every other page
+  uses: a brass rule, a Cormorant title on the page ground, then a white `rounded-3xl shadow-sm`
+  card below. The `--maroon-tint` header strips, which existed nowhere else in the app, are gone.
+- **Hero no longer a `--paper-band` slab.** Since the tones were resynced that band is near-white
+  against cream and drew a hard seam across the page; the hero now sits on the page ground.
+- **`opacity-70` / `opacity-80` replaced with ink roles**, so the text follows the documented
+  colour roles rather than alpha over an arbitrary ground.
+- **Row labels use the site's uppercase micro-label**, the same one as the booking widget and the
+  villa-rules tiles, instead of sentence-case grey.
+- **Accepted-ID chips use the standard sunk chip**; the ID callout keeps a brass edge but at
+  `--border-brass`, matching the stay-guide callout rather than a solid `--brass` hairline.
+
+---
+
 ## v1.4 - Booking confirmation email rebuilt - 2026-10-13
 
 ### Booking confirmation email

@@ -47,7 +47,7 @@ export default function BookingDialog({ maxOccupancy, idealOccupancy, propertyId
       onClick={(e) => {
         if (e.target === ref.current) close();
       }}
-      className="w-[min(28rem,calc(100vw-2rem))] rounded-3xl p-0 backdrop:bg-slate-950/70 backdrop:backdrop-blur-sm"
+      className="w-[min(28rem,calc(100vw-2rem))] rounded-3xl p-0 backdrop:bg-[rgba(58,14,31,0.62)] backdrop:backdrop-blur-sm"
       style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
     >
       <div className="p-6 sm:p-7 space-y-5">

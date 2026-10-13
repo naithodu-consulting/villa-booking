@@ -86,7 +86,7 @@ export default function AmenitiesSection({ featured, groups, total }: Props) {
       <dialog
         ref={dialogRef}
         aria-labelledby="amenities-dialog-title"
-        className="amenity-sheet w-full max-w-lg p-0 rounded-t-3xl sm:rounded-3xl backdrop:bg-black/50"
+        className="amenity-sheet w-full max-w-lg p-0 rounded-t-3xl sm:rounded-3xl backdrop:bg-[rgba(58,14,31,0.55)]"
         style={{ backgroundColor: 'var(--paper)', color: 'var(--ink)' }}
         onClick={(e) => { if (e.target === dialogRef.current) close(); }}
       >

@@ -4,14 +4,16 @@
 :root {
   /* Ground */
   --paper:        #FFFCF0;
-  --paper-sunk:   #F2EDE4;
-  --paper-sunk-hover: #E8E2D5;  /* hover state for sunk controls */
-  /* Recessed bands sitting directly on --paper. A sunk tone reads differently
-     by ground: against white (W=0) its full warmth shows, against cream (W=15)
-     only the remainder does. --paper-sunk is tuned for fields inside white
-     cards; on the cream page the same value loses its warmth and goes grey, so
-     bands need their own, warmer step. One value cannot serve both. */
-  --paper-band:   #F9F3DE;
+  --paper-sunk:   #F6F2F1;
+  --paper-sunk-hover: #EDE4E1;  /* hover state for sunk controls */
+  /* Recessed surfaces: fields, chips, tiles, the datepicker's day cells.
+     The earlier tone (#F2EDE4) was a warm beige tuned for white cards. Against
+     the cream page the ground cancelled its warmth and only the grey remainder
+     read, so every band on a cream section looked dull and unfinished. These
+     three carry a faint rose cast taken from the maroon rather than from the
+     brass, which holds on both grounds instead of only on white.
+     --paper-band is the lightest step, for scrollbar tracks and wide fills. */
+  --paper-band:   #FBF9F8;
   --cream:        #FFFCF0;      /* warm attention ground: announcement bar, inputs */
   --surface:      #FFFFFF;
 

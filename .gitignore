@@ -41,3 +41,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 URWA_VILLA_KNOWLEDGE.md
+
+# local design tool, never deploy
+tools/sunk-tone-tuner.html
+public/tools/

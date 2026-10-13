@@ -53,10 +53,11 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
       }}
       className="space-y-5"
     >
-      <div
-        className="space-y-2 p-3 rounded-xl"
-        style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
-      >
+      {/* No fill here. Each DatePicker already paints its trigger with
+          --paper-sunk, so a sunk wrapper around them stacked the same tone on
+          itself and the two fields vanished into one slab. The modal's white
+          surface is the ground, exactly as in the booking widget. */}
+      <div className="space-y-2">
         <DatePicker
           id="ds-checkin"
           label="Check-In"

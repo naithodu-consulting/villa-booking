@@ -155,7 +155,10 @@ export default async function TheVillaPage() {
                     className="p-3.5 rounded-xl flex items-center justify-between gap-2"
                     style={{ backgroundColor: 'var(--paper-sunk)', border: '1px solid var(--border-subtle)' }}
                   >
-                    <span className="text-sm font-medium" style={{ color: 'var(--ink-muted)' }}>{place.name}</span>
+                    {/* The place name is the content of the row, not meta: --ink, while
+                        the distance beside it keeps the accent. --ink-muted left it at
+                        5.3:1 inside a field that is itself only 1.1:1 off the page. */}
+                    <span className="text-sm font-medium" style={{ color: 'var(--ink)' }}>{place.name}</span>
                     <span className="text-xs font-semibold flex-shrink-0" style={{ color: 'var(--brass-ink)' }}>
                       {/* Shared helper, not a local template: this printed
                           "0.10 km" for the walkable landmarks. */}
