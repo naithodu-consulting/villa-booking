@@ -9,33 +9,57 @@
 /**
  * Where an email's images are loaded from.
  *
- * Explicitly NOT APP_URL, even though every *link* in an email uses it. Those
- * are different jobs: APP_URL is the canonical address we want indexed and
- * shown to guests, which is not the same as a host that is currently serving
- * this app. They came apart here, and twice: APP_URL is `localhost:3000` in
- * development, and webmail fetches images through its own proxy from its
- * servers rather than the reader's browser, so localhost resolves to the proxy
- * and never to the sending machine; then APP_URL became `villa19.in` before
- * that domain pointed anywhere, where the registrar's parked page answered 200
- * with `text/html` for every path, so the badge was a broken image in a send
- * that otherwise looked healthy.
+ * Webmail fetches images through its own proxy, from its servers rather than
+ * the reader's browser, so an image host has to be publicly reachable and
+ * anonymous. That is a stricter requirement than anything a link in the same
+ * email has to meet, and every value that looks like an obvious source for it
+ * fails that test in some environment.
  *
- * The asset is served by this app, so the host running this build always has
- * it. On Vercel that is VERCEL_URL, whatever the canonical domain is doing,
- * which makes this correct by construction rather than by a guess about which
- * domains are live. Off Vercel there is no such signal, so fall back to the
- * deployment that is always up. EMAIL_ASSET_BASE_URL overrides everything, for
- * a CDN or once the canonical domain genuinely serves the app.
+ * VERCEL_URL is deliberately NOT used, though it is tempting: it names the host
+ * running this exact build, so it must have the file. But it is the
+ * deployment-specific hostname, and Vercel's deployment protection gates those
+ * behind a login, so the proxy is served an auth page instead of a PNG. It is
+ * reachable in a browser already carrying the session, which is exactly the
+ * kind of thing that looks fine when you check it by hand.
+ *
+ * What is left is the configured public address, which an operator sets and can
+ * see, with two conditions on it: https, and not a loopback name. Anything else
+ * falls back to a deployment known to serve this file. EMAIL_ASSET_BASE_URL
+ * overrides both, for a CDN or any host that should own these images.
+ *
+ * The standing trap: APP_URL has to be a host that is actually serving this
+ * app, which is not automatic. Pointing it at a domain still parked at a
+ * registrar passes every check here and still breaks the image, because a
+ * parked page answers 200 with HTML for any path it is asked for.
  */
 const PUBLIC_ASSET_FALLBACK = 'https://villa-booking-psi.vercel.app';
 
 export const EMAIL_ASSET_BASE = (() => {
   const override = process.env.EMAIL_ASSET_BASE_URL?.replace(/\/$/, '');
   if (override) return override;
-  // Set by Vercel in every environment; the host of this exact deployment.
-  const vercel = process.env.VERCEL_URL?.replace(/\/$/, '');
-  if (vercel) return vercel.startsWith('http') ? vercel : `https://${vercel}`;
-  return PUBLIC_ASSET_FALLBACK;
+  // APP_URL itself, not SITE_URL. SITE_URL supplies the canonical domain as a
+  // default when APP_URL is unset, which is right for a sitemap and wrong here:
+  // an unconfigured environment would silently address images to a domain
+  // nobody has claimed is serving yet. Only a value somebody actually set is
+  // trusted; anything else takes the known-good host.
+  const configured = process.env.APP_URL?.trim().replace(/\/$/, '');
+  if (!configured) return PUBLIC_ASSET_FALLBACK;
+
+  // Only an unparseable value falls through. A blanket catch here already hid a
+  // missing import once: the reference threw, the fallback was returned, and a
+  // send that should have been impossible looked merely misconfigured.
+  let parsed: URL;
+  try {
+    parsed = new URL(configured);
+  } catch (e) {
+    if (e instanceof TypeError) return PUBLIC_ASSET_FALLBACK;
+    throw e;
+  }
+  const { hostname, protocol } = parsed;
+  const loopback =
+    hostname === 'localhost' || hostname === '127.0.0.1' ||
+    hostname === '::1' || hostname === '[::1]' || hostname.endsWith('.local');
+  return protocol === 'https:' && !loopback ? configured : PUBLIC_ASSET_FALLBACK;
 })();
 
 /** Guest-supplied text (name, email, phone) must not become markup in an email. */

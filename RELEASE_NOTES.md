@@ -4,6 +4,29 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.14 - Email images, actual root cause - 2026-10-14
+
+### Confirmation email badge
+- **v1.13 made this worse, and the mechanism is worth recording.** `VERCEL_URL` names the host
+  running the build, so it certainly holds the file - but it is the *deployment-specific* hostname,
+  and Vercel's deployment protection puts those behind a login. Webmail's proxy got an auth page
+  instead of a PNG. It loads perfectly in a browser that already carries the session, which is
+  exactly why checking it by hand would not have caught it. It is no longer used.
+- **It also overrode a correct setting.** `APP_URL` had by then been set to the preview alias, which
+  is public and does serve the file, so v1.12's logic would have worked; v1.13 replaced that good
+  value with the protected one.
+- **A missing import was being swallowed by a bare `catch`.** Rewriting this block for v1.13 dropped
+  `import { SITE_URL }`, so the reference threw at runtime, the `catch` returned the fallback, and
+  the result looked like ordinary misconfiguration rather than a broken module. The `catch` is now
+  narrowed to `TypeError` from `new URL()` and rethrows anything else.
+- **Resolution now reads `APP_URL` directly rather than `SITE_URL`.** `SITE_URL` substitutes the
+  canonical domain when `APP_URL` is unset, which is correct for a sitemap and wrong for an image:
+  an unconfigured environment would have addressed the badge to a domain nobody had claimed was
+  serving yet. Only an explicitly set value is trusted, and only when it is https and not loopback.
+- Ten regression tests now cover all three shapes that shipped broken, plus the unset case.
+
+---
+
 ## v1.13 - Email images follow the running deployment - 2026-10-14
 
 ### Confirmation email badge

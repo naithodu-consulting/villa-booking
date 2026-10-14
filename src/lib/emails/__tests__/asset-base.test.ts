@@ -4,12 +4,15 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
  * EMAIL_ASSET_BASE is resolved once at import, so each case re-imports the
  * module with its own environment.
  *
- * This exists because the badge shipped broken twice, both times because the
- * image host was derived from APP_URL. APP_URL is the canonical address, not a
- * promise that anything is serving it: once it was localhost, which webmail's
- * image proxy can never reach, and once it was a domain still parked at the
- * registrar, which answered 200 with HTML for every path. The rule these lock
- * in is that APP_URL must never reach an image URL.
+ * The badge shipped broken three times, each time because the image host was
+ * taken from a value that is not guaranteed to be publicly fetchable:
+ *   1. APP_URL as localhost, which webmail's proxy can never reach.
+ *   2. APP_URL as a domain still parked at the registrar, which answers 200
+ *      with HTML for every path.
+ *   3. VERCEL_URL, the deployment-specific host, which Vercel's deployment
+ *      protection puts behind a login, so the proxy gets an auth page.
+ * Case 3 is the subtle one: that host definitely has the file, and it loads
+ * fine in a browser that already holds the session.
  */
 async function baseWith(env: Record<string, string | undefined>): Promise<string> {
   vi.resetModules();
@@ -36,31 +39,45 @@ afterEach(() => {
 });
 
 describe('EMAIL_ASSET_BASE', () => {
-  it('never uses APP_URL, even when it looks like a healthy public domain', async () => {
-    const base = await baseWith({ APP_URL: 'https://villa19.in' });
-    expect(base).not.toContain('villa19.in');
+  it('never emits a loopback host, which webmail cannot fetch', async () => {
+    for (const url of ['http://localhost:3000', 'https://127.0.0.1:3000', 'https://box.local']) {
+      expect(await baseWith({ APP_URL: url })).toBe('https://villa-booking-psi.vercel.app');
+    }
   });
 
-  it('never emits a localhost image host, which webmail cannot fetch', async () => {
-    const base = await baseWith({ APP_URL: 'http://localhost:3000' });
-    expect(base).not.toContain('localhost');
+  it('never uses VERCEL_URL, which deployment protection puts behind a login', async () => {
+    const base = await baseWith({ VERCEL_URL: 'villa-booking-abc123-naithodu.vercel.app' });
+    expect(base).not.toContain('abc123');
+    expect(base).toBe('https://villa-booking-psi.vercel.app');
   });
 
-  it('uses the running deployment, which is guaranteed to serve the asset', async () => {
+  it('does not inherit the canonical default when APP_URL is simply unset', async () => {
+    // SITE_URL supplies villa19.in as a default for sitemaps. An image must not
+    // be addressed to a domain nobody configured and which may serve nothing.
+    expect(await baseWith({})).toBe('https://villa-booking-psi.vercel.app');
+    expect(await baseWith({ APP_URL: '   ' })).toBe('https://villa-booking-psi.vercel.app');
+  });
+
+  it('does not let VERCEL_URL override a configured public address', async () => {
+    const base = await baseWith({
+      APP_URL: 'https://villa-booking-psi.vercel.app',
+      VERCEL_URL: 'villa-booking-abc123-naithodu.vercel.app',
+    });
+    expect(base).toBe('https://villa-booking-psi.vercel.app');
+  });
+
+  it('uses a configured https address', async () => {
+    expect(await baseWith({ APP_URL: 'https://villa19.in' })).toBe('https://villa19.in');
+  });
+
+  it('ignores a plain-http address rather than emit a mixed-content image', async () => {
+    const base = await baseWith({ APP_URL: 'http://example.com' });
+    expect(base).toBe('https://villa-booking-psi.vercel.app');
+  });
+
+  it('lets an explicit override win over everything', async () => {
     const base = await baseWith({
       APP_URL: 'https://villa19.in',
-      VERCEL_URL: 'villa-booking-abc123.vercel.app',
-    });
-    expect(base).toBe('https://villa-booking-abc123.vercel.app');
-  });
-
-  it('adds a scheme to VERCEL_URL, which Vercel supplies bare', async () => {
-    const base = await baseWith({ VERCEL_URL: 'x.vercel.app' });
-    expect(base).toBe('https://x.vercel.app');
-  });
-
-  it('lets an explicit override win over the deployment', async () => {
-    const base = await baseWith({
       VERCEL_URL: 'x.vercel.app',
       EMAIL_ASSET_BASE_URL: 'https://cdn.example.com',
     });
@@ -68,12 +85,20 @@ describe('EMAIL_ASSET_BASE', () => {
   });
 
   it('ignores an empty override rather than building a schemeless URL', async () => {
-    const base = await baseWith({ EMAIL_ASSET_BASE_URL: '', VERCEL_URL: 'x.vercel.app' });
-    expect(base).toBe('https://x.vercel.app');
+    const base = await baseWith({ EMAIL_ASSET_BASE_URL: '', APP_URL: 'https://villa19.in' });
+    expect(base).toBe('https://villa19.in');
   });
 
-  it('always resolves to an absolute https base', async () => {
-    for (const env of [{}, { APP_URL: 'http://localhost:3000' }, { VERCEL_URL: 'x.vercel.app' }]) {
+  it('never leaves a trailing slash to double up on the image path', async () => {
+    const base = await baseWith({ APP_URL: 'https://villa19.in/' });
+    expect(base).toBe('https://villa19.in');
+  });
+
+  it('always resolves to an absolute https base with no path', async () => {
+    for (const env of [
+      {}, { APP_URL: 'http://localhost:3000' }, { APP_URL: 'https://villa19.in' },
+      { VERCEL_URL: 'x.vercel.app' }, { APP_URL: 'not-a-url' },
+    ]) {
       expect(await baseWith(env)).toMatch(/^https:\/\/[^/]+$/);
     }
   });
