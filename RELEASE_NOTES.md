@@ -4,6 +4,51 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.16 - The mobile footer was behind the CTA bar, and the rule meant to stop that never ran - 2026-10-14
+
+### Footer clearance, and why the existing fix was invisible
+- **The last footer row sat 31px behind the fixed CTA bar, unreachable by scrolling.** The
+  copyright line ended at 772px with the bar starting at 741px. The page therefore had no visible
+  ending, which is what a review flagged as feeling abrupt.
+- **A rule to prevent exactly this already existed and had never applied.**
+  `body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem }` lived in `@layer components`.
+  Tailwind v4 orders `utilities` after `components`, so `.footer-inner`'s own `pb-10` won on *layer
+  order*, which no amount of selector specificity can beat. `.footer-inner` computed to 40px, not
+  the 96px the rule asked for.
+- The rule's own comment reasoned about specificity ("an id selector beats a class"), which is true
+  and irrelevant across layers. That is why it looked correct and did nothing.
+- **Moved the rule out of the layer entirely.** An unlayered rule beats every layer. It keeps its
+  `max-width: 767px` scope and its `:has(#mobile-cta-bar)` scope, so the padding still applies only
+  below md and only on the one page that renders the bar. Verified: homepage 96px, `/rooms` 40px,
+  desktop 56px.
+- A first attempt put `pb-28 md:pb-10` on the Footer component instead. That was wrong and is not
+  what shipped: the Footer is shared, so it would have added ~112px of dead space to the bottom of
+  every page that has no bar.
+
+### Mobile booking widget
+- **Hidden below md.** It was rendering at 80% page depth, after the FAQs, because the desktop
+  right rail falls to the end of the flow when the grid collapses to one column. Nobody scrolls
+  5,000px to reach a form the fixed bar already offers.
+- Nothing is lost: the bar carries the same two actions, and its Book Now opens the date dialog
+  rather than needing dates chosen first.
+- The breakpoint matches the bar's own `md:hidden` deliberately. Hiding at `lg` would have left
+  tablets between 768px and 1024px with neither the widget nor the bar.
+- The mobile page is 5,894px, down from 6,618px, and now closes on the contact card rather than a
+  half-filled booking form.
+
+### Migration safety
+- **`db-push.sh` treated the live database as staging.** Production was never created, so Vercel
+  production points at the dev ref; the script's "safe" path pushed to it with no confirmation, and
+  its typed-confirmation path was unreachable behind a `REPLACE_WITH_PROD_REF` placeholder.
+- It now treats that ref as live while `DEV_REF_SERVES_PROD` is set: a warning, a typed `yes-live`,
+  and an outright refusal in a non-interactive shell, which is how the previous push slipped
+  through unprompted. One flag to flip when a real production project exists.
+
+### Copy
+- The applied-promo line uses a colon rather than an em dash, which app-facing copy does not use.
+
+---
+
 ## v1.15 - Hero video, and a security deposit that said three different things - 2026-10-14
 
 ### Homepage hero

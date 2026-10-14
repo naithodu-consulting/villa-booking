@@ -517,16 +517,6 @@
      state so it cannot desync — ESC, backdrop and close button all "just work". */
   html:has(dialog[open]) { overflow: hidden; }
 
-  /* Clear the fixed mobile CTA bar only on pages that actually render it.
-     The bar is homepage-only; reserving its height unconditionally left ~96px
-     of empty footer under the copyright on every other page.
-     Scoped below md because the bar itself is md:hidden. An unscoped rule
-     outranks Tailwind's lg:pb-14 (an id selector beats a class), which left
-     the homepage footer 1rem shorter than every other page on desktop. */
-  @media (max-width: 767px) {
-    body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem; }
-  }
-
   /* The cookie banner is fixed to the bottom at z-50 and would sit on top of
      the scroll control, so the control steps above it until it is dismissed.
      Not inside the max-width block above: the control is lg-and-up only. */
@@ -551,4 +541,19 @@
       transition-duration: 0.01ms !important;
     }
   }
+}
+
+/* Clear the fixed mobile CTA bar only on pages that actually render it. The bar
+   is homepage-only; reserving its height unconditionally left ~96px of empty
+   footer under the copyright on every other page. Scoped below md because the
+   bar itself is md:hidden: unscoped, it also outranked Tailwind's lg:pb-14 and
+   left the homepage footer 1rem shorter than every other page on desktop.
+
+   Deliberately NOT in @layer components, where this lived and never applied.
+   Tailwind orders utilities after components, so .footer-inner's own pb-10 won
+   on layer order however specific this selector was, and the copyright sat 31px
+   behind the bar with no way to scroll to it. An unlayered rule beats every
+   layer, which is the only reason this one works. */
+@media (max-width: 767px) {
+  body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem; }
 }

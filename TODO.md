@@ -157,7 +157,19 @@ and the fallback for guest links in email. Guest links themselves no longer depe
 
 ## Known UX gaps (post-launch nice-to-haves)
 - [ ] EnquiryForm "Send Enquiry" button — `enquiries` table missing from local Supabase; needs `supabase db reset` or manual CREATE TABLE on local
-- [ ] Mobile homepage booking widget: currently buried at bottom on mobile (sticky bar added as stopgap). Consider a dedicated /book landing optimised for mobile.
+- [x] Mobile homepage booking widget: hidden below md (2026-10-14). It was landing at 80% page
+      depth, after the FAQs, because the desktop right rail falls to the end of the flow when the
+      grid collapses. The fixed bar carries the same two actions and its Book Now opens the date
+      dialog, so nothing is lost. Breakpoint matches the bar's own `md:hidden`; hiding at `lg`
+      would leave tablets with neither.
+- [ ] That widget is hidden with CSS, so it still mounts and fires its calendar fetch on mobile.
+      Only the layout is saved, not the request. A viewport-conditional render would fix it at the
+      cost of hydration flicker — worth it only if mobile performance becomes a priority.
+- [ ] Contact card ("Planning Your Stay?") duplicates the fixed bar's WhatsApp action on mobile.
+      Dropping WhatsApp from the card and keeping Call would make the card the phone channel and
+      the bar the WhatsApp channel, with nothing said twice. Keep the card itself: it holds the
+      only phone CTA on mobile, carries the reply-time promise, and is now the page's closing
+      block before the footer.
 - [ ] DatePicker: no keyboard arrow-key navigation within the calendar grid (ESC and click work; arrow nav would be ideal for a11y)
 - [x] Guest availability calendar: booked and blocked nights struck out in every date picker (2026-09-15).
 - [x] Nightly prices shown in every date picker, from the database (2026-09-15).

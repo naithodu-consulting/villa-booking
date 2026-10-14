@@ -17,6 +17,14 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DEV_REF="hlmqcdzazbrztfovixjk"   # Villa Project Development (remote-local / staging)
 PROD_REF="REPLACE_WITH_PROD_REF" # Villa 19 Production — set this once the project is created
 
+# The production project was never created, so Vercel production is pointed at
+# DEV_REF. A push to "staging" therefore changes what the live site serves as
+# soon as ISR revalidates, with no deploy involved. Until a real production
+# project exists and the Vercel env vars are repointed, DEV_REF has to be
+# treated as production or this script guards nothing.
+# Flip to false once PROD_REF above is a real ref.
+DEV_REF_SERVES_PROD=true
+
 PROJECT_REF_FILE="${REPO_ROOT}/supabase/.temp/project-ref"
 
 # ─── Read currently linked project ────────────────────────────────────────────
@@ -54,6 +62,11 @@ if [[ "$LINKED_REF" == "$PROD_REF" ]]; then
   echo "  ║  This affects real guest data and live bookings.            ║"
   echo "  ╚══════════════════════════════════════════════════════════════╝"
   echo ""
+  if [[ ! -t 0 ]]; then
+    echo "  Refusing to push to production from a non-interactive shell."
+    echo ""
+    exit 1
+  fi
   read -r -p "  Type 'yes-production' to confirm: " confirm
   if [[ "$confirm" != "yes-production" ]]; then
     echo "  Aborted."
@@ -63,7 +76,6 @@ if [[ "$LINKED_REF" == "$PROD_REF" ]]; then
   echo "  Pushing to Villa 19 Production (${LINKED_REF})..."
 
 elif [[ "$LINKED_REF" == "$DEV_REF" ]]; then
-  # Staging/dev path — safe
   if [[ "${1:-}" == "--production" ]]; then
     echo ""
     echo "  ERROR: --production flag passed but linked project is Staging, not Production."
@@ -71,7 +83,36 @@ elif [[ "$LINKED_REF" == "$DEV_REF" ]]; then
     echo ""
     exit 1
   fi
-  echo "  Pushing to Villa Project Development / Staging (${DEV_REF})..."
+
+  if [[ "$DEV_REF_SERVES_PROD" == "true" ]]; then
+    echo ""
+    echo "  ╔══════════════════════════════════════════════════════════════╗"
+    echo "  ║  WARNING: this project is what the LIVE SITE serves.         ║"
+    echo "  ║  No separate production database exists yet, so migrations   ║"
+    echo "  ║  pushed here reach guests as soon as ISR revalidates.        ║"
+    echo "  ╚══════════════════════════════════════════════════════════════╝"
+    echo ""
+    echo "  Linked: ${LINKED_REF}"
+    echo ""
+    # A non-interactive shell cannot answer, and silently proceeding is the
+    # exact failure this script exists to prevent.
+    if [[ ! -t 0 ]]; then
+      echo "  Refusing to push to the live database from a non-interactive shell."
+      echo "  Re-run from a terminal, or set DEV_REF_SERVES_PROD=false once a"
+      echo "  separate production project exists."
+      echo ""
+      exit 1
+    fi
+    read -r -p "  Type 'yes-live' to confirm: " confirm
+    if [[ "$confirm" != "yes-live" ]]; then
+      echo "  Aborted."
+      exit 1
+    fi
+    echo ""
+    echo "  Pushing to ${LINKED_REF} (currently serving live)..."
+  else
+    echo "  Pushing to Villa Project Development / Staging (${DEV_REF})..."
+  fi
 
 else
   echo ""

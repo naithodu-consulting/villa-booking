@@ -532,7 +532,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                         <CheckCircle className="w-4 h-4 flex-shrink-0" style={{ color: '#15803d' }} />
                         <span>
                           <span className="font-black tracking-wide">{appliedCode}</span>
-                          {' — '}
+                          {': '}
                           <span style={{ color: '#15803d' }}>{promoMessage}</span>
                         </span>
                       </div>

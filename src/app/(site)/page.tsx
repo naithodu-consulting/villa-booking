@@ -548,8 +548,12 @@ export default async function LandingPage() {
 
         </div>
 
-        {/* Right column: sticky booking widget */}
-        <div className="lg:col-span-1">
+        {/* Right column: sticky booking widget.
+            Hidden below md, where the fixed bar carries the same two actions and
+            its Book Now opens the date dialog, so nothing is lost. The breakpoint
+            matches the bar's own md:hidden: at lg it would leave tablets with
+            neither the widget nor the bar. */}
+        <div className="hidden md:block lg:col-span-1">
           <div className="sticky top-[136px]">
             {/* When these rates were read. With revalidate above, this is the
                 age of the cached render, which the widget compares against the
