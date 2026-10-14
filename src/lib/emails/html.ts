@@ -6,6 +6,39 @@
  * than anything that needs CSS to read correctly.
  */
 
+import { SITE_URL } from '@/lib/seo';
+
+/**
+ * Where an email's images are loaded from.
+ *
+ * Not APP_URL, which is what every link in the email uses. Gmail and the other
+ * webmail clients fetch images through their own proxy, from their servers
+ * rather than the reader's browser, so the host has to be reachable from the
+ * public internet. APP_URL is `localhost:3000` in development, which resolves
+ * to the proxy itself and never to the developer's machine, so a test send
+ * renders a broken image however correct the markup is.
+ *
+ * So: a public APP_URL is used as-is (production, and previews that set it),
+ * and anything local falls back to the deployment that is always up. Set
+ * EMAIL_ASSET_BASE_URL to override, which is also the escape hatch if the
+ * canonical domain is ever serving something other than this app.
+ */
+const PUBLIC_ASSET_FALLBACK = 'https://villa-booking-psi.vercel.app';
+
+export const EMAIL_ASSET_BASE = (() => {
+  const override = process.env.EMAIL_ASSET_BASE_URL?.replace(/\/$/, '');
+  if (override) return override;
+  try {
+    const { hostname } = new URL(SITE_URL);
+    const unreachable =
+      hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' ||
+      hostname === '[::1]' || hostname.endsWith('.local');
+    return unreachable ? PUBLIC_ASSET_FALLBACK : SITE_URL;
+  } catch {
+    return PUBLIC_ASSET_FALLBACK;
+  }
+})();
+
 /** Guest-supplied text (name, email, phone) must not become markup in an email. */
 export function esc(value: string | number): string {
   return String(value)

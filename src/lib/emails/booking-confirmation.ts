@@ -1,10 +1,9 @@
 import { ENTITY } from '@/lib/entity';
-import { SITE_URL } from '@/lib/seo';
 import { cancellationOutlook, type CancellationOutlook } from '@/lib/cancellation';
 import { formatPhone } from '@/lib/format';
 import {
   esc, inr, dateTimeMedium, timestampDate, dateWithWeekday, dateDayMonth, dateShort,
-  time12, guestLine, stayRange,
+  time12, guestLine, stayRange, EMAIL_ASSET_BASE,
 } from '@/lib/emails/html';
 
 /**
@@ -221,7 +220,7 @@ export function renderBookingConfirmation(
   <tr><td class="pad" style="background:${MAROON};padding:30px 36px 34px;text-align:center;">
     <table role="presentation" class="tick" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
       <td align="center" valign="middle" bgcolor="${OK}" style="background:${OK};border-radius:24px;padding:13px;font-size:0;line-height:0;mso-line-height-rule:exactly;">
-        <img src="${esc(SITE_URL)}/email/success-tick.png" width="22" height="22" alt="" style="display:block;width:22px;height:22px;border:0;outline:none;text-decoration:none;">
+        <img src="${esc(EMAIL_ASSET_BASE)}/email/success-tick.png" width="22" height="22" alt="" style="display:block;width:22px;height:22px;border:0;outline:none;text-decoration:none;">
       </td>
     </tr></table>
     <h1 style="margin:16px 0 6px;font-family:${SERIF};font-size:28px;font-weight:normal;color:#ffffff;">Your booking is confirmed</h1>

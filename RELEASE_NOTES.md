@@ -4,6 +4,27 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.12 - Email images load off a host webmail can reach - 2026-10-14
+
+### Confirmation email badge
+- **The success badge pointed at APP_URL, which is localhost in development.** The circle itself
+  came out correct after v1.11, but the tick inside it was a broken-image icon on every test send.
+  Gmail and the other webmail clients fetch images through their own proxy, from their servers and
+  not the reader's browser, so `localhost:3000` resolves to the proxy and never to the machine that
+  sent the mail. No markup fixes that; the host has to be public.
+- **`villa19.in` was not a working source either.** It answers `200` with 32KB of `text/html` - the
+  parked Hostinger page - rather than the PNG, so production would have been broken too, and more
+  quietly than a 404 would have been.
+- **Images now resolve through `EMAIL_ASSET_BASE` in `lib/emails/html.ts`**, which is deliberately
+  separate from the APP_URL every *link* in the email uses. A public APP_URL is used as-is, so
+  production and previews are unaffected; a local one falls back to the always-deployed preview
+  host, so test sends render. `EMAIL_ASSET_BASE_URL` overrides both, which is also the escape hatch
+  if the canonical domain is ever serving something other than this app.
+- Verified across all five cases: localhost, the preview host, `villa19.in`, an explicit override,
+  and APP_URL unset.
+
+---
+
 ## v1.11 - Confirmation email on mobile, production domain - 2026-10-14
 
 ### Booking confirmation email
