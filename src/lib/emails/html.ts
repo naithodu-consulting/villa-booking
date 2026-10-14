@@ -6,37 +6,36 @@
  * than anything that needs CSS to read correctly.
  */
 
-import { SITE_URL } from '@/lib/seo';
-
 /**
  * Where an email's images are loaded from.
  *
- * Not APP_URL, which is what every link in the email uses. Gmail and the other
- * webmail clients fetch images through their own proxy, from their servers
- * rather than the reader's browser, so the host has to be reachable from the
- * public internet. APP_URL is `localhost:3000` in development, which resolves
- * to the proxy itself and never to the developer's machine, so a test send
- * renders a broken image however correct the markup is.
+ * Explicitly NOT APP_URL, even though every *link* in an email uses it. Those
+ * are different jobs: APP_URL is the canonical address we want indexed and
+ * shown to guests, which is not the same as a host that is currently serving
+ * this app. They came apart here, and twice: APP_URL is `localhost:3000` in
+ * development, and webmail fetches images through its own proxy from its
+ * servers rather than the reader's browser, so localhost resolves to the proxy
+ * and never to the sending machine; then APP_URL became `villa19.in` before
+ * that domain pointed anywhere, where the registrar's parked page answered 200
+ * with `text/html` for every path, so the badge was a broken image in a send
+ * that otherwise looked healthy.
  *
- * So: a public APP_URL is used as-is (production, and previews that set it),
- * and anything local falls back to the deployment that is always up. Set
- * EMAIL_ASSET_BASE_URL to override, which is also the escape hatch if the
- * canonical domain is ever serving something other than this app.
+ * The asset is served by this app, so the host running this build always has
+ * it. On Vercel that is VERCEL_URL, whatever the canonical domain is doing,
+ * which makes this correct by construction rather than by a guess about which
+ * domains are live. Off Vercel there is no such signal, so fall back to the
+ * deployment that is always up. EMAIL_ASSET_BASE_URL overrides everything, for
+ * a CDN or once the canonical domain genuinely serves the app.
  */
 const PUBLIC_ASSET_FALLBACK = 'https://villa-booking-psi.vercel.app';
 
 export const EMAIL_ASSET_BASE = (() => {
   const override = process.env.EMAIL_ASSET_BASE_URL?.replace(/\/$/, '');
   if (override) return override;
-  try {
-    const { hostname } = new URL(SITE_URL);
-    const unreachable =
-      hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' ||
-      hostname === '[::1]' || hostname.endsWith('.local');
-    return unreachable ? PUBLIC_ASSET_FALLBACK : SITE_URL;
-  } catch {
-    return PUBLIC_ASSET_FALLBACK;
-  }
+  // Set by Vercel in every environment; the host of this exact deployment.
+  const vercel = process.env.VERCEL_URL?.replace(/\/$/, '');
+  if (vercel) return vercel.startsWith('http') ? vercel : `https://${vercel}`;
+  return PUBLIC_ASSET_FALLBACK;
 })();
 
 /** Guest-supplied text (name, email, phone) must not become markup in an email. */

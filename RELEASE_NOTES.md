@@ -4,6 +4,25 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.13 - Email images follow the running deployment - 2026-10-14
+
+### Confirmation email badge
+- **v1.12 fixed the localhost case and missed the one that was actually live.** The deployment
+  leaves `APP_URL` unset, so `SITE_URL` resolved to `villa19.in` (visible in the preview host's own
+  `robots.txt`). The guard only rejected localhost, so it saw a public host, trusted it, and pointed
+  the badge at a domain still parked at the registrar, which answers `200` with `text/html` for
+  every path. The send looked healthy and the image was broken.
+- **The mistake was conceptual, so the fix removes the source rather than widening the guard.**
+  `APP_URL` is the canonical address we want indexed; it is not a promise that anything is serving
+  it. The asset is served by this app, so the host running the build always has it: on Vercel that
+  is `VERCEL_URL`, whatever the canonical domain happens to be doing. `EMAIL_ASSET_BASE` now reads
+  `EMAIL_ASSET_BASE_URL`, then `VERCEL_URL`, then a known-good public fallback, and `APP_URL` can no
+  longer reach an image URL at all.
+- **Seven regression tests** in `emails/__tests__/asset-base.test.ts` pin this down, including the
+  two shapes that shipped broken: a localhost `APP_URL` and a healthy-looking but unserved domain.
+
+---
+
 ## v1.12 - Email images load off a host webmail can reach - 2026-10-14
 
 ### Confirmation email badge
