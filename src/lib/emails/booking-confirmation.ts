@@ -57,6 +57,13 @@ export interface BookingConfirmationContext {
   children: number;
   /** When the booking was paid, as a timestamp: the row shows the time too. */
   bookedAt: string;
+  /**
+   * Guests above the property's base occupancy, which is what extraGuestAmount
+   * is charged for. Derived at send time rather than stored: the booking row
+   * keeps the amount but not the count the pricing engine worked it out from.
+   * Omitted leaves the row unqualified rather than printing "0".
+   */
+  extraGuests?: number;
   /** All amounts in paise. */
   baseAmount: number;
   extraGuestAmount: number;
@@ -157,6 +164,13 @@ export function renderBookingConfirmation(
 
   const taxable = c.baseAmount + c.extraGuestAmount - c.discountAmount;
   const balanceDue = Math.max(0, c.totalAmount - c.amountPaidPaise);
+
+  // "Extra guests, 6", matching "Stay, 1 night". A comma rather than brackets:
+  // the discount row already spends brackets on the code it was claimed with,
+  // and a bracketed number beside a money column reads as a negative amount.
+  const extraGuestLabel = c.extraGuests && c.extraGuests > 0
+    ? `Extra guests, ${c.extraGuests}`
+    : 'Extra guests';
 
   // Carries the facts a guest scans for before opening, so the client does not
   // fall back to showing "Dear <name>," as the preview line.
@@ -272,10 +286,10 @@ export function renderBookingConfirmation(
       ${detailRow('Mobile', esc(phone))}
     </table>
     <p style="margin:10px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:${MUTED};">
-      We will send the exact address and check-in details to this mobile number on WhatsApp.
-      If the email or mobile number mentioned above is wrong, please let us know.
+      We will send the exact address and check-in details to this mobile number via WhatsApp.
+      If the email address or mobile number provided above is incorrect, please let us know.
     </p>
-    ${c.additionalGuestsNote ? `<p style="margin:14px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:#5d5550;background:${CARD};border:1px solid ${RULE};border-radius:8px;padding:12px 14px;">Additional guests are accommodated using mattresses in select bedrooms and the lounge.</p>` : ''}
+    ${c.additionalGuestsNote ? `<p style="margin:14px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:#5d5550;background:${CARD};border:1px solid ${RULE};border-radius:8px;padding:12px 14px;">Additional guests can be accommodated on mattresses in select bedrooms and in the lounge.</p>` : ''}
 
     ${rule()}
 
@@ -283,7 +297,7 @@ export function renderBookingConfirmation(
     ${sectionLabel('Payment')}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       ${payRow(`Stay, ${c.nights} ${c.nights === 1 ? 'night' : 'nights'}`, inr(c.baseAmount))}
-      ${c.extraGuestAmount > 0 ? payRow('Extra guests', inr(c.extraGuestAmount)) : ''}
+      ${c.extraGuestAmount > 0 ? payRow(esc(extraGuestLabel), inr(c.extraGuestAmount)) : ''}
       ${c.discountAmount > 0 ? payRow(
         `Discount${c.discountCode ? ` <span style="color:${MUTED};font-size:13px;">(${esc(c.discountCode)})</span>` : ''}`,
         `-${inr(c.discountAmount)}`, 'credit',
@@ -309,7 +323,7 @@ export function renderBookingConfirmation(
     </table>` : ''}
 
     <p style="margin:14px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:#5d5550;">
-      <strong style="color:${INK};">Note:</strong> A refundable security deposit might be requested upon check-in.
+      <strong style="color:${INK};">Note:</strong> A refundable security deposit is collected upon check-in.
       This is in addition to the online payment. Please contact the property in case of questions.
     </p>
 
@@ -412,7 +426,7 @@ export function renderBookingConfirmation(
   return {
     subject: `Your booking is confirmed · ${c.bookingRef} · ${c.propertyName}`,
     html,
-    text: renderText(c, { checkInAt, checkOutAt, firstName, phone, stayLine, refunds, taxable, balanceDue }),
+    text: renderText(c, { checkInAt, checkOutAt, firstName, phone, stayLine, refunds, taxable, balanceDue, extraGuestLabel }),
   };
 }
 
@@ -426,7 +440,7 @@ function renderText(
   v: {
     checkInAt: string; checkOutAt: string; firstName: string; phone: string;
     stayLine: string; refunds: CancellationOutlook;
-    taxable: number; balanceDue: number;
+    taxable: number; balanceDue: number; extraGuestLabel: string;
   },
 ): string {
   const money = (label: string, amount: string) => `  ${label.padEnd(28)}${amount}`;
@@ -457,7 +471,7 @@ function renderText(
     '',
     'PAYMENT',
     money(`Stay, ${c.nights} ${c.nights === 1 ? 'night' : 'nights'}`, inr(c.baseAmount)),
-    ...(c.extraGuestAmount > 0 ? [money('Extra guests', inr(c.extraGuestAmount))] : []),
+    ...(c.extraGuestAmount > 0 ? [money(v.extraGuestLabel, inr(c.extraGuestAmount))] : []),
     ...(c.discountAmount > 0
       ? [money(`Discount${c.discountCode ? ` (${c.discountCode})` : ''}`, `-${inr(c.discountAmount)}`)]
       : []),
@@ -467,7 +481,7 @@ function renderText(
     ...(v.balanceDue > 0 ? [money('Balance due', inr(v.balanceDue))] : []),
     ...(c.paidInFull ? ['', 'Amount is paid in full.'] : []),
     '',
-    'Note: A refundable security deposit might be requested upon check-in. This is',
+    'Note: A refundable security deposit is collected upon check-in. This is',
     'in addition to the online payment. Please contact the property in case of',
     'questions.',
     '',

@@ -31,6 +31,7 @@ const CATEGORY_ICON: Record<string, string> = {
 /** Categories whose key does not read as a heading on its own. */
 const CATEGORY_LABEL: Record<string, string> = {
   function_hall: 'Wedding & Event Venues',
+  temple: 'Places of Worship',
 };
 
 export default async function TheVillaPage() {

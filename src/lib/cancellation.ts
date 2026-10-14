@@ -145,4 +145,4 @@ export function cancellationOutlook(
 }
 
 export const SECURITY_DEPOSIT_TERMS =
-  'A security deposit, where applicable, will be collected upon check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.';
+  'A fully refundable security deposit is collected upon check-in. Subject to property inspection following check-out, the deposit will be processed within 5 working days and returned to the original payment method.';

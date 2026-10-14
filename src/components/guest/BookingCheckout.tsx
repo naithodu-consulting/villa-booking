@@ -507,7 +507,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     rows={3}
                     value={specialRequests}
                     onChange={(e) => setSpecialRequests(e.target.value)}
-                    placeholder="Early check-in, dietary restrictions, extra towels…"
+                    placeholder="Early check-in, extra towels…"
                     className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 resize-none transition-shadow"
                     style={{
                       backgroundColor: 'var(--paper-sunk)',

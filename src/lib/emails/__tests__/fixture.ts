@@ -29,6 +29,7 @@ export const SAMPLE_CONFIRMATION: BookingConfirmationContext = {
   bookedAt: '2026-10-07T11:02:00Z',
   baseAmount: 6_000_000,
   extraGuestAmount: 600_000,
+  extraGuests: 2,
   discountAmount: 660_000,
   discountCode: 'WELCOME10',
   taxAmount: 1_069_200,

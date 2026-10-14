@@ -4,6 +4,71 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.15 - Hero video, and a security deposit that said three different things - 2026-10-14
+
+### Homepage hero
+- **The mosaic's hero cell now plays the drone reel instead of a photograph.** Muted, looping and
+  `playsInline`, with a sound toggle bottom-left. `muted` is set as a DOM property rather than the
+  JSX attribute: React drops it often enough that autoplay silently fails, and autoplay is only
+  permitted while muted. A `prefers-reduced-motion` listener pauses it, and unmuting overrides that
+  pause, since asking for sound is a deliberate gesture.
+- **The source is a finished vertical reel (1080x1920, 50.8s), not raw footage**, so it is encoded
+  already cropped to the 3:2 cell - `crop=1080:720:0:600` - rather than letting the browser decode
+  1920 rows and discard two thirds of them. An upper-biased crop was tried and rejected: it
+  decapitates the VILLA19 signage in several shots.
+- **An earlier cut stitched three segments** to skip a carrom-board shot and a cityscape. It was
+  tighter and 2.1 MB, but the soundtrack audibly jumped at each join. Continuity won: the clip is
+  now one continuous trim, `0 - 47.33`, 3.3 MB at CRF 38. Only the logo end card is dropped, because
+  it would strobe on every loop.
+- **Fade-out at the end, deliberately no fade-in.** The fade stops the loop hard-cutting from a night
+  shot into bright daylight. A fade-in cannot be used: it makes frame 0 black, and the poster is
+  frame 0, so the cell would flash black on load.
+- No WebM sibling. At matched quality libvpx came out 3-4x *larger* than x264 here - VP9's CRF
+  numbers are not on the same scale as x264's - and H.264 already has universal support and
+  hardware decode.
+- The reel takes the hero slot, so the tiles now start at the first photo rather than skipping it,
+  and the first two carry `priority`, which the hero image used to hold.
+
+### Gallery brightness
+- **The four tiles beside the hero were dimmed by a flat `bg-black/15` that served nothing.** The
+  hero's gradient is a scrim with a job - it sits under the "Show All Photos" button - but the tiles
+  carry no text at rest, since the caption is `opacity-0` until hover. It was darkening photography
+  for no reason.
+- It was also broken for most visitors: the brighten-on-hover payoff is inside `@media (hover: hover)`,
+  so on a phone the tint never lifted. And pure `#000` contradicts a palette that deliberately avoids
+  it everywhere else, `--ink` being `#1A1208`. Removed; hierarchy was already carried by the hero
+  being four times the area.
+
+### Security deposit, said three ways
+- **The same policy appeared in four places and disagreed in three of them.** The new FAQ says it
+  *is collected*, the email's plain-text part said *is collected*, the email's HTML part still said
+  *might be requested*, and `SECURITY_DEPOSIT_TERMS` said *where applicable, will be collected*.
+- The HTML and text halves of one email contradicting each other is the worst of these: which one a
+  guest sees depends only on their mail client. `SECURITY_DEPOSIT_TERMS` renders on the homepage
+  directly alongside the FAQ that now contradicted it.
+- All four now state that a fully refundable deposit is collected at check-in. The terms block keeps
+  its extra detail (inspection, 5 working days, original payment method) and drops the now-redundant
+  second "refundable".
+
+### Confirmation email
+- **The extra-guests row is qualified with a count**, "Extra guests, 2", matching "Stay, 1 night".
+  The count is derived at send time as guests above base occupancy, the same way the pricing engine
+  worked out the amount, because the booking row stores the charge but not the headcount.
+- The additional-guests note was reworded on the booking widget but not in the email; they match again.
+
+### Booking widget
+- The extra-guest rate is now stated on the card, including the second tier where one applies, so a
+  guest pricing a party of 12 does not have to fill the form to discover it.
+
+### Nearby places and copy (00086, 00087, 00088)
+- Renames to full/correct forms: Kadri Manjunatha, Kudroli Gokarnanatheshwara, Gokula Kalyana
+  Mantapa, Mangalore Railway Station, Mangalore Airport, Supermarkets.
+- Removed Sharavu Mahaganapathi Temple, Nilgiris and KSRTC Bus Stand. Added Naturals Sundaes.
+- The temple category renders as "Places of Worship" on The Villa page.
+- Checkout's special-requests placeholder no longer suggests dietary restrictions.
+
+---
+
 ## v1.14 - Email images, actual root cause - 2026-10-14
 
 ### Confirmation email badge

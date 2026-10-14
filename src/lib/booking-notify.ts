@@ -79,6 +79,10 @@ async function sendConfirmationEmails(supabase: SupabaseClient, bookingId: strin
       bookedAt: b.confirmed_at ?? b.created_at ?? new Date().toISOString(),
       baseAmount: b.base_amount,
       extraGuestAmount: b.extra_guest_amount ?? 0,
+      // The booking row stores what the extra guests cost but not how many
+      // there were, so the count comes back the same way the pricing engine
+      // worked it out: guests above base occupancy.
+      extraGuests: Math.max(0, guests - p.base_occupancy),
       discountAmount: b.discount_amount ?? 0,
       discountCode: b.discount_code ?? undefined,
       taxAmount: b.tax_amount,
