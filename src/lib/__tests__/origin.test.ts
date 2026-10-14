@@ -7,8 +7,8 @@ import { safeOrigin, guestLinkBase } from '@/lib/origin';
  */
 describe('safeOrigin', () => {
   it('accepts the production site and its www form', () => {
-    expect(safeOrigin('https://habbaa.in')).toBe('https://habbaa.in');
-    expect(safeOrigin('https://www.habbaa.in')).toBe('https://www.habbaa.in');
+    expect(safeOrigin('https://villa19.in')).toBe('https://villa19.in');
+    expect(safeOrigin('https://www.villa19.in')).toBe('https://www.villa19.in');
   });
 
   it('accepts Vercel preview deployments', () => {
@@ -33,20 +33,20 @@ describe('safeOrigin', () => {
   });
 
   it('rejects a host that only prefixes the real one', () => {
-    expect(safeOrigin('https://habbaa.in.evil.example')).toBeNull();
+    expect(safeOrigin('https://villa19.in.evil.example')).toBeNull();
   });
 
   it('rejects credentials in the authority', () => {
-    expect(safeOrigin('https://habbaa.in@evil.example')).toBeNull();
+    expect(safeOrigin('https://villa19.in@evil.example')).toBeNull();
   });
 
   it('rejects plain http for a non-local host', () => {
-    expect(safeOrigin('http://habbaa.in')).toBeNull();
+    expect(safeOrigin('http://villa19.in')).toBeNull();
   });
 
   it('rejects anything carrying a path, query or fragment', () => {
-    expect(safeOrigin('https://habbaa.in/evil')).toBeNull();
-    expect(safeOrigin('https://habbaa.in?x=1')).toBeNull();
+    expect(safeOrigin('https://villa19.in/evil')).toBeNull();
+    expect(safeOrigin('https://villa19.in?x=1')).toBeNull();
   });
 
   it('rejects non-http schemes', () => {
@@ -64,11 +64,11 @@ describe('safeOrigin', () => {
 
 describe('guestLinkBase', () => {
   it('falls back to the configured site when nothing was stored', () => {
-    expect(guestLinkBase(null)).toBe('https://habbaa.in');
+    expect(guestLinkBase(null)).toBe('https://villa19.in');
   });
 
   it('falls back rather than trusting a host that is not allowlisted', () => {
-    expect(guestLinkBase('https://evil.example')).toBe('https://habbaa.in');
+    expect(guestLinkBase('https://evil.example')).toBe('https://villa19.in');
   });
 
   it('uses the stored origin when it is allowed', () => {

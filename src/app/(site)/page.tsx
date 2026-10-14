@@ -26,7 +26,7 @@ const TIER_COLOURS = [
   { color: 'var(--ink-muted)', bg: 'var(--paper-sunk)',     border: 'var(--border-subtle)' },
 ];
 import {
-  ShieldCheck, MapPin, Users, Wifi, Bed,
+  MapPin, Users, Wifi, Bed,
   Car, Sofa, Trees, AirVent,
   Sparkles, Phone,
   Clock, ChevronDown, ArrowRight,

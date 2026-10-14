@@ -140,8 +140,6 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
     property.weekend_nightly_rate,
     ...bookableRules.map((r) => r.nightly_rate),
   ));
-  const extraRateDisplay = inr(property.extra_guest_rate);
-  const tier2From = property.extra_guest_tier2_from;
 
   return (
     <div className="w-full rounded-2xl border border-[rgba(0,0,0,0.09)] shadow-lg">

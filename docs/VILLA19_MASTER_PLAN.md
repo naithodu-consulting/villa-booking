@@ -33,7 +33,7 @@ These are Phase 0. Nothing ships until they are closed.
 
 | # | Decision | Choice | Implication |
 |---|---|---|---|
-| D-01 | Domain | **habbaa.in** | Single site. Villa 19 is the content at root. Habbaa is the operator brand. |
+| D-01 | Domain | **villa19.in** | Single site. Villa 19 is the content at root. Habbaa is the operator brand. |
 | D-02 | Brand hierarchy | **Villa 19** primary, *managed by Habbaa* secondary | Villa 19 owns the hero, the title tag, the OG image. Habbaa owns the footer, the About section, the operator trust signals. |
 | D-03 | Multi-property | **Structurally ready, not exposed** | Internally every route is property-scoped from day one. Villa 19 renders at `/`. Property #2 flips a config flag, not a rewrite. |
 | D-04 | Booking model | **Direct online payment is the primary CTA** | Razorpay checkout is finished properly. OTA links are secondary trust signals, not the conversion path. |
@@ -42,7 +42,7 @@ These are Phase 0. Nothing ships until they are closed.
 
 ### 1.1 Assumptions I am proceeding on (flag if wrong)
 
-- **A-01** habbaa.in is registered or will be; DNS is controllable. Hosting stays Vercel.
+- **A-01** villa19.in is registered or will be; DNS is controllable. Hosting stays Vercel.
 - **A-02** The villa facts in `URWA_VILLA_KNOWLEDGE.md` still hold: 4 bedrooms, max 12 guests, base
   occupancy 8, private lawn, **no pool**, **no in-house chef**, **no private beach**, beach 1.5 km.
   The new brief does not contradict any of these; it also does not confirm them. Everything in the
@@ -479,7 +479,7 @@ this table as a shortlist to validate in a demo call, not as a finding.
                   webhook  │           │  push reservation
                   + poll   ▼           │
                     ┌──────────────────┴───┐
-                    │  habbaa.in (Supabase)│
+                    │ villa19.in (Supabase)│
                     │  availability cache  │
                     └──────────────────────┘
 ```
@@ -644,7 +644,7 @@ OTA listings) · `BreadcrumbList` · `FAQPage` on `/faq` · `ImageObject` on gal
   tree plus dynamic room/offer/event slugs.
 - `robots.ts` already disallows `/admin/` and `/api/` — correct. Both files read `process.env.APP_URL`
   and fall back to **`https://villamangalore.com`**, which is not the domain. Fix the fallback to
-  `https://habbaa.in` and set `APP_URL` in Vercel.
+  `https://villa19.in` and set `APP_URL` in Vercel.
 - **Env var mismatch:** `.env.example` documents `NEXT_PUBLIC_APP_URL` and
   `NEXT_PUBLIC_PROPERTY_WHATSAPP`; the code reads `APP_URL` and `PROPERTY_WHATSAPP`. `.env.local` uses
   the code's names. Anyone deploying from `.env.example` gets the wrong domain in the sitemap and the
@@ -817,7 +817,7 @@ by the start of Phase 3. Phases 2 and 4 can partially overlap with a second deve
 5. **Razorpay live credentials** (KYC-completed account).
 6. **Channel manager decision** (§7.2) — before Phase 3.
 7. **Terms, Privacy and Refund policy** — drafted, legally reviewed.
-8. **habbaa.in DNS access.**
+8. **villa19.in DNS access.**
 
 ### Content inputs
 9. Confirm the property facts in §1.1 A-02 are still accurate.

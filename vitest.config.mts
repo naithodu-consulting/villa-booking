@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitest/config';
-// @ts-ignore — import.meta.dirname is valid in ESM context
+
 export default defineConfig({
   test: {
     environment: 'node',

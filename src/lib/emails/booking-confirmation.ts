@@ -1,4 +1,5 @@
 import { ENTITY } from '@/lib/entity';
+import { SITE_URL } from '@/lib/seo';
 import { cancellationOutlook, type CancellationOutlook } from '@/lib/cancellation';
 import { formatPhone } from '@/lib/format';
 import {
@@ -112,7 +113,7 @@ function rule(): string {
 /** A label/value row in the details list. */
 function detailRow(label: string, value: string, sub?: string): string {
   return `<tr>
-    <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">${esc(label)}</td>
+    <td style="padding:4px 12px 4px 0;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">${esc(label)}</td>
     <td style="padding:4px 0;font-family:${SANS};font-size:14px;color:${INK};vertical-align:top;">${value}${
       sub ? `<br><span style="color:${MUTED};font-size:13px;">${esc(sub)}</span>` : ''
     }</td>
@@ -184,6 +185,19 @@ export function renderBookingConfirmation(
 <title>Your booking is confirmed</title>
 <style>
 :root { color-scheme: light only; supported-color-schemes: light only; }
+/* The badge is an image, not a character, because Gmail on Android sizes a text
+   glyph from the font's own line box and ignores the cell's height. U+2713 is
+   absent from Roboto, so it resolves in a fallback symbol font whose line box
+   measured ~2.7x the font-size there: the badge came out a third taller than it
+   was wide at every size we tried, and tuning font-size only fits the one
+   device's fallback font.
+   So nothing here may depend on font metrics. The 48px circle is the 22px image
+   plus 13px of padding on each side, both fixed, and font-size/line-height are
+   zeroed so no stray text box can add to it. A blocked image keeps its reserved
+   22px, so the circle still renders at 48px with the tick simply absent. */
+.tick td  { padding:13px !important; font-size:0 !important; line-height:0 !important;
+            border-radius:24px !important; }
+.tick img { width:22px !important; height:22px !important; display:block !important; }
 /* Phone clients only. Outlook ignores media queries and keeps the inline
    sizes, which are already correct at the 580px the desktop card uses. */
 @media only screen and (max-width:430px) {
@@ -205,8 +219,10 @@ export function renderBookingConfirmation(
 
   <!-- Header -->
   <tr><td class="pad" style="background:${MAROON};padding:30px 36px 34px;text-align:center;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
-      <td width="34" height="34" align="center" style="width:34px;height:34px;background:${OK};border-radius:17px;font-family:${SANS};font-size:19px;font-weight:bold;color:#ffffff;line-height:34px;">&#10003;</td>
+    <table role="presentation" class="tick" cellpadding="0" cellspacing="0" border="0" align="center"><tr>
+      <td align="center" valign="middle" bgcolor="${OK}" style="background:${OK};border-radius:24px;padding:13px;font-size:0;line-height:0;mso-line-height-rule:exactly;">
+        <img src="${esc(SITE_URL)}/email/success-tick.png" width="22" height="22" alt="" style="display:block;width:22px;height:22px;border:0;outline:none;text-decoration:none;">
+      </td>
     </tr></table>
     <h1 style="margin:16px 0 6px;font-family:${SERIF};font-size:28px;font-weight:normal;color:#ffffff;">Your booking is confirmed</h1>
     <p style="margin:0;font-family:${SANS};font-size:14px;color:rgba(255,255,255,0.78);">${esc(stayLine)}</p>
@@ -358,20 +374,20 @@ export function renderBookingConfirmation(
     ${sectionLabel('If you need us')}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
       ${c.whatsappNumber ? `<tr>
-        <td style="padding:0 0 8px;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">WhatsApp</td>
+        <td style="padding:0 14px 8px 0;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:30%;white-space:nowrap;">WhatsApp</td>
         <td style="padding:0 0 8px;vertical-align:top;">
           <a href="https://wa.me/${esc(c.whatsappNumber.replace(/\D/g, ''))}" style="font-family:${SANS};font-size:14px;color:${MAROON};font-weight:bold;">${esc(formatPhone(c.whatsappNumber))}</a>
           <br><span style="font-family:${SANS};font-size:13px;color:${MUTED};">The fastest way to reach us.</span>
         </td>
       </tr>` : ''}
       <tr>
-        <td style="font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:34%;">Email</td>
+        <td style="padding:0 14px 0 0;font-family:${SANS};font-size:14px;color:${MUTED};vertical-align:top;width:30%;white-space:nowrap;">Email</td>
         <td style="vertical-align:top;"><a href="mailto:${esc(ENTITY.email)}" style="font-family:${SANS};font-size:14px;color:${MAROON};">${esc(ENTITY.email)}</a></td>
       </tr>
     </table>
 
-    <p style="margin:26px 0 4px;font-family:${SANS};font-size:15px;color:${INK};">We look forward to hosting you.</p>
-    <p style="margin:0;font-family:${SERIF};font-size:17px;color:${MAROON};">Team ${esc(c.propertyShortName)}</p>
+    <p style="margin:26px 0 6px;font-family:${SANS};font-size:14px;line-height:1.6;color:#5d5550;">We look forward to hosting you.</p>
+    <p style="margin:0;font-family:${SERIF};font-size:17px;line-height:1.4;color:${MAROON};">Team ${esc(c.propertyShortName)}</p>
 
   </td></tr>
 

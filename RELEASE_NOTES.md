@@ -4,6 +4,59 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.11 - Confirmation email on mobile, production domain - 2026-10-14
+
+### Booking confirmation email
+- **The green success badge is an image now, not a character.** On Gmail for Android it had been
+  rendering as a vertical oval at every size we tried. Measuring the badge across three sends gave
+  width:height ratios of 0.759, 0.768 and 0.769 — near identical, which ruled out a fixed overflow
+  (that would shrink proportionally as the box grew) and pointed at a height proportional to
+  `font-size`. Working back through the device scale, the height was about 2.7x the font-size while
+  the cell's own `height` and `line-height` were ignored outright. The cause is that U+2713 is
+  absent from Roboto, so Android resolves it in a fallback symbol font whose line box is far taller
+  than the text font's. No CSS on a text glyph survives that, and tuning `font-size` would only fit
+  one device's fallback font. The badge is now `public/email/success-tick.png` at 22px with 13px of
+  padding each side, so the 48px circle is built from fixed values and nothing depends on font
+  metrics. A blocked image keeps its reserved 22px, so the circle still renders with the tick
+  simply absent.
+- **Labels no longer collide with their values.** Neither the details table nor the "If you need us"
+  table set any right padding on the label cell, so "WhatsApp" ran straight into the phone number.
+  "Email" only looked fine because the word is short enough not to fill its 34% column. Both now
+  carry the gap explicitly.
+- **The sign-off line was the only body paragraph in the template without a `line-height`**, so
+  clients applied their own default and it sat differently from everything around it. It was also
+  15px against a 13-14px neighbourhood. Now 14px at 1.6, with "Team Villa 19" given an explicit 1.4
+  so the two read as one block.
+
+### Production domain is villa19.in
+- **`SITE_URL` fell back to a parked domain.** `src/lib/seo.ts` defaulted to `habbaa.in` whenever
+  `APP_URL` was unset. That domain is retired, so every reference to it is gone from code, tests,
+  `.env.example` and the deployment and planning docs.
+- **This also corrects the origin allowlist.** `lib/origin.ts` derives its production host from
+  `SITE_URL` rather than hardcoding one, so guest links in email now validate against the real
+  domain as a consequence of the same one-line change.
+- **`DEPLOYMENT.md` documented an env var the code does not read.** It listed
+  `EMAIL_FROM=noreply@habbaa.in`; the sender is `RESEND_FROM_EMAIL`, and it is
+  `reservations@habbaa.com`. Corrected to match what `lib/email.ts` actually reads.
+- The `habbaa.com` email, the Habbaa brand and the registered entity are unchanged. Only the `.in`
+  domain was retired. Historical mentions in this file are left as they are: they record what was
+  true at the time, and rewriting them would make the changelog wrong.
+
+### Room Breakdown shelf
+- **The first card sat flush against the left edge on phones.** The shelf cancels the section's
+  padding with `-mx-4` and re-adds it with `px-4`, but a scroll container's padding does not inset
+  the snapport: `scroll-snap-align: start` aligned the card to the scrollport edge and scrolled the
+  padding out of view. `scroll-px-4` sets the snap inset so the card lands level with every other
+  section.
+
+### Housekeeping
+- **ESLint is clean.** Removed an unused `ShieldCheck` import and two dead assignments in
+  `BookingWidget`. The `@ts-ignore` in `vitest.config.mts` sat on the `defineConfig` line rather
+  than the `import.meta.dirname` it named, so it suppressed nothing; `tsc` passes without it, and
+  `@ts-expect-error` would itself have errored as an unused directive.
+
+---
+
 ## v1.10 - Booking forms open on a bookable night - 2026-10-13
 
 ### Default dates

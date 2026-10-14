@@ -109,14 +109,13 @@ and the fallback for guest links in email. Guest links themselves no longer depe
 - [ ] Set `APP_URL` in the Vercel Preview environment.
 - [ ] Set `APP_URL` in the Vercel Production environment once `villa19.in` is deployed.
 - [ ] Consider a `VERCEL_URL` fallback in `src/lib/seo.ts` so preview deployments configure
-      themselves, and change the hardcoded default away from `habbaa.in` (a parked page).
+      themselves. The hardcoded default is now `villa19.in`.
 
 ### Domains in play
 - `villa19.in` — production website, bought recently, **currently a parked Hostinger page**; not
   yet pointed at Vercel. Also the domain verified in Resend today.
 - `villa19.habbaa.com` — proposed mail sending subdomain, no DNS yet.
 - `habbaa.com` — registered entity, Google Workspace mail, Shopify web. Reply-to address.
-- `habbaa.in` — parked, and the current hardcoded `SITE_URL` default. Decide whether to keep it.
 
 - [ ] Point `villa19.in` at Vercel.
 
@@ -174,13 +173,13 @@ and the fallback for guest links in email. Guest links themselves no longer depe
 - [ ] Optional: a 12-month "from ₹X" rate summary (Master Plan 7.4). The date pickers now show every
       night's price, so this is a nice-to-have rather than a gap.
 
-## Email domain migration to habbaa.in (2026-09-09)
+## Email domain migration to habbaa.com (2026-09-09)
 The site now uses `reservations@habbaa.com` everywhere in code and in `.env.local` /
 `.env.example` (`PROPERTY_EMAIL`, `ADMIN_EMAIL`). Two pieces are deliberately
 left on the old domain because changing them blind would break things:
 
 - [ ] **`RESEND_FROM_EMAIL` is still `hello@habbaa.com`.** Resend will only send
-      from a domain verified in its dashboard. Verify `habbaa.in` in Resend
+      from a domain verified in its dashboard. Verify `villa19.in` in Resend
       (DNS: SPF + DKIM records), confirm it shows as verified, and only then set
       `RESEND_FROM_EMAIL="Villa 19 by Habbaa <reservations@habbaa.com>"`. Switching it
       before verification makes every transactional email fail to send:

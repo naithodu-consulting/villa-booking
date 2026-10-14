@@ -4,7 +4,7 @@
 **Applies to:** the villa-booking Supabase project (dev/staging `hlmqcdzazbrztfovixjk`; production not yet created).
 **Last reviewed:** 2026-09-23
 
-Villa 19's guest site (habbaa.in) has no admin of its own. Ooruda Villa blocks dates, records
+Villa 19's guest site (villa19.in) has no admin of its own. Ooruda Villa blocks dates, records
 phone/WhatsApp bookings, changes rates and processes cancellations and refunds by writing directly
 into this database. The guest site's booking engine reads the same rows. If Ooruda Villa writes them
 in a shape the engine does not expect, the result is silent: a date that looks blocked but is
@@ -210,7 +210,7 @@ Every booking has three identifiers. Use the right one for each job:
 | Column | Example | What it is | Who sees it |
 |---|---|---|---|
 | `booking_code` | `V19-7KQ-M4X` | **The booking number.** Assigned automatically by a database trigger the first time `status` becomes `'confirmed'`, however that happens (website payment, this app, an OTA import). Never changes, never reused, and unique across all villas. | Guests, staff, emails, WhatsApp |
-| `access_token` | 64 hex characters | The private key to the guest's booking page, `https://habbaa.in/booking/<access_token>`. Created with the row. | Only the guest (by email or WhatsApp) |
+| `access_token` | 64 hex characters | The private key to the guest's booking page, `https://villa19.in/booking/<access_token>`. Created with the row. | Only the guest (by email or WhatsApp) |
 | `reference_number` | `MNG-3F9A2C` | Internal hold reference, also the Razorpay receipt. Exists before payment. | Nobody outside the system |
 
 - **Format:** villa prefix (`properties.booking_code_prefix`, e.g. `V19`), 5 random Crockford Base32
@@ -350,7 +350,7 @@ repo did, and was wrong).
 | Can this stay be booked? | `check_availability(property_id, check_in, check_out)` | `'AVAILABLE'`, `'DATE_UNAVAILABLE'` or `'DATE_BLOCKED'` |
 | Which nights are taken in a window? | `get_unavailable_nights(property_id, from, to)` | Set of dates (each is a taken night; `to` exclusive) |
 
-Both are the functions the guest site uses, so Ooruda Villa's calendar and habbaa.in cannot
+Both are the functions the guest site uses, so Ooruda Villa's calendar and villa19.in cannot
 disagree. Do not re-implement the overlap logic.
 
 ---
@@ -390,7 +390,7 @@ Content pages (journal, The Villa, Stay Guide and others) are rendered once and 
 publish, edit or unpublish a post, or change nearby places, policies or FAQs, call:
 
 ```http
-POST https://habbaa.in/api/revalidate
+POST https://villa19.in/api/revalidate
 Authorization: Bearer <CONTENT_REVALIDATE_SECRET>
 ```
 

@@ -10,7 +10,7 @@ Three environments, each with its own Supabase database. Same pattern as the Pro
 |---|---|---|---|---|
 | **Local** | Docker via Colima | — | any | `http://localhost:3000` |
 | **Staging / Dev** | Villa Project Development | `hlmqcdzazbrztfovixjk` | `release` | TBD |
-| **Production** | Villa 19 Production (TBC) | `REPLACE_WITH_PROD_REF` | `main` | `https://habbaa.in` |
+| **Production** | Villa 19 Production (TBC) | `REPLACE_WITH_PROD_REF` | `main` | `https://villa19.in` |
 
 **Rule:** all feature branches → local or staging. Only `main` touches production.
 
@@ -64,7 +64,7 @@ APP_URL=http://localhost:3000                       # override in Vercel
 
 # ── Email (Resend) ───────────────────────────────────────────────────
 RESEND_API_KEY=re_xxxxxxxxxxxx
-EMAIL_FROM=noreply@habbaa.in
+RESEND_FROM_EMAIL=Villa 19 by Habbaa <reservations@habbaa.com>
 ```
 
 ### 3. Start local Supabase (optional — offline mode)
@@ -152,7 +152,7 @@ feature-branch  →  develop locally (local DB or Staging)
       ↓
    release      →  auto-deploys to staging Vercel project (Staging DB)
       ↓
-    main        →  auto-deploys to habbaa.in (Production DB)
+    main        →  auto-deploys to villa19.in (Production DB)
 ```
 
 ---
@@ -161,7 +161,7 @@ feature-branch  →  develop locally (local DB or Staging)
 
 Analytics loads only after a guest accepts cookies (`src/components/layout/Analytics.tsx`).
 
-1. Create a GA4 property for habbaa.in and a **Web** data stream for `https://habbaa.in`.
+1. Create a GA4 property for villa19.in and a **Web** data stream for `https://villa19.in`.
 2. Copy the stream's **Measurement ID** (`G-XXXXXXXXXX`) into Vercel as `NEXT_PUBLIC_GA_ID`
    (Production, and Preview if you want staging traffic counted separately). Redeploy.
 3. **To do once analytics is live:** add an "AI assistants" channel group so visits from AI answers

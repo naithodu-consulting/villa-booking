@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { Property } from '@/types';
 
-export const SITE_URL = (process.env.APP_URL ?? 'https://habbaa.in').replace(/\/$/, '');
+export const SITE_URL = (process.env.APP_URL ?? 'https://villa19.in').replace(/\/$/, '');
 export const SITE_NAME = 'Villa 19 by Habbaa';
 export const BRAND = 'Habbaa';
 

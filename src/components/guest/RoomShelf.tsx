@@ -119,8 +119,8 @@ export default function RoomShelf({ rooms }: { rooms: Room[] }) {
       <div className="relative -mx-4 sm:mx-0">
         <div
           ref={ref}
-          className="shelf-x scroll-smooth flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 pb-2
-                     sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0"
+          className="shelf-x scroll-smooth flex gap-4 overflow-x-auto snap-x snap-mandatory px-4 scroll-px-4 pb-2
+                     sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 sm:scroll-px-0"
           role="group"
           aria-label={`Rooms, ${rooms.length} total`}
         >
