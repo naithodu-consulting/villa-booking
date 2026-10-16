@@ -4,6 +4,60 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.19 - The drone reel re-encoded from the square master - 2026-10-16
+
+### The sharpness the operator flagged
+- **The reel is re-encoded at CRF 31, up from CRF 38**, which is what v1.17 left open: "the
+  operator's concern is the sharpness lost to that compression". 6.11 MB, up from 3.27 MB. Judged
+  on 100% crops against the master: CRF 38 smears the aerial roof-tile courses into flat bands,
+  CRF 34 holds most of the ridging, CRF 31 is close to indistinguishable. SSIM against the master
+  over all 1420 frames: 0.910 at CRF 38, 0.939 at 34, 0.955 at 31.
+- The static shots barely separate the three. Foliage and tile texture under a moving camera are
+  what the bitrate is actually spent on, which is why the loss was visible but hard to point at.
+- `-preset veryslow` rather than `slow`. Free detail at the same CRF: the old recipe's CRF 38 at
+  veryslow comes out *smaller* than the shipped CRF 38 at slow (3.01 MB against 3.27 MB).
+
+### The crop guidance from v1.15 is inverted and does not transfer
+- **The new master is 1080x1080 square, not 1080x1920 vertical.** `crop=1080:720:0:600` is not
+  merely wrong now, it is invalid: 600 + 720 runs past the 1080-row bottom.
+- **An upper-biased crop is now the right one, `crop=1080:720:0:90`.** v1.15 recorded that an
+  upper bias was tried and rejected because it decapitated the VILLA19 signage; that was true of
+  the vertical source. On the square master the opposite holds. Checked at t=32s, where the
+  signage sits highest: y=270 loses it completely, y=180 jams it against the top edge, y=90 places
+  it cleanly. Confirmed at t=0 and t=44 as well.
+- **Everything else carried over unchanged.** The trim is still `0 - 47.333`: frame-stepping the
+  cut, the night shot holds to 47.300 and the logo end card is up at 47.333, exactly as before.
+  Same 2s fade-out, same absence of a fade-in (frame 0 is the poster, so a fade-in would flash the
+  cell black on load), same AAC 96k, same faststart.
+- The carrom-board shot is still in the cut. Removing it means stitching, and v1.15 records that
+  the soundtrack jumped audibly at every join.
+
+### A timecode track rode along from the QuickTime master
+- The master is `.mov` and carries a timecode track, so the encode came out with a third `tmcd`
+  stream the previous file never had. `-dn` and an explicit `-map` do not remove it: the mp4
+  muxer *generates* it from the video stream's timecode metadata rather than copying an input
+  stream. `-write_tmcd 0` is what drops it.
+
+### Poster
+- **Regenerated from frame 0 of the shipped file**, not from the master: the cell paints the
+  poster until the first frame decodes, so the two have to be the same image. 131 KB, up from
+  84 KB - the new frame carries more foliage detail at the same JPEG quality.
+
+### The recipe, for next time
+```
+ffmpeg -i MASTER.mov -t 47.333 \
+  -vf "crop=1080:720:0:90,fade=t=out:st=45.33:d=2" \
+  -c:v libx264 -preset veryslow -crf 31 -pix_fmt yuv420p \
+  -c:a aac -b:a 96k -write_tmcd 0 -movflags +faststart \
+  public/video/villa19-hero.mp4
+ffmpeg -i public/video/villa19-hero.mp4 -frames:v 1 -q:v 4 \
+  public/video/villa19-hero-poster.jpg
+```
+The crop offset is a property of the master's framing, not a constant. Re-derive it against the
+signage before reusing this.
+
+---
+
 ## v1.18 - The photo viewer showed the wrong caption and mis-parked its arrows, and Room 4 came before Room 3 - 2026-10-16
 
 ### The viewer printed a different caption from the tile you clicked
@@ -132,7 +186,7 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 - **The drone reel.** The new file is the same clip, 1080x1920 and 50s at 29 MB; what ships is a
   1080x720 centre crop at 3.4 MB. The operator's concern is the sharpness lost to that compression,
   and the new master is a better source to re-encode from. Deferred by the operator until the rest
-  landed.
+  landed. **Done in v1.19**, from a square master rather than the vertical one described here.
 
 ## v1.16 - The mobile footer was behind the CTA bar, and the rule meant to stop that never ran - 2026-10-14
 
