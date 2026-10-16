@@ -9,6 +9,10 @@
  * section is gone (00089). The 'parking' category stays in the database
  * constraint, where another property may still be using it; a row carrying it
  * here would simply not be shown.
+ *
+ * `hidden` keeps a section's rows in the database but off the page, the same
+ * kill-switch idea as `features.ts` and `site-sections.ts`. Nothing is deleted,
+ * so bringing one back is a one-line change and no migration.
  */
 export const GALLERY_SECTIONS = [
   { key: 'villa',         label: 'The Villa' },
@@ -16,10 +20,23 @@ export const GALLERY_SECTIONS = [
   { key: 'bedroom',       label: 'Bedrooms' },
   { key: 'bathroom',      label: 'Bathrooms' },
   { key: 'outdoor',       label: 'Outdoor Spaces' },
-  { key: 'around',        label: 'Around Villa 19' },
+  // Hidden 2026-10-16: the neighbourhood photographs are stock images of
+  // nearby attractions, not the operator's own, and are being replaced. The
+  // rows stay published for Ooruda Villa; only this flag keeps them off the
+  // page. Set to false once the new photographs are in.
+  { key: 'around',        label: 'Around Villa 19', hidden: true },
 ] as const;
 
 export type GalleryCategory = (typeof GALLERY_SECTIONS)[number]['key'];
 
+/**
+ * The sections actually rendered. The grid and the viewer's category chips both
+ * read this, so a hidden section cannot reappear in one of them.
+ */
+export const VISIBLE_GALLERY_SECTIONS = GALLERY_SECTIONS.filter(
+  (s) => !('hidden' in s && s.hidden),
+);
+
+/** Labels resolve for every key, hidden ones included, so captions never break. */
 export const galleryLabel = (key: string) =>
   GALLERY_SECTIONS.find((s) => s.key === key)?.label ?? key;

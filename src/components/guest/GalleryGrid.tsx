@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { PropertyImage } from '@/types';
-import { GALLERY_SECTIONS } from '@/lib/gallery';
+import { VISIBLE_GALLERY_SECTIONS } from '@/lib/gallery';
 import PhotoViewer from './PhotoViewer';
 
 /**
@@ -19,7 +19,7 @@ import PhotoViewer from './PhotoViewer';
 export default function GalleryGrid({ images }: { images: PropertyImage[] }) {
   const [openAt, setOpenAt] = useState<number | null>(null);
 
-  const sections = GALLERY_SECTIONS.map((sec) => ({
+  const sections = VISIBLE_GALLERY_SECTIONS.map((sec) => ({
     ...sec,
     imgs: images.filter((img) => img.category === sec.key),
   })).filter((sec) => sec.imgs.length > 0);

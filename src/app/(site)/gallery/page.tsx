@@ -11,7 +11,7 @@ export const metadata: Metadata = pageMetadata({
   title: 'Villa Photos & Gallery',
   path: '/gallery',
   description:
-    'Photos of Villa 19 in Urwa, Mangalore: the villa, living and dining spaces, bedrooms, bathrooms, outdoor spaces, parking and the neighbourhood.',
+    'Photos of Villa 19 in Urwa, Mangalore: the villa, living and dining spaces, bedrooms, bathrooms and outdoor spaces.',
 });
 
 export default async function GalleryPage() {

@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { PropertyImage } from '@/types';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
-import { GALLERY_SECTIONS, galleryLabel } from '@/lib/gallery';
+import { VISIBLE_GALLERY_SECTIONS, galleryLabel } from '@/lib/gallery';
 
 interface PhotoViewerProps {
   images: PropertyImage[];
@@ -32,7 +32,7 @@ export default function PhotoViewer({ images, startIndex, onClose }: PhotoViewer
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   const present = new Set(images.map((img) => img.category));
-  const categories = ['all', ...GALLERY_SECTIONS.map((s) => s.key).filter((k) => present.has(k))];
+  const categories = ['all', ...VISIBLE_GALLERY_SECTIONS.map((s) => s.key).filter((k) => present.has(k))];
 
   const shown =
     activeCategory === 'all' ? images : images.filter((img) => img.category === activeCategory);
