@@ -32,6 +32,17 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 - The carrom-board shot is still in the cut. Removing it means stitching, and v1.15 records that
   the soundtrack jumped audibly at every join.
 
+### The soundtrack cut hard at the loop
+- **The picture faded but the audio did not.** The new master's soundtrack is still at full level
+  where the old one had already tapered: -11.2 dB at 47.2s against the old file's -26.2 dB. The
+  clip then loops to frame 0, which is -49.2 dB, so an unmuted guest heard the music chop off on
+  every pass. v1.15 rejected a whole edit over exactly this - "the soundtrack audibly jumped at
+  each join" - so a hard cut once a loop is no better.
+- **`afade=t=out:st=45.33:d=2`**, matching the picture's fade rather than inventing a second
+  timing. -38.9 dB at 47.2s now, which meets the near-silent opening cleanly.
+- Applied as an audio-only re-encode with `-c:v copy`: the video bitstream's MD5 is unchanged, so
+  the picture is bit-for-bit the encode judged above.
+
 ### A timecode track rode along from the QuickTime master
 - The master is `.mov` and carries a timecode track, so the encode came out with a third `tmcd`
   stream the previous file never had. `-dn` and an explicit `-map` do not remove it: the mp4
@@ -48,6 +59,7 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 ffmpeg -i MASTER.mov -t 47.333 \
   -vf "crop=1080:720:0:90,fade=t=out:st=45.33:d=2" \
   -c:v libx264 -preset veryslow -crf 31 -pix_fmt yuv420p \
+  -af "afade=t=out:st=45.33:d=2" \
   -c:a aac -b:a 96k -write_tmcd 0 -movflags +faststart \
   public/video/villa19-hero.mp4
 ffmpeg -i public/video/villa19-hero.mp4 -frames:v 1 -q:v 4 \
