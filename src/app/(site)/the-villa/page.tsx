@@ -6,6 +6,7 @@ import {
   MapPin, Users, Wifi, Car, Bed,
   Sofa, Trees, AirVent,
 } from 'lucide-react';
+import { isVisibleGalleryCategory } from '@/lib/gallery';
 import { getProperty, getAmenities, getNearbyPlaces, getImages, formatDistance } from '@/lib/data';
 import { renderBoldText } from '@/lib/bold';
 import CtaButtons from '@/components/guest/CtaButtons';
@@ -52,6 +53,11 @@ export default async function TheVillaPage() {
     getImages(property.id),
   ]);
 
+  // Structured data lists the lodging's own photographs. Hidden gallery
+  // sections are excluded, so a section taken off the Gallery page is not
+  // still handed to search engines as a photo of the villa.
+  const villaImages = images.filter((i) => isVisibleGalleryCategory(i.category));
+
   const nearbyGroups = nearbyPlaces.reduce<Record<string, typeof nearbyPlaces>>((acc, p) => {
     if (!acc[p.category]) acc[p.category] = [];
     acc[p.category].push(p);
@@ -71,7 +77,7 @@ export default async function TheVillaPage() {
 
   return (
     <div className="pb-0" style={{ color: 'var(--ink)' }}>
-      <JsonLd data={[breadcrumbJsonLd([{ name: 'The Villa', path: '/the-villa' }]), lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })]} />
+      <JsonLd data={[breadcrumbJsonLd([{ name: 'The Villa', path: '/the-villa' }]), lodgingJsonLd({ property, images: villaImages.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number })]} />
 
       {/* ── Page Hero ── */}
       <PageHero title="The Villa" />

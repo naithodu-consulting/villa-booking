@@ -13,6 +13,7 @@ import SectionNav from '@/components/guest/SectionNav';
 import FaqList from '@/components/guest/FaqList';
 import { getProperty, getRooms, getImages, getPricingRules, getAmenities, getFAQs, getNearbyPlaces, closestByCategory, formatDistance, ratesReadAt } from '@/lib/data';
 import { formatTime12 } from '@/lib/format';
+import { isVisibleGalleryCategory } from '@/lib/gallery';
 import BookNowLink from '@/components/guest/BookNowLink';
 import { renderBoldText } from '@/lib/bold';
 import { villaRules } from '@/lib/villa-rules';
@@ -77,7 +78,10 @@ export default async function LandingPage() {
   // The homepage shows the villa itself; the neighbourhood photographs are the
   // Gallery page's. Both the mosaic's tiles and its viewer come from this one
   // list, so a tile always has a place in the viewer.
-  const villaImages = images.filter((i) => i.category !== 'around');
+  //
+  // Driven by the gallery's own visibility flags rather than naming 'around'
+  // here, so hiding a section cannot leave this page still showing it.
+  const villaImages = images.filter((i) => isVisibleGalleryCategory(i.category));
   // The Location card's four tiles. See closestByCategory: nearest-first, one
   // per category, so the airport (22 min) and a beach (15) no longer sit beside
   // a bus stand 100 m away.
@@ -111,7 +115,7 @@ export default async function LandingPage() {
   return (
     <div style={{ color: 'var(--ink)' }}>
       <JsonLd data={[
-        lodgingJsonLd({ property, images: images.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number }),
+        lodgingJsonLd({ property, images: villaImages.map((i) => i.url), amenities: amenities.map((a) => a.label), telephone: process.env.PROPERTY_PHONE ?? property.whatsapp_number }),
       ]} />
 
       {/* ── Hero ──────────────────────────────────────── */}
