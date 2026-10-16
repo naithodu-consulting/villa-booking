@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { pageMetadata, breadcrumbJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/seo/JsonLd';
 import { getProperty, getImages } from '@/lib/data';
+import { isVisibleGalleryCategory } from '@/lib/gallery';
 import GalleryGrid from '@/components/guest/GalleryGrid';
 import CtaButtons from '@/components/guest/CtaButtons';
 import PageHero from '@/components/layout/PageHero';
@@ -24,7 +25,9 @@ export default async function GalleryPage() {
     );
   }
 
-  const images = await getImages(property.id);
+  // Hidden sections are dropped here rather than in the grid, so their
+  // photographs never reach the browser at all.
+  const images = (await getImages(property.id)).filter((img) => isVisibleGalleryCategory(img.category));
   const hasImages = images.length > 0;
 
   return (

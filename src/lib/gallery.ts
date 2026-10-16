@@ -40,3 +40,14 @@ export const VISIBLE_GALLERY_SECTIONS = GALLERY_SECTIONS.filter(
 /** Labels resolve for every key, hidden ones included, so captions never break. */
 export const galleryLabel = (key: string) =>
   GALLERY_SECTIONS.find((s) => s.key === key)?.label ?? key;
+
+/**
+ * Whether a photo's category is shown on the Gallery page.
+ *
+ * The page filters on this before handing the list to the grid, so a hidden
+ * section's photographs are not serialised into the client payload either.
+ * Filtering only inside the grid left them out of the DOM but still shipped
+ * them to the browser, which is not what "hidden" should mean.
+ */
+export const isVisibleGalleryCategory = (key: string) =>
+  VISIBLE_GALLERY_SECTIONS.some((s) => s.key === key);
