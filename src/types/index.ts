@@ -66,6 +66,12 @@ export interface PropertyImage {
    *  can use one tile shape for all of them. */
   width?: number | null;
   height?: number | null;
+  /** Position in the homepage mosaic, 1-4, or null for everything else. The
+   *  operator picks these four (00089); before that the mosaic took whichever
+   *  photographs happened to sort first. */
+  home_order?: number | null;
+  /** The one photograph the Rooms page shows for this row's room_id (00089). */
+  is_room_cover?: boolean;
   /** Unused: credits were cleared in 00058. The columns remain. */
   credit?: string | null;
   credit_url?: string | null;

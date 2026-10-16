@@ -33,7 +33,11 @@ export async function getRooms(propertyId: string): Promise<Room[]> {
     .from('rooms')
     .select('*')
     .eq('property_id', propertyId)
-    .order('display_order');
+    // Then by name: display_order was identical across all four bedrooms until
+    // 00090, and `ORDER BY` on a tie has no defined result, so the Rooms page
+    // showed Room 4 before Room 3. A tie must not be left to chance.
+    .order('display_order')
+    .order('name');
 
   if (error || !data) return [];
   return data as Room[];

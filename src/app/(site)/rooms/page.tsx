@@ -34,9 +34,13 @@ export default async function RoomsPage() {
   }
 
   const [rooms, images] = await Promise.all([getRooms(property.id), getImages(property.id)]);
-  // First linked photo per room (property_images.room_id, 00047).
+  // The photograph the operator chose for each room (is_room_cover, 00089).
+  // Before that this took whichever linked photo sorted first, which made the
+  // choice an accident of display_order; the first linked photo is still the
+  // fallback for a room with no cover marked.
   const roomPhoto = new Map<string, (typeof images)[number]>();
   for (const img of images) if (img.room_id && !roomPhoto.has(img.room_id)) roomPhoto.set(img.room_id, img);
+  for (const img of images) if (img.room_id && img.is_room_cover) roomPhoto.set(img.room_id, img);
   // The lounge sleeps 2 on sofa-cum-beds but is not a bedroom, so the
   // headline counts must exclude it or the page overstates the layout.
   const bedroomCount = rooms.filter((r) => r.room_type !== 'Lounge').length;

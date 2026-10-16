@@ -34,12 +34,15 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         `Hi, I'm interested in booking ${property?.name ?? 'Villa 19'}`
       )}`
     : undefined;
+  // The drawer's second button is Call (the mobile CTA bar already carries
+  // WhatsApp), so the Header needs the number the contact card uses.
+  const phoneNumber = process.env.PROPERTY_PHONE ?? property?.whatsapp_number;
 
   return (
     <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--paper)' }}>
       <JsonLd data={organizationJsonLd()} />
       <AnnouncementBar announcements={ANNOUNCEMENTS} />
-      <Header propertyName={property?.name ?? 'Villa 19'} whatsappUrl={whatsappUrl} showJournal={showJournal} />
+      <Header propertyName={property?.name ?? 'Villa 19'} phoneNumber={phoneNumber} showJournal={showJournal} />
       <main className="flex-1">{children}</main>
       {property && <Footer property={property} whatsappUrl={whatsappUrl} showJournal={showJournal} />}
       <BookingDialog maxOccupancy={property?.max_occupancy ?? 14} idealOccupancy={property?.ideal_occupancy ?? 8} propertyId={property?.id} />

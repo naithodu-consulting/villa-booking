@@ -153,39 +153,59 @@ export default function PhotoViewer({ images, startIndex, onClose }: PhotoViewer
         </div>
       </div>
 
-      {/* ── Photo and its caption, kept together and centred. The box took a
-             fixed 4:3 when every file was cropped to 4:3. It now takes the
-             space that is there and contains the photo inside it, so a file of
-             any shape is shown whole and as large as the screen allows. ── */}
+      {/* ── Photo and its caption, kept together and centred. ── */}
       <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-3 py-4 sm:px-6">
-        {/* max-h reserves the caption's line(s). Plain max-h-full lets the
-            photo take the column's whole height and push the caption off the
-            bottom of the screen. The desktop figure allows for the extra
-            keyboard-hint line. */}
-        <div
-          className="relative w-full max-w-5xl flex-1 min-h-0 max-h-[calc(100%-3.5rem)] sm:max-h-[calc(100%-5rem)]"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
-          <Image
-            key={current.id}
-            src={current.url}
-            alt={current.alt_text}
-            fill
-            sizes="(max-width: 1024px) 100vw, 1024px"
-            priority
-            className="object-contain"
-          />
+        {/* The inner box carries the photograph's own aspect ratio, so it is
+            the photograph rather than the space around it: object-contain has
+            nothing left to letterbox, and the arrows, which are positioned
+            against this box, land on the photograph's own edges.
 
-          <button onClick={goPrev} className={`${ARROW} left-2`} aria-label="Previous photo">
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-          </button>
-          <button onClick={goNext} className={`${ARROW} right-2`} aria-label="Next photo">
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
-          </button>
+            They used to be positioned against the full column. A 3:2 frame in
+            a 976x596 column leaves 41px of dead scrim down each side, so both
+            arrows hung outside the photograph and only clipped its edge, and
+            the gap grew with the window. */}
+        <div className="flex min-h-0 w-full max-w-5xl flex-1 items-center justify-center">
+          <div
+            className="relative h-full"
+            style={{
+              // Both or neither: falling back per-axis would turn a row with a
+              // width but no height into 1600 / 2. Every published photograph
+              // is 3:2, which is the fallback.
+              aspectRatio:
+                current.width && current.height
+                  ? `${current.width} / ${current.height}`
+                  : '3 / 2',
+              maxWidth: '100%',
+            }}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <Image
+              key={current.id}
+              src={current.url}
+              alt={current.alt_text}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              priority
+              className="object-contain"
+            />
+
+            <button onClick={goPrev} className={`${ARROW} left-2`} aria-label="Previous photo">
+              <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+            </button>
+            <button onClick={goNext} className={`${ARROW} right-2`} aria-label="Next photo">
+              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
+            </button>
+          </div>
         </div>
 
-        <p className="flex-shrink-0 text-center text-sm text-white/85">{current.alt_text}</p>
+        {/* The operator's own label for the photograph, which is what the
+            gallery tiles show too. alt_text stays on the img for screen
+            readers; printing it here showed a different, longer wording than
+            the tile the guest had just clicked. */}
+        <p className="max-w-5xl flex-shrink-0 text-center text-sm text-white/85">
+          {current.caption ?? current.alt_text}
+        </p>
       </div>
     </div>
   );

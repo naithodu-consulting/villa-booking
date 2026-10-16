@@ -1173,7 +1173,9 @@ export type Database = {
           credit_url: string | null
           display_order: number | null
           height: number | null
+          home_order: number | null
           id: string
+          is_room_cover: boolean
           property_id: string
           room_id: string | null
           url: string
@@ -1189,7 +1191,9 @@ export type Database = {
           credit_url?: string | null
           display_order?: number | null
           height?: number | null
+          home_order?: number | null
           id?: string
+          is_room_cover?: boolean
           property_id: string
           room_id?: string | null
           url: string
@@ -1205,7 +1209,9 @@ export type Database = {
           credit_url?: string | null
           display_order?: number | null
           height?: number | null
+          home_order?: number | null
           id?: string
+          is_room_cover?: boolean
           property_id?: string
           room_id?: string | null
           url?: string

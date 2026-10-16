@@ -73,6 +73,11 @@ export default async function LandingPage() {
     getFAQs(property.id),
     getNearbyPlaces(property.id),
   ]);
+
+  // The homepage shows the villa itself; the neighbourhood photographs are the
+  // Gallery page's. Both the mosaic's tiles and its viewer come from this one
+  // list, so a tile always has a place in the viewer.
+  const villaImages = images.filter((i) => i.category !== 'around');
   // The Location card's four tiles. See closestByCategory: nearest-first, one
   // per category, so the airport (22 min) and a beach (15) no longer sit beside
   // a bus stand 100 m away.
@@ -154,7 +159,12 @@ export default async function LandingPage() {
           <div className="px-4 sm:px-6 lg:px-8">
             {/* Neighbourhood photos belong on the Gallery page, not in the
                 homepage hero gallery, which is about the villa itself. */}
-            <GalleryModal images={images.filter((i) => i.category !== 'around')} />
+            <GalleryModal
+              images={villaImages}
+              tiles={villaImages
+                .filter((i) => i.home_order != null)
+                .sort((a, b) => a.home_order! - b.home_order!)}
+            />
           </div>
         </div>
       </section>
@@ -503,9 +513,15 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* Contact strip */}
+          {/* Contact strip, md and up only. Below md it was the fourth WhatsApp
+              button on the page (fixed bar, drawer, this, footer) and sat right
+              above a footer that repeats both channels. The breakpoint is the
+              bar's and the drawer's own md, so the card appears exactly where
+              they stop: no width shows all three, none shows neither. It stays
+              on desktop, where there is no bar and no drawer and it is the only
+              contact point between the hero and the footer. */}
           <div
-            className="p-6 rounded-3xl shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4"
+            className="p-6 rounded-3xl shadow-sm hidden md:flex flex-col sm:flex-row items-center justify-between gap-4"
             style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
           >
             <div>

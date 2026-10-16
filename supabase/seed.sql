@@ -65,30 +65,16 @@ INSERT INTO rooms (id, property_id, name, slug, room_type, bed_type, bed_count, 
 ON CONFLICT (id) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────
--- Property Images (12 Unsplash placeholders)
+-- Property Images: the neighbourhood photographs only.
+-- The villa's own photographs are inserted by the migrations and replaced
+-- wholesale each time the operator reshoots (00089 is the current set), so
+-- seeding them here only resurrects rows for files that no longer exist.
 -- ─────────────────────────────────────────────────────────
 INSERT INTO property_images (id, property_id, url, alt_text, caption, category, display_order, room_id, credit, credit_url) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000101', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-facade.jpg', 'Front view of Villa 19 with its name on the facade', 'Front view', 'villa', 1, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000102', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/living-room.jpg', 'Living room with sofas, carved wooden door and display cabinet', 'Living room', 'living_dining', 2, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000103', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-blue.jpg', 'Room 4: king bed with a blue feature wall', 'Room 4 · King bed', 'bedroom', 9, 'a1b2c3d4-0000-0000-0000-000000000014', NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000104', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/lounge.jpg', 'Private lounge with two blue sofa-cum-beds', 'Private lounge', 'living_dining', 4, 'a1b2c3d4-0000-0000-0000-000000000015', NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000105', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-plum.jpg', 'Room 3: queen bed with a plum feature wall and arched window', 'Room 3 · Queen bed', 'bedroom', 8, 'a1b2c3d4-0000-0000-0000-000000000013', NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000106', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/hall-staircase.jpg', 'Hall with the staircase and a washbasin corner', 'Hall and staircase', 'living_dining', 6, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000107', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/kitchen.jpg', 'Kitchen with cabinets and refrigerator', 'Kitchen', 'living_dining', 7, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000108', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-brown.jpg', 'Room 1: king bed, built-in wardrobes and air conditioning', 'Room 1 · King bed', 'bedroom', 3, 'a1b2c3d4-0000-0000-0000-000000000011', NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000109', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bedroom-white.jpg', 'Room 2: queen bed with a brown feature wall', 'Room 2 · Queen bed', 'bedroom', 5, 'a1b2c3d4-0000-0000-0000-000000000012', NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000110', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/bathroom.jpg', 'Bathroom with vessel basin and rain shower', 'Bathroom', 'bathroom', 10, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000111', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/washbasin.jpg', 'Washbasin nook with a tiled wall', 'Washbasin nook', 'bathroom', 11, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000112', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-gate.jpg', 'Entrance gate with the Villa 19 sign', 'Entrance gate', 'villa', 12, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000113', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/driveway-house.jpg', 'Villa and paved driveway from the gate', 'Driveway', 'villa', 13, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000114', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/driveway.jpg', 'Paved driveway with space for several cars', 'Open parking', 'parking', 14, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000115', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/villa-front.jpg', 'Covered parking in front of the villa', 'Covered parking', 'parking', 15, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000116', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/outdoor-garden.jpg', 'Tropical lawn with coconut palms (representative image)', 'Lawn (representative)', 'outdoor', 16, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000119', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-sultan-bathery.jpg', 'Sultan Bathery Fort, Mangaluru', 'Sultan Bathery Fort', 'around', 17, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000121', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-tannirbavi.jpg', 'Tannirbhavi Beach, Mangaluru', 'Tannirbhavi Beach', 'around', 18, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000118', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-panambur.jpg', 'Panambur Beach at sunset', 'Panambur Beach', 'around', 19, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000117', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kudroli.jpg', 'Kudroli Gokarnanatheshwara Temple, Mangaluru', 'Kudroli Temple', 'around', 20, NULL, NULL, NULL),
-  ('a1b2c3d4-0000-0000-0000-000000000122', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-mangaladevi.jpg', 'Mangaladevi Temple, Mangaluru', 'Mangaladevi Temple', 'around', 21, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000123', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri-park.jpg', 'Kadri Park, Mangaluru', 'Kadri Park', 'around', 22, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000120', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-kadri.jpg', 'Kadri Manjunatha Temple, Mangaluru', 'Kadri Manjunatha Temple', 'around', 23, NULL, NULL, NULL),
   ('a1b2c3d4-0000-0000-0000-000000000124', 'a1b2c3d4-0000-0000-0000-000000000001', '/gallery/around-st-aloysius.jpg', 'St Aloysius Chapel, Mangaluru', 'St Aloysius Chapel', 'around', 24, NULL, NULL, NULL),

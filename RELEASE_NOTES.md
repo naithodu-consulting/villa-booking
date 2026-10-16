@@ -4,6 +4,136 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.18 - The photo viewer showed the wrong caption and mis-parked its arrows, and Room 4 came before Room 3 - 2026-10-16
+
+### The viewer printed a different caption from the tile you clicked
+- **It printed `alt_text`, not the caption.** Every tile in the gallery and the mosaic shows the
+  operator's own label, so a guest clicking "Front view at night" landed on a photograph captioned
+  "The front of the villa lit up at night, with the porch and the driveway in front of it".
+- The viewer now prints `caption ?? alt_text`, which is what the tiles show. `alt_text` stays on
+  the `img` for screen readers, which is what it was written for.
+
+### Both arrows sat outside the photograph
+- **They were positioned against the column, not the photograph.** The box was `w-full max-w-5xl
+  flex-1` and the photograph `object-contain` inside it, so the two only coincided when the window
+  happened to match 3:2. Measured at 1024x768: the column ran 24 to 1000, the photograph painted
+  65 to 960, and the arrows sat at 32-76 and 948-992. Each one hung in the dead scrim and clipped
+  the photograph's edge, and the gap grew as the window got wider.
+- **The box now carries the photograph's own aspect ratio**, taken from the row's `width`/`height`,
+  so it *is* the photograph and `object-contain` has nothing to letterbox. Measured after: arrows
+  8px inside the photograph's real edges, left and right, and dead centre vertically, at 1024x768,
+  1600x620 and 375x812.
+- It also fixes the "Around Villa 19" photographs, which are 1600x1066 and 1594x1062 rather than a
+  clean 3:2 and had always been letterboxed by a hair.
+
+### Mobile had four WhatsApp buttons and one phone number
+- The fixed CTA bar, the nav drawer, the "Planning Your Stay?" card and the footer all offered
+  WhatsApp. Calling appeared once, in the card.
+- **The card is now `md` and up only**, which is exactly where the bar and the drawer stop (both
+  are `md:hidden`): no width shows all three, and none shows neither. It stays on desktop, where
+  there is no bar and no drawer and it is the only contact point between the hero and the footer.
+- **The drawer's second button is Call instead of WhatsApp Enquiry.** On a phone the drawer and the
+  bar are on screen together and the bar's Enquire Now is already WhatsApp, so offering it twice
+  crowded out the one channel with no always-reachable button of its own.
+- It is styled `btn-secondary btn-secondary-solid`, not the `btn-wa-ghost` the WhatsApp button
+  used: that class is WhatsApp green, and a phone number is not WhatsApp. Both classes were defined
+  in the design system and had never been used; `-solid` exists for this exact ground, where a
+  transparent fill reads as washed out.
+- `Header` no longer takes `whatsappUrl`, and its inline WhatsApp icon is gone with it. The Footer
+  still uses both.
+- **One thing was lost**: "We usually reply on WhatsApp within an hour during the day" lived in
+  that card and is now desktop-only. It belongs next to a WhatsApp button, and on mobile the
+  remaining one is in the fixed bar, which has no room for a sentence.
+
+### Room 4 came before Room 3, and it was chance
+- **All four bedrooms sat at `display_order` 1.** 00028 created them without naming the column, so
+  each took the schema default of 1, and its `ON CONFLICT` clause does not set it either.
+  `seed.sql` does give 1, 2, 3, 4, but with `ON CONFLICT (id) DO NOTHING`, so it never corrected
+  the existing rows. Only the Private Lounge, inserted separately with 5, was ever ordered on
+  purpose.
+- `ORDER BY display_order` on a four-way tie has no defined result. The order could differ between
+  queries, after a vacuum, or after any write to the table, so this was not stable and not
+  reproducible: it simply looked fine whenever it happened to come back sorted.
+- 00090 sets 1 to 5 by slug, and `getRooms` now sorts by `display_order` then `name`, so a tie
+  introduced later degrades to alphabetical rather than to chance.
+- Checked the other ordered tables for the same fault: `property_images`, `property_amenities`,
+  `faqs` and `nearby_places` all have distinct `display_order` values. `rooms` was the only one.
+
+## v1.17 - The whole villa gallery reshot, and two guessed choices made explicit - 2026-10-16
+
+### What the operator delivered
+- **39 photographs in five numbered folders**, plus `Headings_Photos.docx` with one label per
+  photograph in the same order, plus two folders naming the photographs for the homepage mosaic
+  and for each room card. Folder names are the gallery sections, and the number prefix on each
+  file is its place within that section.
+- The delivery answers the list 00067 left behind. That migration had deleted all fifteen vertical
+  frames and noted the subjects that needed landscape ones at the next shoot. The bathrooms are
+  back, as three landscape frames, each a pair of vertical photographs joined side by side.
+- **Gallery: 41 photographs to 50** (39 of the villa, plus the 11 neighbourhood ones, untouched).
+
+### Aspect ratio: eight frames cropped by hand
+- Thirty-one arrived at 3:2 and are used whole. Eight arrived at 16:9, and every tile and mosaic
+  cell is 3:2, so a browser `object-cover` would have taken 16% off each side with no say in where.
+- **Each of the eight was cropped to 3:2 one at a time, with the window chosen for that photograph**,
+  at the operator's request (2026-10-16: "this is delicate work"). Not one is a centre crop by
+  default:
+  - the three aerials are cropped from the left edge, which drops the neighbouring apartment block
+    that otherwise competes with the villa for attention;
+  - the wide hall frame is right-aligned, because a centre crop sliced the right pillar down the
+    middle and broke the arch's symmetry; the television at the left edge is shown whole in the
+    frame beside it;
+  - the long dining frame is cropped from the left, which drops a blank wall and keeps the table,
+    the staircase and the wash basin;
+  - the table setting is cropped so the flowers fall on the right third;
+  - the Buddha alcove is cropped dead centre, because the composition is symmetrical.
+- All 39 are 1600x1067, saved without EXIF, so without GPS. Total 13 MB for 50 photographs.
+
+### Room identity corrected
+- **00063 had Rooms 1 and 2 the wrong way round**, and the operator's new labelling reverses it:
+  Room 1 is the terracotta room with the attached bathroom and the glass display cabinet, Room 2
+  the terracotta room with the bird print and the windows. Both rooms are terracotta, which is how
+  the two came to be swapped.
+- This mattered more than a caption: Room 1 is the only room with an attached bathroom, so a guest
+  choosing it on the Rooms page was looking at the other room.
+
+### Two guessed choices made explicit
+- **`home_order`.** The homepage mosaic took the first four photographs by `display_order`, so
+  00063 had to thread low display_orders through the sections to steer it, which fought with the
+  section ordering. The operator named the four, so they are named in the data and `display_order`
+  is now nothing but gallery order.
+- **`is_room_cover`.** The Rooms page showed whichever linked photograph happened to sort first.
+  The operator named one per room, so the choice is recorded instead of incidental. A room with no
+  cover marked still falls back to its first linked photograph.
+
+### Sections
+- **Parking is gone as a section.** Its one photograph in the delivery ("Closed Parking") is filed
+  under Outdoor Spaces, so it lives there. The `parking` category stays in the database constraint,
+  where another property may still use it.
+- Captions are the operator's own labels from the docx, verbatim, including where two adjacent
+  photographs carry the same one. `alt_text` stays the longer plain-English sentence the viewer
+  prints and a screen reader reads, rewritten to match the new frames.
+
+### Twelve photographs dropped
+- No counterpart exists in the delivery for the coffee station, the first-floor landing and its
+  carrom board, the garden and courtyard at night, the entrance gate, the open parking courtyard,
+  the lounge seating detail, or four bedroom and terrace frames. The operator confirmed the
+  delivery is a complete replacement.
+
+### Seed
+- **`supabase/seed.sql` was re-inserting 17 photograph rows for files that no longer exist**,
+  pre-dating this change: every reshoot since 00046 deleted the villa's rows in a migration, and
+  the seed put a stale copy of the old set back on the next local reset. The seed now carries the
+  neighbourhood photographs only; the villa's own belong to the migrations.
+- Unrelated and still open: `supabase db reset` fails part-way through seeding with
+  `cannot insert multiple commands into a prepared statement`. It fails identically on the previous
+  commit, so it is not from this work. The migrations apply cleanly and carry the photographs.
+
+### Still to do
+- **The drone reel.** The new file is the same clip, 1080x1920 and 50s at 29 MB; what ships is a
+  1080x720 centre crop at 3.4 MB. The operator's concern is the sharpness lost to that compression,
+  and the new master is a better source to re-encode from. Deferred by the operator until the rest
+  landed.
+
 ## v1.16 - The mobile footer was behind the CTA bar, and the rule meant to stop that never ran - 2026-10-14
 
 ### Footer clearance, and why the existing fix was invisible
