@@ -1,87 +1,81 @@
 # Villa 19 — Deployment Guide
 
-Three environments, each with its own Supabase database. Same pattern as the Proptech project.
+> **Read this first.** There is **one** remote database, and it is what the live site serves.
+> A separate production project does not exist yet. Until it does, `supabase db push` against the
+> linked project changes what guests see, with no deploy involved, as soon as ISR revalidates.
+>
+> This document used to open by describing three environments each with its own database, and mapped
+> a `release` branch to a staging Vercel project. None of that existed. Anyone following it believed
+> they were pushing to staging while pushing to live. Creating the production project is tracked in
+> `docs/PROD_DB_SETUP.md`; update the tables below the moment it exists.
 
 ---
 
-## Architecture Overview
+## Environments, as they actually are
 
-| Environment | Supabase Project | Ref | Vercel Branch | URL |
-|---|---|---|---|---|
-| **Local** | Docker via Colima | — | any | `http://localhost:3000` |
-| **Staging / Dev** | Villa Project Development | `hlmqcdzazbrztfovixjk` | `release` | TBD |
-| **Production** | Villa 19 Production (TBC) | `REPLACE_WITH_PROD_REF` | `main` | `https://villa19.in` |
+| Environment | Supabase project | Ref | Serves |
+|---|---|---|---|
+| **Local** | Docker via Colima | — | `http://localhost:3000` |
+| **Remote** | Villa Project Development | `hlmqcdzazbrztfovixjk` | **the live site** |
+| **Production** | *not created yet* | — | — |
 
-**Rule:** all feature branches → local or staging. Only `main` touches production.
+Vercel production is `https://villa-booking-psi.vercel.app`, and it reads the remote project above.
+
+`villa19.in` is **not** served by this app yet. It resolves to a parked page that returns HTTP 200
+for every path, including paths that do not exist, so it will make a broken deploy look healthy.
+**Verify against the Vercel URL, never against `villa19.in`**, until DNS is cut over.
+
+### Branches
+
+`main` is the only branch that deploys. There is no `release` branch; if you want a staging branch
+and a second Vercel project, create them and then document them here.
 
 ---
 
-## Local Development Setup
+## Local development
 
 ### Prerequisites
+
 - Node.js 20+, npm
 - Docker via Colima (`brew install colima`, `colima start`)
 - Supabase CLI (`brew install supabase/tap/supabase`)
 
-### 1. Install dependencies
+### 1. Install
+
 ```bash
 npm install
 ```
 
-### 2. Configure `.env.local`
+### 2. `.env.local`
 
-`.env.local` is gitignored. Create it manually. **Default: points at Staging.**
+Gitignored; create it by hand. **Point it at the local stack, not at the remote** — the remote is
+live. See `.env.example` for the full list and the notes on each variable.
 
 ```
-# ── Supabase (Staging — Villa Project Development) ──────────────────
-NEXT_PUBLIC_SUPABASE_URL=https://hlmqcdzazbrztfovixjk.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<staging anon key>
-SUPABASE_SERVICE_ROLE_KEY=<staging service role key>   # NEVER NEXT_PUBLIC_
-
-# ── To use LOCAL Supabase instead, uncomment and comment out Staging block:
-# NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54331
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=<from: npm run supabase:status>
-# SUPABASE_SERVICE_ROLE_KEY=<from: npm run supabase:status>
-
-# ── To use Production, uncomment and comment out Staging block:
-# NEXT_PUBLIC_SUPABASE_URL=https://<prod-ref>.supabase.co
-# NEXT_PUBLIC_SUPABASE_ANON_KEY=<prod anon key>
-# SUPABASE_SERVICE_ROLE_KEY=<prod service role key>   # NEVER NEXT_PUBLIC_
-# ⚠️  WARNING: changes against this block affect real guest data.
-
-# ── Razorpay (use test keys for local/staging) ───────────────────────
-RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxxxx              # NEVER NEXT_PUBLIC_
-RAZORPAY_KEY_SECRET=<secret>                       # NEVER NEXT_PUBLIC_
-RAZORPAY_WEBHOOK_SECRET=<secret>                   # NEVER NEXT_PUBLIC_
-
-# ── Property ─────────────────────────────────────────────────────────
-PROPERTY_WHATSAPP=918050484123
-PROPERTY_PHONE=918050484123
-PROPERTY_EMAIL=reservations@habbaa.com
-
-# ── App URL ──────────────────────────────────────────────────────────
-APP_URL=http://localhost:3000                       # override in Vercel
-
-# ── Email (Resend) ───────────────────────────────────────────────────
-RESEND_API_KEY=re_xxxxxxxxxxxx
-RESEND_FROM_EMAIL=Villa 19 by Habbaa <reservations@habbaa.com>
+NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54331
+SUPABASE_SERVICE_ROLE_KEY=<from: npm run supabase:status>   # NEVER NEXT_PUBLIC_
 ```
 
-### 3. Start local Supabase (optional — offline mode)
+`NEXT_PUBLIC_SUPABASE_ANON_KEY` is **not** needed. Every query goes through the service-role client
+in `src/lib/supabase/server.ts`; there is no browser Supabase client, and the anon key is read
+nowhere in `src/`.
 
-Only needed if you want a fully isolated local DB. Most dev work runs against Staging.
+Razorpay, Resend and the property contact variables are all in `.env.example`.
+
+### 3. Start the local stack
 
 ```bash
-colima start                  # start Docker runtime
-npm run supabase:start        # starts local Supabase (ports 54331/54332/54333)
-npm run supabase:reset        # apply all migrations from scratch
-npm run supabase:studio       # open Studio at http://localhost:54333
-npm run supabase:types        # regenerate TypeScript types from local schema
+colima start
+npm run supabase:start     # API 54331, DB 54332, Studio 54333
+npm run supabase:reset     # drop, re-apply every migration, run the seed
+npm run supabase:studio
+npm run supabase:types     # regenerate types from the local schema
 ```
 
-Then swap the Supabase block in `.env.local` to the local values shown by `npm run supabase:status`.
+`supabase:reset` should end with `Finished supabase db reset`. If it ends on an error, read it —
+do not re-run it hoping it passes.
 
-### 4. Start the dev server
+### 4. Run
 
 ```bash
 npm run dev
@@ -89,92 +83,99 @@ npm run dev
 
 ---
 
-## Database Migrations
+## Migrations
 
-**Always validate on Staging first. Never push directly to Production.**
+Migrations are the source of truth for both schema **and content**. A database built from
+migrations alone must be complete and correct, because that is how the production project will be
+built. Two rules follow from that:
 
-### Create a new migration
+- **Never `UPDATE properties` in a migration numbered before `00028`**, which is where the row is
+  inserted. An UPDATE that matches nothing still succeeds, so the migration passes and the value is
+  silently lost. This is not hypothetical: `00026` set the villa's tagline that way and no
+  migrations-only database had one until `00094`.
+- **Do not rely on `seed.sql` for anything production needs.** It is development data keyed to
+  fixed UUIDs, and production is built without it.
+
+### New migration
 
 ```bash
 supabase migration new your_feature_name
-# writes supabase/migrations/<timestamp>_your_feature_name.sql
 ```
 
 ### Apply locally
 
 ```bash
-npm run supabase:reset   # full reset + all migrations
-# or: npm run supabase:diff  # diff only
+npm run supabase:reset
 ```
 
-### Push to Staging
+Then prove it from scratch *without* the seed, the way production will be built:
 
 ```bash
-npm run supabase:migration:list   # check what's pending
-npm run db:push                   # runs ./scripts/db-push.sh (safe, blocks prod)
+mv supabase/seed.sql /tmp/ && npm run supabase:reset   # inspect the result
+mv /tmp/seed.sql supabase/
 ```
 
-### Push to Production
+### Push to the remote
 
 ```bash
-# 1. Re-link CLI to the prod project
-supabase link   # enter prod ref: REPLACE_WITH_PROD_REF
-
-# 2. Verify pending
-npm run supabase:migration:list
-
-# 3. Push — requires typing 'yes-production' at the prompt
-npm run db:push:prod
-
-# 4. Re-link back to staging when done
-supabase link   # enter staging ref: hlmqcdzazbrztfovixjk
+npm run supabase:migration:list   # what is pending
+npm run db:push                   # ./scripts/db-push.sh
 ```
 
-The guardrail script (`scripts/db-push.sh`) reads `supabase/.temp/project-ref` to detect which project is linked. If linked to prod without `--production`, the push is blocked automatically.
+`db-push.sh` reads `supabase/.temp/project-ref` to see which project is linked. While
+`DEV_REF_SERVES_PROD=true` it treats the dev ref as live: it warns, requires you to type
+**`yes-live`** exactly, and refuses outright in a non-interactive shell. Anything other than
+`yes-live` — including `yes`, `Y` or Enter — prints `Aborted.` and exits 1.
+
+**Check it worked.** The script exiting is not proof:
+
+```bash
+npm run supabase:migration:list   # the remote column must now show the version
+npx supabase db lint --linked     # schema-level confirmation
+```
+
+### Push to production
+
+Not possible yet: `PROD_REF` in `scripts/db-push.sh` is still a placeholder. Follow
+`docs/PROD_DB_SETUP.md`, then replace this section.
 
 ---
 
-## Regenerate TypeScript Types
+## Regenerate types
 
 ```bash
-npm run supabase:types          # from local Supabase (must be running)
-npm run supabase:types:remote   # from currently-linked remote project
+npm run supabase:types          # from the local stack
+npm run supabase:types:remote   # from the linked remote
 ```
 
-Generated file: `src/types/database.types.ts`
+Output: `src/types/database.types.ts`. After a schema change on the remote, regenerating should
+produce **no diff**. A diff means the deployed schema and the code disagree.
 
 ---
 
-## Branch → Environment Mapping
+## Analytics (GA4)
 
-```
-feature-branch  →  develop locally (local DB or Staging)
-      ↓
-   release      →  auto-deploys to staging Vercel project (Staging DB)
-      ↓
-    main        →  auto-deploys to villa19.in (Production DB)
-```
+Analytics loads only after a guest accepts cookies (`src/components/layout/Analytics.tsx`), and the
+footer's "Cookie Preferences" lets them change their mind.
 
----
-
-## Analytics (Google Analytics 4)
-
-Analytics loads only after a guest accepts cookies (`src/components/layout/Analytics.tsx`).
-
-1. Create a GA4 property for villa19.in and a **Web** data stream for `https://villa19.in`.
-2. Copy the stream's **Measurement ID** (`G-XXXXXXXXXX`) into Vercel as `NEXT_PUBLIC_GA_ID`
-   (Production, and Preview if you want staging traffic counted separately). Redeploy.
-3. **To do once analytics is live:** add an "AI assistants" channel group so visits from AI answers
-   are reported separately. In GA4: Admin, Data display, Channel groups, Create new channel group.
-   Add a channel named `AI assistants` with the condition *Source matches regex*:
+1. Create a GA4 property and a Web data stream for the production URL.
+2. Put the measurement ID in Vercel as `NEXT_PUBLIC_GA_ID`. Redeploy.
+3. Once live, add an "AI assistants" channel group so visits from AI answers are not counted as
+   ordinary referrals. GA4 → Admin → Data display → Channel groups → Create new. Condition *Source
+   matches regex*:
    `chatgpt\.com|chat\.openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|copilot\.microsoft\.com`
-   and move it above "Referral" so these visits are not counted as ordinary referrals.
+   Move it above "Referral".
 
-## Pre-Push Checklist
+---
 
-- [ ] `npx tsc --noEmit` — no type errors
-- [ ] `npm run lint` — no lint errors
-- [ ] `npm test` — all tests pass
-- [ ] If schema changed: `npm run db:push` applied to Staging and verified
-- [ ] `RELEASE_NOTES.md` updated with new section + migrations table + date
-- [ ] If merging to `main`: `npm run db:push:prod` applied to Production
+## Pre-push checklist
+
+- [ ] `npx tsc --noEmit`
+- [ ] `npm run lint`
+- [ ] `npm test` — with the local stack running, so the DB-backed tests actually execute. Expect
+      **136 passed, 4 skipped**; the 4 are opt-in email tools and one of them sends real mail.
+      If you see 14 skipped, the stack is not running and `booking-concurrency` — the only
+      automated proof against double-booking — did not run.
+- [ ] Schema or content changed: applied to the remote **and verified** with `migration list`
+- [ ] New migration: checked it works on a database built from migrations alone, with no seed
+- [ ] `RELEASE_NOTES.md` updated
