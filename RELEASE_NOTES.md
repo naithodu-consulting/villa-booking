@@ -4,6 +4,58 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.22 - A database built from migrations alone was missing the home page's tagline - 2026-10-19
+
+Found while preparing the production database, which will be built from migrations and nothing
+else. Three defects, all of which only show on a genuinely fresh build, which is why none had been
+noticed.
+
+### `supabase db reset` has not finished successfully in a long time
+
+- It ended with `failed to send batch: ERROR: cannot insert multiple commands into a prepared
+  statement (SQLSTATE 42601)` at the seeding step.
+- The SQL was valid: `psql -f supabase/seed.sql` accepted it with `ON_ERROR_STOP=1`. The CLI sends
+  statements over the extended protocol, one per message, and its splitter lost quote tracking on
+  the file's two `E'...'` literals, whose only escapes were four `\'`. A splitter that understands
+  `''` doubling but not E-string backslash escapes reads `\'` as a closing quote, and the next
+  chunk it sends then contains two statements.
+- Replaced those four with standard `''` doubling, which makes the `E` prefix unnecessary. No
+  backslashes remain in any seeded text. Verified: the reset now runs to "Finished".
+
+### The seed carried two amenity labels that migrations had since renamed
+
+- `High-speed Wi-Fi` and `Private manicured lawn`, replaced by `High-speed internet` and
+  `Private lawn` in `00084`.
+- The upsert keys on `(property_id, label)`, so a renamed label does not conflict: the seed inserted
+  the old wording as an extra row beside the new one, taking amenities from 27 to 29. This was
+  invisible precisely because the seed had not been running.
+- Both renamed in the seed. Back to 27.
+
+### A fresh database had no tagline, and the home page renders it as a heading
+
+- `00026` sets the tagline, but the `properties` row is not inserted until `00028`, two migrations
+  later. On a database built in order, `00026` matches zero rows — **and an UPDATE that matches
+  nothing still succeeds**, so the migration reported no problem.
+- Every existing database got its tagline from `seed.sql`, and the remote was built when the row
+  already existed, so only a build from migrations alone is affected. That is exactly what the new
+  production project will be.
+- `src/app/(site)/page.tsx:227` renders `{property.tagline}` as an `<h2>`, so production would have
+  served an empty heading on the home page.
+- `00094` sets it after the row exists, writing only where it is missing so it cannot overwrite a
+  value later changed in Ooruda Villa.
+- Checked the rest of the class: `00015`, `00016`, `00021`, `00023`, `00025` and `00027` also update
+  `properties` before `00028` creates it. Every other column they touch is re-set by a later
+  migration, so the tagline was the only value actually lost.
+
+### Verified
+
+A database built from **migrations only**, with the seed file moved aside, now produces: tagline
+present, 27 amenities, 42 FAQs, 5 rooms, 50 images, 19 nearby places, correct rates and the `V19`
+code prefix — identical to migrations plus seed. That is the configuration production will be built
+in. `tsc`, `eslint`, `build` clean; 136 passed, 4 skipped.
+
+---
+
 ## v1.21 - Security, accessibility and validation pass from a full application audit - 2026-10-19
 
 A line-by-line review of `src/`, all migrations, `next.config.ts` and the build output. Everything
