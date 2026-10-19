@@ -4,6 +4,70 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.23 - An open write path into the database, left behind by a retired form - 2026-10-19
+
+Found while deciding the Data API settings for the new production project, by auditing which roles
+hold which privileges rather than by reading code - which is why the first pass over `src/` missed
+it entirely.
+
+### What it was
+
+`00007` created the `enquiries` table for the contact form and gave it both halves of a public
+write:
+
+```sql
+CREATE POLICY "public_insert_enquiries" ON enquiries FOR INSERT WITH CHECK (true);
+GRANT INSERT ON enquiries TO anon, authenticated;
+```
+
+The operator retired the contact form on **2026-10-13**. The table kept the open write path, and
+nothing in `src/` has read or written it since - the only mention left is its generated row type.
+
+That left an unauthenticated, unvalidated, unbounded `POST /rest/v1/enquiries` accepting any JSON
+body as many times as you like. It does not pass through Next.js, so **the per-IP limiter added in
+v1.21 does not see it**, and neither does any of the input validation in those routes.
+
+Demonstrated against a local stack before fixing: `201 Created`, row written, using nothing but the
+public anon key.
+
+### Why it was not already being abused
+
+This app ships no browser Supabase client - every query goes through the service-role client on the
+server - so the anon key is never published anywhere. That is the only thing that made the endpoint
+hard to find. Anon keys are designed to be public, and the protection disappears the moment anyone
+adds a client-side query or shares the key.
+
+### The fix
+
+`00095` removes both halves, because either alone would stop the insert and leaving the other
+implies an access level that is no longer intended:
+
+- `DROP POLICY "public_insert_enquiries"`
+- `REVOKE INSERT ON enquiries FROM anon, authenticated`
+- `REVOKE SELECT ON enquiries FROM authenticated` - RLS had no SELECT policy to permit it anyway,
+  so the grant only advertised access that did not exist
+
+**The table and its data stay.** The live database has been taking enquiries since before the form
+was retired and those are real messages from real people. `service_role` keeps `SELECT` so staff
+tooling can still read the history.
+
+### Verified
+
+Against a database built from all 95 migrations:
+
+| Check | Result |
+|---|---|
+| `anon` INSERT `/rest/v1/enquiries` | `401 permission denied` |
+| `anon` SELECT `/rest/v1/enquiries` | `401 permission denied` |
+| `anon` SELECT `/rest/v1/properties` | `200` - public content unaffected |
+| `service_role` SELECT enquiries | `200` - history still readable |
+| Any `anon` INSERT grant left in `public` | **none** |
+
+If the contact form ever returns, it should come back through a validated, rate-limited server
+route like every other write in this app, not a blanket grant to `anon`.
+
+---
+
 ## v1.22 - A database built from migrations alone was missing the home page's tagline - 2026-10-19
 
 Found while preparing the production database, which will be built from migrations and nothing
