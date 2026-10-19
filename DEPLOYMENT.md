@@ -13,16 +13,22 @@
 
 ## Environments, as they actually are
 
-| Environment | Supabase project | Ref | Serves |
-|---|---|---|---|
-| **Local** | Docker via Colima | — | `http://localhost:3000` |
-| **Remote / staging** | Villa Project Development | `hlmqcdzazbrztfovixjk` | **the live site, for now** |
-| **Production** | Villa 19 Production | `wnmrxuggtfeaunacmztv` | nothing yet |
+| Environment | Supabase project | Organisation | Ref | Serves |
+|---|---|---|---|---|
+| **Local** | Docker via Colima | — | — | `http://localhost:3000` |
+| **Remote / staging** | Villa Project Development | Villa Project (Free) | `hlmqcdzazbrztfovixjk` | **the live site, for now** |
+| **Production** | Villa 19 Production | Naithodu Consulting (Pro) | `wnmrxuggtfeaunacmztv` | nothing yet |
 
-`Villa 19 Production` lives in the **Naithodu Consulting** org (Pro, `ap-south-1`, MICRO) but **Vercel is not pointed at it yet**, so the
-development project is still what guests read. That is why `DEV_REF_SERVES_PROD` in
-`scripts/db-push.sh` is still `true`: the flag tracks "is the dev ref serving live traffic", not
-"does a production project exist". It flips in the same change that repoints the Vercel env vars.
+Production is `ap-south-1`, MICRO compute. The organisations are split by stage rather than by
+product: **Naithodu Consulting (Pro)** holds both production databases, Villa 19's and Ooruda's,
+and **Villa Project (Free)** holds both development ones. So the org name tells you the stage, not
+the project — worth knowing before you go looking for Villa 19's production database in an org
+called "Villa Project", where it is not.
+
+**Vercel is not pointed at production yet**, so the development project is still what guests read.
+That is why `DEV_REF_SERVES_PROD` in `scripts/db-push.sh` is still `true`: the flag tracks "is the
+dev ref serving live traffic", not "does a production project exist". It flips in the same change
+that repoints the Vercel env vars.
 
 Vercel production is `https://villa-booking-psi.vercel.app`, and it reads the remote project above.
 
