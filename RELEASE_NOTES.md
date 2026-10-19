@@ -4,6 +4,60 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.25 - The announcement bar advertised a promo code nothing checked - 2026-10-19
+
+### The problem
+
+The bar hardcoded both the code and the saving in `src/app/(site)/layout.tsx`:
+
+```ts
+{ text: 'Book directly and save 15%. Use code:', code: 'VILLA19' }
+```
+
+with no connection at all to the `discount_codes` table checkout validates against. Two ways that
+goes wrong, and the first was about to happen deliberately:
+
+- **Production will have no discount codes.** It is built from migrations, `00062` creates
+  `discount_codes` empty, and the codes come from Ooruda Villa's production, which is not live yet.
+  Every page would have told guests to use `VILLA19`, and checkout would have answered "This code
+  is not valid for this booking."
+- **Drift.** Deactivate the code, let it expire, or change it from 15% to 10%, and a hardcoded
+  string keeps promising the old terms indefinitely.
+
+### The fix
+
+`getActivePromo()` in `src/lib/data.ts` reads the best code that is active and valid **today** at
+the property's own date, and the bar is built from it. No code, no promo line - just the
+reservations line. A code, and the line carries that code and its real value.
+
+Only the code and the saving are advertised. A code can also carry `min_nights`,
+`min_booking_value` and blackouts, and a one-line bar cannot state those honestly; checkout applies
+them and explains any that bite.
+
+### Verified
+
+| State | Bar shows |
+|---|---|
+| No codes in the table | reservations line only, no promo |
+| `EARLYBIRD` at 12% | "Book directly and save **12%**. Use code: **EARLYBIRD**" |
+| Either state | no trace of the old hardcoded `VILLA19` or `15%` |
+
+The 12% is the point: the figure comes from the row, not from a string.
+
+### A caching trap found while testing it, which matters at cutover
+
+Deleting the code and running a **full** `npm run build` still served the old page. Next prerenders
+these pages at build time and its build cache keys on **source**, not on the data the pages read, so
+an unchanged source tree reuses the cached render. `rm -rf .next/cache` and rebuilding produced the
+correct page.
+
+Vercel persists its build cache between deployments, so the redeploy that repoints production at the
+new database can serve pages rendered against the **old** one - no source file changes, only
+environment variables. Redeploy with "Use existing build cache" **off**. Recorded as step 11b in the
+production setup plan.
+
+---
+
 ## v1.24 - Villa 19 Production exists; the live-database guard deliberately stays on - 2026-10-19
 
 - `scripts/db-push.sh` now carries the real `PROD_REF` (`vluukungxufnnnpcusal`, created 2026-10-19)
