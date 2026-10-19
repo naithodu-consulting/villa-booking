@@ -15,14 +15,20 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # ─── Project refs ─────────────────────────────────────────────────────────────
 DEV_REF="hlmqcdzazbrztfovixjk"   # Villa Project Development (remote-local / staging)
-PROD_REF="REPLACE_WITH_PROD_REF" # Villa 19 Production — set this once the project is created
+PROD_REF="vluukungxufnnnpcusal"  # Villa 19 Production — created 2026-10-19
 
-# The production project was never created, so Vercel production is pointed at
-# DEV_REF. A push to "staging" therefore changes what the live site serves as
-# soon as ISR revalidates, with no deploy involved. Until a real production
-# project exists and the Vercel env vars are repointed, DEV_REF has to be
-# treated as production or this script guards nothing.
-# Flip to false once PROD_REF above is a real ref.
+# Villa 19 Production now exists, but Vercel production has NOT been repointed
+# at it yet, so DEV_REF is still what the live site serves: a push there changes
+# what guests see as soon as ISR revalidates, with no deploy involved.
+#
+# So this stays true for now. The condition is not "does a production project
+# exist" — it is "is DEV_REF still serving live traffic". Flipping it the moment
+# the new project was created would have removed the guard while it was still
+# the only thing protecting the live database.
+#
+# Flip to false in the same change that repoints the Vercel production env vars
+# (NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY) at PROD_REF.
+# See docs/PROD_DB_SETUP.md step 11.
 DEV_REF_SERVES_PROD=true
 
 PROJECT_REF_FILE="${REPO_ROOT}/supabase/.temp/project-ref"
@@ -98,8 +104,9 @@ elif [[ "$LINKED_REF" == "$DEV_REF" ]]; then
     # exact failure this script exists to prevent.
     if [[ ! -t 0 ]]; then
       echo "  Refusing to push to the live database from a non-interactive shell."
-      echo "  Re-run from a terminal, or set DEV_REF_SERVES_PROD=false once a"
-      echo "  separate production project exists."
+      echo "  Re-run from a terminal. DEV_REF_SERVES_PROD stays true until the"
+      echo "  Vercel production env vars point at PROD_REF, not merely until"
+      echo "  the production project exists - it already does."
       echo ""
       exit 1
     fi

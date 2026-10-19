@@ -4,6 +4,27 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.24 - Villa 19 Production exists; the live-database guard deliberately stays on - 2026-10-19
+
+- `scripts/db-push.sh` now carries the real `PROD_REF` (`vluukungxufnnnpcusal`, created 2026-10-19)
+  in place of the `REPLACE_WITH_PROD_REF` placeholder, so the production path is reachable for the
+  first time.
+- **`DEV_REF_SERVES_PROD` stays `true`.** The plan said to flip it in the same change that set
+  `PROD_REF`; that was wrong. The flag tracks *"is the dev ref still serving live traffic"*, not
+  *"does a production project exist"*. Vercel has not been repointed yet, so the development
+  database is still what guests read, and flipping the flag now would have removed the only guard
+  protecting it. It flips in the same change that repoints the Vercel env vars.
+- The script's own message said to flip it "once a separate production project exists", which is
+  now exactly the wrong advice. Corrected to name the real condition.
+- Verified all four routing branches against the new ref: production without `--production` is
+  blocked; `--production` against a non-production ref is rejected; an unrecognised ref is refused;
+  every path refuses in a non-interactive shell. Tested against a stubbed `supabase` binary in an
+  isolated copy, so no path could reach a real project.
+- `DEPLOYMENT.md` records both projects, which one currently serves guests, and the production push
+  sequence including linking back afterwards.
+
+---
+
 ## v1.23 - An open write path into the database, left behind by a retired form - 2026-10-19
 
 Found while deciding the Data API settings for the new production project, by auditing which roles

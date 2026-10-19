@@ -16,8 +16,13 @@
 | Environment | Supabase project | Ref | Serves |
 |---|---|---|---|
 | **Local** | Docker via Colima | — | `http://localhost:3000` |
-| **Remote** | Villa Project Development | `hlmqcdzazbrztfovixjk` | **the live site** |
-| **Production** | *not created yet* | — | — |
+| **Remote / staging** | Villa Project Development | `hlmqcdzazbrztfovixjk` | **the live site, for now** |
+| **Production** | Villa 19 Production | `vluukungxufnnnpcusal` | nothing yet |
+
+`Villa 19 Production` was created on 2026-10-19 but **Vercel is not pointed at it yet**, so the
+development project is still what guests read. That is why `DEV_REF_SERVES_PROD` in
+`scripts/db-push.sh` is still `true`: the flag tracks "is the dev ref serving live traffic", not
+"does a production project exist". It flips in the same change that repoints the Vercel env vars.
 
 Vercel production is `https://villa-booking-psi.vercel.app`, and it reads the remote project above.
 
@@ -136,8 +141,19 @@ npx supabase db lint --linked     # schema-level confirmation
 
 ### Push to production
 
-Not possible yet: `PROD_REF` in `scripts/db-push.sh` is still a placeholder. Follow
-`docs/PROD_DB_SETUP.md`, then replace this section.
+```bash
+supabase link --project-ref vluukungxufnnnpcusal   # prompts for the DB password
+npm run supabase:migration:list                    # confirm what is pending
+npm run db:push:prod                               # type 'yes-production'
+supabase link --project-ref hlmqcdzazbrztfovixjk   # link back, so an absent-minded
+                                                   # db:push cannot reach production
+```
+
+The guard routes on the linked ref: production without `--production` is blocked, `--production`
+against a non-production ref is rejected, an unrecognised ref is refused, and every path refuses in
+a non-interactive shell. Verified for all four.
+
+Setup and the verification queries are in `docs/PROD_DB_SETUP.md`.
 
 ---
 
