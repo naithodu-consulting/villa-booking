@@ -4,6 +4,52 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.20 - Booking confirmations name all three policies, not just cancellation - 2026-10-19
+
+### The change
+- The confirmation email ended its cancellation block with "Refer to our **Cancellation Policy**
+  for more details." That is now **"Please note that this booking is subject to our Privacy
+  Policy, Terms of Service and Cancellation Policy."**, with all three linked.
+- It applies to **all three refund states**, which is what a guest can receive: fully refundable,
+  partially refundable and non-refundable. The sentence is built once and appended to the
+  cancellation paragraph in each, so the three cannot drift apart again.
+- In the two refundable states the sentence replaces only the closing line: the refund address and
+  the 5-to-7-working-day processing note are unchanged and still come first.
+
+### Why it needed new context fields
+- The template knew only `cancellationUrl`. `privacyUrl` and `termsUrl` are now part of
+  `BookingConfirmationContext`, set in `src/lib/booking-notify.ts` and in the preview/test fixture
+  exactly as the cancellation link already was. All three pages already existed at `/privacy`,
+  `/terms` and `/cancellation`.
+- These are the first policy links the emails have carried at all.
+
+### The links follow the booking, they are not hardcoded
+- Every guest link is built from `guestLinkBase(booking.origin_url)`, the origin the browser sent
+  when the order was created, checked against the allowlist in `src/lib/origin.ts`. Verified:
+
+  | Booked on | Policy link |
+  |---|---|
+  | `http://localhost:3000` | `http://localhost:3000/privacy` |
+  | `https://villa-booking-psi.vercel.app` | `https://villa-booking-psi.vercel.app/privacy` |
+  | `https://villa19.in` | `https://villa19.in/privacy` |
+  | nothing recorded | `SITE_URL`, i.e. `APP_URL` or `https://villa19.in` |
+  | a spoofed origin | `SITE_URL`, never the spoofed host |
+
+- So a test booking made on the dev deployment links to the dev deployment, and nobody can get a
+  confirmation sent from our verified domain to carry a link to theirs.
+
+### Plain text
+- The HTML links the three names inline; the text part cannot, so it prints the same sentence and
+  then lists the three URLs beneath it.
+- The blank line before the sentence is produced in one place for all three states. A first attempt
+  moved it and gave the non-refundable mail two blank lines where the others had one.
+
+### Checked
+- All three states rendered and read back: one policy sentence each, all three links present and
+  pointing at `/privacy`, `/terms` and `/cancellation`, and the old "for more details" wording gone
+  from both the HTML and the text.
+- Full suite green: 136 passed, 4 skipped.
+
 ## v1.19 - The drone reel re-encoded from the square master - 2026-10-16
 
 ### The sharpness the operator flagged

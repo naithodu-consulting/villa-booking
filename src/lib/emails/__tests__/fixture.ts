@@ -15,6 +15,8 @@ export const SAMPLE_CONFIRMATION: BookingConfirmationContext = {
   // send must not go out carrying a domain that exists nowhere.
   bookingUrl: `${SITE_URL}/booking/sample-token`,
   cancellationUrl: `${SITE_URL}/cancellation`,
+  privacyUrl: `${SITE_URL}/privacy`,
+  termsUrl: `${SITE_URL}/terms`,
   whatsappNumber: '919876543210',
   propertyName: 'Villa 19 by Habbaa',
   propertyShortName: 'Villa 19',

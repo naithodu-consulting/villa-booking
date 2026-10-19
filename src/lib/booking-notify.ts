@@ -65,6 +65,8 @@ async function sendConfirmationEmails(supabase: SupabaseClient, bookingId: strin
       bookingRef,
       bookingUrl: `${base}/booking/${b.access_token}`,
       cancellationUrl: `${base}/cancellation`,
+      privacyUrl: `${base}/privacy`,
+      termsUrl: `${base}/terms`,
       whatsappNumber: process.env.PROPERTY_WHATSAPP,
       propertyName: `${p.name} by Habbaa`,
       propertyShortName: p.name,

@@ -41,6 +41,10 @@ export interface BookingConfirmationContext {
   bookingUrl: string;
   /** Public cancellation policy page. */
   cancellationUrl: string;
+  /** Public privacy policy page. */
+  privacyUrl: string;
+  /** Public terms of service page. */
+  termsUrl: string;
   /** The property's WhatsApp number, for the "If you need us" block. */
   whatsappNumber?: string;
   propertyName: string;
@@ -178,6 +182,15 @@ export function renderBookingConfirmation(
     `${c.bookingRef} · ${stayRange(c.checkIn, c.checkOut)} · ${
       c.paidInFull ? `${inr(c.totalAmount)} paid in full` : `${inr(balanceDue)} balance due`
     }`;
+
+  // Named in full in every confirmation, whatever the refund state: the booking
+  // is subject to all three, and the cancellation policy was the only one the
+  // guest was ever pointed at.
+  const policyLink = (url: string, label: string) =>
+    `<a href="${esc(url)}" style="color:${MAROON};font-weight:bold;">${esc(label)}</a>`;
+  const policyNote =
+    `Please note that this booking is subject to our ${policyLink(c.privacyUrl, 'Privacy Policy')}, ` +
+    `${policyLink(c.termsUrl, 'Terms of Service')} and ${policyLink(c.cancellationUrl, 'Cancellation Policy')}.`;
 
   // Filtered against when the booking was actually made: a guest booking close
   // in must not be shown deadlines that passed before they paid.
@@ -373,13 +386,14 @@ export function renderBookingConfirmation(
     </table>`}
     <p style="margin:10px 0 0;font-family:${SANS};font-size:13px;line-height:1.6;color:${MUTED};">${
       // Nothing is coming back, so a refund address and a processing time would
-      // contradict the line directly above it.
+      // contradict the line directly above it. The policy sentence is common to
+      // all three refund states, so it is appended rather than repeated.
       refunds.state === 'none'
-        ? `Refer to our <a href="${esc(c.cancellationUrl)}" style="color:${MAROON};font-weight:bold;">Cancellation Policy</a> for more details.`
+        ? ''
         : `For cancellations, email us at <a href="mailto:${esc(ENTITY.email)}" style="color:${MAROON};font-weight:bold;">${esc(ENTITY.email)}</a> with your booking reference.
       Approved refunds are generally processed to the original payment method within 5 to 7 working days.
-      Refer to our <a href="${esc(c.cancellationUrl)}" style="color:${MAROON};font-weight:bold;">Cancellation Policy</a> for more details.`
-    }</p>
+      `
+    }${policyNote}</p>
 
     ${rule()}
 
@@ -497,8 +511,7 @@ function renderText(
     '',
     'CANCELLATIONS & REFUND',
     ...(v.refunds.state === 'none'
-      ? ['This booking is non-refundable.',
-         `Refer to our Cancellation Policy for more details: ${c.cancellationUrl}`]
+      ? ['This booking is non-refundable.']
       : [
           ...(v.refunds.state === 'partial'
             ? [`This booking may be eligible for a refund if cancelled on or before ${v.refunds.lastRefundableAt}.`, '']
@@ -511,9 +524,18 @@ function renderText(
       `For cancellations, email us at ${ENTITY.email} with your booking reference.`,
       'Approved refunds are generally processed to the original payment method',
       'within 5 to 7 working days.',
-      `Refer to our Cancellation Policy for more details: ${c.cancellationUrl}`,
+      // Separates the refund paragraph from the policy note below. The
+      // non-refundable state gets its blank from the line above this spread,
+      // so putting one here too would double it.
       '',
     ]),
+    // The HTML links these three inline; plain text has to spell them out.
+    'Please note that this booking is subject to our Privacy Policy, Terms of',
+    'Service and Cancellation Policy.',
+    `  Privacy Policy: ${c.privacyUrl}`,
+    `  Terms of Service: ${c.termsUrl}`,
+    `  Cancellation Policy: ${c.cancellationUrl}`,
+    '',
     'IF YOU NEED US',
     ...(c.whatsappNumber ? [`WhatsApp: ${formatPhone(c.whatsappNumber)}`] : []),
     `Email: ${ENTITY.email}`,
