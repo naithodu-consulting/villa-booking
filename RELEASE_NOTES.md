@@ -4,6 +4,24 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.28 - Revert: the announcement bar goes back to its fixed promo line - 2026-10-19
+
+Reverts v1.25 (`4ffb18e`) at the operator's request. The v1.25 entry stays below as a record that
+the change shipped, because it did.
+
+- `src/app/(site)/layout.tsx` returns to the fixed `ANNOUNCEMENTS` array: "Book directly and save
+  15%. Use code: VILLA19".
+- `getActivePromo()` and the `ActivePromo` type are removed from `src/lib/data.ts`. The layout no
+  longer reads `discount_codes`.
+- Verified: `tsc`, `eslint` and `build` clean, and `VILLA19` is back in the rendered home page.
+
+**Worth knowing, not an objection.** Production's `discount_codes` table starts empty - `00062`
+creates it without rows and the codes come from Ooruda Villa's production. So between launch and
+Ooruda pushing `VILLA19`, the bar advertises a code that checkout will refuse with "This code is
+not valid for this booking." If Ooruda pushes the code first, that window never opens.
+
+---
+
 ## v1.27 - Validate the guest-count constraint wherever it is safe to - 2026-10-19
 
 A health check of a database built from all 95 migrations - the exact thing production is about to
