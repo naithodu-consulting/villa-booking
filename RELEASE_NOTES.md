@@ -4,6 +4,38 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.27 - Validate the guest-count constraint wherever it is safe to - 2026-10-19
+
+A health check of a database built from all 95 migrations - the exact thing production is about to
+be - found one outstanding item and nothing else.
+
+Clean: every `SECURITY DEFINER` function pins `search_path`, RLS is on for all 25 tables, `anon`
+holds no INSERT, UPDATE or DELETE anywhere, `service_role` can read every table the app touches,
+`supabase db lint` reports no schema errors, and the cron job, all seven functions and all four
+triggers are present.
+
+The one item was `bookings_guest_counts_sane`, left `NOT VALID` by `00093`. That was right at the
+time - it had to run against the development database, which holds 37 test bookings of unknown
+quality, and a migration that fails on legacy junk blocks the whole push. It is a poor resting
+state though: the planner cannot rely on it, and `\d bookings` reports it as unverified, which
+invites doubt later about whether the data is sound.
+
+`00096` validates it conditionally, because the same migration runs against both databases:
+
+| Database | Outcome |
+|---|---|
+| Production, and any fresh build | no rows, nothing violates, **validated** |
+| Development, if its test bookings are clean | **validated** |
+| Development, if any row violates | **skipped**, with a NOTICE naming the count |
+
+A skip is not a silent failure: the constraint governs every write either way, and only the
+retroactive scan is deferred. Verified all three paths, including that a `NOT VALID` constraint
+still rejects a new violating row.
+
+After `00096`, the health audit returns zero rows.
+
+---
+
 ## v1.26 - Production moves to the Pro organisation - 2026-10-19
 
 - `Villa 19 Production` was first created in the **Villa Project** organisation, which is on the
