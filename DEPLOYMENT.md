@@ -17,9 +17,9 @@
 |---|---|---|---|
 | **Local** | Docker via Colima | — | `http://localhost:3000` |
 | **Remote / staging** | Villa Project Development | `hlmqcdzazbrztfovixjk` | **the live site, for now** |
-| **Production** | Villa 19 Production | `vluukungxufnnnpcusal` | nothing yet |
+| **Production** | Villa 19 Production | `wnmrxuggtfeaunacmztv` | nothing yet |
 
-`Villa 19 Production` was created on 2026-10-19 but **Vercel is not pointed at it yet**, so the
+`Villa 19 Production` lives in the **Naithodu Consulting** org (Pro, `ap-south-1`, MICRO) but **Vercel is not pointed at it yet**, so the
 development project is still what guests read. That is why `DEV_REF_SERVES_PROD` in
 `scripts/db-push.sh` is still `true`: the flag tracks "is the dev ref serving live traffic", not
 "does a production project exist". It flips in the same change that repoints the Vercel env vars.
@@ -142,7 +142,7 @@ npx supabase db lint --linked     # schema-level confirmation
 ### Push to production
 
 ```bash
-supabase link --project-ref vluukungxufnnnpcusal   # prompts for the DB password
+supabase link --project-ref wnmrxuggtfeaunacmztv   # prompts for the DB password
 npm run supabase:migration:list                    # confirm what is pending
 npm run db:push:prod                               # type 'yes-production'
 supabase link --project-ref hlmqcdzazbrztfovixjk   # link back, so an absent-minded

@@ -15,7 +15,7 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 # ─── Project refs ─────────────────────────────────────────────────────────────
 DEV_REF="hlmqcdzazbrztfovixjk"   # Villa Project Development (remote-local / staging)
-PROD_REF="vluukungxufnnnpcusal"  # Villa 19 Production — created 2026-10-19
+PROD_REF="wnmrxuggtfeaunacmztv"  # Villa 19 Production — Naithodu Consulting (Pro), ap-south-1
 
 # Villa 19 Production now exists, but Vercel production has NOT been repointed
 # at it yet, so DEV_REF is still what the live site serves: a push there changes

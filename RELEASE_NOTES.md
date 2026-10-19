@@ -4,6 +4,26 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.26 - Production moves to the Pro organisation - 2026-10-19
+
+- `Villa 19 Production` was first created in the **Villa Project** organisation, which is on the
+  Free plan - where point-in-time recovery is not available at all, so the setup plan's backup step
+  could not have been satisfied there.
+- Recreated as `wnmrxuggtfeaunacmztv` in **Naithodu Consulting** (Pro), `ap-south-1`, MICRO compute.
+  Recreating rather than transferring was the cheap option precisely because the project was empty:
+  no data, no keys in use, nothing pointing at it.
+- There was also a sequencing constraint: a Free organisation caps at two active projects and the
+  Villa Project org already had two, so the new production project had to leave before
+  `Ooruda Development` could move in.
+- `PROD_REF` updated in `scripts/db-push.sh`, with `DEPLOYMENT.md` and the setup plan following.
+- Re-verified all four routing branches against the new ref. The abandoned
+  `vluukungxufnnnpcusal` now falls through to "not recognised, refusing to push to an unknown
+  project", which is the correct answer for a ref that is about to be deleted.
+- `DEV_REF_SERVES_PROD` still `true`: Vercel has not been repointed, so `hlmqcdzazbrztfovixjk` is
+  still what the deployment reads.
+
+---
+
 ## v1.25 - The announcement bar advertised a promo code nothing checked - 2026-10-19
 
 ### The problem
