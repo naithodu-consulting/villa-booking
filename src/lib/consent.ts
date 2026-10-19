@@ -49,6 +49,29 @@ export function useConsent(): Consent | undefined {
   return useSyncExternalStore(subscribeConsent, getConsent, unknownConsent);
 }
 
+/**
+ * Forgets the stored choice, which brings the banner back so the guest can
+ * answer again.
+ *
+ * Without this there was no way to revisit the decision: the banner hides for
+ * good once answered, so a guest who declined could never accept, and one who
+ * accepted could never withdraw. The privacy policy implies they can do both,
+ * and withdrawal needs to be as easy as consent.
+ *
+ * Analytics reacts to the same event, so withdrawing stops measurement for the
+ * rest of this page view without a reload. Scripts already loaded into the page
+ * cannot be unloaded, so a guest who withdraws mid-session should be told to
+ * reload for it to take full effect.
+ */
+export function clearConsent() {
+  try {
+    localStorage.removeItem(CONSENT_KEY);
+  } catch {
+    // Storage blocked: there was nothing persisted to clear.
+  }
+  window.dispatchEvent(new CustomEvent(CONSENT_EVENT, { detail: null }));
+}
+
 export function setConsent(choice: Exclude<Consent, null>) {
   try {
     localStorage.setItem(CONSENT_KEY, choice);

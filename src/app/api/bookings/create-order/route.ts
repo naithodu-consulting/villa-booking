@@ -5,6 +5,30 @@ import { createServiceClient } from '@/lib/supabase/server';
 import type { Property, PricingRule } from '@/types';
 import { todayISO } from '@/lib/format';
 import { safeOrigin } from '@/lib/origin';
+import { LIMITS, rateLimit, tooManyRequests } from '@/lib/rate-limit';
+
+/** Longest values accepted for the free-text fields.
+ *
+ *  guest_name is VARCHAR(255) in the database, so anything longer used to reach
+ *  Postgres, raise "value too long", and come back to the guest as the generic
+ *  503 "Booking could not be created. Please try again." — a dead end they
+ *  could neither understand nor escape. 120 is comfortably longer than any real
+ *  name and well inside the column. */
+const MAX_NAME_LENGTH = 120;
+const MAX_REQUESTS_LENGTH = 500;
+/** guest_email is VARCHAR(255); 254 is also the RFC 5321 ceiling for an
+ *  address. The email regex above bounds the shape but not the length, so
+ *  without this a 5,000-character address passed validation and hit the same
+ *  "value too long" 503 the name cap exists to prevent. */
+const MAX_EMAIL_LENGTH = 254;
+
+/** A calendar date, as the date pickers and the DATE columns both use. */
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** Whole number in [min, max]. Rejects NaN, Infinity, 8.5 and "8". */
+function isCount(value: unknown, min: number, max: number): boolean {
+  return typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
+}
 
 // Deferred so build-time static analysis doesn't throw when env vars are absent
 function getRazorpay() {
@@ -19,6 +43,24 @@ function getRazorpay() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Every successful call below holds the requested dates for 15 minutes
+    // before any payment exists, and a held date is unbookable by anyone else.
+    // Without a limit, a loop can keep the whole calendar unbookable for the
+    // cost of a few dozen requests an hour. See lib/rate-limit.ts for what this
+    // does and does not cover.
+    const limited = rateLimit(
+      request.headers,
+      LIMITS.createOrder.bucket,
+      LIMITS.createOrder.limit,
+      LIMITS.createOrder.windowMs,
+    );
+    if (!limited.ok) {
+      return tooManyRequests(
+        limited.retryAfter,
+        'Too many booking attempts from this connection. Please wait a few minutes and try again, or contact the villa directly.',
+      );
+    }
+
     const body = await request.json();
     const {
       propertyId, checkIn, checkOut, adults, children,
@@ -37,12 +79,63 @@ export async function POST(request: NextRequest) {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guestEmail)) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
+    if (typeof guestEmail !== 'string' || guestEmail.trim().length > MAX_EMAIL_LENGTH) {
+      return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
+    }
+    if (typeof guestName !== 'string' || guestName.trim().length > MAX_NAME_LENGTH) {
+      return NextResponse.json(
+        { error: `Please shorten the guest name to ${MAX_NAME_LENGTH} characters or fewer.` },
+        { status: 400 },
+      );
+    }
+    if (specialRequests != null) {
+      if (typeof specialRequests !== 'string' || specialRequests.length > MAX_REQUESTS_LENGTH) {
+        return NextResponse.json(
+          { error: `Please shorten your special requests to ${MAX_REQUESTS_LENGTH} characters or fewer.` },
+          { status: 400 },
+        );
+      }
+    }
+
+    // Dates have to be calendar dates before anything is derived from them.
+    // `new Date("garbage")` is Invalid Date, which compares false against
+    // everything and so slipped past an ordering check.
+    if (!ISO_DATE.test(checkIn) || !ISO_DATE.test(checkOut)) {
+      return NextResponse.json({ error: 'Invalid booking dates.' }, { status: 400 });
+    }
+
+    // Guest counts, when supplied, must be whole and positive. The pricing
+    // engine caps the total against max_occupancy but floors extra guests at
+    // zero, so a negative count priced at the base rate and stored a booking
+    // for a negative number of people. A non-numeric value made the total NaN,
+    // which compares false against the occupancy ceiling and slipped past it.
+    if (adults != null && !isCount(adults, 1, 100)) {
+      return NextResponse.json({ error: 'Please provide a valid number of adults.' }, { status: 400 });
+    }
+    if (children != null && !isCount(children, 0, 100)) {
+      return NextResponse.json({ error: 'Please provide a valid number of children.' }, { status: 400 });
+    }
+
     // Fetch property + active pricing rules from DB — never trust client amounts
     const supabase = createServiceClient();
     // The date at the property, not UTC. This gates promo-code valid_from and
     // valid_to below, so between 00:00 and 05:30 IST a UTC date would honour a
     // code a day early or reject one on its last valid day.
     const today = todayISO();
+
+    // A check-in that has already passed at the property. Nothing downstream
+    // objected to one: the pricing engine only checks the range order and the
+    // night cap, check_availability has no opinion on dates that have gone, and
+    // the only table constraint is check_out > check_in. create_booking_atomic
+    // refuses it too since 00092; this is the readable error, and it saves a
+    // round trip. Compared against the property's own date, not UTC, or between
+    // 00:00 and 05:30 IST this would reject a booking for today.
+    if (checkIn < today) {
+      return NextResponse.json(
+        { error: 'Check-in cannot be a date that has already passed. Please choose your dates again.' },
+        { status: 422 },
+      );
+    }
 
     const [{ data: propertyData, error: propError }, { data: rulesData }] = await Promise.all([
       supabase.from('properties').select('*').eq('id', propertyId).eq('is_active', true).single(),
@@ -228,6 +321,22 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           { error: 'These dates are unavailable. Please go back and select different dates.' },
           { status: 409 },
+        );
+      }
+      if (msg.startsWith('DATE_IN_PAST')) {
+        // Already checked above, so reaching here means the request crossed
+        // midnight IST mid-flight, or a caller reached the function directly.
+        console.error('[create-order] Past check-in rejected by DB:', msg);
+        return NextResponse.json(
+          { error: 'Check-in cannot be a date that has already passed. Please choose your dates again.' },
+          { status: 422 },
+        );
+      }
+      if (msg.startsWith('GUESTS_INVALID')) {
+        console.error('[create-order] Invalid guest counts rejected by DB:', msg);
+        return NextResponse.json(
+          { error: 'Please provide a valid number of guests.' },
+          { status: 422 },
         );
       }
       if (msg.startsWith('DISCOUNT_')) {

@@ -4,6 +4,187 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.21 - Security, accessibility and validation pass from a full application audit - 2026-10-19
+
+A line-by-line review of `src/`, all migrations, `next.config.ts` and the build output. Everything
+below was reproduced before it was changed and verified after, against a local database built from
+every migration and against a production build in a real browser.
+
+### The booking endpoint could be used to hold the whole calendar
+
+- `POST /api/bookings/create-order` takes no authentication, and each call writes a `pending`
+  booking that holds its dates for 15 minutes **before any payment exists**. `check_availability()`
+  counts a live hold as blocking, so a hold is indistinguishable from a confirmed booking.
+- A stay is capped at 10 nights, so roughly **19 non-overlapping requests blanket the six-month
+  calendar**, and repeating that every 15 minutes keeps the villa reading as fully booked. Nothing
+  in the request is hard to produce: the property id is public and the phone and email only have to
+  match a shape.
+- Added a fixed-window per-IP limiter (`src/lib/rate-limit.ts`): 10 create-order calls per 10
+  minutes, 10 promo-code checks per 5 minutes.
+- **10, not 4, because of who shares an IP.** Indian mobile carriers run large-scale CGNAT, so many
+  subscribers leave through one public address. The two failure modes are not symmetric: throttling
+  an attacker costs nothing, throttling a real guest mid-booking loses the sale. Ten leaves room for
+  two or three genuine guests behind one carrier address.
+- The counters live in one serverless instance's memory, so this blunts a single-source flood and
+  does not stop a distributed one. The durable fix is a Vercel Firewall rule on those two paths; the
+  limiter ships now because it is worth more than a plan.
+
+### The promo-code endpoint was an enumeration oracle
+
+- `/api/discount/validate` distinguished "not found or not active" from "has expired" from "reached
+  its maximum number of uses". Those three answers tell an unauthenticated caller which codes exist
+  in a 3-20 character space, and then their terms. `VILLA19` is published on the site, so the only
+  codes worth discovering are the unpublished ones.
+- All three now return one message: "This code is not valid for this booking."
+- The minimum-nights and minimum-value messages stay specific on purpose. They only ever describe a
+  code the caller already named correctly, and without them "not valid" is unactionable when the fix
+  is one more night. Verified: a valid code still applies and recalculates GST; an expired one is
+  now byte-identical to a code that does not exist.
+
+### Keyboard focus was invisible on the date picker
+
+- `DatePicker` set `outline: 'none'` inline on its trigger and on every day cell. An inline style
+  beats the site's `:focus-visible` rule whatever its layer, the trigger's glow was keyed to
+  `isOpen` rather than focus, and the day cell's was set in `onMouseEnter` — mouse-only. So tabbing
+  across the primary control of the booking flow showed nothing at all. It is a `<button>`, so there
+  is no text input to fall back on.
+- Both removed. Verified in a browser: tabbing to the trigger now paints `solid 2px rgb(168,116,50)`,
+  the site's brass ring.
+- Every other `focus:outline-none` in the codebase was already paired with a ring. These two were
+  the only bare ones.
+
+### Two dialogs declared `aria-modal` and did nothing to earn it
+
+- The date-picker popup and the mobile nav drawer never moved focus in, never trapped it and never
+  restored it, and the drawer had no Escape handler. The picker portals to `document.body`, so Tab
+  from the trigger jumped past the whole page.
+- Both now follow `PhotoViewer`, which already did this correctly.
+- **Escape inside the booking pop-up used to throw away the pop-up as well as the calendar.** The
+  pop-up is a native `<dialog>` opened with `showModal()`, where Escape is a browser close request,
+  not an ordinary key event, so stopping propagation did nothing to it. The picker's handler now
+  calls `preventDefault()`. Verified: one Escape closes the calendar and returns focus to the
+  trigger with the pop-up still open; a second closes the pop-up.
+
+### Dates and guest counts were never checked on the server
+
+- Nothing rejected a **check-in in the past**: the pricing engine only checks range order and the
+  night cap, `check_availability` has no opinion on dates that have gone, and the only constraint
+  was `check_out > check_in`. A crafted POST could create and pay for a stay in 2019.
+- Nothing rejected **zero, negative or fractional guest counts**. The pricing engine floors extra
+  guests at zero, so a negative count priced at the base rate and stored a booking for minus five
+  people; a non-numeric value made the total `NaN`, which compares false against the occupancy
+  ceiling and slipped past it.
+- Now refused in the route *and* in `create_booking_atomic` (`00092`), because the function is the
+  one place every booking path goes through, with a table-level floor in `00093` for writes that do
+  not use it (Ooruda's offline and OTA bookings).
+- `00093` is `NOT VALID`: it applies to new rows, because this database has been serving as both
+  development and production and may hold test rows. `VALIDATE CONSTRAINT` once those are cleaned.
+- The past-date rule cannot be a `CHECK` constraint: `CURRENT_DATE` is `STABLE`, not `IMMUTABLE`,
+  and a row that was legal when written must stay legal.
+
+### "Today" was computed three different ways for discount validity
+
+| Layer | Was | Now |
+|---|---|---|
+| `create-order` | `todayISO()` (IST) | unchanged, it was right |
+| `/api/discount/validate` | `toISOString()` (UTC) | `todayISO()` |
+| `create_booking_atomic` | `CURRENT_DATE` (UTC) | `(now() AT TIME ZONE 'Asia/Kolkata')::date` |
+
+Between 00:00 and 05:30 IST all three disagreed, so a code on its first valid day was shown as
+expired, and one on its last valid day was accepted by the browser-facing check and then rejected
+inside the transaction, after the guest pressed Pay.
+
+### Content-Security-Policy, and the one that nearly shipped broken
+
+- Added CSP and HSTS. `script-src` is limited to this origin, Razorpay and Google Tag Manager;
+  `frame-ancestors 'none'`, `base-uri 'none'`, `object-src 'none'`.
+- `script-src` and `style-src` keep `'unsafe-inline'`, deliberately. Nonces need middleware, and
+  reading a request header in middleware forces every page to render dynamically, which would trade
+  the whole static-rendering strategy for one directive. The app has no user-generated HTML.
+- **The first version broke Razorpay and the browser caught it:** listing only
+  `checkout.razorpay.com` loads the modal but blocks the risk-detection bundle it pulls from
+  `cdn.razorpay.com`. Now `https://*.razorpay.com`, since Razorpay can add hosts under its own
+  domain without telling us. Verified: zero CSP violations on `/book`, `window.Razorpay` present,
+  risk bundle loaded.
+- `CSP_REPORT_ONLY=1` switches to report-only for testing a future change.
+
+### `SECURITY DEFINER` without a pinned `search_path`
+
+`check_availability()` and `expire_stale_booking_holds()` were defined in `00010` without
+`SET search_path`, while every other definer in the schema sets it and `00005` exists specifically
+to fix this class of defect. `00091` re-creates both with byte-identical bodies and the attribute
+added. Verified: all four definers now report `{search_path=public}` in `pg_proc.proconfig`.
+
+### Content pages were frozen at build time
+
+Only the homepage carried a revalidation period. Every other content page is prerendered, reads live
+content from Supabase, and had no refresh path but Ooruda calling `/api/revalidate` — which 503s
+when `CONTENT_REVALIDATE_SECRET` is unset. All now carry `revalidate = 86400`, so a missing webhook
+degrades to "a day behind" rather than "frozen until the next deploy". The webhook is still the fast
+path.
+
+### Smaller things
+
+- **Unbounded free text.** `guest_name` and `guest_email` are `VARCHAR(255)`; neither input nor
+  route capped them, so a long value reached Postgres, raised "value too long", and came back as the
+  generic 503 "Booking could not be created." Capped at 120 and 254, in the form and the route.
+- **Check-in could be any date, arbitrarily far out.** Both pickers set `min` and no `max`, and the
+  forward month arrow was unbounded while the back arrow stopped correctly. Past the six loaded
+  months, cells render with no price and no availability marking, so they look bookable. Added
+  `BOOKING_HORIZON_MONTHS` (12, **a placeholder the operator should set**). Verified: the calendar
+  now stops at October 2027.
+- **"1 adults" on the payment screen.** The checkout hardcoded plurals; the confirmation page
+  already got this right. Verified: "1 adult, 1 child".
+- **A `<label>` pointing at a `<span>`.** `htmlFor="ds-guests"` referenced a `<span>`, which is not
+  labelable, so the Guests label was associated with nothing. Now a `role="group"` with
+  `aria-labelledby`.
+- **No skip link.** Every page put the announcement bar and full nav ahead of `<main>`. Added one,
+  plus the `id="main-content"` target — including on the two checkout branches that had no `<main>`
+  element at all, which only showed up because the skip link had nothing to point at.
+- **Cookie consent could not be revisited.** The banner hid for good once answered, so a guest who
+  declined could never accept and one who accepted could never withdraw. Added "Cookie Preferences"
+  to the footer, shown only once a choice exists.
+- `/about` and `/contact` are indexable but were missing from `sitemap.xml`. `/testimonials` stays
+  out because it genuinely sets `noindex`.
+- Dropped `@supabase/ssr`, imported nowhere, and removed `NEXT_PUBLIC_SUPABASE_ANON_KEY` from
+  `.env.example`: every query uses the service-role client and the anon key is read nowhere in
+  `src/`.
+- `npm run supabase:studio` opened port 54323; `config.toml` says 54333.
+- Internal review documents are gitignored. This repository is public, and a map of what was weak is
+  not something to publish alongside the fixes.
+
+### Migrations
+
+| Migration | Purpose |
+|---|---|
+| `00091_security_definer_search_path.sql` | Pin `search_path` on the two definers that lacked it |
+| `00092_booking_ist_dates_and_past_guard.sql` | IST discount window; refuse past check-ins and bad guest counts |
+| `00093_booking_guest_count_constraints.sql` | Table-level floor on guest counts (`NOT VALID`) |
+
+### Verification
+
+`tsc`, `eslint` and `next build` clean. `npm test` with a local stack: **136 passed, 4 skipped**,
+up from 126 passed and 14 skipped — the 10 newly running are the DB-backed files including
+`booking-concurrency`, the only automated proof that `create_booking_atomic` cannot double-book. The
+4 that remain skipped are opt-in email tools, one of which sends real mail.
+
+Also confirmed directly against the database: past check-in, zero adults and negative children are
+all refused, a valid future booking still succeeds, and the table constraint blocks a direct insert
+that bypasses the function.
+
+### Known, not fixed here
+
+- **There is still no production database.** `scripts/db-push.sh` records it: production serves the
+  development project. Tracked separately.
+- **GST invoice numbers are allocated but no invoice is issued.** `00038` assigns `invoice_number`
+  on every paid booking and `src/lib/invoice.ts` has no caller. Needs an owner's decision, since it
+  touches a statutory series.
+- `supabase/seed.sql` fails with "cannot insert multiple commands into a prepared statement". The
+  content migrations carry everything, so a fresh database is complete without it, but the reset
+  *looks* failed when it is not.
+
+---
+
 ## v1.20 - Booking confirmations name all three policies, not just cancellation - 2026-10-19
 
 ### The change

@@ -45,3 +45,13 @@ URWA_VILLA_KNOWLEDGE.md
 # local design tool, never deploy
 tools/sunk-tone-tuner.html
 public/tools/
+
+# Internal review documents. Kept out of git deliberately: this repository is
+# public, and these describe the deployment's weak points, including how an
+# unauthenticated endpoint could be abused and the fact that development and
+# production currently share one database. Fixed code is safe to publish; a map
+# of what was weak, and of what is still open, is not. Keep them locally, or
+# move them somewhere private and share the link.
+docs/AUDIT_2026_10_15.md
+docs/PRODUCTION_LAUNCH_PLAN.md
+docs/PROD_DB_SETUP.md

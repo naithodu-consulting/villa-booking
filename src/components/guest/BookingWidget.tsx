@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Property, PricingRule, PricingBreakdown } from '@/types';
-import { calculateBookingPrice, MAX_STAY_NIGHTS } from '@/lib/pricing-engine';
+import { calculateBookingPrice, MAX_STAY_NIGHTS, BOOKING_HORIZON_MONTHS } from '@/lib/pricing-engine';
 import { Users, ChevronDown, Lock, Loader2 } from 'lucide-react';
 import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
@@ -81,6 +81,8 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
   // calendar shows it as open rather than booked.
   // Cap the picker at the longest bookable stay as well as at the next booked
   // night, so the 10-night limit is a shape of the calendar, not just an error.
+  // Furthest check-in the villa sells; see BOOKING_HORIZON_MONTHS.
+  const checkInMax = addMonthsISO(todayStr, BOOKING_HORIZON_MONTHS);
   const stayCap = addDaysISO(checkIn, MAX_STAY_NIGHTS);
   const nextTaken = latestCheckOut(unavailable, checkIn) ?? undefined;
   const checkOutMax = nextTaken && nextTaken < stayCap ? nextTaken : stayCap;
@@ -201,6 +203,7 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
               label="Check-In"
               value={checkIn}
               min={todayStr}
+              max={checkInMax}
               getDayInfo={infoFor}
               getMonthStatus={monthStatus}
               onViewMonthChange={loadMonth}

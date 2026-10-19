@@ -65,7 +65,12 @@ export default function RootLayout({
       lang="en"
       className={`${nunitoSans.variable} ${cormorant.variable} ${cinzel.variable} antialiased`}
     >
-      <body className="min-h-screen flex flex-col">{children}</body>
+      <body className="min-h-screen flex flex-col">
+        {/* First focusable thing on every page. Targets the <main> rendered by
+            each route group's layout. */}
+        <a href="#main-content" className="skip-link">Skip to main content</a>
+        {children}
+      </body>
     </html>
   );
 }

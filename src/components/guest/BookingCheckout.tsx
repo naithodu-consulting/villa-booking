@@ -61,6 +61,13 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
   };
   const children = parseInt(searchParams.get('children') ?? '0', 10);
 
+  // Written out rather than `${adults} adults`, which read "1 adults" and
+  // "1 children" on the payment screen. Mirrors booking/[token]/page.tsx.
+  const guestsLine = [
+    `${adults} adult${adults === 1 ? '' : 's'}`,
+    children > 0 && `${children} ${children === 1 ? 'child' : 'children'}`,
+  ].filter(Boolean).join(', ');
+
   const [guestName,        setGuestName]        = useState('');
   const [guestEmail,       setGuestEmail]       = useState('');
   const [guestPhone,       setGuestPhone]       = useState('');
@@ -310,7 +317,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
     return (
       <>
       <CheckoutHeader property={property} />
-      <div className="flex-1 flex items-start sm:items-center justify-center p-4 py-10 sm:py-4">
+      <main id="main-content" className="flex-1 flex items-start sm:items-center justify-center p-4 py-10 sm:py-4">
         <div
           className="max-w-md w-full p-7 sm:p-8 rounded-3xl space-y-5 shadow-lg"
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
@@ -332,7 +339,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
             Back
           </Link>
         </div>
-      </div>
+      </main>
       </>
     );
   }
@@ -356,7 +363,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
     return (
       <>
       <CheckoutHeader property={property} />
-      <div className="flex-1 flex items-center justify-center p-4">
+      <main id="main-content" className="flex-1 flex items-center justify-center p-4">
         <div
           className="max-w-md w-full p-8 rounded-3xl text-center space-y-5 shadow-lg"
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
@@ -368,7 +375,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
           <p className="text-sm" style={{ color: 'var(--ink-muted)' }}>{paramError}</p>
           <Link href="/" className="btn-primary block w-full">Back</Link>
         </div>
-      </div>
+      </main>
       </>
     );
   }
@@ -380,7 +387,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
 
       <CheckoutHeader property={property} />
 
-      <main className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
+      <main id="main-content" className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-5xl mx-auto space-y-6">
 
           <Link href="/" className="inline-flex items-center gap-2 text-sm font-semibold transition-colors" style={{ color: 'var(--ink-muted)' }}>
@@ -424,6 +431,11 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     type="text"
                     required
                     value={guestName}
+                    /* guest_name is VARCHAR(255); anything longer used to reach
+                       Postgres and come back as a generic 503. create-order
+                       caps at 120 too, so this is the friendly half of the
+                       same rule. */
+                    maxLength={120}
                     onChange={(e) => { setGuestName(e.target.value); if (fieldErrors.name) setFieldErrors(p => ({ ...p, name: undefined })); }}
                     placeholder="Full name as per Govt ID"
                     className="w-full rounded-xl px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-offset-1 transition-shadow"
@@ -506,6 +518,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                     id="specialRequests"
                     rows={3}
                     value={specialRequests}
+                    maxLength={500}
                     onChange={(e) => setSpecialRequests(e.target.value)}
                     placeholder="Early check-in, extra towels…"
                     className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brass)] focus:ring-offset-1 resize-none transition-shadow"
@@ -665,7 +678,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <span style={{ color: 'var(--ink-muted)' }}>Guests</span>
-                  <span className="font-semibold">{adults} adults{children > 0 ? `, ${children} children` : ''}</span>
+                  <span className="font-semibold">{guestsLine}</span>
                 </div>
                 {breakdown && (
                   <div className="flex justify-between">

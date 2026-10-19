@@ -557,3 +557,30 @@
 @media (max-width: 767px) {
   body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem; }
 }
+
+/* ── Skip link ────────────────────────────────────────────────────────────
+   Every page puts the announcement bar and the full navigation ahead of
+   <main>, so a keyboard or screen-reader guest traversed all of it on every
+   page load (WCAG 2.4.1).
+
+   Off-screen rather than display:none, so it stays focusable; it comes back on
+   focus as an ordinary brass button. Unlayered, deliberately: Tailwind orders
+   utilities after components, so a rule in @layer components loses to any
+   utility on the same element, which is the trap that made the mobile CTA
+   padding silently do nothing before 116b28a. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  background: var(--brass);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  border-bottom-right-radius: 10px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  left: 0;
+}

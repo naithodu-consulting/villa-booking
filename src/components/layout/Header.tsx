@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import NavLinkBase from '@/components/layout/NavLinkBase';
@@ -56,6 +56,51 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
+  }, [menuOpen]);
+
+  /**
+   * Focus handling for the drawer, which declares aria-modal="true" and did
+   * nothing to earn it: focus stayed on the hamburger button behind the
+   * overlay, Tab walked into the page underneath, and Escape did not close it.
+   *
+   * Same shape as PhotoViewer, which already does this correctly: focus the
+   * close button on open, keep Tab inside, and put focus back where it came
+   * from on close.
+   */
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const drawerCloseRef = useRef<HTMLButtonElement>(null);
+  const openerRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    openerRef.current = document.activeElement as HTMLElement | null;
+    drawerCloseRef.current?.focus();
+    const restoreTo = openerRef.current;
+    return () => { restoreTo?.focus?.(); };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') return setMenuOpen(false);
+      if (e.key !== 'Tab') return;
+
+      const focusable = drawerRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [menuOpen]);
 
   return (
@@ -180,6 +225,7 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
       {/* Mobile drawer */}
       {menuOpen && (
         <div
+          ref={drawerRef}
           className="fixed inset-0 z-50"
           role="dialog"
           aria-modal="true"
@@ -225,6 +271,7 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
                 />
               </Link>
               <button
+                ref={drawerCloseRef}
                 onClick={() => setMenuOpen(false)}
                 aria-label="Close navigation menu"
                 className="flex items-center justify-center w-8 h-8 rounded"

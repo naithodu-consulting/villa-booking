@@ -4,6 +4,20 @@ import Link from 'next/link';
 import { pageMetadata } from '@/lib/seo';
 import { CANCELLATION_TIERS, SECURITY_DEPOSIT_TERMS } from '@/lib/cancellation';
 
+
+/**
+ * Safety net for content staleness.
+ *
+ * This page is prerendered and reads live content from Supabase, so without a
+ * revalidation period its only refresh path is Ooruda Villa calling
+ * POST /api/revalidate. If that webhook is not wired, or CONTENT_REVALIDATE_SECRET
+ * is unset (the endpoint then 503s), the page stays frozen at whatever was true
+ * at build time until the next deploy: stale policies, stale FAQs, a stale
+ * address. A day is the worst case rather than for ever. The webhook is still
+ * the fast path and makes an edit appear at once.
+ */
+export const revalidate = 86400;
+
 export const metadata: Metadata = pageMetadata({
   title: 'Cancellation & Refund Policy',
   path: '/cancellation',

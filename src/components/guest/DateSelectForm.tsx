@@ -3,10 +3,10 @@
 import React, { useEffect, useState } from 'react';
 
 import DatePicker from '@/components/ui/DatePicker';
-import { todayISO, addDaysISO } from '@/lib/format';
+import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
-import { MAX_STAY_NIGHTS, MAX_STAY_MESSAGE } from '@/lib/pricing-engine';
+import { MAX_STAY_NIGHTS, MAX_STAY_MESSAGE, BOOKING_HORIZON_MONTHS } from '@/lib/pricing-engine';
 
 interface Props {
   maxOccupancy: number;
@@ -43,6 +43,9 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
   // calendar shows it as open rather than booked.
   // Cap the picker at the longest bookable stay as well as at the next booked
   // night, so the 10-night limit is a shape of the calendar, not just an error.
+  // Furthest check-in the villa sells. Without it the calendar paged forward
+  // for ever, into months with no loaded prices or availability.
+  const checkInMax = addMonthsISO(todayStr, BOOKING_HORIZON_MONTHS);
   const stayCap = addDaysISO(checkIn, MAX_STAY_NIGHTS);
   const nextTaken = latestCheckOut(unavailable, checkIn) ?? undefined;
   const checkOutMax = nextTaken && nextTaken < stayCap ? nextTaken : stayCap;
@@ -70,6 +73,7 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
           label="Check-In"
           value={checkIn}
           min={todayStr}
+          max={checkInMax}
           clearable={false}
           getDayInfo={propertyId ? infoFor : undefined}
           getMonthStatus={monthStatus}
@@ -94,10 +98,14 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <label htmlFor="ds-guests" className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+        {/* Not a <label htmlFor="ds-guests">: the value it pointed at is a
+            <span>, which is not a labelable element, so the association was
+            silently doing nothing and the stepper announced its number with no
+            name. A group label carries both buttons and the value instead. */}
+        <span id="ds-guests-label" className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
           Guests
-        </label>
-        <div className="flex items-center gap-2">
+        </span>
+        <div className="flex items-center gap-2" role="group" aria-labelledby="ds-guests-label">
           <button
             type="button"
             aria-label="Fewer guests"
@@ -109,7 +117,6 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
             -
           </button>
           <span
-            id="ds-guests"
             aria-live="polite"
             className="w-8 text-center font-bold tabular-nums"
             style={{ color: 'var(--ink)' }}

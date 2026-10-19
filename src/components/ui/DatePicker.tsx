@@ -210,12 +210,80 @@ export default function DatePicker({
     return () => document.removeEventListener('mousedown', handler);
   }, [isOpen]);
 
+  /**
+   * Closes the calendar, putting focus back on the trigger when the guest
+   * closed it themselves (Escape, or picking a date).
+   *
+   * Without this, dismissing the calendar left focus on a button that had just
+   * been removed from the document, so the browser dropped focus to <body> and
+   * the next Tab started again from the top of the page.
+   */
+  const closePicker = useCallback((returnFocus: boolean) => {
+    setIsOpen(false);
+    if (returnFocus) triggerRef.current?.focus();
+  }, []);
+
+  /**
+   * Move focus into the calendar when it opens.
+   *
+   * The popup is portalled to document.body, which appends it at the very end
+   * of the document, and nothing used to move focus into it. So a keyboard
+   * guest who opened the calendar still had focus on the trigger, and the next
+   * Tab went to the next form field rather than into the grid: the day cells
+   * were reachable only by tabbing through the whole rest of the page.
+   *
+   * Lands on the selected day where there is one, else the first day that can
+   * be booked, so arrow-free tabbing starts somewhere useful.
+   */
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsOpen(false); };
+    const pop = popupRef.current;
+    if (!pop) return;
+    const target =
+      pop.querySelector<HTMLElement>('button[data-day-selected="true"]') ??
+      pop.querySelector<HTMLElement>('button[data-day]:not([disabled])') ??
+      pop;
+    target.focus();
+  }, [isOpen]);
+
+  // Escape closes; Tab cycles within the calendar rather than escaping into the
+  // page behind it, which is what aria-modal on the popup already promises.
+  useEffect(() => {
+    if (!isOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        // preventDefault, not just stopPropagation. Inside the booking pop-up
+        // the picker sits within a native <dialog> opened with showModal(),
+        // and Escape there is a browser close request, not an ordinary key
+        // event: stopping propagation does nothing to it. Without this, one
+        // Escape dismissed the calendar *and* threw away the whole booking
+        // dialog behind it, when the guest only meant to close the calendar.
+        e.preventDefault();
+        e.stopPropagation();
+        closePicker(true);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      const pop = popupRef.current;
+      if (!pop) return;
+      const focusable = pop.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
-  }, [isOpen]);
+  }, [isOpen, closePicker]);
 
   // Show the month the selected date is in. Adjusting state during render is
   // React's own pattern for state derived from a prop: an effect would paint
@@ -240,6 +308,19 @@ export default function DatePicker({
     else setViewMonth(v => v + 1);
   };
 
+  /**
+   * Paging forward was unbounded while paging back was correctly stopped at
+   * minDate. Past the months the calendar has loaded, getDayInfo returns
+   * undefined, so cells render with no fill, no price and no "Not available"
+   * strike: they look like ordinary bookable days. A guest could page years out
+   * and pick a check-in priced at today's rack rate with no seasonal rule in
+   * place to correct it. Now symmetric with prevDisabled.
+   */
+  const nextDisabled = !!maxDate && (
+    viewYear > maxDate.getFullYear() ||
+    (viewYear === maxDate.getFullYear() && viewMonth >= maxDate.getMonth())
+  );
+
   const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const monthStatus = getMonthStatus?.(toIso(new Date(viewYear, viewMonth, 1))) ?? 'ready';
@@ -251,8 +332,8 @@ export default function DatePicker({
   const selectDay = useCallback((day: number) => {
     const d = new Date(viewYear, viewMonth, day);
     onChange(toIso(d));
-    setIsOpen(false);
-  }, [viewYear, viewMonth, onChange]);
+    closePicker(true);
+  }, [viewYear, viewMonth, onChange, closePicker]);
 
   /** Outside min/max: past dates, or beyond the latest allowed check-out. */
   const isOutOfRange = (day: number) => {
@@ -323,7 +404,13 @@ export default function DatePicker({
           cursor: 'pointer',
           textAlign: 'left',
           transition: 'border-color 0.15s, box-shadow 0.15s',
-          outline: 'none',
+          /* No `outline: 'none'` here. It used to suppress the site's
+             :focus-visible ring (globals.css) — an inline style beats any
+             stylesheet rule, whatever its layer or specificity — and the
+             boxShadow below is keyed to `isOpen`, not to focus, so a keyboard
+             guest tabbing onto the trigger saw nothing at all. This is the
+             first control in the booking flow and it is a <button>, so there
+             is no text input to fall back on. */
           boxShadow: isOpen ? '0 0 0 3px rgba(168,116,50,0.15)' : 'none',
         }}
       >
@@ -341,6 +428,8 @@ export default function DatePicker({
         <div
           ref={setPopupNode}
           role="dialog"
+          aria-modal="true"
+          tabIndex={-1}
           aria-label={`${label ?? 'Date'} picker`}
           style={{
             position: 'fixed',
@@ -386,12 +475,14 @@ export default function DatePicker({
             <button
               type="button"
               onClick={nextMonth}
+              disabled={nextDisabled}
               aria-label="Next month"
               style={{
                 width: 30, height: 30, borderRadius: 8,
                 border: '1px solid var(--border-subtle)',
                 backgroundColor: 'var(--paper-sunk)',
-                cursor: 'pointer',
+                cursor: nextDisabled ? 'not-allowed' : 'pointer',
+                opacity: nextDisabled ? 0.35 : 1,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'var(--ink)',
                 transition: 'background-color 0.12s',
@@ -462,6 +553,8 @@ export default function DatePicker({
                   key={day}
                   type="button"
                   disabled={disabled}
+                  data-day={day}
+                  data-day-selected={sel ? 'true' : undefined}
                   onClick={() => !disabled && selectDay(day)}
                   style={{
                     width: '100%',
@@ -473,7 +566,11 @@ export default function DatePicker({
                     cursor: disabled ? 'not-allowed' : 'pointer',
                     opacity: outOfRange ? 0.45 : 1,
                     transition: 'box-shadow 0.1s',
-                    outline: 'none',
+                    /* No `outline: 'none'`: the boxShadow below is set in
+                       onMouseEnter and cleared in onMouseLeave, so it is
+                       mouse-only. Arrowing or tabbing across the grid produced
+                       no visible change whatsoever. The site's :focus-visible
+                       ring now applies. */
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '3px',
@@ -574,7 +671,7 @@ export default function DatePicker({
           {clearable && value && (
             <button
               type="button"
-              onClick={() => { onChange(''); setIsOpen(false); }}
+              onClick={() => { onChange(''); closePicker(true); }}
               style={{
                 marginTop: '12px',
                 width: '100%',

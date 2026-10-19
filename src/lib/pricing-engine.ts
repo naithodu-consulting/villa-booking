@@ -46,6 +46,23 @@ export const MAX_STAY_MESSAGE =
   'For stays of this duration, please contact Villa 19 directly for special pricing and availability.';
 
 /**
+ * How far ahead a check-in may be chosen, in months.
+ *
+ * Both date pickers set a `min` on check-in and used to set no `max`, and
+ * DatePicker's forward month arrow was unbounded while its back arrow stopped
+ * at `min`. So a guest could page the calendar to any year and book at today's
+ * rack rate, past every seasonal rule the villa has configured and past the six
+ * months of availability the calendar actually loads — where cells render with
+ * no price and no availability marking, and so look bookable.
+ *
+ * 12 months is a placeholder chosen to sit comfortably beyond the seasonal
+ * rules in 00070 (2026-27) without being open-ended. **The operator should set
+ * this to the horizon they actually want to sell.** It is one number in one
+ * place because both forms and the picker read it from here.
+ */
+export const BOOKING_HORIZON_MONTHS = 12;
+
+/**
  * Looks up an authoritative rate for a night, in paise, or undefined when none
  * is known. Browser callers pass one backed by /api/availability/calendar so a
  * long-lived tab prices a stay from live rates rather than from the rates baked

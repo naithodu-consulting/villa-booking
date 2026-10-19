@@ -9,6 +9,7 @@ import { ENTITY } from '@/lib/entity';
 import { EVENTS_PAGE_ENABLED } from '@/lib/features';
 import { SHOW_STAY_GUIDE } from '@/lib/site-sections';
 
+import CookiePreferences from '@/components/layout/CookiePreferences';
 function WhatsAppIcon({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} style={style} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -187,6 +188,10 @@ export default function Footer({ property, whatsappUrl, showJournal = false }: F
                   {label}
                 </NavLinkBase>
               ))}
+              {/* Sits with the legal links because it is the same kind of thing:
+                  a standing right, not navigation. Renders only once a choice
+                  has been made; before that the banner is still on screen. */}
+              <CookiePreferences />
             </div>
           </div>
         </div>

@@ -2,7 +2,27 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { applyDiscount, calculateBookingPrice } from '@/lib/pricing-engine';
 import { createServiceClient } from '@/lib/supabase/server';
+import { todayISO } from '@/lib/format';
+import { LIMITS, rateLimit, tooManyRequests } from '@/lib/rate-limit';
 import type { Property, PricingRule } from '@/types';
+
+/**
+ * One message for every "this code is not usable" case that depends only on the
+ * code itself.
+ *
+ * The endpoint used to distinguish "not found or not active" from "has expired"
+ * from "reached its maximum number of uses". Those three answers turn an
+ * unauthenticated endpoint into a clean oracle over the 3-20 character code
+ * space: the difference between "not found" and "expired" tells a caller which
+ * codes exist, and the rest describe their terms. VILLA19 is published on the
+ * site, so the only codes worth discovering are the unpublished ones.
+ *
+ * The min-nights and min-value messages below stay specific on purpose. They
+ * only ever describe a code the caller has already named correctly, and they
+ * are the two a real guest needs: without them, "not valid" is unactionable
+ * when the fix is one more night.
+ */
+const CODE_UNUSABLE = 'This code is not valid for this booking.';
 
 /**
  * POST /api/discount/validate
@@ -19,6 +39,21 @@ import type { Property, PricingRule } from '@/types';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Codes are typed by hand, so a real guest sends a handful. A script
+    // enumerating the code space sends thousands. See lib/rate-limit.ts.
+    const limited = rateLimit(
+      request.headers,
+      LIMITS.discountValidate.bucket,
+      LIMITS.discountValidate.limit,
+      LIMITS.discountValidate.windowMs,
+    );
+    if (!limited.ok) {
+      return tooManyRequests(
+        limited.retryAfter,
+        'Too many code attempts. Please wait a few minutes and try again.',
+      );
+    }
+
     const body = await request.json();
     const { code, propertyId, checkIn, checkOut, adults, children, guestPhone } = body;
 
@@ -32,7 +67,11 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = createServiceClient();
-    const today = new Date().toISOString().slice(0, 10);
+    // The date at the property, not UTC. toISOString() returns yesterday in
+    // India between 00:00 and 05:30 IST, so this endpoint called a code expired
+    // on its last valid day, and not yet valid on its first, while create-order
+    // and create_booking_atomic (both on IST) accepted it. All three now agree.
+    const today = todayISO();
 
     const [{ data: dc }, { data: propData }, { data: rulesData }] = await Promise.all([
       supabase
@@ -56,14 +95,14 @@ export async function POST(request: NextRequest) {
     ]);
 
     if (!dc) {
-      return NextResponse.json({ valid: false, error: 'Promo code not found or not active.' });
+      return NextResponse.json({ valid: false, error: CODE_UNUSABLE });
     }
     if (!propData) {
       return NextResponse.json({ valid: false, error: 'Property not found.' });
     }
 
     if (today < dc.valid_from || today > dc.valid_to) {
-      return NextResponse.json({ valid: false, error: 'This promo code has expired.' });
+      return NextResponse.json({ valid: false, error: CODE_UNUSABLE });
     }
 
     // Compute breakdown server-side — never trust client amounts
@@ -129,10 +168,7 @@ export async function POST(request: NextRequest) {
         .eq('property_id', propertyId)
         .in('status', ['confirmed', 'completed']);
       if ((count ?? 0) >= dc.max_uses) {
-        return NextResponse.json({
-          valid: false,
-          error: 'This code has reached its maximum number of uses.',
-        });
+        return NextResponse.json({ valid: false, error: CODE_UNUSABLE });
       }
     }
 

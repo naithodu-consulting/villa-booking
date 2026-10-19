@@ -43,7 +43,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <JsonLd data={organizationJsonLd()} />
       <AnnouncementBar announcements={ANNOUNCEMENTS} />
       <Header propertyName={property?.name ?? 'Villa 19'} phoneNumber={phoneNumber} showJournal={showJournal} />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">{children}</main>
       {property && <Footer property={property} whatsappUrl={whatsappUrl} showJournal={showJournal} />}
       <BookingDialog maxOccupancy={property?.max_occupancy ?? 14} idealOccupancy={property?.ideal_occupancy ?? 8} propertyId={property?.id} />
       <ScrollAid />
