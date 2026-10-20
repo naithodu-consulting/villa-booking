@@ -4,6 +4,26 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.31 - next.config.js becomes next.config.mjs - 2026-10-20
+
+A follow-up to v1.30, caught by the deploy script rather than by me.
+
+The CommonJS config written in v1.30 used `require('@next/mdx')`, which this project's lint config
+forbids (`@typescript-eslint/no-require-imports`). I had missed it: my verification piped
+`npm run lint` through `tail -1`, which showed the last line and swallowed the error above it.
+`scripts/make-deploy-zip.sh` lints before packaging and refused to build the archive, which is
+exactly what it is for.
+
+`.mjs` rather than adding a lint exception: native ESM needs no compilation either, so it keeps the
+property that matters on a host whose glibc cannot load Next's native SWC, and it matches
+`postcss.config.mjs` and `eslint.config.mjs`, which this project already uses.
+
+Re-verified after the change: `tsc`, `eslint` and `build` clean, 136 passed / 4 skipped, and the
+CSP still carries every host and directive, with HSTS, `X-Frame-Options`, `X-Content-Type-Options`,
+`Referrer-Policy` and `Permissions-Policy` alongside it.
+
+---
+
 ## v1.30 - The host's glibc is too old for a TypeScript next.config - 2026-10-20
 
 First deployment attempt on Hostinger Business failed. The cause is not what the log leads with.

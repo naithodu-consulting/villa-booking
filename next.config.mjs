@@ -12,10 +12,11 @@
 // A .js config needs no compilation, so the whole failure mode disappears.
 // The JSDoc annotation below keeps editor type-checking on the object.
 //
-// `require`, not `import`: package.json declares no "type", so this file is
-// CommonJS. require('@next/mdx') returns the factory directly, with no
-// .default interop needed.
-const createMDX = require('@next/mdx');
+// .mjs rather than .js: the lint config forbids CommonJS imports, and native
+// ESM needs no compilation either, so this satisfies both constraints at once.
+// It also matches postcss.config.mjs and eslint.config.mjs, which this project
+// already uses.
+import createMDX from '@next/mdx';
 
 /**
  * Content-Security-Policy.
@@ -156,4 +157,4 @@ const nextConfig = {
   },
 };
 
-module.exports = createMDX()(nextConfig);
+export default createMDX()(nextConfig);
