@@ -1012,6 +1012,7 @@ export type Database = {
           bathroom_count: number | null
           bedroom_count: number | null
           booking_code_prefix: string | null
+          booking_cutoff_date: string | null
           check_in_time: string | null
           check_out_time: string | null
           city: string | null
@@ -1049,6 +1050,7 @@ export type Database = {
           bathroom_count?: number | null
           bedroom_count?: number | null
           booking_code_prefix?: string | null
+          booking_cutoff_date?: string | null
           check_in_time?: string | null
           check_out_time?: string | null
           city?: string | null
@@ -1086,6 +1088,7 @@ export type Database = {
           bathroom_count?: number | null
           bedroom_count?: number | null
           booking_code_prefix?: string | null
+          booking_cutoff_date?: string | null
           check_in_time?: string | null
           check_out_time?: string | null
           city?: string | null

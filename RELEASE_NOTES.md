@@ -4,6 +4,14 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.32 - Regenerate TypeScript types for booking_cutoff_date - 2026-10-20
+
+`src/types/database.types.ts` was stale: migration 00097 added `booking_cutoff_date` to
+`properties` but the types file was last regenerated before that migration. Regenerated from the
+production schema so the types match what both databases actually have.
+
+---
+
 ## v1.31 - next.config.js becomes next.config.mjs - 2026-10-20
 
 A follow-up to v1.30, caught by the deploy script rather than by me.
