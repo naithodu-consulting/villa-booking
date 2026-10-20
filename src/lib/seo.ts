@@ -1,7 +1,13 @@
 import type { Metadata } from 'next';
 import type { Property } from '@/types';
 
-export const SITE_URL = (process.env.APP_URL ?? 'https://villa19.in').replace(/\/$/, '');
+export const SITE_URL = normaliseUrl(process.env.APP_URL ?? 'https://villa19.in');
+
+function normaliseUrl(raw: string): string {
+  const trimmed = raw.replace(/\/$/, '');
+  if (/^https?:\/\//.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
 export const SITE_NAME = 'Villa 19 by Habbaa';
 export const BRAND = 'Habbaa';
 

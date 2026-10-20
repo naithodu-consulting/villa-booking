@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Nunito_Sans, Cormorant_Garamond, Cinzel } from "next/font/google";
+import localFont from "next/font/local";
 import { SITE_URL, SITE_NAME, DEFAULT_SHARE_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
-const nunitoSans = Nunito_Sans({
+const nunitoSans = localFont({
+  src: "../../public/fonts/NunitoSans.woff2",
   variable: "--font-sans",
-  subsets: ["latin", "latin-ext"],
-  weight: ["300", "400", "600", "700", "800"],
   display: "swap",
+  weight: "200 1000",
 });
 
-const cormorant = Cormorant_Garamond({
+const cormorant = localFont({
+  src: "../../public/fonts/CormorantGaramond-Regular.woff2",
   variable: "--font-display",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   display: "swap",
+  weight: "300 700",
 });
 
-const cinzel = Cinzel({
+const cinzel = localFont({
+  src: "../../public/fonts/Cinzel.woff2",
   variable: "--font-brand",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
   display: "swap",
+  weight: "400 900",
 });
 
 export const metadata: Metadata = {
