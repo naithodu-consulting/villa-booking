@@ -4,6 +4,22 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.34 - Link preview copy and share image - 2026-10-21
+
+Shared links now show "Villa 19 | Private Villa in Mangalore" with a new description (four bedrooms,
+private lounge, ample parking) and a horizontal Villa 19 wordmark card.
+
+The share image is now a static `public/og-image.png` referenced by absolute URL with
+`og:image:type`, since WhatsApp is more reliable with a direct `.png` URL than the extensionless
+`/opengraph-image` route. That route remains and was updated to the same copy; if the card design
+changes, regenerate the PNG too. WhatsApp caches previews per URL, so an already-shared link may
+keep its old card for a while.
+
+Note: the extra title line some people see above a pasted link comes from the sharing app (for
+example the browser Share menu), not from this site's metadata.
+
+---
+
 ## v1.33 - Homepage hero swap and announcement bar copy - 2026-10-21
 
 Replaced the drone-reel video in the homepage mosaic with the "Front view at night" photograph as a

@@ -48,10 +48,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
 export const revalidate = 60;
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Villa19 | Private Urban Villa',
+  title: 'Villa 19 | Private Villa in Mangalore',
   path: '/',
   description:
-    'Villa 19 is a private 4-bedroom urban villa in Urwa, Mangalore for up to 14 guests: private lawn, balconies, parking and power backup. Book direct, no fees.',
+    'Discover Villa 19, an exclusive private urban villa in Urwa, Mangalore. Featuring four spacious bedrooms, a private lounge, and ample parking, it offers the comfort, space, and privacy to make family getaways and group stays truly memorable.',
   absoluteTitle: true,
 });
 
