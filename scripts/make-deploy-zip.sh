@@ -98,14 +98,24 @@ if grep -rlE 'eyJ[A-Za-z0-9_-]{30,}|rzp_live_[A-Za-z0-9]+|re_[A-Za-z0-9]{20,}|sb
 fi
 
 # These must be present or the build cannot run.
-for required in package.json package-lock.json next.config.ts src public; do
+for required in package.json package-lock.json src public; do
   unzip -l "$OUT" | awk '{print $4}' | grep -q "^${required}" \
     || fail "missing ${required}"
 done
 
+# The Next config, whatever extension it carries. Checked without pinning one:
+# this list named next.config.ts, and kept failing after the file became
+# next.config.mjs to work around the host's old glibc.
+unzip -l "$OUT" | awk '{print $4}' | grep -qE '^next\.config\.(mjs|js|ts)$' \
+  || fail "missing next.config.*"
+
+# The migrations, which are the content as well as the schema.
+MIGRATIONS="$(unzip -l "$OUT" | awk '{print $4}' | grep -c '^supabase/migrations/.*\.sql$' || true)"
+[ "$MIGRATIONS" -gt 0 ] || fail "no migrations in the archive"
+
 SIZE="$(du -h "$OUT" | cut -f1)"
 echo
-echo "  Ready: $OUT  (${SIZE})"
+echo "  Ready: $OUT  (${SIZE}, ${MIGRATIONS} migrations)"
 echo
 echo "  Upload at: Hostinger dashboard, Websites, Create Website, Web App,"
 echo "  Upload your website files."
