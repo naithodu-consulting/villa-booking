@@ -1,5 +1,21 @@
-import type { NextConfig } from 'next';
-import createMDX from '@next/mdx';
+// Plain JavaScript, not TypeScript, and deliberately so.
+//
+// The production host runs a glibc older than 2.29, so Next's native SWC
+// binary cannot load there (`@next/swc-linux-x64-gnu` fails with
+// "version GLIBC_2.29 not found") and Next falls back to its WASM SWC. That
+// fallback then could not load a *TypeScript* config at all: it compiles
+// next.config.ts to a temporary file and immediately fails to resolve it -
+//
+//   Failed to load next.config.ts
+//   Cannot find module '.../6ad7035f0d050.next.config'
+//
+// A .js config needs no compilation, so the whole failure mode disappears.
+// The JSDoc annotation below keeps editor type-checking on the object.
+//
+// `require`, not `import`: package.json declares no "type", so this file is
+// CommonJS. require('@next/mdx') returns the factory directly, with no
+// .default interop needed.
+const createMDX = require('@next/mdx');
 
 /**
  * Content-Security-Policy.
@@ -35,7 +51,8 @@ import createMDX from '@next/mdx';
  * payment modal. Use it to validate a change, not as a permanent setting: a
  * report-only policy enforces nothing.
  */
-const CSP_DIRECTIVES: Record<string, string[]> = {
+/** @type {Record<string, string[]>} */
+const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
   'script-src': [
     "'self'",
@@ -88,13 +105,14 @@ const CSP_DIRECTIVES: Record<string, string[]> = {
   'upgrade-insecure-requests': [],
 };
 
-function buildCsp(): string {
+function buildCsp() {
   return Object.entries(CSP_DIRECTIVES)
     .map(([directive, values]) => (values.length ? `${directive} ${values.join(' ')}` : directive))
     .join('; ');
 }
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],
   images: {
     remotePatterns: [
@@ -138,4 +156,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default createMDX()(nextConfig);
+module.exports = createMDX()(nextConfig);

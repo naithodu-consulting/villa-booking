@@ -4,6 +4,69 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.30 - The host's glibc is too old for a TypeScript next.config - 2026-10-20
+
+First deployment attempt on Hostinger Business failed. The cause is not what the log leads with.
+
+### What actually failed
+
+```
+@next/swc-linux-x64-gnu  -> /lib64/libm.so.6: version `GLIBC_2.29' not found
+@next/swc-linux-x64-musl -> invalid ELF header
+Downloading swc package @next/swc-wasm-nodejs...
+Failed to load next.config.ts
+Cannot find module '.../6ad7035f0d050.next.config'
+```
+
+The host runs a glibc older than 2.29, so Next's **native** SWC binary cannot load there. Next falls
+back to its WASM SWC, and that fallback cannot load a **TypeScript** config: it compiles
+`next.config.ts` to a temporary file and then immediately fails to resolve it.
+
+This is a property of the host's operating system, not of the Node version. Selecting Node 22 alone
+would not have fixed it.
+
+### The fix: next.config.ts becomes next.config.js
+
+A plain JavaScript config needs no compilation, so the failure mode disappears. CommonJS, because
+`package.json` declares no `"type"`, and `require('@next/mdx')` returns the factory directly with no
+`.default` interop.
+
+Nothing about the configuration changed - only the language it is written in. The file keeps a
+`/** @type {import('next').NextConfig} */` annotation so editors still type-check the object.
+
+**Verified the part that would hurt silently**, that the Content-Security-Policy survived intact:
+every host (`*.razorpay.com`, `googletagmanager.com`, `fonts.googleapis.com`, `fonts.gstatic.com`,
+`*.supabase.co`, `google-analytics.com`) and every directive (`frame-ancestors 'none'`,
+`base-uri 'none'`, `object-src 'none'`, `upgrade-insecure-requests`) is still served, along with
+HSTS, `X-Frame-Options`, `Referrer-Policy` and `Permissions-Policy`.
+
+### And a correction to v1.29
+
+`engines` was declared as `>=20`. **Supabase requires `>=22`** - every `@supabase/*` package emitted
+`EBADENGINE` against the Node 20 the host selected, which my own declaration had permitted. I should
+have checked transitive engine requirements before pinning it. Now `>=22`.
+
+### scripts/make-deploy-zip.sh
+
+GitHub deployment is unavailable on this hosting account ("temporarily disabled while managing
+clients"), and the public-repository-URL path is blocked too, so every deploy is a manual upload.
+This builds that archive reproducibly: typechecks and lints first and refuses to package a tree that
+does not compile, excludes `node_modules`, `.next`, `.git`, the internal planning documents and -
+most importantly - **every `.env*` file**, then verifies the result and deletes it rather than
+leaving a dangerous archive behind if anything secret-shaped is found inside.
+
+Its first run failed on exactly that check, having matched *itself*: the script carries the
+secret-detection patterns as literal text. Now excluded from its own scan, with a note, because a
+self-referential grep is worth saying out loud.
+
+### Not yet known
+
+The build died while loading the config, before bundling, so whether Turbopack's own native binary
+also fails on this glibc is still untested. If it does, the next lever is `next build --webpack`.
+If that fails too, the host's OS is simply too old for Next 16.
+
+---
+
 ## v1.29 - Pin a minimum Node version before deploying from GitHub - 2026-10-20
 
 Hosting moves to Hostinger Business, deploying from this repository on every push to `main`.
