@@ -4,6 +4,35 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.29 - Pin a minimum Node version before deploying from GitHub - 2026-10-20
+
+Hosting moves to Hostinger Business, deploying from this repository on every push to `main`.
+Hostinger offers Node 18.x, 20.x, 22.x and 24.x, and `package.json` declared no `engines` field, so
+nothing would have warned if the build ran on 18 while development is on 22.
+
+- `"engines": { "node": ">=20" }`. Advisory rather than enforced, but it is what a host reads to
+  pick a runtime and what tells the next person which versions this is known to work on.
+- `docs/HOSTINGER_GO_LIVE.md` added to the gitignored group, with the other internal planning
+  documents. The repository is public.
+
+### Checked while here, and one earlier claim corrected
+
+`npm ls --depth=0` reports six extraneous packages (`@img/sharp-wasm32` and its emnapi / napi-rs /
+wasm-util chain). I had attributed those to the `@supabase/ssr` uninstall in v1.21. That was wrong:
+`npm ci` wipes `node_modules`, reinstalls from the lockfile alone, and brings the same six back, so
+they are part of the lockfile's own tree - sharp's WASM fallback, hoisted where `--depth=0` cannot
+attribute it to a top-level dependency.
+
+So **`npm prune` is not required and would be wrong**: it would remove packages a clean install
+restores, leaving local diverged from what the host builds.
+
+Verified on a fresh `npm ci`, which is exactly what Hostinger runs: install succeeds, the lockfile
+is unchanged by it, `sharp` loads (`next/image` needs it for the 50 gallery images), and the
+lockfile holds zero references to `@supabase/ssr`. `tsc`, `eslint` and `build` clean; 136 passed,
+4 skipped.
+
+---
+
 ## v1.28 - Revert: the announcement bar goes back to its fixed promo line - 2026-10-19
 
 Reverts v1.25 (`4ffb18e`) at the operator's request. The v1.25 entry stays below as a record that
