@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { PropertyImage } from '@/types';
 import { Grid } from 'lucide-react';
 import PhotoViewer from './PhotoViewer';
-import HeroVideo from './HeroVideo';
 
 interface GalleryProps {
   /** Every villa photograph, in gallery order. The viewer walks all of them. */
@@ -39,13 +38,24 @@ export default function GalleryModal({ images, tiles }: GalleryProps) {
   return (
     <div className="w-full">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 rounded-2xl overflow-hidden shadow-lg relative">
-        {/* The reel takes the hero cell, and the four tiles beside it are the
-            operator's own picks rather than whatever sorted first. */}
-        <HeroVideo
-          className="col-span-2 md:row-span-2 md:h-full"
-          onOpen={() => setOpenAt(viewerIndex(shown[0]))}
-          openLabel={`Open gallery: ${images.length} photos of Villa 19`}
-        />
+        {/* Hero cell: the first gallery image (Front view at night). */}
+        <button
+          type="button"
+          className="relative group overflow-hidden col-span-2 md:row-span-2 md:h-full"
+          style={{ aspectRatio: '3 / 2', backgroundColor: 'var(--paper-sunk)' }}
+          onClick={() => setOpenAt(0)}
+          aria-label={`Open gallery: ${images.length} photos of Villa 19`}
+        >
+          <Image
+            src={images[0].url}
+            alt={images[0].alt_text ?? 'Villa 19'}
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
+            className="transition-transform duration-500 group-hover:scale-105"
+            style={{ objectFit: 'cover' }}
+          />
+        </button>
 
         {/* Four more on desktop, two on mobile. */}
         {shown.map((img, idx) => (

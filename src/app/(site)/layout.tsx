@@ -21,7 +21,7 @@ const ANNOUNCEMENTS: Announcement[] = [
   {
     id: 'reservations',
     text: 'For reservations, contact: reservations@habbaa.com  /  +91 80504 84123',
-    shortText: 'Reservations: +91 80504 84123',
+    shortText: 'For reservations: +91 80504 84123',
   },
 ];
 

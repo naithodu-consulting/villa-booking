@@ -4,6 +4,16 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.33 - Homepage hero swap and announcement bar copy - 2026-10-21
+
+Replaced the drone-reel video in the homepage mosaic with the "Front view at night" photograph as a
+static hero image. The mosaic tile that previously showed "Front view at night" now shows Room 3
+(bedroom-3.jpg). The mobile announcement bar copy changed from "Reservations" to "For reservations".
+
+Migration 00098 updates `home_order` in `property_images` accordingly.
+
+---
+
 ## v1.32 - Regenerate TypeScript types for booking_cutoff_date - 2026-10-20
 
 `src/types/database.types.ts` was stale: migration 00097 added `booking_cutoff_date` to
