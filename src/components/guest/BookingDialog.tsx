@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import { X } from 'lucide-react';
 
 import DateSelectForm from '@/components/guest/DateSelectForm';
-
-/** Any CTA can open the dialog by dispatching this on window. */
-export const OPEN_BOOKING_EVENT = 'villa19:open-booking';
+import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
 
 /**
  * Date selection as a dialog over whatever page the guest is already reading.

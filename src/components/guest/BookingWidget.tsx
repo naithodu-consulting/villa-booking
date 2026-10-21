@@ -9,6 +9,8 @@ import DatePicker from '@/components/ui/DatePicker';
 import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
+import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
+import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
 
 interface BookingWidgetProps {
   property: Property;
@@ -122,6 +124,13 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!breakdown) return;
+    // The widget carries its own Book Now rather than a BookNowLink, so it has
+    // to honour the flag itself. Dispatching the shared event sends it to the
+    // same notice every other CTA opens, with no second copy of the copy.
+    if (!ONLINE_PAYMENTS_ENABLED) {
+      window.dispatchEvent(new CustomEvent(OPEN_BOOKING_EVENT));
+      return;
+    }
     setIsSubmitting(true);
     try {
       router.push(`/book?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}`);

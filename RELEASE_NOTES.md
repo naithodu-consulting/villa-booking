@@ -4,6 +4,51 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.37 - Online payments paused in production - 2026-10-21
+
+**Razorpay go-live is not finished, so production stops short of the payment screen.** Every Book
+Now now opens a notice with the two ways to reach the team, and no guest can reach a checkout the
+gateway cannot complete.
+
+One flag covers it: `ONLINE_PAYMENTS_ENABLED` in `src/lib/features.ts`, read from
+`NEXT_PUBLIC_ONLINE_PAYMENTS_ENABLED`. It is fail-closed, off unless the variable is exactly
+`"true"`. The opposite default would mean one forgotten variable on a host puts a live payment
+screen in front of guests; this way a forgotten variable only shows the notice. Hostinger therefore
+needs no change at all: the variable is absent there and the notice is what guests get. Local and
+the Vercel preview set it to `true` and still exercise the full Razorpay flow. It is `NEXT_PUBLIC_`
+because the CTAs are client components, so it is inlined at BUILD time: changing it on a host means
+rebuilding, not just restarting.
+
+**Every route to payment is covered, in one place rather than per-button.** The CTAs are untouched.
+`OPEN_BOOKING_EVENT` moved out of `BookingDialog` into `src/lib/booking-events.ts`, and
+`(site)/layout.tsx` now mounts either `BookingDialog` or the new `PaymentsPausedDialog` against that
+same event. Header (desktop and drawer), the homepage's fixed mobile bar, the `CtaButtons` panel on
+nine pages and anything added later all dispatch the event and get whichever answer the environment
+calls for, so no CTA can be missed. `BookingWidget` carries its own Book Now rather than a
+`BookNowLink`, so it checks the flag itself and dispatches the same event instead of pushing to
+`/book`.
+
+Three further doors were closed. `/book` serves the notice instead of the checkout, because it still
+has to answer bookmarks, shared links, the journal post's "book directly" link and any click that
+landed before the dialog had mounted; serving the notice keeps that URL meaningful rather than
+dumping the guest on the homepage. `POST /api/bookings/create-order` returns 503 before the rate
+limiter, since it is a public endpoint and a stale tab or a direct call would otherwise create a
+Razorpay order and hold dates nobody is watching.
+
+`verify-payment` and the webhook are deliberately NOT gated. If the flag is turned off while a
+payment is in flight, refusing verification would take a guest's money without confirming their
+booking. Only the entry point is closed.
+
+The copy lives once, in `ReservationNotice`, shared by the dialog and the `/book` page so the two
+cannot drift. Both are dressed as the site dresses everything else: a `--maroon-deep` band with a
+`--brass-light` eyebrow and a Cormorant heading, a `--brass` hairline, then body text in `--ink`
+with the number and address as `--brass-ink` links, tappable rather than text to retype.
+
+**To switch payments on:** set `NEXT_PUBLIC_ONLINE_PAYMENTS_ENABLED=true` on the host and rebuild.
+Nothing else needs to change.
+
+---
+
 ## v1.36 - Contact page restored, check-in moves to 3:00 PM - 2026-10-21
 
 **The contact page is back, and is now a linked page rather than a 404.** `/contact` was retired on

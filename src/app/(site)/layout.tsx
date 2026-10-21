@@ -1,6 +1,7 @@
 import React from 'react';
 import Header from '@/components/layout/Header';
 import BookingDialog from '@/components/guest/BookingDialog';
+import PaymentsPausedDialog from '@/components/guest/PaymentsPausedDialog';
 import Footer from '@/components/layout/Footer';
 import AnnouncementBar, { type Announcement } from '@/components/layout/AnnouncementBar';
 import CookieConsent from '@/components/layout/CookieConsent';
@@ -10,6 +11,8 @@ import { getProperty } from '@/lib/data';
 import { isJournalLive } from '@/lib/journal';
 import JsonLd from '@/components/seo/JsonLd';
 import { organizationJsonLd } from '@/lib/seo';
+import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
+import { ENTITY } from '@/lib/entity';
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
@@ -45,7 +48,13 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Header propertyName={property?.name ?? 'Villa 19'} phoneNumber={phoneNumber} showJournal={showJournal} />
       <main id="main-content" className="flex-1">{children}</main>
       {property && <Footer property={property} whatsappUrl={whatsappUrl} showJournal={showJournal} />}
-      <BookingDialog maxOccupancy={property?.max_occupancy ?? 14} idealOccupancy={property?.ideal_occupancy ?? 8} propertyId={property?.id} />
+      {/* Exactly one of these answers OPEN_BOOKING_EVENT, so every Book Now on
+          the site follows the flag without the CTAs knowing about it. */}
+      {ONLINE_PAYMENTS_ENABLED ? (
+        <BookingDialog maxOccupancy={property?.max_occupancy ?? 14} idealOccupancy={property?.ideal_occupancy ?? 8} propertyId={property?.id} />
+      ) : (
+        <PaymentsPausedDialog phoneNumber={phoneNumber} email={process.env.PROPERTY_EMAIL ?? ENTITY.email} />
+      )}
       <ScrollAid />
       <CookieConsent />
       <Analytics />

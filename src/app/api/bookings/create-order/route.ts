@@ -6,6 +6,7 @@ import type { Property, PricingRule } from '@/types';
 import { todayISO } from '@/lib/format';
 import { safeOrigin } from '@/lib/origin';
 import { LIMITS, rateLimit, tooManyRequests } from '@/lib/rate-limit';
+import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
 
 /** Longest values accepted for the free-text fields.
  *
@@ -43,6 +44,17 @@ function getRazorpay() {
 
 export async function POST(request: NextRequest) {
   try {
+    // The UI never reaches this route while payment is off, but the route is a
+    // public POST: a stale tab, a replayed request or a direct call would
+    // otherwise create a Razorpay order and hold dates nobody is watching.
+    // Refused before the rate limiter so a probe cannot spend the budget.
+    if (!ONLINE_PAYMENTS_ENABLED) {
+      return NextResponse.json(
+        { error: 'Online payments are not available yet. Please contact the villa to make a reservation.' },
+        { status: 503 },
+      );
+    }
+
     // Every successful call below holds the requested dates for 15 minutes
     // before any payment exists, and a held date is unbookable by anyone else.
     // Without a limit, a loop can keep the whole calendar unbookable for the

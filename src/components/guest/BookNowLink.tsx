@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 
-import { OPEN_BOOKING_EVENT } from '@/components/guest/BookingDialog';
+import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
 
 type Props = Omit<React.ComponentPropsWithoutRef<'a'>, 'href'> & {
   children: React.ReactNode;
