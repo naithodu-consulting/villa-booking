@@ -48,7 +48,7 @@ A landscaped lawn, balconies across the floors and ample private parking add to 
   12, 70000, -- ₹700/extra guest per night from guest 12
   1400000,  -- ₹14,000/night base
   1600000,  -- ₹16,000/night weekend
-  '14:00:00', '10:00:00',
+  '15:00:00', '10:00:00',
   TRUE
 ) ON CONFLICT (id) DO UPDATE SET
   slug = EXCLUDED.slug, name = EXCLUDED.name, tagline = EXCLUDED.tagline, description = EXCLUDED.description, long_description = EXCLUDED.long_description, max_occupancy = EXCLUDED.max_occupancy, ideal_occupancy = EXCLUDED.ideal_occupancy, base_occupancy = EXCLUDED.base_occupancy, extra_guest_rate = EXCLUDED.extra_guest_rate, extra_guest_tier2_from = EXCLUDED.extra_guest_tier2_from, extra_guest_tier2_rate = EXCLUDED.extra_guest_tier2_rate, base_nightly_rate = EXCLUDED.base_nightly_rate, weekend_nightly_rate = EXCLUDED.weekend_nightly_rate, is_active = EXCLUDED.is_active;
@@ -138,7 +138,7 @@ ON CONFLICT ON CONSTRAINT uq_amenity_property_label DO UPDATE SET
 INSERT INTO property_policies (property_id, key, title, body, category, display_order) VALUES
   ('a1b2c3d4-0000-0000-0000-000000000001', 'checkin_time',
    'Check-In & Check-Out',
-   'Check-in: 2:00 PM · Check-out: 10:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
+   'Check-in: 3:00 PM · Check-out: 10:00 AM. Early check-in and late check-out are subject to availability and must be requested at least 24 hours in advance. Additional charges may apply.',
    'checkin', 10),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'id_requirement',
    'Registered Guests Only',
@@ -186,12 +186,17 @@ INSERT INTO property_policies (property_id, key, title, body, category, display_
    'cancellation', 40)
 ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body, category = EXCLUDED.category, display_order = EXCLUDED.display_order;
 
+-- NOTE: this file runs AFTER the migrations on `supabase db reset`, so for any
+-- row it inserts it is the final word. A migration that edits a seeded row must
+-- be mirrored here too, or the change silently reverts on the next local reset
+-- while remaining correct on the remote (which never runs this file). That is
+-- how 00079 and 00081 came to be live remotely but absent locally.
 -- ─────────────────────────────────────────────────────────
 -- FAQs
 -- ─────────────────────────────────────────────────────────
 INSERT INTO faqs (property_id, question, answer, category, display_order, is_published, is_featured) VALUES
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Villa 19 booked as an entire villa?', 'Yes. Villa 19 is available exclusively as a private whole-villa stay. Individual rooms cannot be booked separately.', 'About Villa 19', 10, TRUE, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'How many guests can Villa 19 accommodate?', 'Villa 19 is designed for 8 guests comfortably and can accommodate up to 14 guests with additional sleeping arrangements and applicable charges.', 'About Villa 19', 20, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'How many guests can Villa 19 accommodate?', 'Villa 19 is designed for 8 guests comfortably and can accommodate up to 14 guests with additional sleeping arrangements and applicable charges.', 'About Villa 19', 20, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'What is included in the base booking price?', 'The base price includes exclusive use of the entire villa, including all 4 bedrooms, private lounge, lawn, rooftop terrace, parking and shared spaces. The base rate is for up to 8 guests.', 'About Villa 19', 30, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'How many bedrooms and bathrooms are there?', 'Villa 19 has 4 bedrooms, 3 bathrooms and a private lounge.', 'About Villa 19', 40, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the villa suitable for families and groups?', 'Yes. Villa 19 is designed for families, groups of friends, family gatherings and relaxed group stays.', 'About Villa 19', 50, TRUE, FALSE),
@@ -201,7 +206,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are visitors allowed at the villa?', 'Only guests included in the booking are permitted within the premises. Unregistered outside visitors are not allowed.', 'Booking & Guests', 90, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a security deposit required?', 'A fully refundable security deposit is collected upon check-in.', 'Booking & Guests', 100, TRUE, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are unmarried couples allowed to stay at Villa 19?', 'Villa 19 is primarily intended for families and family groups. Stays by unmarried couples are not encouraged. All guests must provide valid government-issued photo identification at check-in.', 'Booking & Guests', 110, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out timings?', 'Standard check-in is at 2:00 PM and check-out is at 10:00 AM. Early check-in and late check-out may be available on request, subject to availability.', 'Check-in & Check-out', 120, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the check-in and check-out timings?', 'Standard check-in is at 3:00 PM and check-out is at 10:00 AM. Early check-in and late check-out may be available on request, subject to availability.', 'Check-in & Check-out', 120, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can I request early check-in or late check-out?', 'Yes. Requests can be made in advance and will be accommodated wherever possible, subject to availability and applicable charges.', 'Check-in & Check-out', 130, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can someone else check in on my behalf?', 'The person making the booking should normally be present at check-in. Alternative arrangements should be confirmed with Villa 19 in advance.', 'Check-in & Check-out', 140, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is a kitchen available for guests?', 'Yes. The villa has a fully equipped kitchen with a refrigerator, cutlery, cookware, crockery and basic cooking essentials.', 'Kitchen & Amenities', 150, TRUE, TRUE),
@@ -221,7 +226,7 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the rooftop terrace private?', 'Yes. The covered rooftop terrace is exclusively available to guests staying at Villa 19.', 'Parking & Outdoor Spaces', 290, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are parties or events allowed?', 'No. Parties, events, loud gatherings and commercial activities are not permitted.', 'House Rules', 300, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'What are the quiet hours?', 'Guests are requested to maintain low noise levels between 10:00 PM and 7:00 AM, out of consideration for the neighbourhood.', 'House Rules', 310, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is smoking allowed?', 'Smoking is not permitted inside the villa, including bedrooms and bathrooms. Cleaning and restoration charges apply for violations.', 'House Rules', 320, TRUE, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is smoking allowed?', 'Smoking is not permitted inside the villa, including bedrooms and bathrooms. Cleaning and restoration charges apply for violations.', 'House Rules', 320, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are pets allowed?', 'No. Pets are not permitted at Villa 19.', 'House Rules', 330, TRUE, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Are unregistered guests allowed?', 'No. Only guests included in the booking are permitted within the premises.', 'House Rules', 340, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the property monitored by CCTV?', 'Yes. CCTV surveillance is provided in common outdoor areas for property security. There are no cameras in private guest areas.', 'Safety & Security', 350, TRUE, TRUE),
@@ -230,9 +235,9 @@ INSERT INTO faqs (property_id, question, answer, category, display_order, is_pub
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Where is Villa 19 located?', 'Villa 19 is located in Urwa, Mangalore, in a peaceful residential setting with convenient access to the main road, local markets, shops and everyday amenities.', 'Location', 380, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is Villa 19 close to the city?', 'Yes. The villa offers a quiet setting while remaining conveniently connected to Mangalore''s key areas.', 'Location', 390, TRUE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the villa suitable as a base for exploring Mangalore?', 'Yes. Its location in Urwa provides convenient access to the city, while the private villa offers a relaxed space to return to after exploring Mangalore.', 'Location', 400, TRUE, FALSE),
-  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the driver room included in the four bedrooms?', 'No. The dedicated Driver Room is separate from the four guest bedrooms and is intended for driver/staff accommodation.', 'Additional Accommodation', 410, TRUE, FALSE),
+  ('a1b2c3d4-0000-0000-0000-000000000001', 'Is the driver room included in the four bedrooms?', 'No. The dedicated Driver Room is separate from the four guest bedrooms and is intended for driver/staff accommodation. It can be arranged upon prior request.', 'Additional Accommodation', 410, FALSE, FALSE),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'Can the driver stay at the property?', 'Yes. A driver room with an attached bathroom is available separately from the guest accommodation. It can be arranged upon prior request.', 'Additional Accommodation', 420, TRUE, FALSE)
-ON CONFLICT ON CONSTRAINT uq_faq_property_question DO UPDATE SET answer = EXCLUDED.answer, category = EXCLUDED.category, display_order = EXCLUDED.display_order, is_featured = EXCLUDED.is_featured;
+ON CONFLICT ON CONSTRAINT uq_faq_property_question DO UPDATE SET answer = EXCLUDED.answer, category = EXCLUDED.category, display_order = EXCLUDED.display_order, is_featured = EXCLUDED.is_featured, is_published = EXCLUDED.is_published;
 
 -- ─────────────────────────────────────────────────────────
 -- Nearby Places

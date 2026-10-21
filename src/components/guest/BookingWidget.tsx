@@ -24,23 +24,10 @@ interface BookingWidgetProps {
  */
 const FROM_RATE_HORIZON_MONTHS = 6;
 
-/**
- * The extra-guest charge, stated on the card rather than left to be discovered
- * once dates are picked: a guest working out what a party of 12 costs should
- * not have to fill the form first. Mirrors the two tiers in pricing-engine.ts,
- * so the numbers here are the ones the breakdown will charge.
- */
-function extraGuestLine(property: Property): string | null {
-  const tier1 = Number(property.extra_guest_rate);
-  if (!tier1) return null;
-  const line = `Extra guests \u20B9${inr(tier1)} each / night`;
-  const tier2From = property.extra_guest_tier2_from;
-  const tier2 = property.extra_guest_tier2_rate;
-  if (tier2From != null && tier2 != null && Number(tier2) !== tier1) {
-    return `${line} \u00B7 \u20B9${inr(Number(tier2))} from guest ${tier2From}`;
-  }
-  return line;
-}
+// The extra-guest charge used to be stated here, including the second tier
+// ("from guest 12"). It made the card read as three competing numbers before
+// the guest had picked anything, so it was removed. The charge still applies
+// and still appears in the breakdown once dates and party size are chosen.
 
 /** Converts paise integer to formatted rupee string: 1450000 → "14,500" */
 function inr(paise: number): string {
@@ -182,9 +169,6 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
           <span className="text-white/60 text-sm font-semibold">/ night + GST</span>
         </div>
         <p className="text-[13px] text-white/70 mt-1.5">For up to {property.base_occupancy} guests</p>
-        {extraGuestLine(property) && (
-          <p className="text-[13px] text-white/70">{extraGuestLine(property)}</p>
-        )}
         <p className="text-[13px] font-semibold text-[var(--brass-light)] mt-2">
           Lowest rate &middot; No platform fees
         </p>

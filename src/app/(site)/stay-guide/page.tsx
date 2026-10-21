@@ -47,7 +47,7 @@ export default async function StayGuidePage() {
   const whatsappUrl = whatsappNumber
     ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi, I have a question about my stay at ${property?.name ?? 'Villa 19'}`)}`
     : undefined;
-  const checkIn  = formatTime12(property?.check_in_time  ?? '14:00');
+  const checkIn  = formatTime12(property?.check_in_time  ?? '15:00');
   const checkOut = formatTime12(property?.check_out_time ?? '10:00');
 
   const infoSections = [

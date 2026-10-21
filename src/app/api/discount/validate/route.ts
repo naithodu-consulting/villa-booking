@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     // Compute breakdown server-side — never trust client amounts
     const property = {
       ...(propData as Property),
-      check_in_time: propData.check_in_time?.slice(0, 5) ?? '14:00',
+      check_in_time: propData.check_in_time?.slice(0, 5) ?? '15:00',
       check_out_time: propData.check_out_time?.slice(0, 5) ?? '10:00',
     } as Property;
     const rules: PricingRule[] = (rulesData as PricingRule[]) ?? [];

@@ -4,6 +4,48 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.36 - Contact page restored, check-in moves to 3:00 PM - 2026-10-21
+
+**The contact page is back, and is now a linked page rather than a 404.** `/contact` was retired on
+2026-10-13 and left as a bare `notFound()`, but it was never removed from `sitemap.ts`, so the
+sitemap had been advertising a 404 to crawlers ever since. The page is rebuilt and indexable, and
+"Contact Us" now sits in the footer's Explore column after FAQs.
+
+The rebuild is also what Razorpay's merchant website check wants: the registered entity name, its
+address, a phone number and an email, all reachable as plain text on a crawlable page. So the page
+carries a Registered Office block (HABBAA SOLUTIONS PVT LTD, address, CIN, GSTIN) alongside the
+villa's own locality, and every contact row prints its value. That last point matters because
+`PROPERTY_PHONE` and `PROPERTY_WHATSAPP` are the same line: the first draft showed the number on
+the call row and not the WhatsApp row, which read as two different contacts.
+
+Note the footer's Explore column is `hidden lg:block`, so the new link, like every other link in
+that column, only appears above 1024px.
+
+**Check-in moves from 2:00 PM to 3:00 PM** (00099). The site reads `properties.check_in_time`
+nearly everywhere it states the time, so the column update covers the homepage, stay guide, terms,
+confirmation email and calendar invite at once. Two places store the time as prose instead and are
+updated directly: the check-in FAQ and the "Check-In & Check-Out" policy. Every `?? '14:00'`
+fallback in the code is now `'15:00'`.
+
+**The driver room FAQ is retired** and two FAQs leave the featured set, which is what the homepage
+shows. The driver FAQ is unpublished rather than deleted, so wording reworked three times (00073,
+00074, 00081) survives if it is wanted back.
+
+**Two seed/migration drifts fixed while reviewing the above.** `seed.sql` runs after the migrations
+on a local reset and never runs on the remote, so any change it makes to a seeded row has to be
+mirrored in a migration or the two environments quietly disagree. The seed flipped `is_featured` on
+two FAQs and appended a sentence to the driver answer without a matching migration, so 00099 now
+makes those changes too. The seed's FAQ `ON CONFLICT` clause also updated `is_featured` but not
+`is_published`, which meant re-running it over existing rows would not have unpublished anything.
+
+**00100 inserts a check-in policy row that the remote never had.** 00099's update to the
+"Check-In & Check-Out" policy matched zero rows and still reported success, because only `seed.sql`
+inserts that row and the remote does not run it. The practical effect was that the remote rendered
+its policies block with no check-in policy at all. The row is now upserted with values mirroring
+the seed.
+
+---
+
 ## v1.35 - Razorpay webhook retries transient failures, verifies amount - 2026-10-21
 
 Two fixes to `/api/bookings/webhook`.
