@@ -217,12 +217,18 @@ export default function SectionNav({ tabs = HOMEPAGE_TABS }: SectionNavProps) {
           style={{ background: 'linear-gradient(to left, var(--paper), transparent)' }}
         />
 
-        {/* Horizontal tabs list */}
+        {/* Horizontal tabs list.
+            The pb/-mb pair on the scroll container: overflow-x-auto makes this a
+            scroll container, which clips on its *padding* box in both axes, so
+            the active underline at bottom-[-2.5px] was being cut off. The
+            padding extends the clip box by exactly the underline's height and
+            the negative margin pulls the layout box back, so the underline
+            still lands on top of the nav's bottom border. */}
         <div
           ref={scrollContainerRef}
           role="tablist"
           aria-label="Section navigation"
-          className="shelf-x flex items-stretch overflow-x-auto"
+          className="shelf-x flex items-stretch overflow-x-auto pb-[2.5px] -mb-[2.5px]"
         >
           {tabs.map((tab, index) => {
             const isActive = activeId === tab.id;

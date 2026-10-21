@@ -4,6 +4,48 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.39 - Mobile homepage layout, section underline - 2026-10-21
+
+**Three changes to the homepage on a phone, plus a fix to the section nav at every width.**
+
+**"Show All 39 Photos" was covering the photo it sat on.** At 375px the button ran most of the
+width of the bottom-right tile and read as a label for the grid rather than a control. It now says
+just "Show All" on a phone, at a fixed 36px height, tucked 8px from the tile's bottom-right corner.
+Desktop keeps the full count in the label and its original size and position, since there the extra
+words cost nothing. The accessible name still carries the count at both widths, so nothing is lost
+to a screen reader.
+
+**The check-in / check-out card is gone from the phone and tablet homepage.** It sat directly
+between the price and the villa's own content and told a guest two times they do not need before
+they have decided to book. Both times are still on the stay guide and on the booking confirmation,
+which is where a guest looks for them. The card is unchanged on large screens, where it sits under
+the widget in the sidebar and costs nothing.
+
+**The booking widget now sits after the overview rather than above it.** v1.38 put it first in the
+stack on a narrow screen, which led with a price before the page had said what the villa is. It now
+falls between "About the Villa" and the room breakdown, so a guest reads what they are paying for
+and then what it costs.
+
+This is done by splitting the content column into two siblings with the widget between them in the
+source, not with CSS `order`. v1.38 declined `order` because it moves a block visually without
+moving it for a screen reader or the tab key; that reasoning still holds, so the DOM order and the
+visual order match here too. On large screens the layout is untouched: explicit grid coordinates
+still lift the widget to column 3, row 1, and it now spans both content rows so it stays sticky the
+whole way down the page. Still one instance of the component, so still one availability fetch.
+Sticky positioning moved from `md` to `lg`, since between 768px and 1023px the card is mid-flow and
+a sticky block there would detach from the content it sits in.
+
+**The active section underline sometimes did not render.** The tab strip is `overflow-x-auto`,
+which makes it a scroll container, and a scroll container clips on its padding box in *both* axes,
+not just the one it scrolls. The underline was positioned at `bottom-[-2.5px]` so it would overlay
+the nav's bottom border, which put it entirely outside that box. Whether it survived came down to
+sub-pixel rounding at a given width and zoom, which is why it looked intermittent and why it hit
+phones and desktops alike. The strip now carries `pb-[2.5px] -mb-[2.5px]`: the padding extends the
+clip box by exactly the underline's height, and the negative margin pulls the layout box back, so
+the underline still lands on the border and is no longer cut off.
+
+---
+
 ## v1.38 - Prices visible on phones - 2026-10-21
 
 **A phone could not see what a stay costs.** The booking widget is the only place on the site that

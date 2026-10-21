@@ -178,47 +178,10 @@ export default async function LandingPage() {
 
       {/* ── Main Layout: Content + Widget ─────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-        {/* Booking widget: the sticky right column at lg, the first thing in
-            the stack below it.
-            It used to be `hidden md:block`, on the reasoning that the fixed
-            mobile bar carried the same two actions. But the bar carries actions,
-            not prices, and this card is the only place on the site that quotes a
-            rate at all, so a phone could not see what a stay costs. Placed by
-            explicit grid coordinates rather than source order: that keeps one
-            instance of the widget, and so one availability fetch, while letting
-            the DOM lead with the price on a narrow screen. It also unburies the
-            card at md, where the single-column grid used to drop it below the
-            FAQ. */}
-        <div className="lg:col-span-1 lg:col-start-3 lg:row-start-1">
-          <div className="md:sticky md:top-[136px]">
-            {/* When these rates were read. With revalidate above, this is the
-                age of the cached render, which the widget compares against the
-                calendar's own age to decide which rates are the fresher. */}
-            <BookingWidget property={property} pricingRules={pricingRules} ratesReadAt={readAt} />
-            <div
-              className="mt-4 p-4 rounded-2xl shadow-sm space-y-2 text-sm"
-              style={{
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--ink-muted)',
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                <span>Check-in from <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_in_time)}</strong></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                <span>Check-out by <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_out_time)}</strong></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Content column. Coordinates, not flow: the widget above it is placed
-            at column 3 / row 1, so this has to claim row 1 explicitly or the
-            grid would push it to a second row. */}
-        <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1 space-y-10">
+        {/* Content column, first half. Coordinates, not flow: the widget below
+            it in the source is placed at column 3 / row 1, so this has to claim
+            row 1 explicitly or the grid would push it to a second row. */}
+        <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1">
 
           {/* Overview: Highlights bar + About the Villa */}
           <div id="overview" className="scroll-mt-[120px] space-y-10">
@@ -269,6 +232,58 @@ export default async function LandingPage() {
               ))}
             </div>
           </div>
+
+        </div>
+
+        {/* Booking widget: the sticky right column at lg; below that it sits
+            in the stack between the overview and the rooms, which is why the
+            content column is split into two siblings around it and why this
+            block sits between them in the source.
+            It used to be `hidden md:block`, on the reasoning that the fixed
+            mobile bar carried the same two actions. But the bar carries actions,
+            not prices, and this card is the only place on the site that quotes a
+            rate at all, so a phone could not see what a stay costs. One
+            instance of the widget, and so one availability fetch, at every
+            width: explicit grid coordinates lift it into the right-hand column
+            at lg, while narrower screens take it in source order. No CSS
+            `order` anywhere, so the reading order a screen reader and the tab
+            key follow is the order on the screen. It also unburies the card at
+            md, where the single-column grid used to drop it below the FAQ. */}
+        <div className="lg:col-span-1 lg:col-start-3 lg:row-start-1 lg:row-span-2">
+          <div className="lg:sticky lg:top-[136px]">
+            {/* When these rates were read. With revalidate above, this is the
+                age of the cached render, which the widget compares against the
+                calendar's own age to decide which rates are the fresher. */}
+            <BookingWidget property={property} pricingRules={pricingRules} ratesReadAt={readAt} />
+            {/* Desktop only: on a phone this card sat between the price and the
+                villa's own content and said nothing a guest needs before
+                booking. The times are still on the stay guide and the
+                confirmation. */}
+            <div
+              className="mt-4 hidden lg:block p-4 rounded-2xl shadow-sm space-y-2 text-sm"
+              style={{
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--ink-muted)',
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                <span>Check-in from <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_in_time)}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                <span>Check-out by <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_out_time)}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* The rest of the content column. Split from the overview above so the
+            booking widget can sit between them in the source, and so on a
+            phone; at lg both halves are column 1, rows 1 and 2, with the widget
+            spanning both so it stays sticky the whole way down. */}
+        <div className="lg:col-span-2 lg:col-start-1 lg:row-start-2 space-y-10">
 
           {/* Rooms */}
           <div id="rooms" className="scroll-mt-[120px] space-y-4">

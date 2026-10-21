@@ -88,11 +88,12 @@ export default function GalleryModal({ images, tiles }: GalleryProps) {
 
         <button
           onClick={() => setOpenAt(0)}
-          className="absolute bottom-3 right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-4 min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
+          className="absolute bottom-2 right-2 md:bottom-3 md:right-3 bg-[rgba(20,10,8,0.85)] backdrop-blur-md hover:bg-[var(--brass-light)] hover:text-[var(--maroon-deep)] text-white px-3 md:px-4 h-9 md:h-auto md:min-h-11 rounded-xl font-semibold text-xs flex items-center gap-1.5 border border-white/15 transition-all shadow-xl"
           aria-label={`Show all ${images.length} photos`}
         >
           <Grid className="w-3.5 h-3.5" aria-hidden="true" />
-          Show All {images.length} Photos
+          <span className="md:hidden">Show All</span>
+          <span className="hidden md:inline">Show All {images.length} Photos</span>
         </button>
       </div>
 
