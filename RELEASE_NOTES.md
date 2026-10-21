@@ -4,6 +4,41 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.38 - Prices visible on phones - 2026-10-21
+
+**A phone could not see what a stay costs.** The booking widget is the only place on the site that
+quotes a rate, and it was `hidden md:block`, so below 768px it was not in the layout at all. The
+fixed mobile bar's Book Now went straight to the reservations notice, which means a guest on a phone
+was asked to call us without ever being shown a number to call about. On a desktop the same guest
+picks dates and party size, reads the total, and only then meets the notice.
+
+This was a regression rather than an old gap. Before payments were paused, the mobile route to a
+price was the bar, then the date dialog, then `/book`, which priced the stay in full. `/book` now
+serves the notice, so pausing payments quietly removed the only path a phone had to a number.
+
+**The widget is now shown at every width, positioned by grid coordinates rather than source order.**
+It sits at column 3, row 1 on large screens, exactly the sticky sidebar it has always been, and the
+content column claims column 1, row 1 beside it. Below that it is the first thing in the stack, so a
+narrow screen leads with the price. One instance of the component, so still one availability fetch
+and no second copy to drift. Sticky positioning is now `md` and up: a sticky price card and a fixed
+bottom bar would otherwise compete for a short viewport.
+
+Reading order moves with it, deliberately. The widget now precedes the content column in the DOM
+at every width, so a screen reader and the tab key reach the price and the date fields before the
+villa description. CSS `order` would have moved the card visually without moving it for assistive
+technology, which would have left exactly the guests who most need the price last in line. The
+visible desktop layout is unchanged.
+
+This also unburies the card on tablets. Between 768px and 1023px the grid is a single column and the
+widget was the second child, so it rendered below the FAQ, at the very bottom of the page.
+
+Nothing about the pause changes. The widget's Book Now still checks `ONLINE_PAYMENTS_ENABLED` and
+still dispatches `OPEN_BOOKING_EVENT`, so it opens the same notice every other CTA opens. The markup
+is unchanged too; `hidden` only hid it, so crawlers and the desktop render see exactly what they saw
+before.
+
+---
+
 ## v1.37 - Online payments paused in production - 2026-10-21
 
 **Razorpay go-live is not finished, so production stops short of the payment screen.** Every Book

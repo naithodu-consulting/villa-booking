@@ -178,8 +178,47 @@ export default async function LandingPage() {
 
       {/* ── Main Layout: Content + Widget ─────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-        {/* Left column */}
-        <div className="lg:col-span-2 space-y-10">
+        {/* Booking widget: the sticky right column at lg, the first thing in
+            the stack below it.
+            It used to be `hidden md:block`, on the reasoning that the fixed
+            mobile bar carried the same two actions. But the bar carries actions,
+            not prices, and this card is the only place on the site that quotes a
+            rate at all, so a phone could not see what a stay costs. Placed by
+            explicit grid coordinates rather than source order: that keeps one
+            instance of the widget, and so one availability fetch, while letting
+            the DOM lead with the price on a narrow screen. It also unburies the
+            card at md, where the single-column grid used to drop it below the
+            FAQ. */}
+        <div className="lg:col-span-1 lg:col-start-3 lg:row-start-1">
+          <div className="md:sticky md:top-[136px]">
+            {/* When these rates were read. With revalidate above, this is the
+                age of the cached render, which the widget compares against the
+                calendar's own age to decide which rates are the fresher. */}
+            <BookingWidget property={property} pricingRules={pricingRules} ratesReadAt={readAt} />
+            <div
+              className="mt-4 p-4 rounded-2xl shadow-sm space-y-2 text-sm"
+              style={{
+                backgroundColor: 'var(--surface)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--ink-muted)',
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                <span>Check-in from <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_in_time)}</strong></span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
+                <span>Check-out by <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_out_time)}</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content column. Coordinates, not flow: the widget above it is placed
+            at column 3 / row 1, so this has to claim row 1 explicitly or the
+            grid would push it to a second row. */}
+        <div className="lg:col-span-2 lg:col-start-1 lg:row-start-1 space-y-10">
 
           {/* Overview: Highlights bar + About the Villa */}
           <div id="overview" className="scroll-mt-[120px] space-y-10">
@@ -568,36 +607,6 @@ export default async function LandingPage() {
 
         </div>
 
-        {/* Right column: sticky booking widget.
-            Hidden below md, where the fixed bar carries the same two actions and
-            its Book Now opens the date dialog, so nothing is lost. The breakpoint
-            matches the bar's own md:hidden: at lg it would leave tablets with
-            neither the widget nor the bar. */}
-        <div className="hidden md:block lg:col-span-1">
-          <div className="sticky top-[136px]">
-            {/* When these rates were read. With revalidate above, this is the
-                age of the cached render, which the widget compares against the
-                calendar's own age to decide which rates are the fresher. */}
-            <BookingWidget property={property} pricingRules={pricingRules} ratesReadAt={readAt} />
-            <div
-              className="mt-4 p-4 rounded-2xl shadow-sm space-y-2 text-sm"
-              style={{
-                backgroundColor: 'var(--surface)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--ink-muted)',
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                <span>Check-in from <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_in_time)}</strong></span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 flex-shrink-0" style={{ color: 'var(--brass)' }} aria-hidden="true" />
-                <span>Check-out by <strong style={{ color: 'var(--ink)' }}>{formatTime12(property.check_out_time)}</strong></span>
-              </div>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ── Mobile sticky booking bar ─────────────────── */}
