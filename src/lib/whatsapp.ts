@@ -14,3 +14,14 @@ export function idShareWhatsAppUrl(whatsappNumber: string, bookingCode: string, 
     'Attaching one photo per adult guest: Aadhaar, passport or driving licence.';
   return `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
 }
+
+/**
+ * "I want to book" as a prefilled WhatsApp message.
+ *
+ * The same wording the homepage's mobile CTA bar has always used, so a guest
+ * who taps Enquire Now in either place arrives in the same conversation.
+ */
+export function enquiryWhatsAppUrl(whatsappNumber: string, propertyName?: string): string {
+  const text = `Hi, I'm interested in booking ${propertyName ?? 'Villa 19'}`;
+  return `https://wa.me/${whatsappNumber.replace(/\D/g, '')}?text=${encodeURIComponent(text)}`;
+}

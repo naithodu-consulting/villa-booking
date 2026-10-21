@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import { X } from 'lucide-react';
+import { X, Phone, Mail } from 'lucide-react';
 
 import ReservationNotice from '@/components/guest/ReservationNotice';
+import WhatsAppIcon from '@/components/guest/WhatsAppIcon';
 import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
 
 /**
@@ -20,14 +21,18 @@ import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
  */
 export default function PaymentsPausedDialog({
   phoneNumber,
+  whatsappUrl,
   email,
 }: {
   phoneNumber?: string;
+  /** Built by the caller, so this button and the footer's share one wording. */
+  whatsappUrl?: string;
   email?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
 
   const close = useCallback(() => ref.current?.close(), []);
+  const digits = phoneNumber?.replace(/\D/g, '');
 
   useEffect(() => {
     const open = () => {
@@ -50,10 +55,12 @@ export default function PaymentsPausedDialog({
       className="w-[min(30rem,calc(100vw-2rem))] rounded-3xl p-0 overflow-hidden shadow-2xl backdrop:bg-[rgba(58,14,31,0.62)] backdrop:backdrop-blur-sm"
       style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
     >
-      {/* Maroon band, brass eyebrow, Cormorant heading: the same treatment the
-          booking widget's header and the site's CTA bands use, so the notice
-          reads as part of the villa rather than as a browser alert. */}
-      <div className="relative px-6 sm:px-7 pt-6 pb-5" style={{ backgroundColor: 'var(--maroon-deep)' }}>
+      {/* Maroon band over a white body: the treatment the booking widget's
+          header and the site's CTA bands use, so the notice reads as part of
+          the villa rather than as a browser alert. --maroon, not
+          --maroon-deep, so the band and the button below it are the one colour
+          rather than two maroons in one small card. */}
+      <div className="relative px-6 sm:px-7 pt-6 pb-5" style={{ backgroundColor: 'var(--maroon)' }}>
         <button
           type="button"
           onClick={close}
@@ -63,18 +70,12 @@ export default function PaymentsPausedDialog({
         >
           <X className="w-4 h-4" aria-hidden="true" />
         </button>
-        <p
-          className="text-[10px] font-bold uppercase mb-2"
-          style={{ color: 'var(--brass-light)', letterSpacing: '0.18em' }}
-        >
-          Reservations
-        </p>
         <h2
           id="payments-paused-title"
-          className="text-[26px] sm:text-[28px] leading-[1.15] font-bold pr-10"
-          style={{ color: '#FFFFFF', fontFamily: 'var(--font-display)' }}
+          className="text-[20px] leading-[1.25] font-bold text-center px-8"
+          style={{ color: '#FFFFFF', fontFamily: 'var(--font-body)' }}
         >
-          Online Payments Coming Soon
+          Please Note
         </h2>
       </div>
 
@@ -84,9 +85,47 @@ export default function PaymentsPausedDialog({
       <div className="px-6 sm:px-7 py-6 space-y-6" style={{ backgroundColor: 'var(--surface)' }}>
         <ReservationNotice phoneNumber={phoneNumber} email={email} />
 
-        <button type="button" onClick={close} className="w-full btn-primary py-3">
-          Got It
-        </button>
+        {/* The one button is the next step, not a dismissal; the X in the band
+            is the way out. WhatsApp, with the same label and the same prefilled
+            message as the homepage's mobile CTA bar, so "Enquire Now" means one
+            thing across the site. Falls back to a call, then to email, so it is
+            never a dead link if a number is unset. The glyph carries the
+            channel; the fill stays --maroon with the header's nav gold on it,
+            rather than WhatsApp green, which would be the loudest thing in the
+            card. */}
+        {whatsappUrl ? (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            className="w-full btn-primary py-3"
+            style={{ color: 'var(--brass-nav)' }}
+          >
+            <WhatsAppIcon />
+            Enquire Now
+          </a>
+        ) : digits ? (
+          <a
+            href={`tel:+${digits}`}
+            onClick={close}
+            className="w-full btn-primary py-3"
+            style={{ color: 'var(--brass-nav)' }}
+          >
+            <Phone className="w-4 h-4" aria-hidden="true" />
+            Enquire Now
+          </a>
+        ) : (
+          <a
+            href={`mailto:${email}`}
+            onClick={close}
+            className="w-full btn-primary py-3"
+            style={{ color: 'var(--brass-nav)' }}
+          >
+            <Mail className="w-4 h-4" aria-hidden="true" />
+            Enquire Now
+          </a>
+        )}
       </div>
     </dialog>
   );

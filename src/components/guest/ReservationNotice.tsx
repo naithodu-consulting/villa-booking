@@ -12,10 +12,10 @@ import { ENTITY } from '@/lib/entity';
  * landed before JavaScript was ready. Two copies of this copy would drift.
  *
  * The number and the address are links, not text to retype: on a phone the
- * notice is one tap from a call. Colours follow the light-ground scale in
- * globals.css: --ink for body text and --brass-ink for the accent, which is
- * the only brass that passes contrast as text; the closing line is set in
- * --font-display, the same Cormorant the site uses for every heading.
+ * notice is one tap from a call. Both paragraphs are the site's body treatment,
+ * --font-body at 15px in --ink, the same as any other prose on the site, so the
+ * short message reads in one voice. The only accent is --brass-ink on the two
+ * links, the one brass that passes contrast as text.
  */
 export default function ReservationNotice({
   phoneNumber,
@@ -32,8 +32,9 @@ export default function ReservationNotice({
 
   return (
     <div className="space-y-5">
-      <p className="text-[15px] leading-[1.75]" style={{ color: 'var(--ink)' }}>
-        To make a reservation, please contact our team at{' '}
+      <p className="text-[15px] leading-[1.75]" style={{ color: 'var(--ink)', fontFamily: 'var(--font-body)' }}>
+        Online payments will be enabled soon. To make a reservation meanwhile, please contact our
+        team at{' '}
         {phoneDisplay && (
           <>
             <a href={`tel:+${digits}`} className={linkClass} style={{ color: 'var(--brass-ink)' }}>
@@ -52,10 +53,7 @@ export default function ReservationNotice({
         , and we will be happy to assist you with your booking.
       </p>
 
-      <p
-        className="text-[15px] leading-[1.75] italic"
-        style={{ color: 'var(--maroon)', fontFamily: 'var(--font-display)', fontSize: '19px' }}
-      >
+      <p className="text-[15px] leading-[1.75]" style={{ color: 'var(--ink)', fontFamily: 'var(--font-body)' }}>
         We look forward to welcoming you to Villa 19!
       </p>
 

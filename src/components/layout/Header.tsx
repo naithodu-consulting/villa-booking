@@ -355,8 +355,9 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
 function NavLink({ href, label }: { href: string; label: string }) {
   const pathname = usePathname();
   const isActive = pathname === href || (href !== '/' && pathname.startsWith(href));
-  // Lighter than --brass-light: Cormorant's hairlines need extra contrast on maroon.
-  const idle = '#DDB57A';
+  // Lighter than --brass-light: Cormorant's hairlines need extra contrast on
+  // maroon. Shared as --brass-nav so gold-on-maroon is one colour site-wide.
+  const idle = 'var(--brass-nav)';
   return (
     <NavLinkBase
       href={href}

@@ -2,9 +2,11 @@ import React from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { X, Phone } from 'lucide-react';
 import BookingCheckout from '@/components/guest/BookingCheckout';
 import ReservationNotice from '@/components/guest/ReservationNotice';
+import WhatsAppIcon from '@/components/guest/WhatsAppIcon';
+import { enquiryWhatsAppUrl } from '@/lib/whatsapp';
 import { getProperty, getPricingRules, ratesReadAt } from '@/lib/data';
 import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
 import { ENTITY } from '@/lib/entity';
@@ -26,26 +28,38 @@ export default async function BookPage() {
   // than redirecting keeps that URL meaningful instead of silently dropping the
   // guest on the homepage with no explanation.
   if (!ONLINE_PAYMENTS_ENABLED) {
+    const phone = process.env.PROPERTY_PHONE;
+    const whatsapp = process.env.PROPERTY_WHATSAPP;
     return (
-      <div className="flex-1 flex items-center justify-center px-5 py-16">
+      <div className="relative flex-1 flex items-center justify-center px-5 py-16">
+        {/* The page carries no header, so without this the only way out was a
+            button inside the card. A link covering the ground behind the card
+            makes clicking outside it go home, the way clicking a dialog's
+            backdrop closes the dialog. A plain link rather than a click
+            handler: it works before hydration and middle-clicks like a link. */}
+        <Link href="/" aria-hidden tabIndex={-1} className="absolute inset-0" />
+
         <div
-          className="w-full max-w-lg rounded-3xl overflow-hidden shadow-xl"
+          className="relative z-10 w-full max-w-lg rounded-3xl overflow-hidden shadow-xl"
           style={{ backgroundColor: 'var(--surface)', border: '1px solid var(--border-subtle)' }}
         >
           {/* Same band as PaymentsPausedDialog: this page and that dialog are
-              the one message, so they are the one design. */}
-          <div className="px-7 sm:px-8 pt-7 pb-6" style={{ backgroundColor: 'var(--maroon-deep)' }}>
-            <p
-              className="text-[10px] font-bold uppercase mb-2"
-              style={{ color: 'var(--brass-light)', letterSpacing: '0.18em' }}
+              the one message, so they are the one design, down to the close
+              control in the corner. */}
+          <div className="relative px-7 sm:px-8 pt-7 pb-6" style={{ backgroundColor: 'var(--maroon)' }}>
+            <Link
+              href="/"
+              aria-label="Close"
+              className="absolute top-4 right-4 w-9 h-9 rounded-full flex items-center justify-center transition-colors hover:bg-white/10"
+              style={{ color: 'rgba(255,255,255,0.75)' }}
             >
-              Reservations
-            </p>
+              <X className="w-4 h-4" aria-hidden="true" />
+            </Link>
             <h1
-              className="text-[28px] sm:text-[32px] leading-[1.15] font-bold"
-              style={{ color: '#FFFFFF', fontFamily: 'var(--font-display)' }}
+              className="text-[20px] leading-[1.25] font-bold text-center px-8"
+              style={{ color: '#FFFFFF', fontFamily: 'var(--font-body)' }}
             >
-              Online Payments Coming Soon
+              Please Note
             </h1>
           </div>
 
@@ -53,17 +67,33 @@ export default async function BookPage() {
 
           <div className="px-7 sm:px-8 py-7 space-y-6">
             <ReservationNotice
-              phoneNumber={process.env.PROPERTY_PHONE}
+              phoneNumber={phone}
               email={process.env.PROPERTY_EMAIL ?? ENTITY.email}
             />
 
-            <Link
-              href="/"
-              className="btn-primary inline-flex items-center justify-center gap-2 w-full py-3"
-            >
-              <ArrowLeft className="w-4 h-4" aria-hidden="true" />
-              Back to the Villa
-            </Link>
+            {/* One action only: the X and the ground behind the card are the
+                way out, so a second "back" button would say it a third time. */}
+            {whatsapp ? (
+              <a
+                href={enquiryWhatsAppUrl(whatsapp)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-primary w-full py-3"
+                style={{ color: 'var(--brass-nav)' }}
+              >
+                <WhatsAppIcon />
+                Enquire Now
+              </a>
+            ) : phone ? (
+              <a
+                href={`tel:+${phone.replace(/\D/g, '')}`}
+                className="btn-primary w-full py-3"
+                style={{ color: 'var(--brass-nav)' }}
+              >
+                <Phone className="w-4 h-4" aria-hidden="true" />
+                Enquire Now
+              </a>
+            ) : null}
           </div>
         </div>
       </div>

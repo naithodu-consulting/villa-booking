@@ -39,10 +39,23 @@ Razorpay order and hold dates nobody is watching.
 payment is in flight, refusing verification would take a guest's money without confirming their
 booking. Only the entry point is closed.
 
+**The notice reads "Please Note", and its one button is the next step rather than a dismissal.**
 The copy lives once, in `ReservationNotice`, shared by the dialog and the `/book` page so the two
-cannot drift. Both are dressed as the site dresses everything else: a `--maroon-deep` band with a
-`--brass-light` eyebrow and a Cormorant heading, a `--brass` hairline, then body text in `--ink`
-with the number and address as `--brass-ink` links, tappable rather than text to retype.
+cannot drift. Enquire Now opens WhatsApp on the same prefilled message as the homepage's mobile CTA
+bar, which now comes from a shared `enquiryWhatsAppUrl()` rather than a string built in two places;
+it falls back to a call and then to email, so it is never a dead link if a number is unset. The X
+closes the dialog, and on `/book`, which has no site header, an X and a link covering the ground
+behind the card both return to the homepage. That overlay link is `aria-hidden`, since the labelled
+X is already in the accessibility tree.
+
+Both surfaces are dressed as the site dresses everything else: a `--maroon` band (the button's own
+fill, so one maroon rather than two) over a white body, a `--brass` hairline between them, heading
+and body alike in `--font-body` so a short message reads in one voice, and the number and address
+as `--brass-ink` links, tappable rather than text to retype. The button's label takes the header's
+nav gold, which was a `#DDB57A` literal inside `Header.tsx` and is now the `--brass-nav` token, so
+gold-on-maroon has one definition site-wide. The WhatsApp glyph, previously pasted inline in six
+page files, is now `WhatsAppIcon`; the older copies are left for whenever those files are next
+touched.
 
 **To switch payments on:** set `NEXT_PUBLIC_ONLINE_PAYMENTS_ENABLED=true` on the host and rebuild.
 Nothing else needs to change.

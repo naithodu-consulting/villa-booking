@@ -13,6 +13,7 @@ import JsonLd from '@/components/seo/JsonLd';
 import { organizationJsonLd } from '@/lib/seo';
 import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
 import { ENTITY } from '@/lib/entity';
+import { enquiryWhatsAppUrl } from '@/lib/whatsapp';
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
@@ -33,9 +34,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   const whatsappNumber = property?.whatsapp_number;
   const whatsappUrl = whatsappNumber
-    ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-        `Hi, I'm interested in booking ${property?.name ?? 'Villa 19'}`
-      )}`
+    ? enquiryWhatsAppUrl(whatsappNumber, property?.name)
     : undefined;
   // The drawer's second button is Call (the mobile CTA bar already carries
   // WhatsApp), so the Header needs the number the contact card uses.
@@ -53,7 +52,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       {ONLINE_PAYMENTS_ENABLED ? (
         <BookingDialog maxOccupancy={property?.max_occupancy ?? 14} idealOccupancy={property?.ideal_occupancy ?? 8} propertyId={property?.id} />
       ) : (
-        <PaymentsPausedDialog phoneNumber={phoneNumber} email={process.env.PROPERTY_EMAIL ?? ENTITY.email} />
+        <PaymentsPausedDialog
+          phoneNumber={phoneNumber}
+          whatsappUrl={whatsappUrl}
+          email={process.env.PROPERTY_EMAIL ?? ENTITY.email}
+        />
       )}
       <ScrollAid />
       <CookieConsent />

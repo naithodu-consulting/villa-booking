@@ -29,6 +29,10 @@
   /* Accent — rules, small caps, active states only */
   --brass:        #A87432;  /* icons, stars, rules, borders. 3.8:1 on paper: NOT for text */
   --brass-light:  #C9944A;  /* accent text on dark grounds (6.2:1 on --maroon-deep) */
+  /* The header's nav gold. Lighter than --brass-light because Cormorant's
+     hairlines need extra contrast on maroon; it is the site's established
+     gold-on-maroon pairing, so anything sitting on a maroon fill uses it. */
+  --brass-nav:    #DDB57A;
   --brass-ink:    #8A5E22;  /* accent text on light grounds (5.4:1 on --paper) */
 
   /* Ink */
