@@ -4,6 +4,52 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.35 - Razorpay webhook retries transient failures, verifies amount - 2026-10-21
+
+Two fixes to `/api/bookings/webhook`.
+
+**Transient failures now return 500 so Razorpay redelivers.** Every database error in the handler
+previously logged and fell through to a 200, which told Razorpay the event was accepted and stopped
+the retry. On a brief Supabase outage that discarded the very capture this endpoint exists to
+recover: the guest had paid, the booking stayed pending, and nothing would ever fix it. The
+compare-and-swap on `payments.status` already makes a duplicate delivery a no-op, so a retry is
+safe. The rule is now explicit in the route's doc comment: 500 for anything transient, 200 only for
+conditions no retry can change (unknown order, already-settled payment, unhandled event type).
+
+**`payment.captured` asserts the amount.** The handler now reads `payments.amount`, the figure
+create-order computed server-side and handed to Razorpay, and compares it to the captured amount
+before confirming anything. A mismatch logs both figures and leaves the booking unconfirmed for a
+human rather than auto-confirming an underpayment. The check runs before the compare-and-swap, so
+it still fires when verify-payment already recorded the capture, which is the usual race winner.
+It is deliberately not applied to `refund.processed`, where partial refunds make a differing amount
+expected.
+
+This is defence in depth, not a security fix, and it should never fire: Razorpay enforces that a
+payment matches its order amount, `partial_payment` is not enabled, and both figures come from the
+same `chargeAmount` variable in one request. What it would catch is a future bug on our side, such
+as partial payments being switched on or `payments.amount` being mutated. The cost is one extra
+query per capture event.
+
+Note the comparison is against `payments.amount`, not `bookings.total_amount`: the latter is
+pre-discount and would flag every promo-code booking.
+
+One hole stays open, now logged loudly instead of silently. If the payment row updates but the
+following booking update fails, a redelivery hits the compare-and-swap, sees `captured`, and skips
+to "already processed" without ever confirming the booking. Retrying cannot help, so those two
+branches (capture and refund) acknowledge with 200 and log "needs manual resolution". The real fix
+is doing both table updates in one stored procedure.
+
+Razorpay's actual retry window, and whether it deactivates an endpoint after sustained failures,
+is not verified. If it does deactivate, a long outage would switch the safety net off rather than
+defer it. Flagged in the route's doc comment; check the current Razorpay docs before relying on it.
+
+Neither fix does anything until `RAZORPAY_WEBHOOK_SECRET` is set, since the route 503s without it.
+The key/secret paths, create-order and verify-payment, are untouched.
+
+No tests cover this route; verified by typecheck, eslint and review, not by firing an event at it.
+
+---
+
 ## v1.34 - Link preview copy and share image - 2026-10-21
 
 Shared links now show "Villa 19 | Private Villa in Mangalore" with a new description (four bedrooms,

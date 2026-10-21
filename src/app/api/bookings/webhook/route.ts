@@ -18,6 +18,12 @@ interface RefundEntity {
   amount: number; // paise
 }
 
+/** Ask Razorpay to redeliver. Safe because every state change below is a
+ *  compare-and-swap, so a duplicate delivery updates zero rows. */
+function retryLater(message: string) {
+  return NextResponse.json({ error: message }, { status: 500 });
+}
+
 /**
  * POST /api/bookings/webhook
  *
@@ -34,8 +40,15 @@ interface RefundEntity {
  * and sends no email. Delivery order is not guaranteed, which is why a late
  * payment.failed can never undo a capture.
  *
- * All other events acknowledged with 200 to suppress Razorpay retries.
- * Errors are logged but always return 200 for the same reason.
+ * Because of that CAS, a transient failure returns 500 so Razorpay redelivers:
+ * acknowledging it instead would discard the very capture this endpoint exists
+ * to recover. A permanent condition — an unknown order, an already-settled
+ * payment, an unhandled event type, an amount that does not match — is
+ * acknowledged with 200, since no retry can change it.
+ *
+ * Unverified: how long Razorpay keeps retrying, and whether it deactivates an
+ * endpoint after sustained failures. If it does, a long outage could switch
+ * this safety net off instead of deferring it. Check before relying on it.
  */
 export async function POST(request: NextRequest) {
   const rawBody = await request.text();
@@ -47,12 +60,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Webhook not configured' }, { status: 503 });
   }
 
-  const expected = crypto
+  const expectedSignature = crypto
     .createHmac('sha256', secret)
     .update(rawBody)
     .digest('hex');
 
-  if (!hexSignatureMatches(expected, signature)) {
+  if (!hexSignatureMatches(expectedSignature, signature)) {
     console.warn('[webhook] Invalid signature — rejecting event');
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
@@ -78,6 +91,37 @@ export async function POST(request: NextRequest) {
 
         if (!orderId || !paymentId) break;
 
+        // Read the expected total before the swap. payments.amount is the figure
+        // create-order computed server-side and handed to Razorpay, so it is the
+        // authoritative one; bookings.total_amount is pre-discount and would not
+        // match on any promo booking.
+        const { data: expected, error: lookupError } = await supabase
+          .from('payments')
+          .select('amount')
+          .eq('razorpay_order_id', orderId)
+          .maybeSingle();
+
+        if (lookupError) {
+          console.error('[webhook] payment.captured — lookup failed:', lookupError.message);
+          return retryLater('Could not read payment');
+        }
+
+        if (!expected) {
+          console.info(`[webhook] payment.captured — order ${orderId} is not from this app, ignoring`);
+          break;
+        }
+
+        // Checked even when verify-payment already recorded the capture, so a
+        // mismatch the browser path waved through still surfaces here.
+        if (typeof entity.amount === 'number' && entity.amount !== expected.amount) {
+          console.error(
+            `[webhook] payment.captured — AMOUNT MISMATCH on order ${orderId}: captured ` +
+            `${entity.amount} paise, expected ${expected.amount}. Booking left unconfirmed; ` +
+            `needs manual resolution.`
+          );
+          break;
+        }
+
         // 'expired' and 'failed' are included: a guest can pay after the hold
         // lapses, or succeed on a retry after a failed attempt on the same order.
         const { data: payment, error } = await supabase
@@ -94,7 +138,7 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[webhook] payment.captured — update failed:', error.message);
-          break;
+          return retryLater('Could not record capture');
         }
 
         if (!payment) {
@@ -103,16 +147,25 @@ export async function POST(request: NextRequest) {
         }
 
         if (payment.booking_id) {
-          const { data: booking } = await supabase
+          const { data: booking, error: bookingError } = await supabase
             .from('bookings')
             .update({ status: 'confirmed', payment_status: 'paid', hold_expires_at: null })
             .eq('id', payment.booking_id)
             .select('id')
             .single();
 
-          if (booking) {
-            await notifyConfirmedBooking(supabase, booking.id, 'Online (Razorpay webhook)');
+          if (bookingError) {
+            // The payment row now says captured, so a redelivery will skip the
+            // swap above and fall to "already processed" without confirming the
+            // booking. Shout rather than retry into that dead end.
+            console.error(
+              `[webhook] payment.captured — payment recorded but booking ${payment.booking_id} ` +
+              `could not be confirmed: ${bookingError.message}. Needs manual resolution.`
+            );
+            break;
           }
+
+          await notifyConfirmedBooking(supabase, booking.id, 'Online (Razorpay webhook)');
         }
 
         console.info(`[webhook] payment.captured — order: ${orderId}, payment: ${paymentId}`);
@@ -137,15 +190,20 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[webhook] payment.failed — update failed:', error.message);
-          break;
+          return retryLater('Could not record failure');
         }
 
         if (payment?.booking_id) {
-          await supabase
+          const { error: releaseError } = await supabase
             .from('bookings')
             .update({ status: 'cancelled', payment_status: 'unpaid' })
             .eq('id', payment.booking_id)
             .eq('status', 'pending');
+
+          if (releaseError) {
+            // Harmless to leave: hold_expires_at frees the dates anyway.
+            console.error('[webhook] payment.failed — could not release hold:', releaseError.message);
+          }
         }
 
         console.warn(`[webhook] payment.failed — order: ${orderId}${payment ? '' : ' (ignored, payment already settled)'}`);
@@ -158,6 +216,9 @@ export async function POST(request: NextRequest) {
 
         if (!paymentId) break;
 
+        // No amount check here: partial refunds are legitimate, so the refunded
+        // figure is expected to differ from what was captured.
+        //
         // Compare-and-swap from captured, so a redelivered event sends no second
         // refund email. Zero rows also covers payments not made through this app.
         const { data: payment, error } = await supabase
@@ -170,7 +231,7 @@ export async function POST(request: NextRequest) {
 
         if (error) {
           console.error('[webhook] refund.processed — update failed:', error.message);
-          break;
+          return retryLater('Could not record refund');
         }
 
         if (!payment) {
@@ -179,21 +240,30 @@ export async function POST(request: NextRequest) {
         }
 
         if (payment.booking_id) {
-          const { data: booking } = await supabase
+          const { data: booking, error: bookingError } = await supabase
             .from('bookings')
             .update({ status: 'cancelled', payment_status: 'refunded' })
             .eq('id', payment.booking_id)
             .select('reference_number, booking_code, guest_name, guest_email, total_amount')
             .single();
 
-          if (booking) {
-            await sendRefundConfirmation({
-              guestEmail: booking.guest_email,
-              guestName: booking.guest_name,
-              bookingRef: booking.booking_code ?? booking.reference_number,
-              refundPaise: entity?.amount ?? booking.total_amount,
-            });
+          if (bookingError) {
+            // As with capture, the payment row has already moved, so a retry
+            // would skip the swap and never reach this branch again.
+            console.error(
+              `[webhook] refund.processed — payment marked refunded but booking ` +
+              `${payment.booking_id} could not be cancelled: ${bookingError.message}. ` +
+              `Dates may still be blocked; needs manual resolution.`
+            );
+            break;
           }
+
+          await sendRefundConfirmation({
+            guestEmail: booking.guest_email,
+            guestName: booking.guest_name,
+            bookingRef: booking.booking_code ?? booking.reference_number,
+            refundPaise: entity?.amount ?? booking.total_amount,
+          });
         }
 
         console.info(`[webhook] refund.processed — payment: ${paymentId}, booking: ${payment.booking_id}`);
@@ -204,8 +274,11 @@ export async function POST(request: NextRequest) {
         console.info(`[webhook] Unhandled event type acknowledged: ${eventType}`);
     }
   } catch (err) {
-    // Log but return 200 — Razorpay retries on non-200, risking duplicates
-    console.error('[webhook] Handler error (suppressed for idempotency):', err);
+    // Could be a transient outage (Supabase unreachable, email provider down),
+    // so ask for a redelivery rather than losing the event. The CAS makes the
+    // retry safe; a genuine code bug shows up as repeated 500s in the logs.
+    console.error('[webhook] Handler error, requesting redelivery:', err);
+    return retryLater('Handler error');
   }
 
   return NextResponse.json({ received: true });
