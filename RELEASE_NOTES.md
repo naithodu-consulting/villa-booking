@@ -18,8 +18,11 @@ villa's own locality, and every contact row prints its value. That last point ma
 `PROPERTY_PHONE` and `PROPERTY_WHATSAPP` are the same line: the first draft showed the number on
 the call row and not the WhatsApp row, which read as two different contacts.
 
-Note the footer's Explore column is `hidden lg:block`, so the new link, like every other link in
-that column, only appears above 1024px.
+The footer's Explore column is `hidden lg:block`, so that link only appears above 1024px. Mobile
+reaches the page through the header drawer instead. `DRAWER_LINKS` describes itself as the full
+sitemap but carried no contact entry, which meant that below 1024px the site offered contact
+*actions* (the footer's WhatsApp, call and email buttons) but no route to the contact page at all.
+It now lists Contact Us after FAQs, matching the footer's order.
 
 **Check-in moves from 2:00 PM to 3:00 PM** (00099). The site reads `properties.check_in_time`
 nearly everywhere it states the time, so the column update covers the homepage, stay guide, terms,
