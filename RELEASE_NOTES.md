@@ -4,6 +4,70 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.45 - Airbnb calendar sync, phase 0: read and report only - 2026-10-24
+
+**Phase 0 of `docs/AIRBNB_ICAL_SYNC.md`. It reads Airbnb's calendar, works out exactly what it
+would change, and writes nothing at all.**
+
+Airbnb has no booking API for anyone outside its channel-manager programme. The only sync on offer
+is an exchange of iCalendar links: we read theirs, they read ours. This is the read half, stopped
+one step short of writing, because the write half frees nights as well as blocking them and should
+not run until a human has read its output against the real feed.
+
+**The parser is hand-written, and `DTEND` is exclusive.** An entry of 23 October to 1 November
+means the nights of the 23rd through the 31st, free on the 1st - which is exactly how
+`blocked_dates` and `check_availability()` already treat `start_date` and `end_date`. The mapping is
+direct and no day is added anywhere. There is no dependency: the grammar needed is a handful of
+properties on all-day events, and every ICS library on npm also parses recurrence rules, alarms and
+timezones that no availability feed uses.
+
+**An unreadable feed raises; an empty calendar returns nothing.** The two must never be confused.
+The importer replaces a feed's blocks wholesale, so an error page arriving as "no bookings" would
+free every imported night at once. `parseIcal` throws on a body that is not a calendar and returns
+an empty list for a calendar that genuinely has no events, and the fetch refuses non-HTTPS,
+redirects, cookies, bodies over 1 MB and anything slower than ten seconds.
+
+**Airbnb's trailing multi-month event is not a booking, and dropping it is the whole feature.**
+Two snapshots a day apart proved it: the event ran today+180 to today+366 on 22 October and
+today+90 to today+366 on the 23rd, because the availability window was changed from six months to
+three in between. It is Airbnb saying "I will not sell past my booking window", and importing it
+would have closed villa19.in from three months out to a year out on the very first sync.
+
+The rule needs two conditions, and the first version of it had only one. Ending at the horizon is
+enough to identify the edge only while the window is narrow; at a 12-month window a real booking
+can end at today+353, and dropping that would leave its nights on sale here and manufacture the
+double booking the sync exists to prevent. So an event is the horizon only if it also runs longer
+than any real stay: over 90 nights. The observed edge is 276.
+
+**UIDs are not an identity.** Not one UID survived between the two snapshots; the suffix behaves
+like a content hash, so editing an event's dates reissues it. `external_uid` is stored for tracing
+and is deliberately not unique, and reconciliation will replace a feed's rows rather than match on
+them.
+
+**Migration `00102_ical_sync.sql`** adds `ical_feeds`, `ical_conflicts`, and `source` / `feed_id` /
+`external_uid` on `blocked_dates`. Both new tables get RLS with no policy at all, which denies
+everything to `anon`: a feed URL is a bearer token and must never be readable from a browser. The
+migration is not required by the dry run, which selects only pre-existing columns so it can be run
+against a database the migration has not reached.
+
+**`GET /api/cron/ical-sync`** is authenticated with `CRON_SECRET` as a bearer token, compared in
+constant time, and answers 404 rather than 403 to anything else. Production will schedule it from
+Hostinger's cron: Vercel is the development deployment and its Hobby plan runs cron once a day.
+
+**`ICAL_SYNC_ENABLED` switches the whole feature off.** Unset, or anything but `true`, and the
+route fetches nothing, writes nothing, and says `disabled` in its response rather than quietly
+succeeding - so a cron log distinguishes "off" from "ran and found nothing". Fail-closed like the
+payments flag: a sync writes to the calendar that decides what the site sells, so a forgotten
+variable on a host should mean "did nothing", never "started blocking dates". Switching it off
+never frees a night that is already blocked, because a night sold on Airbnb is still sold. Read at
+runtime rather than inlined at build time, so it can be flipped without a rebuild; for one channel
+rather than the whole feature there is `ical_feeds.is_active`.
+
+Verified against the live feed on 24 October: three real blocks kept totalling 13 nights, the
+276-night window edge dropped, nothing written. The flag was verified in both positions.
+
+---
+
 ## v1.39 - Mobile homepage layout, section underline - 2026-10-21
 
 **Three changes to the homepage on a phone, plus a fix to the section nav at every width.**

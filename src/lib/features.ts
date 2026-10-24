@@ -26,3 +26,30 @@ export const EVENTS_PAGE_ENABLED = false;
  */
 export const ONLINE_PAYMENTS_ENABLED =
   process.env.NEXT_PUBLIC_ONLINE_PAYMENTS_ENABLED === 'true';
+
+/**
+ * Calendar sync with booking channels (Airbnb).
+ *
+ * The switch for the whole feature. Off means /api/cron/ical-sync does
+ * nothing and says so: no fetch to Airbnb, and from Phase 1 no write to
+ * blocked_dates. Flip it off and the next scheduled run is a no-op, with
+ * whatever is already in blocked_dates left exactly as it stands - turning the
+ * sync off never frees a night, because a night that is genuinely sold on
+ * Airbnb is still sold.
+ *
+ * Deliberately off unless the variable says otherwise, matching the payments
+ * flag above. A sync writes to the calendar that decides what the site sells,
+ * so a forgotten variable on a host should mean "did nothing", never "started
+ * blocking dates". The route reports the disabled state in its response rather
+ * than silently succeeding, so a cron log shows the difference between "off"
+ * and "ran and found nothing".
+ *
+ * Not NEXT_PUBLIC_: nothing in the browser knows or cares that a block came
+ * from a channel, so this is read at runtime on the server and can be changed
+ * without a rebuild - unlike the payments flag, which is inlined into the
+ * client bundle at build time.
+ *
+ * For switching off one channel while keeping others, there is
+ * ical_feeds.is_active. This constant is the bigger hammer: the whole feature.
+ */
+export const ICAL_SYNC_ENABLED = process.env.ICAL_SYNC_ENABLED === 'true';
