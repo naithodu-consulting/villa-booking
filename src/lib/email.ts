@@ -9,6 +9,10 @@ import {
   renderAdminNewBooking,
   type AdminNewBookingContext,
 } from '@/lib/emails/admin-new-booking';
+import {
+  renderIcalConflict,
+  type IcalConflictContext,
+} from '@/lib/emails/ical-conflict';
 
 const FROM = process.env.RESEND_FROM_EMAIL ?? `Villa 19 by Habbaa <${ENTITY.email}>`;
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL ?? ENTITY.email;
@@ -88,6 +92,19 @@ export async function sendBookingConfirmation(p: BookingConfirmationContext) {
 export async function sendAdminNewBookingNotification(p: AdminNewBookingContext) {
   const { subject, html, text } = renderAdminNewBooking(p);
   return send(ADMIN_EMAIL, subject, html, 'admin_new_booking', { text });
+}
+
+/**
+ * The double-booking alert, when a channel has sold a night we already sold.
+ *
+ * Goes to ADMIN_EMAIL like the new-booking notice, but unlike that one it is
+ * an interruption: somebody has to act, and until they do, two guests are
+ * expecting the same villa. The template carries the urgency; this only adds
+ * the transport.
+ */
+export async function sendIcalConflictAlert(p: IcalConflictContext) {
+  const { subject, html, text } = renderIcalConflict(p);
+  return send(ADMIN_EMAIL, subject, html, 'ical_conflict', { text });
 }
 
 export interface RefundProcessedParams {

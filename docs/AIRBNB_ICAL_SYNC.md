@@ -488,10 +488,26 @@ so that file stays a true mirror of hPanel.
 
 | Phase | Work | Done when |
 |---|---|---|
-| **0. Dry run** | Migration, parser, fixture tests, cron route that fetches and **logs** the diff without writing. | A run against the live feed logs exactly the three real blocks, and reports the 2027-01-21 event as dropped by the window-edge rule. |
-| **1. Import live** | Enable writes, reconciliation, conflict table, admin email. | Blocking a date on Airbnb hides it on the site within the hour; unblocking frees it. |
-| **2. Export** | Export SQL function, `.ics` route, token. Paste into Airbnb Step 2. | A direct booking on the site shows as blocked on the Airbnb calendar. |
-| **3. Observability** | Feed status surfaced in Ooruda, "Sync now" button, stale-feed alert when `last_synced_at` is over 6 hours old. | Operator can see the last sync and its result without a database client. |
+| **0. Dry run** ✅ | Migration, parser, fixture tests, and the sync **endpoint**, which fetches and **logs** the diff without writing. **No schedule, and no writes** - it is run by hand. | A run against the live feed logs exactly the three real blocks, and reports the window edge as dropped. |
+| **1. Import live** ✅ | Enable writes, reconciliation, conflict table, admin email, **and the hourly schedule** (§3.1, §6.1). | **Done 2026-10-24.** Verified against the live feed: 4 blocks written, 1 conflict recorded, a cancellation freeing its nights, a failed fetch leaving the blocks in place. |
+| **2. Export** ◐ | Export SQL function, `.ics` route, token. Paste into Airbnb Step 2. | **Built 2026-10-24, not yet pasted into Airbnb.** A direct booking on the site shows as blocked on the Airbnb calendar. |
+| **3. Observability** | Feed status surfaced in Ooruda, **"Sync now" button (confirmed wanted, 2026-10-24)**, stale-feed alert when `last_synced_at` is over 6 hours old. | Operator can see the last sync and its result without a database client. |
+
+### 9.1 The "Sync now" button
+
+Confirmed as wanted on 2026-10-24. It does not exist yet, and it cannot be built
+in this repository: the admin lives in the Ooruda Villa project.
+
+This side is ready for it. The button needs no new endpoint - it calls the same
+`GET /api/cron/ical-sync` with the same `CRON_SECRET` bearer token that the
+scheduler uses, deliberately, so there is one code path and one secret rather
+than two that drift. `apply_ical_feed()` takes an advisory lock per feed
+precisely so a button press during an hourly run is safe: the second caller
+waits rather than interleaving its deletes and inserts with the first.
+
+Ooruda needs only the URL and the secret. It should show `ical_feeds.last_status`,
+`last_synced_at` and `last_error` beside the button, since a sync that has been
+failing for a week otherwise looks exactly like one with nothing to do.
 
 Phase 2 before Phase 1 is the wrong order: import is read-only on Airbnb's side
 and reversible, export changes a live listing that takes real money.

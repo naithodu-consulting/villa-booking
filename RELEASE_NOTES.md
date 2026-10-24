@@ -4,6 +4,98 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.47 - Airbnb calendar sync, phase 1: it writes - 2026-10-24
+
+**Phase 1 of `docs/AIRBNB_ICAL_SYNC.md`. Blocking a date on Airbnb now removes it from villa19.in,
+and freeing one there brings it back. This is the phase where the sync stops reporting and starts
+changing the calendar.**
+
+**Reconciliation happens inside a database function, not in the route.** `apply_ical_feed()` deletes
+a feed's rows and inserts the new ones as a single statement, under an advisory lock keyed on the
+feed. supabase-js has no transactions, so doing this from TypeScript would leave a real window in
+which the villa looks entirely free - and `create_booking_atomic` would happily sell a night during
+it. The lock exists because an hourly cron and an operator pressing "Sync now" can overlap, and two
+concurrent replaces would interleave their deletes and inserts.
+
+**It replaces rather than upserts, and that is only safe because of what happens before it.**
+Airbnb reissues a UID whenever an event changes, so matching on `external_uid` would treat every
+edit as a new event and leave the old row behind, blocking nights that had been freed. Replacing
+wholesale cannot orphan anything - but it also means an empty event list frees every imported
+night. Correct when the channel genuinely has no bookings; catastrophic when it is what a 502 page
+parsed to. So the fetch refuses non-HTTPS, redirects, oversized and empty bodies, the parser throws
+rather than returning nothing for a body that is not a calendar, and neither failure ever reaches
+the write. Verified by pointing the feed at a dead URL: status `fetch_failed`, and all four blocks
+still in place afterwards.
+
+**A double booking is recorded and emailed, never resolved automatically.** When a channel blocks
+nights that a confirmed direct booking already holds, the block is applied anyway - the night was
+already unavailable, so it changes nothing for a guest - and a row goes into `ical_conflicts`
+before the alert is sent, because a conflict that exists only in an email that bounced is a
+conflict nobody learns about. The email carries the dates, the booking reference and what has and
+has not been done. It deliberately does not suggest which guest to move: that depends on who paid,
+who travelled furthest and what the channel's penalty is, none of which this process knows.
+
+**An unchanged feed is not rewritten.** The event set is fingerprinted with `DTSTAMP` excluded,
+since Airbnb stamps every response with the time of the request and the raw body therefore differs
+on every fetch. A run that finds nothing new still updates `last_synced_at`, so a sync that has
+been silently failing for a week looks different from one with nothing to do.
+
+**`?dry=1` is kept**, and is how a feed can be checked without touching the calendar.
+
+**The hourly schedule** is `scripts/ical-sync.sh`, called from Hostinger's cron at 17 minutes past
+so it does not land with every other job on a shared host. `scripts/ical-feed-set.mjs` puts the
+feed URL into `ical_feeds` without it passing through shell history or a commit.
+
+Migrations `00104_ical_apply_feed.sql`. Verified end to end against the live Airbnb feed: four
+blocks written, the 271-night availability-window edge dropped, one conflict detected and recorded,
+a second run reporting `unchanged`, a cancellation freeing its nights (`removed 4, inserted 1`),
+and the nights showing as unavailable through the public calendar API.
+
+---
+
+## v1.46 - Airbnb calendar sync, phase 2: the calendar we publish - 2026-10-24
+
+**Phase 2 of `docs/AIRBNB_ICAL_SYNC.md`: the `.ics` URL that goes into Airbnb's "Connect to another
+website", Step 2. Our side of the exchange now exists; nothing is pasted into Airbnb yet.**
+
+**`get_export_blocked_nights()` is deliberately not `get_unavailable_nights()`.** Reusing the
+latter is the obvious implementation and it would be wrong in a way that stays invisible until it
+has cost bookings. That function answers "can a guest book this night on villa19.in?", so it
+reports every night past `booking_cutoff_date` as unavailable - a commercial limit on our own
+direct sales, currently around mid-January, not a statement that the villa is occupied. Exported,
+it would tell Airbnb the villa is unavailable from mid-January onward and blanket the whole channel
+while every screen looked healthy. Measured on a database with a cutoff set: for March 2027,
+`get_unavailable_nights` returns 31 nights and `get_export_blocked_nights` returns 3.
+
+The new function answers "is this night genuinely taken?" - confirmed bookings, live checkout
+holds, and manual blocks. Rows with `source = 'ical'` are excluded, because exporting a channel's
+own bookings back to it is a feedback loop in which a cancellation there could never free the night
+again.
+
+**An empty calendar is the dangerous answer, not an error.** To Airbnb an empty `VCALENDAR` means
+"nothing is booked, sell every night". So every path that cannot establish the real answer -
+feature off, no token, no active property, database error - refuses with a status code, and none
+falls through to an empty document. Refusing leaves Airbnb holding its last good copy, which is
+stale but safe. It is the import rule from the other side: never let "I don't know" be published as
+"nothing".
+
+**The URL ends in `.ics` because Airbnb validates that**, so the token is a path segment rather
+than a query parameter. A wrong token answers 404, not 403, and the comparison is constant-time.
+The document carries no names, references or amounts: the URL is a bearer credential living in a
+third party's database, and it exposes occupancy and deliberately nothing else.
+
+**The builder is tested by parsing its own output.** `parseIcal(buildIcalCalendar(...))` must
+return the ranges it was built from, which is the strongest available check that the two halves
+agree about what a night is - if either side ever drifts on the exclusive-end rule, that test fails
+instead of quietly shifting someone's last night. Lines fold at 75 octets per RFC 5545, counted in
+bytes so a multi-byte character is never split across the fold.
+
+Migration `00103_ical_export_nights.sql`. Verified end to end against the local database, including
+that a manual block is published, an imported one is not, and setting the booking cutoff does not
+change the export.
+
+---
+
 ## v1.45 - Airbnb calendar sync, phase 0: read and report only - 2026-10-24
 
 **Phase 0 of `docs/AIRBNB_ICAL_SYNC.md`. It reads Airbnb's calendar, works out exactly what it

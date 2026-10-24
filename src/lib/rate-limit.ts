@@ -136,6 +136,12 @@ export function rateLimit(
 export const LIMITS = {
   createOrder: { bucket: 'create-order', limit: 10, windowMs: 10 * 60_000 },
   discountValidate: { bucket: 'discount-validate', limit: 10, windowMs: 5 * 60_000 },
+  // The channel calendar export. Deliberately loose: a booking channel polls a
+  // handful of times a day and a leaked URL is read-only, so this is here to
+  // stop a leaked link becoming free database load, not to ration a legitimate
+  // caller. Set far above any plausible polling rate - locking Airbnb out of
+  // our calendar would be a worse failure than serving it too often.
+  icalExport: { bucket: 'ical-export', limit: 30, windowMs: 10 * 60_000 },
 } as const;
 
 /** The 429 body and headers, shared so both routes answer identically. */
