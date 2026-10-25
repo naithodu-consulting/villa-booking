@@ -4,6 +4,70 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.51 - Production goes live on this code, and the deployment guide tells the truth - 2026-10-25
+
+**The go-live release. No guest-facing code changes: this is the production database catching up,
+the deploy runbook being corrected, and one migration left loaded but not fired.**
+
+**Three migrations reached production, and one of them did nothing.** `00101`, `00106` and `00107`
+were all pending on `wnmrxuggtfeaunacmztv` while `00102` through `00105` had already gone in:
+`00101` was authored after them, so it sat below the remote's ceiling and a plain push walked
+straight past it. It needed `--include-all`, which is why the check after a push is for **gaps**
+rather than for the highest number.
+
+`00101` mattered most. It adds `payments.ga_client_id` and `ga_session_id`, and `create-order`
+writes both on every booking. Online payments are enabled in production, so deploying this code
+against a database without those columns would have failed every booking insert at the moment a
+guest tried to pay. Schema first, code second, verified in between.
+
+`00107` renamed the bedrooms, which is visible on villa19.in as ISR revalidates, ahead of any
+deploy, because the headings come from the database.
+
+`00106` is recorded as applied and changed nothing. It is a bare `UPDATE ... WHERE key =
+'cancellation'`, and production has no such row: the only thing that inserts it is `seed.sql`, which
+no remote runs. The update matched zero rows and reported success. Production holds no policy row
+mentioning a refund at all, where dev has one, and dev has it only because dev was seeded. This is
+the second time: `00100` fixed the same thing for `checkin_time` after `00099` updated a row that
+was not there.
+
+`00108` is written and committed but **not applied**, pending a check of what Ooruda Villa shows
+against the production database. It upserts the cancellation row alone. It deliberately does not
+restore `kitchen_policy` or `housekeeping_policy`, which are absent from production for the same
+reason and will stay absent: that copy came from the Phase 1 content pipeline, was never reviewed,
+and makes claims about staffing and charges that are not true. Production carrying 9 policy rows
+where a local reset gives 12 is correct, not a defect to close.
+
+Worth being precise about where this is visible: nothing in this site renders `property_policies`.
+`getPolicies()` has no callers. The cancellation page builds its tiers from
+`src/lib/cancellation.ts`, so villa19.in shows 14/7 after this deploy whether or not the row exists.
+The row is read by Ooruda Villa, and that is the only place its absence can be seen.
+
+**`DEPLOYMENT.md` was wrong in four ways, in the document whose job is to stop a deploy going to the
+wrong place.** It said villa19.in was a parked page returning 200 for every path, that it was not
+served by this app, to verify against the Vercel URL and never against villa19.in, and that `main`
+was the only branch with no `release` branch. All four had stopped being true, some of them a day
+earlier, and the file had been edited since without them being caught.
+
+It now carries the two-database reality in a table, says which host reads which ref, records that
+production has payments enabled and is verified against villa19.in itself, and describes the
+Hostinger archive upload, the build-time inlining of `NEXT_PUBLIC_*` and the previous archive as the
+rollback. A new "Schema before code, always" section records the `00101` trap concretely. The file
+has now been wrong twice, so it opens by saying so and asking that it be corrected in the same
+change that moves a branch or a database, not afterwards.
+
+`DEV_REF_SERVES_PROD=true` in `scripts/db-push.sh` is now stale and is documented as stale rather
+than flipped mid-go-live. Its only effect is to make a push to the dev ref demand a typed
+`yes-live`, which errs towards caution, and the production guard routes on the linked ref
+independently of it.
+
+**`db-push.sh` can now forward arguments.** It ran a bare `supabase db push --linked`, so
+`--include-all` could not reach the CLI and the script could not apply a stranded migration at all,
+which is how `00101` stayed stranded. The production guard is unchanged and was re-checked after:
+it still refuses a non-interactive push, and still wants `--production` and a typed
+`yes-production`.
+
+---
+
 ## v1.50 - The privacy policy drops the analytics detail, and the rooms are bedrooms - 2026-10-25
 
 **Section 7 of the Privacy Policy goes back to its general wording, and the four bedrooms are

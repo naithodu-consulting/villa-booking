@@ -1,13 +1,17 @@
 # Villa 19 — Deployment Guide
 
-> **Read this first.** There is **one** remote database, and it is what the live site serves.
-> A separate production project does not exist yet. Until it does, `supabase db push` against the
-> linked project changes what guests see, with no deploy involved, as soon as ISR revalidates.
+> **Read this first.** There are **two** remote databases and they serve different sites.
+> `villa19.in` runs on Hostinger and reads the **production** project. The Vercel URL reads the
+> **development** project. A `supabase db push` changes what guests see with no deploy involved, as
+> soon as ISR revalidates, so the ref you are linked to is the whole question. Check it before every
+> push: `cat supabase/.temp/project-ref`.
 >
-> This document used to open by describing three environments each with its own database, and mapped
-> a `release` branch to a staging Vercel project. None of that existed. Anyone following it believed
-> they were pushing to staging while pushing to live. Creating the production project is tracked in
-> `docs/PROD_DB_SETUP.md`; update the tables below the moment it exists.
+> This document twice described an arrangement that did not exist. It first mapped a `release`
+> branch to a staging Vercel project that was never created, and then, after that was corrected,
+> went on claiming `villa19.in` was parked and that `main` was the only branch, for a day after both
+> had stopped being true. Anyone following it in either state would have verified the wrong host.
+> If you change where a branch deploys or which database a host reads, correct this file in the same
+> change, not afterwards.
 
 ---
 
@@ -15,31 +19,45 @@
 
 | Environment | Supabase project | Organisation | Ref | Serves |
 |---|---|---|---|---|
-| **Local** | Docker via Colima | — | — | `http://localhost:3000` |
-| **Remote / staging** | Villa Project Development | Villa Project (Free) | `hlmqcdzazbrztfovixjk` | **the live site, for now** |
-| **Production** | Villa 19 Production | Naithodu Consulting (Pro) | `wnmrxuggtfeaunacmztv` | nothing yet |
+| **Local** | Docker via Colima | - | - | `http://localhost:3000` |
+| **Development** | Villa Project Development | Villa Project (Free) | `hlmqcdzazbrztfovixjk` | `villa-booking-psi.vercel.app` |
+| **Production** | Villa 19 Production | Naithodu Consulting (Pro) | `wnmrxuggtfeaunacmztv` | **`villa19.in`, live** |
 
 Production is `ap-south-1`, MICRO compute. The organisations are split by stage rather than by
 product: **Naithodu Consulting (Pro)** holds both production databases, Villa 19's and Ooruda's,
 and **Villa Project (Free)** holds both development ones. So the org name tells you the stage, not
-the project — worth knowing before you go looking for Villa 19's production database in an org
+the project - worth knowing before you go looking for Villa 19's production database in an org
 called "Villa Project", where it is not.
 
-**Vercel is not pointed at production yet**, so the development project is still what guests read.
-That is why `DEV_REF_SERVES_PROD` in `scripts/db-push.sh` is still `true`: the flag tracks "is the
-dev ref serving live traffic", not "does a production project exist". It flips in the same change
-that repoints the Vercel env vars.
+`villa19.in` is served by this app, from Hostinger, reading the production project. It is real
+traffic and real bookings: online payments are enabled there. Verify a production deploy against
+`villa19.in` itself. The Vercel URL proves nothing about production, because it reads a different
+database and deploys from a different branch.
 
-Vercel production is `https://villa-booking-psi.vercel.app`, and it reads the remote project above.
-
-`villa19.in` is **not** served by this app yet. It resolves to a parked page that returns HTTP 200
-for every path, including paths that do not exist, so it will make a broken deploy look healthy.
-**Verify against the Vercel URL, never against `villa19.in`**, until DNS is cut over.
+`DEV_REF_SERVES_PROD` in `scripts/db-push.sh` is still `true` and is now **stale**: the dev ref no
+longer serves live traffic. Left alone deliberately rather than flipped in passing, because its only
+effect is to make a push to the development ref demand a typed `yes-live`, which errs towards
+caution. The production guard does not depend on it: `db-push.sh` routes on the linked ref, so
+production refuses without `--production` and a typed `yes-production`. Flip the flag the next time
+this script is touched for a real reason.
 
 ### Branches
 
-`main` is the only branch that deploys. There is no `release` branch; if you want a staging branch
-and a second Vercel project, create them and then document them here.
+`release` is the working branch and deploys to Vercel. `main` is production: merging into it is the
+decision to go live, and Hostinger is then deployed by hand from the archive (see below). Never
+commit directly to `main`.
+
+### Hostinger
+
+GitHub integration is unavailable on this account, so every production deploy is a manual upload of
+the archive built by `./scripts/make-deploy-zip.sh`. The archive carries no `.env` file by design;
+every variable lives in Hostinger's Environment variables panel. Two consequences worth stating:
+
+- **`NEXT_PUBLIC_*` variables are inlined at build time**, and Hostinger builds from the uploaded
+  archive. A measurement ID added to the panel *after* a build is not in the bundle. `next.config.mjs`
+  prints a build-log warning when `NEXT_PUBLIC_GA_ID` is missing from a production build, because
+  that failure is otherwise silent and looks correct from every dashboard.
+- **The previous archive is the rollback.** Keep it until the new deploy is verified.
 
 ---
 
@@ -59,8 +77,9 @@ npm install
 
 ### 2. `.env.local`
 
-Gitignored; create it by hand. **Point it at the local stack, not at the remote** — the remote is
-live. See `.env.example` for the full list and the notes on each variable.
+Gitignored; create it by hand. **Point it at the local stack, not at either remote.** Both remotes
+carry real data and production carries real bookings. See `.env.example` for the full list and the
+notes on each variable.
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54331
@@ -106,6 +125,19 @@ built. Two rules follow from that:
   migrations-only database had one until `00094`.
 - **Do not rely on `seed.sql` for anything production needs.** It is development data keyed to
   fixed UUIDs, and production is built without it.
+
+### Schema before code, always
+
+A migration that adds something the new code reads must be applied to that environment's database
+**before** the code that reads it is deployed there. New schema under old code is inert; old schema
+under new code is an outage.
+
+This is not hypothetical. `00101` adds `payments.ga_client_id` and `ga_session_id`, and
+`create-order` writes both on every booking. Deploying that code to a database without `00101`
+fails every booking insert, and production has online payments enabled. The same commit's `00102`
+through `00105` were applied to production while `00101` was not, because it was authored after
+them and `db push` skips a lower number it has passed; it needs `--include-all`. So check
+`migration list` for **gaps**, not just for the highest number.
 
 ### New migration
 
@@ -183,8 +215,10 @@ guest changes their mind by clearing the site's cookies and site data (`clearCon
 `src/lib/consent.ts` is kept for the day a control comes back).
 
 1. Create a GA4 property and a Web data stream for the production URL.
-2. Put the measurement ID in Vercel as `NEXT_PUBLIC_GA_ID`. Redeploy. It is inlined at build time,
-   so on Hostinger it has to be present when the bundle is built, not only when it runs.
+2. Put the measurement ID in the host's environment panel as `NEXT_PUBLIC_GA_ID`: Vercel for the
+   development site, Hostinger for production. Redeploy. It is inlined at build time, so on
+   Hostinger it has to be present when the bundle is built, not only when it runs. Use a **separate
+   GA4 property per environment**, or the development site's test bookings land in real revenue.
 3. Create a Measurement Protocol API secret (GA4 → Admin → Data Streams → the stream → Measurement
    Protocol API secrets) and set it as `GA4_API_SECRET`, server-side only. Without it no booking is
    ever counted: `purchase` is sent from the server, because a guest can close the tab the moment

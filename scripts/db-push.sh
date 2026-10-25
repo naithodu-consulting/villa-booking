@@ -130,6 +130,17 @@ else
   exit 1
 fi
 
-cd "${REPO_ROOT}" && supabase db push --linked
+# Remaining arguments are forwarded to `supabase db push`. This exists for
+# --include-all: a migration authored after one that has already been applied
+# sits below the remote ceiling, and a plain push walks straight past it. That
+# is how 00101 was stranded on production while 00102-00105 went in. Without a
+# passthrough this script cannot apply such a migration at all.
+PASSTHRU=()
+for arg in "$@"; do
+  [[ "$arg" == "--production" ]] && continue
+  PASSTHRU+=("$arg")
+done
+
+cd "${REPO_ROOT}" && supabase db push --linked "${PASSTHRU[@]}"
 echo ""
 echo "  Done. Run 'npm run supabase:types' to regenerate TypeScript types."
