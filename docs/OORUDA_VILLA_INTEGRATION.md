@@ -1,8 +1,8 @@
 # Writing to the Villa 19 database from Ooruda Villa
 
 **Audience:** developers of the Ooruda Villa operator app.
-**Applies to:** the villa-booking Supabase project (dev/staging `hlmqcdzazbrztfovixjk`; production not yet created).
-**Last reviewed:** 2026-09-23
+**Applies to:** the villa-booking Supabase project (production `wnmrxuggtfeaunacmztv`, which serves villa19.in; development `hlmqcdzazbrztfovixjk`, which serves the Vercel URL).
+**Last reviewed:** 2026-10-25
 
 Villa 19's guest site (villa19.in) has no admin of its own. Ooruda Villa blocks dates, records
 phone/WhatsApp bookings, changes rates and processes cancellations and refunds by writing directly
@@ -29,7 +29,7 @@ constraints, unless it says otherwise.
 | 8 | **Pricing rules must not overlap** each other. |
 | 9 | When you refund or cancel anything in Razorpay, **update this database too**. The guest site's webhook is switched off. |
 | 10 | Changes appear on the guest site's calendar within about **60 seconds** (edge cache). Checkout itself always reads live data. |
-| 11 | After changing **content** (journal posts, nearby places, policies, FAQs), call **`POST /api/revalidate`** (section 9). Content pages are cached and will not change until you do. |
+| 11 | After changing **content** (journal posts, nearby places, FAQs), call **`POST /api/revalidate`** (section 9). Content pages are cached and will not change until you do. |
 
 ---
 
@@ -334,10 +334,11 @@ repo did, and was wrong).
   UPDATE bookings SET status = 'cancelled', payment_status = 'refunded', updated_at = NOW()
    WHERE id = '<booking_id>';
   ```
-  The refund amount follows the cancellation policy published on the site (`property_policies`,
-  key `cancellation`): 100% at more than 14 days before check-in, 50% at 7 to 14 days, none under 7.
-  These match the Airbnb listing's own tiers (00106). The site renders its copy from
-  `src/lib/cancellation.ts`, so a future change has to land in both.
+  The refund amount follows the cancellation policy published on the site: 100% at more than 14
+  days before check-in, 50% at 7 to 14 days, none under 7. These match the Airbnb listing's own
+  tiers. The published source is `src/lib/cancellation.ts` and nothing else: do not read the tiers
+  from `property_policies`, which nothing in either codebase reads and which on production has no
+  `cancellation` row at all.
 - **Paid but still pending.** If a guest's browser closes between paying and returning to the site,
   their booking can expire even though Razorpay captured the money. Search Razorpay for captured
   payments whose booking is `expired`, and re-create them with `create_booking_atomic` (the original
@@ -389,7 +390,7 @@ as files in the villa-booking repo. Ooruda Villa writes posts here.
 ### 9.2 Refreshing the site after a change
 
 Content pages (journal, The Villa, Stay Guide and others) are rendered once and cached. After you
-publish, edit or unpublish a post, or change nearby places, policies or FAQs, call:
+publish, edit or unpublish a post, or change nearby places or FAQs, call:
 
 ```http
 POST https://villa19.in/api/revalidate

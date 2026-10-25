@@ -26,8 +26,16 @@ import { addDaysISO } from '@/lib/format';
  * next to "7 to 14 days" without a reader having to do the arithmetic to see
  * that the two bands meet.
  *
- * property_policies holds the same wording for Ooruda Villa, so a change goes
- * there too (see the latest cancellation migration).
+ * This list is the only published source of the tiers. The homepage card, the
+ * Cancellation & Refund Policy page and the dated ladder in the confirmation
+ * email all derive from it, which is why a tier change is edited here and
+ * nowhere else.
+ *
+ * It used to say a copy had to be kept in property_policies for Ooruda Villa.
+ * That was never true: nothing reads that table, in this app or in Ooruda
+ * (verified 2026-10-25, both codebases). Several migrations wrote to it on the
+ * strength of this comment, and on production they updated a row that does not
+ * exist. Do not add another.
  */
 export interface CancellationTier {
   /** Phrase completed by " check-in", e.g. "More than 14 days before check-in". */

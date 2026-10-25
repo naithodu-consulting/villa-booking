@@ -3,8 +3,10 @@ import type { Property } from '@/types';
 /**
  * The villa rules, per the operator 2026-09-28, as shown on the home page. The
  * Stay Guide used to carry its own copy, which drifted; it no longer lists them.
- * property_policies (00040) holds the same wording for Ooruda Villa, so a
- * change goes in both places.
+ * This is the only published source of the rules: edit them here and nowhere
+ * else. The comment here used to say property_policies (00040) held a copy for
+ * Ooruda Villa. That was never true; nothing reads that table (verified
+ * 2026-10-25, both codebases).
  */
 export interface VillaRule {
   title: string;

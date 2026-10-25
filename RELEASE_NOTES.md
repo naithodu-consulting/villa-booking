@@ -4,6 +4,54 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.52 - property_policies has no reader, and the comments that said otherwise are gone - 2026-10-25
+
+**A table this project has been writing to for two months is read by nothing. Migration 00108 is
+deleted and the claims that led to it are corrected.**
+
+**The finding.** `property_policies` is read by no code, in either codebase. `getPolicies()` in
+`src/lib/data.ts` has no callers. In Ooruda Villa the table appears exactly once, in the generated
+`villa-db.types.ts`, which arrived with the villa database types dump in `00e5aa02`: no query, no
+screen, no Policies section. There was never one to remove.
+
+So the row-count difference between production (9 rows) and development (12) is not a defect, and
+the three rows production lacks need not be restored. `00108`, written to insert the `cancellation`
+row, is **deleted** rather than left in the tree: an unapplied migration is a trap, not a record,
+and the next migration push would have applied it silently to insert a row nothing reads.
+
+**What made this hard to see.** Two comments asserted the opposite, in the two files anyone would
+read before changing a policy. `src/lib/cancellation.ts`: "property_policies holds the same wording
+for Ooruda Villa, so a change goes there too". `src/lib/villa-rules.ts` said the same of `00040`.
+On the strength of those, five migrations wrote to that table, and on production every one of them
+updated a row that does not exist and reported success. Both comments now say plainly that nothing
+reads the table and that the TypeScript constant is the only published source.
+
+The same claim is corrected in `docs/OORUDA_VILLA_INTEGRATION.md`, which told the operator app to
+take refund tiers from `property_policies`, key `cancellation`, a row production does not have. It
+now points at `src/lib/cancellation.ts` and says not to read that table. Its revalidation rules no
+longer list "policies" as content that needs a cache purge, since no page renders it, and its header
+no longer says production does not exist.
+
+`docs/VILLA19_MASTER_PLAN.md` planned to move policies out of hardcoded arrays into
+`property_policies`. The FAQ half of that shipped; the policy half never did. The paragraph is now
+marked as history rather than as a plan, because reading it as a plan is what keeps producing
+migrations against a table with no reader.
+
+`getPolicies()` is marked unused where it is defined, so the next person does not assume it is
+wired up.
+
+**Left alone deliberately.** The comments inside `00056` and `00106` still describe the table as the
+copy Ooruda reads. Applied migrations are a record of what was run, and editing them to read better
+in hindsight makes that record untrue. The same goes for earlier entries in this file.
+
+`docs/AIRBNB_ICAL_SYNC.md` flagged `DEPLOYMENT.md` as contradicting it. That contradiction was fixed
+in v1.51, so the note now records it as resolved.
+
+The deploy archive built by `scripts/make-deploy-zip.sh` is gitignored. It had been landing in
+`git status` as an untracked 20 MB file.
+
+---
+
 ## v1.51 - Production goes live on this code, and the deployment guide tells the truth - 2026-10-25
 
 **The go-live release. No guest-facing code changes: this is the production database catching up,

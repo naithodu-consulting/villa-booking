@@ -360,6 +360,11 @@ Check-in/check-out times · house rules · cancellation policy · guest capacity
 parking · smoking · pets · events and parties · kitchen usage · housekeeping · FAQs.
 
 All of it moves from the hardcoded arrays in `page.tsx` into `property_policies` and `faqs` tables.
+
+> **Not carried out, for policies.** The `faqs` half shipped. The `property_policies` half did not:
+> rows were seeded and several migrations updated them, but no reader was ever built, in this app or
+> in Ooruda (verified 2026-10-25). The cancellation tiers and house rules are still TypeScript
+> constants, and that is now the intended design. Treat this paragraph as history, not as a plan.
 Today the cancellation windows (14/7 days), the house rules and all seven FAQs are literal strings in
 the page component — the operator cannot change a refund window without a deploy, which for a legally
 binding policy is unacceptable.

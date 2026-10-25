@@ -185,9 +185,9 @@ importer and the export both belong on production.** The development project is
 full of test rows (Santa Claus, Saturo Gojo, a run of one-night bookings) and
 would tell us nothing about a real sync.
 
-Note for anyone reading `DEPLOYMENT.md` alongside this: its claim that the
-development project is "what guests read" predates the Hostinger go-live and no
-longer matches `.env.hostinger`. Trust the table above.
+`DEPLOYMENT.md` carried a contradicting claim, that the development project was
+"what guests read", for a while after the Hostinger go-live. It was corrected on
+2026-10-25 and now agrees with the table above.
 
 **The importer runs against production only.** Dev may run it too if useful -
 Airbnb's feed is read-only, so importing into the staging database is harmless -

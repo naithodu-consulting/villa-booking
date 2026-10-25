@@ -109,6 +109,13 @@ export async function getFAQs(propertyId: string): Promise<FAQ[]> {
   return data as FAQ[];
 }
 
+/**
+ * Unused. Nothing in this app calls it, and `property_policies` is read by
+ * nothing in Ooruda either (verified 2026-10-25, both codebases). The published
+ * policy copy lives in `src/lib/cancellation.ts` and `src/lib/villa-rules.ts`.
+ * Kept only because the table still exists; do not build on it without first
+ * deciding the table has a reader.
+ */
 export async function getPolicies(propertyId: string, category?: string): Promise<PropertyPolicy[]> {
   const supabase = createServiceClient();
   let query = supabase
