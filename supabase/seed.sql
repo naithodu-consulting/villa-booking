@@ -182,7 +182,7 @@ INSERT INTO property_policies (property_id, key, title, body, category, display_
    'housekeeping', 31),
   ('a1b2c3d4-0000-0000-0000-000000000001', 'cancellation',
    'Cancellation Policy',
-   '30 or more days before check-in: 100% refund. 15 to 29 days before check-in: 50% refund. Under 15 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.',
+   'More than 14 days before check-in: 100% refund. 7 to 14 days before check-in: 50% refund. Under 7 days before check-in: no refund. A security deposit, where applicable, will be collected at check-in. Subject to property inspection following check-out, the refundable deposit will be processed within 5 working days and returned to the original payment method.',
    'cancellation', 40)
 ON CONFLICT (property_id, key) DO UPDATE SET title = EXCLUDED.title, body = EXCLUDED.body, category = EXCLUDED.category, display_order = EXCLUDED.display_order;
 

@@ -562,6 +562,27 @@
   body:has(#mobile-cta-bar) .footer-inner { padding-bottom: 6rem; }
 }
 
+/* The cookie banner is the same shape of problem as the bar above, in the same
+   place. It is fixed at the bottom at z-50 and lands squarely on the footer's
+   bottom bar, which is where the legal links live - and it is opaque and takes
+   pointer events, so it did not merely hide them, it swallowed their clicks.
+   Until a visitor answered the banner, "Privacy Policy", "Terms of Service" and
+   "Cancellation Policy" did nothing at all when clicked. That reads as a page
+   that sometimes loads and sometimes does not: the banner only shows until it
+   is answered, so the same link worked perfectly on the next visit.
+
+   Unlayered for the reason given above - inside @layer components this lost to
+   .footer-inner's own pb-10/lg:pb-14 on layer order and changed nothing.
+
+   Below 640px the banner wraps its buttons onto a second line, so it needs more
+   room there. Declared after the mobile-bar rule so that when both are up the
+   taller clearance wins. */
+body:has(#cookie-banner) .footer-inner { padding-bottom: 10rem; }
+
+@media (min-width: 640px) {
+  body:has(#cookie-banner) .footer-inner { padding-bottom: 7rem; }
+}
+
 /* ── Skip link ────────────────────────────────────────────────────────────
    Every page puts the announcement bar and the full navigation ahead of
    <main>, so a keyboard or screen-reader guest traversed all of it on every

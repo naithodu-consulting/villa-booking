@@ -24,7 +24,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Effective date of the Privacy Policy issued by Habbaa Solutions Pvt Ltd.
-const EFFECTIVE_DATE = '7 October 2026';
+const EFFECTIVE_DATE = '25 October 2026';
 
 export default function PrivacyPage() {
   return (
@@ -159,22 +159,54 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="7. Cookies and analytics">
-            <p>Our website may use cookies and similar technologies to:</p>
-            <ul className="list-disc list-inside space-y-1 mt-2">
-              <li>Enable essential website functionality</li>
-              <li>Remember preferences</li>
-              <li>Understand website traffic and usage</li>
-              <li>Improve website performance</li>
-              <li>Measure marketing effectiveness</li>
-            </ul>
-            <p className="mt-3">
-              Where required by applicable law, we will seek appropriate consent before using non-essential cookies or
-              similar technologies. You may also control or disable cookies through your browser settings. Disabling
-              certain cookies may affect some website functionality.
+            <p>
+              We use Google Analytics 4 to understand how this website is used, so we can improve it. It is the
+              only analytics tool on this site, and we do not use advertising or ad-targeting cookies.
             </p>
             <p className="mt-3">
-              Essential cookies required for this website to function (session state, security tokens) are always active,
-              because the site cannot work without them. We do not use advertising or ad-targeting cookies.
+              <strong>Nothing is loaded until you accept.</strong> Until you choose, no request is made to Google
+              at all. If you decline, none is ever made. If you accept and later change your mind, measurement
+              stops straight away and no further information is sent.
+            </p>
+            <p className="mt-3">What we measure, if you accept:</p>
+            <ul className="list-disc list-inside space-y-1 mt-2">
+              <li>Pages viewed, and how you arrived at the site</li>
+              <li>How far you get through booking: choosing dates, reaching the payment screen, completing a booking</li>
+              <li>Taps on our WhatsApp, phone and email links, and which part of the page they were in</li>
+              <li>Photo gallery and FAQ use, and whether a promotional code was copied</li>
+              <li>How quickly pages load and respond on your device</li>
+              <li>Approximate location (city level) and general device and browser information, from Google</li>
+            </ul>
+            <p className="mt-3">
+              <strong>What we never send to Google:</strong> your name, email address, phone number, postal
+              address, GSTIN, identity documents or payment details. When a booking is completed we send its
+              value and its booking reference, which identifies a booking rather than a person.
+            </p>
+            <p className="mt-3">
+              Because you can close the page as soon as you have paid, a completed booking is reported from our
+              server rather than from your browser. If you accepted cookies, that report includes an identifier
+              linking it to your visit so we can tell which sources produce bookings. If you declined, the
+              booking is still counted, but with no link to your visit and with ads personalisation switched off.
+            </p>
+            <p className="mt-3">
+              Google processes this information on our behalf and stores it for 14 months. Google Analytics does
+              not record your IP address. You can withdraw consent at any time by clearing this site&rsquo;s
+              cookies and site data in your browser, which also brings the choice back so you can answer
+              again. You may additionally control cookies through your browser settings, and Google offers a{' '}
+              <a
+                href="https://tools.google.com/dlpage/gaoptout"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2"
+              >
+                browser add-on to opt out of Google Analytics
+              </a>{' '}
+              everywhere.
+            </p>
+            <p className="mt-3">
+              Essential cookies and local storage required for this website to function (session state, security
+              tokens, and remembering your cookie choice) are always active, because the site cannot work
+              without them. Disabling them may affect some website functionality.
             </p>
           </Section>
 

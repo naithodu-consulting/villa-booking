@@ -6,6 +6,7 @@ import { X, Phone, Mail } from 'lucide-react';
 import ReservationNotice from '@/components/guest/ReservationNotice';
 import WhatsAppIcon from '@/components/guest/WhatsAppIcon';
 import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
+import { track } from '@/lib/analytics';
 
 /**
  * Stands in for BookingDialog while ONLINE_PAYMENTS_ENABLED is off.
@@ -37,7 +38,13 @@ export default function PaymentsPausedDialog({
   useEffect(() => {
     const open = () => {
       const el = ref.current;
-      if (el && !el.open) el.showModal();
+      if (el && !el.open) {
+        el.showModal();
+        // Reported on open rather than on mount: this is mounted on every page
+        // of the site and would otherwise count a page view as a notice view,
+        // which would make the enquiry funnel look like it converts 100%.
+        track('reservation_notice_view', { surface: 'dialog' });
+      }
     };
     window.addEventListener(OPEN_BOOKING_EVENT, open);
     return () => window.removeEventListener(OPEN_BOOKING_EVENT, open);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useEffect, useRef, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -9,6 +9,7 @@ import type { Property, PricingRule } from '@/types';
 import { calculateBookingPrice, GST_PERCENT } from '@/lib/pricing-engine';
 import DateSelectForm from '@/components/guest/DateSelectForm';
 import { isRangeAvailable } from '@/lib/availability';
+import { track, nightsBetween, leadTimeDays, paiseToRupees, getGaIdentifiers } from '@/lib/analytics';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 import { Lock, ShieldCheck, ArrowLeft, AlertCircle, Loader2, Tag, X, CheckCircle } from 'lucide-react';
 import { formatTime12 } from '@/lib/format';
@@ -160,11 +161,15 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
         setPromoMessage(data.message);
         setPromoStatus('valid');
         setPromoFor(`${checkIn}|${checkOut}|${adults}|${children}`);
+        track('promo_applied', { promo_code: data.code });
       } else {
         setPromoCode(null);
         setPromoDiscount(0);
         setPromoError(data.error ?? 'Invalid promo code.');
         setPromoStatus('invalid');
+        // The code the guest typed, not the server's message: the question this
+        // answers is which codes are circulating that we do not honour.
+        track('promo_rejected', { promo_code: code });
       }
     } catch {
       setPromoCode(null);
@@ -210,6 +215,31 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
       ? promoTotal
       : (breakdown?.total_amount ?? 0));
 
+  // The top of the measured funnel on the checkout: a stay that is priced and
+  // available, with the form in front of the guest.
+  //
+  // Keyed on the booking, not on mount: the availability refresh and the rate
+  // poller re-render this component repeatedly, and an effect without a key
+  // would report a fresh checkout every few seconds. Changing dates or guests
+  // is a genuinely new checkout, and does report again.
+  const stayKey = breakdown ? `${checkIn}|${checkOut}|${adults}|${children}` : '';
+  const reportedCheckout = useRef('');
+  useEffect(() => {
+    if (!stayKey || reportedCheckout.current === stayKey) return;
+    reportedCheckout.current = stayKey;
+    track('begin_checkout', {
+      currency: 'INR',
+      value: paiseToRupees(shownTotal),
+      nights: nightsBetween(checkIn, checkOut),
+      adults,
+      children,
+      lead_time_days: leadTimeDays(checkIn),
+    });
+    // shownTotal is deliberately not a dependency: a promo code lowering the
+    // total must not re-report the checkout. promo_applied covers that.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stayKey, checkIn, checkOut, adults, children]);
+
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!breakdown) return;
@@ -233,9 +263,22 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
     setServerError('');
     setIsProcessing(true);
 
+    // Whether this attempt has already reported why it failed. The catch below
+    // is the last resort, and without this it reported a second time on top of
+    // the specific reason, which double-counted every failure in the funnel.
+    // A flag, not a test of the error message: messages come from the server
+    // and change without anyone thinking about analytics.
+    let failureReported = false;
+
     try {
       // Load the gateway first so a failure never leaves a pending hold on the dates.
       await loadRazorpay();
+
+      // Read before the order is created, so the server can attribute the
+      // purchase it will report once payment is confirmed. Resolves to nulls
+      // when the guest declined cookies, which is the common case and not a
+      // reason to hold up a payment.
+      const ga = await getGaIdentifiers();
 
       const orderRes = await fetch('/api/bookings/create-order', {
         method: 'POST',
@@ -248,6 +291,8 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
           // What this page is showing. The server prices the stay itself and
           // refuses rather than charging a total the guest never saw.
           expectedTotal: shownTotal,
+          ...(ga.clientId && { gaClientId: ga.clientId }),
+          ...(ga.sessionId && { gaSessionId: ga.sessionId }),
         }),
       });
 
@@ -259,12 +304,27 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
         setCorrection(orderData.breakdown);
         setCorrectionFor(bookingKey);
         setServerError(orderData.message);
+        track('price_changed', { nights: nightsBetween(checkIn, checkOut) });
         refresh(); // bring the calendar's per-night prices in line too
         setIsProcessing(false);
         return;
       }
 
-      if (!orderRes.ok) throw new Error(orderData.error ?? 'Could not create booking order. Please try again.');
+      if (!orderRes.ok) {
+        // The other 409 from create-order: the nights went while this page was
+        // open. Told apart from a price change because they mean opposite
+        // things, one about money and one about availability.
+        if (orderRes.status === 409) {
+          track('booking_conflict', {
+            nights: nightsBetween(checkIn, checkOut),
+            lead_time_days: leadTimeDays(checkIn),
+          });
+        } else {
+          track('payment_failed', { stage: 'order' });
+        }
+        failureReported = true;
+        throw new Error(orderData.error ?? 'Could not create booking order. Please try again.');
+      }
 
       const { bookingToken, razorpayOrderId, razorpayKeyId, amount } = orderData;
 
@@ -291,6 +351,11 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
               });
               if (!verifyRes.ok) {
                 const d = await verifyRes.json();
+                // The guest has paid and we could not confirm it. The single
+                // most expensive thing that can go wrong here, so it is
+                // reported separately from a gateway error.
+                track('payment_failed', { stage: 'verification' });
+                failureReported = true;
                 reject(new Error(d.error ?? 'Payment verification failed.'));
               } else {
                 resolve();
@@ -301,13 +366,30 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
           },
           modal: { ondismiss: () => reject(new Error('DISMISSED')) },
         });
+        track('add_payment_info', {
+          currency: 'INR',
+          value: paiseToRupees(amount),
+          nights: nightsBetween(checkIn, checkOut),
+        });
         rzp.open();
       });
 
       router.replace(`/booking/${bookingToken}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
-      if (msg !== 'DISMISSED') setServerError(msg);
+      if (msg === 'DISMISSED') {
+        // Closing the modal is not an error: it is the commonest exit from a
+        // working payment screen, and a funnel report that files it as a
+        // failure would send us hunting for a bug that is not there.
+        track('payment_abandoned', { currency: 'INR', value: paiseToRupees(shownTotal) });
+      } else {
+        setServerError(msg);
+        // Only when nothing more specific was reported: what is left here is
+        // the gateway itself, or the script that loads it.
+        if (!failureReported) {
+          track('payment_failed', { stage: 'razorpay' });
+        }
+      }
       setIsProcessing(false);
     }
   };
@@ -329,6 +411,7 @@ function CheckoutContent({ property, pricingRules, ratesReadAt }: Props) {
           </div>
 
           <DateSelectForm
+            source="checkout"
             maxOccupancy={property.max_occupancy}
             idealOccupancy={property.ideal_occupancy}
             propertyId={property.id}

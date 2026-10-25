@@ -8,14 +8,29 @@ import { addDaysISO } from '@/lib/format';
  * promised 100% at 30+ days while Terms and property_policies said 90%.
  * Resolved in favour of 100% by the operator on 2026-10-01.
  *
- * Windows are exclusive and day 30 pays the top tier: "30 or more" and
- * "15 to 29" must not both claim day 30.
+ * Realigned to the Airbnb listing's own tiers on 2026-10-25, so a guest who
+ * compares the two channels before booking direct is not quoted two different
+ * policies: full refund above 14 days out, 50% from 7 to 14, nothing under 7.
+ *
+ * Airbnb's own card overlaps at day 14 ("at least 14 days" for the full refund,
+ * "7-14 days" for the partial one). The operator resolved it on 2026-10-25 in
+ * favour of the partial band, so day 14 pays 50% and the windows are exclusive:
+ * "More than 14" and "7 to 14" must not both claim day 14.
+ *
+ * Confirmed against Airbnb's own booking widget, which is the authority here
+ * rather than its policy card: for a 24 Dec check-in it offers "Free
+ * cancellation before 10 December", and 10 Dec is the 14-day mark. So Airbnb
+ * does not pay a full refund on day 14 either, whatever its card says.
+ *
+ * "More than 14 days" rather than "15 or more": the same rule, worded to sit
+ * next to "7 to 14 days" without a reader having to do the arithmetic to see
+ * that the two bands meet.
  *
  * property_policies holds the same wording for Ooruda Villa, so a change goes
  * there too (see the latest cancellation migration).
  */
 export interface CancellationTier {
-  /** Phrase completed by " check-in", e.g. "30 or more days before check-in". */
+  /** Phrase completed by " check-in", e.g. "More than 14 days before check-in". */
   when: string;
   /** Refund percentage as shown, e.g. "100%". */
   amount: string;
@@ -27,13 +42,13 @@ export interface CancellationTier {
 
 /** Ordered widest window first; `cancellationSchedule` relies on that order. */
 export const CANCELLATION_TIERS: CancellationTier[] = [
-  { when: '30 or more days before', amount: '100%', minDaysBefore: 30, fraction: 1   },
-  { when: '15 to 29 days before',   amount: '50%',  minDaysBefore: 15, fraction: 0.5 },
-  { when: 'Under 15 days before',   amount: '0%',   minDaysBefore: 0,  fraction: 0   },
+  { when: 'More than 14 days before', amount: '100%', minDaysBefore: 15, fraction: 1   },
+  { when: '7 to 14 days before',      amount: '50%',  minDaysBefore: 7,  fraction: 0.5 },
+  { when: 'Under 7 days before',      amount: '0%',   minDaysBefore: 0,  fraction: 0   },
 ];
 
 export interface CancellationDeadline {
-  /** The tier's window as dated text, e.g. "Until Wed 21 Oct, 2:00 pm". */
+  /** The tier's window as dated text, e.g. "Until Wed 21 Oct, 11:59 pm". */
   when: string;
   /** Refund in paise. Zero on the final tier. */
   refundPaise: number;
@@ -54,20 +69,31 @@ export interface CancellationOutlook {
   state: RefundState;
   /** Only the tiers still reachable. Empty when the state is 'none'. */
   rows: CancellationDeadline[];
-  /** Last moment any refund is available, e.g. "Thu 1 Oct, 2:00 pm". */
+  /** Last moment any refund is available, e.g. "Thu 1 Oct, 11:59 pm". */
   lastRefundableAt?: string;
 }
 
 /**
- * Deadlines land at the end of the day *before* the tier's day, not at the
- * check-in time.
+ * Deadlines land at the end of the tier's own last day, not at the check-in
+ * time.
  *
- * Counting back from a 2:00 pm check-in produced deadlines like "Wed 16 Sept,
- * 2:00 pm": an arbitrary hour a guest has no reason to expect, and one that
- * invites a dispute from anyone who cancels at 3pm that day. An end-of-day
- * deadline is unambiguous, and taking the previous day means the stated
- * deadline is always a little *earlier* than the policy's own, so the email
- * can never promise less than we will honour.
+ * Counting back from the 3:00 pm check-in produced deadlines like "Wed 16
+ * Sept, 3:00 pm": an arbitrary hour a guest has no reason to expect, and one
+ * that invites a dispute from anyone who cancels at 4pm that day. An
+ * end-of-day deadline is unambiguous.
+ *
+ * It used to take the day *before* that, as a safety margin so the email could
+ * "never promise less than we will honour". That made every tier a day stricter
+ * than its own label: with the 14/7 wording and a 24 Dec check-in, the email
+ * ended the 50% band on 16 Dec, which is 8 days before check-in, not 7. A
+ * margin that contradicts the published policy is not a margin, it is a second
+ * policy, and the guest reading the Cancellation page had the better claim.
+ *
+ * End of the tier's own day is the whole rule now, and it is the right reading
+ * of a policy written in whole days: "7 days before check-in" names a day, not
+ * an instant, so the whole of that day qualifies. Against a literal count back
+ * from the 3:00 pm check-in it errs by nine hours in the guest's favour, which
+ * is the safe direction and needs no separate day of padding.
  */
 const DEADLINE_TIME = '11:59 pm';
 /** The instant after a deadline, for the window that takes over from it. */
@@ -109,8 +135,8 @@ export function cancellationOutlook(
   },
 ): CancellationOutlook {
   const booked = new Date(asOf);
-  /** The tier's last full day: one before the day it counts back to. */
-  const deadlineISO = (days: number) => addDaysISO(checkIn, -(days + 1));
+  /** The tier's last full day: the day it counts back to. */
+  const deadlineISO = (days: number) => addDaysISO(checkIn, -days);
   const reachable = (days: number) => endOfDayIST(deadlineISO(days)) >= booked;
 
   const refundable = CANCELLATION_TIERS.filter((t) => t.fraction > 0);

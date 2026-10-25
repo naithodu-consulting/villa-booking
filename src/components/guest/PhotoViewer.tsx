@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { usePathname } from 'next/navigation';
+
+import { track, pageType } from '@/lib/analytics';
 import Image from 'next/image';
 import { PropertyImage } from '@/types';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -40,6 +43,31 @@ export default function PhotoViewer({ images, startIndex, onClose }: PhotoViewer
 
   const goNext = useCallback(() => setIndex((i) => (i + 1) % shown.length), [shown.length]);
   const goPrev = useCallback(() => setIndex((i) => (i - 1 + shown.length) % shown.length), [shown.length]);
+
+  // Opening the gallery says a guest was curious; how many photographs they
+  // actually looked at says whether the photographs held them. Counted here,
+  // in the one viewer both the homepage mosaic and the gallery page use, so
+  // neither entry point can be instrumented and the other forgotten.
+  const pathname = usePathname();
+  const seen = useRef<Set<number>>(new Set());
+
+  // In an effect, not during render: a ref read while rendering is a bug
+  // waiting for the first double-render.
+  useEffect(() => {
+    seen.current.add(index);
+  }, [index]);
+
+  useEffect(() => {
+    const where = pageType(pathname);
+    track('gallery_open', { page_type: where });
+    const viewed = seen.current;
+    return () => {
+      track('gallery_close', { page_type: where, photos_viewed: viewed.size });
+    };
+    // Opening and closing, not every photograph: the count is read from a ref
+    // at close, so this must not re-run as the guest moves through them.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Lock the page behind the dialog and return focus where it was on close.
   useEffect(() => {

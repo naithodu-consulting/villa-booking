@@ -17,8 +17,10 @@
 #                   Resend key live here. They belong in Hostinger's
 #                   Environment variables panel and must never travel in a file.
 #                   This is the single most important exclusion in the script.
-#   docs/ (internal) The audit, the launch plan and this deployment plan
-#                   describe where the system is weak. Not for a web root.
+#   docs/ (internal) The audit, the launch plans and the analytics plan and
+#                   setup runbook describe where the system is weak, and name
+#                   the environment variables it depends on. Not for a web
+#                   root. (The values are never in them; the names are enough.)
 #   tools/          Local design scratch files, already gitignored.
 #
 # The archive is verified after it is built: if anything secret-shaped or any
@@ -67,6 +69,8 @@ zip -rq "$OUT" . \
      'docs/PRODUCTION_LAUNCH_PLAN.md' \
      'docs/PROD_DB_SETUP.md' \
      'docs/HOSTINGER_GO_LIVE.md' \
+     'docs/ANALYTICS_PLAN.md' \
+     'docs/ANALYTICS_SETUP.md' \
      'tools/*' \
      'public/tools/*' \
      '*.zip'
@@ -123,3 +127,7 @@ echo
 echo "  Set every environment variable BEFORE deploying. RESEND_API_KEY,"
 echo "  PROPERTY_WHATSAPP and CONTENT_REVALIDATE_SECRET each fail silently"
 echo "  when missing, so the deploy will look fine and be broken."
+echo
+echo "  NEXT_PUBLIC_GA_ID is worse: it is compiled into the bundle by the"
+echo "  host build, so adding it afterwards measures nothing at all."
+echo "  The build log says so if it is missing. See docs/ANALYTICS_SETUP.md."

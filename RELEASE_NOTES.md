@@ -4,6 +4,118 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.49 - Cancellation policy matches Airbnb, and the footer's legal links work again - 2026-10-25
+
+**The direct-booking refund ladder now says what the Airbnb listing says, and the cookie banner
+stops eating the clicks on Privacy, Terms and Cancellation Policy.**
+
+**The tiers move from 30/15 to 15/7.** A full refund more than 14 days before check-in, 50% from 7
+to 14 days, nothing under 7. The listing on Airbnb has offered those terms all along, so a guest who
+priced the same stay on both channels before booking direct was quoted two different policies, and
+the stricter one was ours.
+
+Airbnb's own card overlaps at day 14: "at least 14 days" for the full refund, "7-14 days" for the
+partial one. Resolved in favour of the partial band, so day 14 pays 50% and the windows stay
+exclusive - "More than 14" and "7 to 14" must not both claim day 14.
+
+Confirmed against Airbnb's booking widget rather than its policy card: for a 24 December check-in
+it offers "Free cancellation before 10 December", and 10 December is the 14-day mark. Airbnb does
+not pay a full refund on day 14 either, whatever the card says.
+
+**The confirmation email's dated ladder was a day stricter than the policy it cited.** Every
+deadline was set to the end of the day *before* the tier's own day, as a safety margin so the email
+could "never promise less than we will honour". The effect was the opposite of the intent: with a
+24 December check-in the email ended the 50% band on 16 December, which is eight days before
+check-in, not seven. A guest who cancelled seven days out had the published Cancellation Policy on
+their side and an email saying no refund.
+
+A margin that contradicts the published policy is not a margin, it is a second policy. Deadlines
+now land at the end of the tier's own last day. Against a literal reading of "N days before a
+3:00 pm check-in" that still errs by nine hours in the guest's favour, which is the safe direction
+and needs no extra day of padding. This was found by rendering a real confirmation and reading the
+dates against the policy page, which is the only way it would ever have shown up - the unit tests
+asserted the old offset quite happily.
+
+One edit, in `src/lib/cancellation.ts`. The homepage card, the Cancellation & Refund Policy page
+and the dated refund ladder in the booking confirmation email all derive from that list, which is
+why this is a three-line change rather than a hunt through five files. The Terms page links to the
+policy instead of restating it, so it needed nothing. 00106 carries the same wording to the
+`property_policies` row that Ooruda Villa reads, and `seed.sql` matches.
+
+The policy's effective date moves to 25 October 2026.
+
+**The footer's "Cookie Preferences" control is gone, at the operator's request.** A cookie choice is
+now final for the life of the browser's storage: a guest who declined cannot accept, and one who
+accepted cannot withdraw, without clearing the site's cookies and site data. `clearConsent` is kept
+in `src/lib/consent.ts` so restoring a control is a one-line import rather than a rewrite, and this
+is worth revisiting if EU or UK traffic ever matters, where withdrawal has to be as easy as consent.
+
+Section 7 of the Privacy Policy was still pointing at that control, which v1.43 had added, so it
+promised a button that is not on the page. It now describes clearing cookies and site data instead,
+and its effective date moves to 25 October 2026 with the cancellation change. `DEPLOYMENT.md` and
+`docs/ANALYTICS_SETUP.md` said the same thing and were corrected too.
+
+**The cookie banner was swallowing clicks on the footer's legal links.** This is what was behind
+"the Cancellation Policy page sometimes loads and sometimes doesn't". The banner is fixed to the
+bottom of the viewport at z-50, opaque, and takes pointer events, and it lands squarely on the
+footer's bottom bar, which is exactly where Privacy Policy, Terms of Service and Cancellation
+Policy live. Until a visitor answered the banner, all three did nothing at all when clicked. The
+banner only shows until it is answered, so the same link worked perfectly on the next visit, which
+is what made it look intermittent rather than broken.
+
+Nothing was wrong with the page: it is prerendered, and villa19.in serves it 200 from cache on
+every request.
+
+Fixed by giving `.footer-inner` bottom clearance while `#cookie-banner` is present, the same way
+the mobile CTA bar is already handled, and unlayered for the same reason - inside
+`@layer components` it lost to `.footer-inner`'s own `pb-10`/`lg:pb-14` on layer order and changed
+nothing. 10rem below 640px, where the banner wraps its buttons onto a second line, and 7rem above.
+Declared after the mobile-bar rule so the taller clearance wins when both are up.
+
+The banner lifts `ScrollAid` clear of itself already (00527 in `globals.css`); the footer was the
+case that was missed.
+
+---
+
+## v1.48 - Channel blocks are labelled, and the database tests work again - 2026-10-24
+
+**Imported blocks now say which channel they came from, and the suites that talk to a real
+Postgres stop failing on a setting that has nothing to do with them.**
+
+**`blocked_dates.notes` reads "Airbnb Booking" instead of Airbnb's own "Airbnb (Not available)".**
+The label is built from the feed name, so a second channel would say "Booking.com Booking" with no
+further work. It makes the three sources of a block legible side by side, next to Ooruda's own
+`[ooruda:<id>]` tags. No backfill is needed: the importer replaces every `source = 'ical'` row on
+each run, so the next sync relabels them all.
+
+Worth knowing when reading those rows: a channel cannot tell us whether an entry is a guest
+reservation or the host blocking the night themselves, because both export identically. "Booking"
+here means "the channel says this night is taken", not "a guest has paid". The 14 January block
+that appeared and vanished during testing was an owner hold, and nothing in the feed distinguished
+it from a reservation.
+
+**The database-backed suites were failing on `booking_cutoff_date`.** `booking-concurrency`,
+`booking-code-db` and the analytics purchase tests book dates years out, to stay clear of real
+bookings. The cutoff (00097) is checked inside `check_availability()` ahead of the occupancy test,
+so once every environment had one set, every booking in those suites was refused with
+`DATE_BLOCKED` and 13 tests failed having proved nothing. They passed originally only because no
+database had a cutoff yet.
+
+The cutoff is now suspended for the duration of a test run and restored afterwards, from
+`vitest`'s `globalSetup`. It was written per-file first, and that is a race worth recording: Vitest
+runs test files in parallel, so the first suite to finish restored the cutoff while the second was
+still booking, and the second failed with the exact error the change was meant to prevent. One row
+shared by every suite has to be handled once for the whole run.
+
+Localhost only, guarded in the setup as well as in each suite, so a misconfigured `.env.local`
+cannot have a test run disable a cutoff on a hosted project.
+
+**Cadence recorded:** the sync runs every 30 minutes, moving to hourly once Ooruda has a "Sync now"
+button. A schedule and a manual trigger answer different needs, and until the button exists the
+schedule carries both.
+
+---
+
 ## v1.47 - Airbnb calendar sync, phase 1: it writes - 2026-10-24
 
 **Phase 1 of `docs/AIRBNB_ICAL_SYNC.md`. Blocking a date on Airbnb now removes it from villa19.in,
@@ -157,6 +269,246 @@ rather than the whole feature there is `ical_feeds.is_active`.
 
 Verified against the live feed on 24 October: three real blocks kept totalling 13 nights, the
 276-night window edge dropped, nothing written. The flag was verified in both positions.
+
+---
+
+## v1.44 - Analytics phase 5: the cut-over tooling - 2026-10-23
+
+**Phase 5 of docs/ANALYTICS_PLAN.md. The last phase is mostly console work, so this is the part of
+it that belongs in the repository.**
+
+**A production build without a measurement ID now says so.** This is the failure the Hostinger
+deploy invites: `NEXT_PUBLIC_GA_ID` is compiled into the browser bundle when the site is built, not
+read when it runs, and Hostinger builds from an archive that deliberately carries no `.env` file.
+Set the variable after that build and every panel reads correctly while the site measures nothing at
+all. `next.config.mjs` prints a warning in the build log instead, and the deploy script repeats it.
+A warning rather than an error, because the site is meant to build and run without analytics, and
+has done so all along. It is detected from argv, not `NEXT_PHASE`, which this version of Next leaves
+undefined, and not `NODE_ENV` alone, which is also `production` for `next start` where the warning
+would be too late and misleading.
+
+**`scripts/analytics-reconcile.mjs` does the monthly reconciliation.** GA4 is for behaviour and
+acquisition; the database is the record for money. The script prints the confirmed bookings, the
+gross value, the GST, the nights and every booking reference for a month, to compare against GA4's
+purchase count and total. A gap above about 5% means the server-sent purchase is being lost, and
+nothing else will tell you: Google answers a dropped or malformed event exactly as it answers a good
+one.
+
+It groups by **when the booking was confirmed**, in the villa's own timezone, because that is when
+GA4 records the purchase. A booking confirmed at 23:30 on the last evening of a month belongs to
+that month; in UTC it would have been counted in the next one. That is verified rather than assumed:
+two bookings an hour apart, at 23:30 and 00:30 IST, land in October and November respectively,
+though both are the 31st in UTC.
+
+**docs/ANALYTICS_SETUP.md is the console checklist**, in the order to do it: the two properties
+(production and preview must not share one, or test bookings land in real revenue), the dimensions
+to register before reading any report, the key events, the funnels for both the paused and the live
+payment flows, the internal-traffic filter, Search Console, and a final pass that checks declining
+really sends nothing and that a booking token never appears in a report.
+
+Both analytics documents are excluded from the deploy archive, as the audit and launch plans already
+were: they name the environment variables the system depends on, which does not belong in a web
+root. The values were never in them.
+
+---
+
+## v1.43 - Analytics phase 4: privacy policy, speed, engagement - 2026-10-23
+
+**Phase 4 of docs/ANALYTICS_PLAN.md. The last phase of the measurement work.**
+
+**The privacy policy now describes what the site actually does.** Section 7 named no tool and
+promised nothing specific. It now names Google Analytics 4, lists what is measured, and states
+plainly what is never sent to Google: name, email, phone, address, GSTIN, identity documents and
+payment details. It explains that a completed booking is reported from the server rather than the
+browser, and why, and that a guest who declined is still counted but with no link to their visit and
+with ads personalisation off. It points at Cookie Preferences in the footer and at Google's own
+opt-out add-on, and gives the 14-month retention. The effective date moved to 23 October 2026, which
+the policy's own clause 17 requires when it changes.
+
+**Page speed is now measured on real guests' devices.** Core Web Vitals go to GA4 through Next's own
+reporting, which works on both hosts: Vercel's Speed Insights would have gone blind on the day
+production moved to Hostinger. Metrics are held until the GA script is up, because TTFB and FCP
+settle before an `afterInteractive` script has run and would otherwise be the two metrics that never
+arrived, flattering the site.
+
+**The operator's own visits can be kept out of the numbers.** Visit any page with `?internal=1` to
+mark the browser, `?internal=0` to clear it. On a site with a handful of bookings a month, the
+operator checking their own pages is a large share of all traffic and the share that behaves least
+like a guest. A stored flag rather than an IP rule, because Indian mobile networks hand out a new
+address almost every session. The marker is stripped from the reported URL, so it cannot split the
+home page into two rows, and the visit that sets the flag is itself marked.
+
+**Engagement:** the photo viewer reports how many different photographs were actually looked at, not
+just that it was opened; FAQ questions report by question rather than by position, which stops
+meaning anything the moment the order changes; and the announcement bar's promo code reports when it
+is copied. The gallery is instrumented in the one viewer both the homepage mosaic and the gallery
+page use, so neither entry point can be done and the other forgotten.
+
+**The FAQ accordions stayed free of JavaScript.** They are plain `<details>` in a server component.
+Giving each an onToggle would have turned a zero-JS accordion into a client component on two pages
+purely to measure it, so the existing root-level listener handles `toggle` in the capture phase
+instead: `toggle` does not bubble, so capture is the only way to hear it from there. That component
+is now `InteractionTracking` rather than `ContactTracking`, since it covers both.
+
+**A duplicate caught by watching the page.** Web vitals reported TTFB twice. Next calls any *new*
+callback with every metric gathered so far, so a callback rebuilt on each render re-reports
+everything; the callback is now a stable module-level function, with a second guard that drops any
+metric id already seen.
+
+**`video_unmute` was written and then removed.** `HeroVideo` is not rendered anywhere in the app and
+there is no reel in `/public`, so the event could never fire. The same call as `ota_click` in v1.41,
+for the same reason: the event schema is the list of what we measure, not of what we once intended
+to.
+
+The pre-push checklist now includes `npm run build`, because `tsc` and `eslint` both passed while
+the build failed in v1.42, and no longer quotes an exact test count that goes stale with every
+change.
+
+---
+
+## v1.42 - Analytics phase 3: bookings counted from the server - 2026-10-23
+
+**Phase 3 of docs/ANALYTICS_PLAN.md. The `purchase` event, sent by the server rather than the
+browser.**
+
+**A booking is now counted even when the guest closes the tab.** Every other event is sent from the
+browser; this one cannot be. A guest can close the tab the moment they finish paying, and the
+Razorpay webhook is then the only thing that ever learns the booking was confirmed. A browser-sent
+purchase would have undercounted revenue, and undercounted it worst on phones, where tabs are closed
+soonest. `reportPurchase` now runs in both confirmation paths, beside the confirmation emails.
+
+**Sent once, using the gate that was already there.** The plan called for a new `analytics_sent_at`
+claim column on bookings. Building it showed the plan had looked at the wrong row: both confirmation
+paths already compare-and-swap the *payment* row first, and only the caller that wins that swap goes
+on to confirm the booking. That is the same gate the confirmation emails depend on, and a
+double-sent email would be noticed long before a double-counted booking. A second claim column would
+have been a second mechanism for a guarantee the code already makes once. The assumption is tested
+rather than asserted: 20 simultaneous confirmations against a real local Postgres, with exactly one
+getting through, plus a webhook redelivery finding nothing left to do.
+
+**Bookings now attribute to the visit that produced them.** A server-sent event carries no cookies,
+so the browser passes its GA client and session ids to `create-order` and they are stored on the
+payment row (migration 00101). Without the session id the event lands on the user but outside any
+session and arrives with no source or medium, which would have left the central question of the
+whole plan — which traffic actually produces bookings — unanswerable. Both ids are validated before
+storage: they come from the client and later travel to Google.
+
+**A guest who declined cookies still has their booking counted**, with a synthetic client id, no
+session, and ads personalisation off. Dropping it would understate revenue in order to protect
+someone from being counted, which is not what declining means. No guest name, email, phone or
+address is ever included; the transaction id is the booking code, which identifies a booking rather
+than a person, and a test asserts it.
+
+**Two problems the build and the tests caught.** The analytics module held a React hook, which fails
+the Next build as soon as a route handler imports it; the readiness store moved to its own
+`analytics-ready.ts`. And `npx tsc` and `eslint` both passed while the build failed, which is worth
+remembering: the pre-push checklist needs the build, not only the first two.
+
+**Not yet verified live.** The Measurement Protocol collector answers `204` whatever it is sent, so a
+malformed payload is invisible. `scripts/check-ga4-purchase.mjs` puts the same payload to GA4's
+validation endpoint and reports what it says; run it once the property exists. The payload is
+asserted field by field offline in the meantime, and a test keeps the script's sample in step with
+what the server really sends.
+
+`GA4_API_SECRET` is documented in `.env.example`, `.env.hostinger` and DEPLOYMENT.md, which also now
+records that `NEXT_PUBLIC_GA_ID` is inlined at build time and that preview needs its own GA4
+property. 27 more tests.
+
+---
+
+## v1.41 - Analytics phase 2: the booking and enquiry funnels - 2026-10-23
+
+**Phase 2 of docs/ANALYTICS_PLAN.md. The events that answer where guests drop out.**
+
+**The enquiry funnel is now measured, because it is the one that converts today.** With online
+payment paused, every Book Now opens the reservations notice and the real conversion is a tap on
+WhatsApp, phone or email. Those are now recorded as `contact_whatsapp`, `contact_call` and
+`contact_email`, alongside `booking_intent` and `reservation_notice_view`. A measurement plan built
+only around `purchase` would have reported zero conversions on the live site for as long as payments
+stay off.
+
+**One listener covers all 66 contact links.** They sit across 16 files: header, footer, drawer,
+mobile bar, the paused-payments dialog, /book and most content pages. Instead of 66 edits and a
+standing invitation to forget the 67th, a single delegated listener classifies a click by the link's
+scheme, so a link added next year is measured the day it ships and the links stay plain anchors that
+work without JavaScript. Where the click lands is worked out from the nearest landmark, with an
+explicit `data-track-source` on the three places the landmark would get wrong: the drawer (a div
+inside the header), the homepage's sticky bar, and /book (whose layout renders no `main`).
+
+**Every booking CTA now has to say where it is.** `source` is a required prop on `BookNowLink` and
+the single `openBooking()` helper is the only way to open the flow, so a new Book Now cannot be added
+without naming itself and cannot be added unmeasured. `booking_intent` carries `payments_enabled`,
+which records which of the two funnels the guest entered: without it the same event would mean two
+different things either side of Razorpay go-live, and the before-and-after comparison would be
+worthless.
+
+**The checkout reports the rest of the funnel**: `select_dates`, `begin_checkout`, `promo_applied`,
+`promo_rejected`, `add_payment_info`, `payment_abandoned`, `payment_failed`, `booking_conflict` and
+`price_changed`. Closing the Razorpay modal is reported as abandonment, not failure: it is the
+commonest exit from a working payment screen, and filing it as an error would send us hunting a bug
+that is not there. `booking_conflict` is kept apart from `price_changed` because one is about
+availability and the other about money.
+
+**Two bugs found by verifying rather than assuming.** A mount-time event fires before the GA script
+has loaded, so `track()` was a no-op and /book's notice recorded nothing at all while the dialog
+recorded fine; mount-time events now wait on a shared readiness signal, and nothing is buffered, so a
+guest who never consents still sends nothing. Separately, a single failed payment reported
+`payment_failed` twice, under two different stages, because the fallback branch decided by pattern-
+matching the error message; it now uses an explicit flag, since server messages change without
+anyone thinking about analytics.
+
+**Money is converted once.** `paiseToRupees` is the only place paise become rupees; everything else
+keeps integer paise as before. Lead time is measured from the property's calendar date, not UTC,
+which is a day out for part of every day in India.
+
+21 more unit tests, covering link classification (including hosts that merely contain "whatsapp"),
+source resolution, night counting across month and year boundaries, and the paise conversion.
+Verified against production builds in both modes: the full chain fires in order, `begin_checkout`
+reports once despite re-renders and does not repeat when a discount changes the total, and the value
+matches the total on screen. Not exercised in the browser: `payment_abandoned` and the verification
+failure, which need a Razorpay modal the sandbox cannot render.
+
+---
+
+## v1.40 - Analytics foundation: consent-gated GA4, token redaction - 2026-10-23
+
+**Phase 1 of docs/ANALYTICS_PLAN.md. The groundwork for measurement, with no business events yet.**
+
+**The booking confirmation page no longer leaks its token.** `/booking/<token>` is reached with a
+secret in the path, and GA4's automatic page views read `location.href` directly, so switching
+analytics on would have sent every guest's booking token to Google: in the clear, into a report
+readable by anyone with report access, and unremovable afterwards. GA4's own redaction covers email
+addresses and query parameters, not path segments, so no admin setting would have undone it.
+Automatic page views are now off (`send_page_view:false`) and each one is sent by hand with the path
+rewritten to `/booking/[token]` first. The referrer is rewritten the same way, because the page would
+otherwise leak the same token again as the referrer of whatever the guest opened next. Verified
+against a production build: with the raw token in the address bar and in `document.referrer`, the
+payload carried only `/booking/[token]`.
+
+**The checkout was never measured, and never asked about cookies.** `<Analytics>` and
+`<CookieConsent>` were mounted in the `(site)` layout, which does not wrap `(checkout)`. Since
+`/book` is a real page a guest can link to, bookmark or refresh into, the entire payment funnel was
+invisible and the banner never appeared there. Both now live in the root layout, so every route group
+gets them.
+
+**Withdrawing consent stops measurement straight away.** `clearConsent()` brings the banner back, but
+a script already in the page cannot be unloaded, so measurement carried on until the next page load.
+The `ga-disable-<id>` flag Google checks before every hit is now set, which is the only thing that
+actually stops it mid-session. Accepting still starts measurement without a reload.
+
+**`src/lib/analytics.ts` is the single way to talk to GA.** Event names and their parameters are one
+typed map, so a mistyped event is a build error rather than a silently missing report, and a
+parameter the file does not name cannot be sent at all. It is a no-op whenever `window.gtag` is
+absent, which is the consent check: `<Analytics>` is the only thing that defines `gtag` and it
+renders nothing until consent is granted, so no call site has to remember the rule. Page views are
+grouped by a small fixed `page_type` rather than raw paths.
+
+**`anonymize_ip` removed.** It is a no-op in GA4, which never stores IP addresses, and leaving it in
+suggested a protection that was not there.
+
+Measurement stays off until `NEXT_PUBLIC_GA_ID` is set; without it the components render nothing.
+`NEXT_PUBLIC_` is inlined at build time, so the variable has to be present in the build environment,
+not just at runtime. 19 unit tests cover the redaction and page grouping.
 
 ---
 

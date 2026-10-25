@@ -153,6 +153,7 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
           {/* Right — actions */}
           <div className="flex items-center justify-end">
             <BookNowLink
+              source="header"
               className="px-6 py-2.5 rounded text-[13px] font-bold uppercase"
               style={{
                 background: 'var(--paper)',
@@ -230,6 +231,9 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
           className="fixed inset-0 z-50"
           role="dialog"
           aria-modal="true"
+          /* The drawer is a div inside <header>, so without this its Call
+             button would be reported as a header click. */
+          data-track-source="drawer"
           aria-label="Navigation menu"
         >
           {/* Backdrop */}
@@ -319,6 +323,7 @@ export default function Header({ propertyName, phoneNumber, showJournal = false 
               style={{ borderTop: '1px solid rgba(0,0,0,0.07)' }}
             >
               <BookNowLink
+                source="drawer"
                 onActivate={() => setMenuOpen(false)}
                 className="btn-brass-filled flex items-center justify-center py-3.5 rounded-lg"
               >

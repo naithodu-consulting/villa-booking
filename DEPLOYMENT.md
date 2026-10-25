@@ -177,12 +177,33 @@ produce **no diff**. A diff means the deployed schema and the code disagree.
 
 ## Analytics (GA4)
 
-Analytics loads only after a guest accepts cookies (`src/components/layout/Analytics.tsx`), and the
-footer's "Cookie Preferences" lets them change their mind.
+Analytics loads only after a guest accepts cookies (`src/components/layout/Analytics.tsx`). There is
+no footer control to revisit the choice: it was removed on 2026-10-25 at the operator's request, so a
+guest changes their mind by clearing the site's cookies and site data (`clearConsent` in
+`src/lib/consent.ts` is kept for the day a control comes back).
 
 1. Create a GA4 property and a Web data stream for the production URL.
-2. Put the measurement ID in Vercel as `NEXT_PUBLIC_GA_ID`. Redeploy.
-3. Once live, add an "AI assistants" channel group so visits from AI answers are not counted as
+2. Put the measurement ID in Vercel as `NEXT_PUBLIC_GA_ID`. Redeploy. It is inlined at build time,
+   so on Hostinger it has to be present when the bundle is built, not only when it runs.
+3. Create a Measurement Protocol API secret (GA4 → Admin → Data Streams → the stream → Measurement
+   Protocol API secrets) and set it as `GA4_API_SECRET`, server-side only. Without it no booking is
+   ever counted: `purchase` is sent from the server, because a guest can close the tab the moment
+   they finish paying and the Razorpay webhook is then the only thing that knows the booking is
+   real. Check it with:
+
+   ```bash
+   GA4_MEASUREMENT_ID=G-XXXXXXXXXX GA4_API_SECRET=... node scripts/check-ga4-purchase.mjs
+   ```
+
+   The collector answers `204` whatever it is sent, so this validation endpoint is the only way to
+   learn that the payload is wrong.
+4. Use a **separate GA4 property for preview**. Sharing one puts test bookings into real revenue.
+5. Register the custom dimensions, mark the key events, build the funnels, filter your own visits
+   and link Search Console: **docs/ANALYTICS_SETUP.md** has the whole console checklist in order,
+   and is the place to keep it rather than here.
+6. Reconcile GA4 against the database monthly: `node scripts/analytics-reconcile.mjs`, because a
+   dropped `purchase` is otherwise invisible.
+7. Once live, add an "AI assistants" channel group so visits from AI answers are not counted as
    ordinary referrals. GA4 → Admin → Data display → Channel groups → Create new. Condition *Source
    matches regex*:
    `chatgpt\.com|chat\.openai\.com|perplexity\.ai|claude\.ai|gemini\.google\.com|copilot\.microsoft\.com`
@@ -194,10 +215,13 @@ footer's "Cookie Preferences" lets them change their mind.
 
 - [ ] `npx tsc --noEmit`
 - [ ] `npm run lint`
+- [ ] `npm run build` — neither of the two above catches a client-only hook reaching a route
+      handler, which is a build error and nothing less.
 - [ ] `npm test` — with the local stack running, so the DB-backed tests actually execute. Expect
-      **136 passed, 4 skipped**; the 4 are opt-in email tools and one of them sends real mail.
-      If you see 14 skipped, the stack is not running and `booking-concurrency` — the only
-      automated proof against double-booking — did not run.
+      **4 skipped**: the 4 are opt-in email tools, and one of them sends real mail. If you see 14
+      skipped, the local stack is not running, and the two suites that need it did not run:
+      `booking-concurrency`, the only automated proof against double-booking, and `purchase-once`,
+      the proof that a confirmed booking is emailed and counted exactly once.
 - [ ] Schema or content changed: applied to the remote **and verified** with `migration list`
 - [ ] New migration: checked it works on a database built from migrations alone, with no seed
 - [ ] `RELEASE_NOTES.md` updated

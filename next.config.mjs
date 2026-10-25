@@ -112,6 +112,40 @@ function buildCsp() {
     .join('; ');
 }
 
+/**
+ * Says so, loudly, when a production build is being made without analytics.
+ *
+ * `NEXT_PUBLIC_*` is inlined into the browser bundle at build time, not read at
+ * runtime. Hostinger runs its own build from the uploaded archive, and the
+ * archive deliberately carries no .env file, so the measurement ID has to be
+ * in the host's environment-variable panel *before that build runs*. If it is
+ * only there at runtime, the bundle is built with `undefined`, <Analytics>
+ * renders nothing, and the site measures absolutely nothing while every
+ * dashboard and setting looks perfectly correct.
+ *
+ * That failure is silent and would be found weeks later by someone wondering
+ * why GA4 is empty, so it gets a line in the build log instead. A warning, not
+ * an error: the site is meant to build and run without analytics, and has done
+ * so all along.
+ */
+function warnIfAnalyticsMissing() {
+  // Read from argv rather than NEXT_PHASE, which this version of Next leaves
+  // undefined, and rather than NODE_ENV alone, which is also 'production' for
+  // `next start` — where the bundle is already built and the warning would be
+  // both too late and misleading.
+  const building = process.env.NODE_ENV === 'production' && process.argv.includes('build');
+  if (!building || process.env.NEXT_PUBLIC_GA_ID) return;
+
+  console.warn(
+    '\n  NEXT_PUBLIC_GA_ID is not set for this production build.\n' +
+      '  The bundle will contain no measurement ID, so this deployment will not\n' +
+      '  measure anything, whatever is configured at runtime. Set it in the host\n' +
+      "  environment BEFORE the build if that is not what you want.\n",
+  );
+}
+
+warnIfAnalyticsMissing();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'mdx'],

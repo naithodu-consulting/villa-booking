@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 
+import { track } from '@/lib/analytics';
+
 export interface Announcement {
   id: string;
   text: string;
@@ -39,6 +41,9 @@ export default function AnnouncementBar({ announcements }: AnnouncementBarProps)
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
+      // Only on a copy that worked: a clipboard the browser refused is not a
+      // guest taking the offer.
+      track('promo_code_copy', { promo_code: code });
       setTimeout(() => setCopied(false), 2000);
     } catch {
       // ignore

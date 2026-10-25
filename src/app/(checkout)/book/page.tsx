@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { X, Phone } from 'lucide-react';
 import BookingCheckout from '@/components/guest/BookingCheckout';
 import ReservationNotice from '@/components/guest/ReservationNotice';
+import TrackReservationNotice from '@/components/guest/TrackReservationNotice';
 import WhatsAppIcon from '@/components/guest/WhatsAppIcon';
 import { enquiryWhatsAppUrl } from '@/lib/whatsapp';
 import { getProperty, getPricingRules, ratesReadAt } from '@/lib/data';
@@ -31,7 +32,8 @@ export default async function BookPage() {
     const phone = process.env.PROPERTY_PHONE;
     const whatsapp = process.env.PROPERTY_WHATSAPP;
     return (
-      <div className="relative flex-1 flex items-center justify-center px-5 py-16">
+      <div data-track-source="checkout" className="relative flex-1 flex items-center justify-center px-5 py-16">
+        <TrackReservationNotice />
         {/* The page carries no header, so without this the only way out was a
             button inside the card. A link covering the ground behind the card
             makes clicking outside it go home, the way clicking a dialog's

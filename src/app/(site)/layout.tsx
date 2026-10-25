@@ -4,9 +4,7 @@ import BookingDialog from '@/components/guest/BookingDialog';
 import PaymentsPausedDialog from '@/components/guest/PaymentsPausedDialog';
 import Footer from '@/components/layout/Footer';
 import AnnouncementBar, { type Announcement } from '@/components/layout/AnnouncementBar';
-import CookieConsent from '@/components/layout/CookieConsent';
 import ScrollAid from '@/components/layout/ScrollAid';
-import Analytics from '@/components/layout/Analytics';
 import { getProperty } from '@/lib/data';
 import { isJournalLive } from '@/lib/journal';
 import JsonLd from '@/components/seo/JsonLd';
@@ -59,8 +57,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         />
       )}
       <ScrollAid />
-      <CookieConsent />
-      <Analytics />
     </div>
   );
 }

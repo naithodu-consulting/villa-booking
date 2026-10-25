@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { SITE_URL, SITE_NAME } from "@/lib/seo";
+import CookieConsent from "@/components/layout/CookieConsent";
+import Analytics from "@/components/layout/Analytics";
+import InteractionTracking from "@/components/layout/InteractionTracking";
 import "./globals.css";
 
 const nunitoSans = localFont({
@@ -80,6 +83,15 @@ export default function RootLayout({
             each route group's layout. */}
         <a href="#main-content" className="skip-link">Skip to main content</a>
         {children}
+        {/* Both live here rather than in (site) because /book is a real page a
+            guest can link to or refresh into: mounted one level down, the
+            checkout had no banner and no measurement at all. */}
+        <CookieConsent />
+        <Analytics />
+        {/* One listener for every contact link and every FAQ on the site.
+            Root level for the same reason as the two above: the links on /book
+            are the whole conversion while online payment is paused. */}
+        <InteractionTracking />
       </body>
     </html>
   );

@@ -53,10 +53,13 @@ export function useConsent(): Consent | undefined {
  * Forgets the stored choice, which brings the banner back so the guest can
  * answer again.
  *
- * Without this there was no way to revisit the decision: the banner hides for
- * good once answered, so a guest who declined could never accept, and one who
- * accepted could never withdraw. The privacy policy implies they can do both,
- * and withdrawal needs to be as easy as consent.
+ * Nothing calls this today. The footer control that did was removed on
+ * 2026-10-25 at the operator's request, so a choice is currently final for the
+ * life of the browser's storage: a guest who declined cannot accept, and one
+ * who accepted cannot withdraw. Kept because restoring a control is then a
+ * one-line import rather than a rewrite, and because the privacy policy implies
+ * both are possible - worth revisiting if EU or UK traffic ever matters, where
+ * withdrawal has to be as easy as consent.
  *
  * Analytics reacts to the same event, so withdrawing stops measurement for the
  * rest of this page view without a reload. Scripts already loaded into the page

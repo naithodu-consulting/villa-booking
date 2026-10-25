@@ -335,7 +335,9 @@ repo did, and was wrong).
    WHERE id = '<booking_id>';
   ```
   The refund amount follows the cancellation policy published on the site (`property_policies`,
-  key `cancellation`): 90% at 30 or more days before check-in, 50% at 15 to 29 days, none under 15.
+  key `cancellation`): 100% at more than 14 days before check-in, 50% at 7 to 14 days, none under 7.
+  These match the Airbnb listing's own tiers (00106). The site renders its copy from
+  `src/lib/cancellation.ts`, so a future change has to land in both.
 - **Paid but still pending.** If a guest's browser closes between paying and returning to the site,
   their booking can expire even though Razorpay captured the money. Search Razorpay for captured
   payments whose booking is `expired`, and re-create them with `create_booking_atomic` (the original

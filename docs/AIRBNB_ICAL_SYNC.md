@@ -334,9 +334,20 @@ Scheduled from Hostinger's cron, not `vercel.json` (§3.1):
 17 * * * * curl -fsS -m 60 -H "Authorization: Bearer $CRON_SECRET" https://villa19.in/api/cron/ical-sync
 ```
 
-Hourly, offset off the hour so it does not land with every other job on a shared
-host. Our side can afford to be fresher than Airbnb's; there is no reason to
-match their slower cadence.
+**Cadence, decided 2026-10-24: every 30 minutes, moving to hourly** once the
+Ooruda "Sync now" button exists (§9.1). The reasoning is that a scheduled poll
+and a manual trigger answer different needs: the schedule is a safety net
+against drift, while an operator who has just changed something on Airbnb wants
+it reflected now and should not have to wait for the next tick. Until the button
+exists, the schedule carries both jobs and so runs more often than a safety net
+needs to.
+
+Polling faster than this buys very little. The exposure window for a double
+booking is dominated by Airbnb polling **us**, which takes hours and which we
+do not control; tightening our end from 60 minutes to 5 barely moves it.
+
+Offset off the hour, so the job does not land with every other cron on a shared
+host.
 
 The route must be safe to call twice at once and safe to call by hand, since a
 cron line and an Ooruda "Sync now" button can overlap. A Postgres advisory lock

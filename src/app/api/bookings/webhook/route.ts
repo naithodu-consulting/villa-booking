@@ -4,6 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { hexSignatureMatches } from '@/lib/signature';
 import { sendRefundConfirmation } from '@/lib/email';
 import { notifyConfirmedBooking } from '@/lib/booking-notify';
+import { reportPurchase } from '@/lib/analytics-server';
 
 interface PaymentEntity {
   id: string;
@@ -166,6 +167,9 @@ export async function POST(request: NextRequest) {
           }
 
           await notifyConfirmedBooking(supabase, booking.id, 'Online (Razorpay webhook)');
+          // The path that matters most for measurement: when the guest closed
+          // the tab, this is the only place the purchase is ever reported.
+          await reportPurchase(supabase, booking.id);
         }
 
         console.info(`[webhook] payment.captured — order: ${orderId}, payment: ${paymentId}`);

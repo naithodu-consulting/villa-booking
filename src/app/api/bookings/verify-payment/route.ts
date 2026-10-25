@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { createServiceClient } from '@/lib/supabase/server';
 import { hexSignatureMatches } from '@/lib/signature';
 import { notifyConfirmedBooking } from '@/lib/booking-notify';
+import { reportPurchase } from '@/lib/analytics-server';
 
 export async function POST(request: NextRequest) {
   try {
@@ -99,6 +100,10 @@ export async function POST(request: NextRequest) {
         }
 
         await notifyConfirmedBooking(supabase, payment.booking_id, 'Online (Razorpay)');
+        // Beside the emails, and once for the same reason they are sent once:
+        // the compare-and-swap on the payment row above let exactly one of
+        // this route and the webhook get this far.
+        await reportPurchase(supabase, payment.booking_id);
       }
     }
 

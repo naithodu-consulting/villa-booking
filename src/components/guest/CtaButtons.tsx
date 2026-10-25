@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import BookNowLink from '@/components/guest/BookNowLink';
+import type { Source } from '@/lib/analytics';
 
 interface Secondary {
   href: string;
@@ -18,15 +19,18 @@ interface Secondary {
 export default function CtaButtons({
   secondary = { href: '/', label: 'Homepage' },
   className = 'justify-center',
+  source = 'cta_panel',
 }: {
   secondary?: Secondary;
   /** Alignment within the panel; centred by default. */
   className?: string;
+  /** Overridden where a page's panel is worth telling apart from the rest. */
+  source?: Source;
 }) {
   const secondaryClass = 'btn-frosted inline-flex items-center gap-2 px-6 py-3.5 rounded-xl';
   return (
     <div className={`flex items-center gap-4 flex-wrap pt-2 ${className}`}>
-      <BookNowLink className="btn-brass-filled px-8 py-3.5 rounded-xl">
+      <BookNowLink source={source} className="btn-brass-filled px-8 py-3.5 rounded-xl">
         Check Availability
       </BookNowLink>
       {secondary.external ? (

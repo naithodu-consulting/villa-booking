@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    // Suspends properties.booking_cutoff_date for the whole run; see the file
+    // itself for why it cannot live in the individual suites.
+    globalSetup: ['./src/lib/__tests__/global-setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

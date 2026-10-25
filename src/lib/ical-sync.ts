@@ -108,7 +108,23 @@ export async function syncFeed(supabase: SupabaseClient, feed: FeedRow): Promise
   const conflicts = await findConflicts(supabase, feed.property_id, classified.apply);
 
   // ── 5. Apply, atomically. ───────────────────────────────────────────────
-  const payload = classified.apply.map((e) => ({ start: e.start, end: e.end, uid: e.uid, summary: e.summary }));
+  //
+  // `summary` becomes blocked_dates.notes, and it is deliberately OUR label
+  // rather than the channel's. Airbnb sends "Airbnb (Not available)" for every
+  // entry, which tells an operator nothing they cannot see from the dates, and
+  // Ooruda's own rows are already tagged "[ooruda:<id>]". Writing the channel
+  // name makes the three sources legible side by side in one list:
+  //
+  //   Airbnb Booking                      <- imported from a channel
+  //   Private Enquiry [ooruda:b1b6b07...] <- entered by an admin
+  //   Pre-launch dates blocked [ooruda:…] <- entered by an admin
+  //
+  // Worth knowing when reading it: a channel cannot tell us whether an entry
+  // is a guest reservation or the host blocking the night themselves - both
+  // export identically - so "Booking" here means "the channel says this night
+  // is taken", not "a guest has paid".
+  const label = `${feed.name} Booking`;
+  const payload = classified.apply.map((e) => ({ start: e.start, end: e.end, uid: e.uid, summary: label }));
   const { data, error } = await supabase.rpc('apply_ical_feed', {
     p_feed_id: feed.id,
     p_events: payload,

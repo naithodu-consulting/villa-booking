@@ -625,7 +625,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── Mobile sticky booking bar ─────────────────── */}
-      <div id="mobile-cta-bar" className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t"
+      <div id="mobile-cta-bar" data-track-source="mobile_bar" className="fixed bottom-0 inset-x-0 z-40 md:hidden border-t"
         style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-subtle)' }}>
         <div className="flex items-center gap-3 px-4 py-3">
           {whatsappUrl && (
@@ -643,6 +643,7 @@ export default async function LandingPage() {
           </a>
           )}
           <BookNowLink
+            source="mobile_bar"
             className="flex-1 flex items-center justify-center py-3 rounded-xl text-sm font-bold text-white"
             style={{ backgroundColor: 'var(--maroon)' }}
           >

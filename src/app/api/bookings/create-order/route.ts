@@ -7,6 +7,7 @@ import { todayISO } from '@/lib/format';
 import { safeOrigin } from '@/lib/origin';
 import { LIMITS, rateLimit, tooManyRequests } from '@/lib/rate-limit';
 import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
+import { safeGaId } from '@/lib/analytics';
 
 /** Longest values accepted for the free-text fields.
  *
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
       guestName, guestEmail, guestPhone, specialRequests,
       promoCode,
       expectedTotal,
+      gaClientId, gaSessionId,
     } = body;
 
     // Input validation
@@ -416,6 +418,13 @@ export async function POST(request: NextRequest) {
       amount: chargeAmount,
       currency: 'INR',
       status: 'created',
+      // Carried from the browser so the purchase this payment leads to can be
+      // attributed to the visit that produced it; the event itself is sent
+      // from the server, which has no cookies of its own. Length-capped and
+      // pattern-checked: they go straight into an outbound request later, and
+      // they arrive from the client like any other field in this body.
+      ga_client_id: safeGaId(gaClientId),
+      ga_session_id: safeGaId(gaSessionId),
     });
 
     if (paymentError) {

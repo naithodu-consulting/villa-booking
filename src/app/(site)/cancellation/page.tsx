@@ -26,7 +26,7 @@ export const metadata: Metadata = pageMetadata({
 });
 
 // Effective date of the Cancellation & Refund Policy issued by Habbaa Solutions Pvt Ltd.
-const EFFECTIVE_DATE = '7 October 2026';
+const EFFECTIVE_DATE = '25 October 2026';
 
 export default function CancellationPolicyPage() {
   return (
@@ -69,7 +69,7 @@ export default function CancellationPolicyPage() {
               scheduled check-in date:
             </p>
             {/* Tiers come from CANCELLATION_TIERS so this page, the Terms page and
-                the homepage card cannot drift. Windows are exclusive: day 30 pays
+                the homepage card cannot drift. Windows are exclusive: day 14 pays
                 the top tier. */}
             <ul className="list-disc list-inside space-y-1 mt-2">
               {CANCELLATION_TIERS.map(({ when, amount }) => (

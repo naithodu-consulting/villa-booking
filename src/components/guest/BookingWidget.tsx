@@ -10,7 +10,8 @@ import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 import { ONLINE_PAYMENTS_ENABLED } from '@/lib/features';
-import { OPEN_BOOKING_EVENT } from '@/lib/booking-events';
+import { openBooking } from '@/lib/booking-events';
+import { track, nightsBetween, leadTimeDays } from '@/lib/analytics';
 
 interface BookingWidgetProps {
   property: Property;
@@ -128,9 +129,19 @@ export default function BookingWidget({ property, pricingRules, ratesReadAt }: B
     // to honour the flag itself. Dispatching the shared event sends it to the
     // same notice every other CTA opens, with no second copy of the copy.
     if (!ONLINE_PAYMENTS_ENABLED) {
-      window.dispatchEvent(new CustomEvent(OPEN_BOOKING_EVENT));
+      openBooking('widget');
       return;
     }
+    // Payments on: the widget *is* the date step, so continuing from here is
+    // the same funnel event the dialog's form sends, and the two are counted
+    // together rather than as separate paths.
+    track('select_dates', {
+      source: 'widget',
+      nights: nightsBetween(checkIn, checkOut),
+      adults,
+      children,
+      lead_time_days: leadTimeDays(checkIn),
+    });
     setIsSubmitting(true);
     try {
       router.push(`/book?checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=${children}`);

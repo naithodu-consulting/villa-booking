@@ -7,6 +7,7 @@ import { todayISO, addDaysISO, addMonthsISO } from '@/lib/format';
 import { isRangeAvailable, latestCheckOut, firstAvailableNight } from '@/lib/availability';
 import { useNightCalendar } from '@/components/guest/useNightCalendar';
 import { MAX_STAY_NIGHTS, MAX_STAY_MESSAGE, BOOKING_HORIZON_MONTHS } from '@/lib/pricing-engine';
+import { track, nightsBetween, leadTimeDays, type Source } from '@/lib/analytics';
 
 interface Props {
   maxOccupancy: number;
@@ -16,6 +17,8 @@ interface Props {
   propertyId?: string;
   /** Receives the query string for /book, e.g. "checkIn=…&checkOut=…&adults=8&children=0". */
   onContinue: (query: string) => void;
+  /** Which of the two places this form is in: the dialog, or the /book step. */
+  source: Source;
 }
 
 /**
@@ -25,7 +28,7 @@ interface Props {
  * Dates are calendar dates at the property (see todayISO): using the UTC day
  * here would offer a check-in that has already passed between 00:00 and 05:30 IST.
  */
-export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyId, onContinue }: Props) {
+export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyId, onContinue, source }: Props) {
   const todayStr = todayISO();
   // Only the guest's own choices are state; a null pick means "still on the
   // default", so the opening dates can follow availability as it loads.
@@ -59,6 +62,16 @@ export default function DateSelectForm({ maxOccupancy, idealOccupancy, propertyI
       onSubmit={(e) => {
         e.preventDefault();
         if (!canContinue) return;
+        track('select_dates', {
+          source,
+          nights: nightsBetween(checkIn, checkOut),
+          adults,
+          // This form has no children stepper, so the query it builds says 0.
+          // Reported as 0 rather than left out, so the parameter means the same
+          // thing here as it does from the widget, which does ask.
+          children: 0,
+          lead_time_days: leadTimeDays(checkIn, todayStr),
+        });
         onContinue(`checkIn=${checkIn}&checkOut=${checkOut}&adults=${adults}&children=0`);
       }}
       className="space-y-5"
