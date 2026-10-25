@@ -57,10 +57,10 @@ A landscaped lawn, balconies across the floors and ample private parking add to 
 -- Rooms (4 bedrooms)
 -- ─────────────────────────────────────────────────────────
 INSERT INTO rooms (id, property_id, name, slug, room_type, bed_type, bed_count, max_guests, has_ensuite_bathroom, bathroom_type, floor, size_sqft, display_order, has_ac) VALUES
-  ('a1b2c3d4-0000-0000-0000-000000000011', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 1',         'room-1',         'Bedroom', 'King Size Bed',  1, 3, TRUE,  'Attached', 'Ground Floor', 156, 1, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000012', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 2',         'room-2',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'Ground Floor', 144, 2, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000013', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 3',         'room-3',         'Bedroom', 'Queen Size Bed', 1, 2, FALSE, 'Shared',   'First Floor',  125, 3, TRUE),
-  ('a1b2c3d4-0000-0000-0000-000000000014', 'a1b2c3d4-0000-0000-0000-000000000001', 'Room 4',         'room-4',         'Bedroom', 'King Size Bed',  1, 3, FALSE, 'Shared',   'First Floor',  156, 4, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000011', 'a1b2c3d4-0000-0000-0000-000000000001', 'Bedroom 1',      'room-1',         'Bedroom', 'King Size Bed',  1, 3, TRUE,  'Attached', 'Ground Floor', 156, 1, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000012', 'a1b2c3d4-0000-0000-0000-000000000001', 'Bedroom 2',      'room-2',         'Bedroom', 'Queen Size Bed', 1, 3, FALSE, 'Shared',   'Ground Floor', 144, 2, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000013', 'a1b2c3d4-0000-0000-0000-000000000001', 'Bedroom 3',      'room-3',         'Bedroom', 'Queen Size Bed', 1, 2, FALSE, 'Shared',   'First Floor',  125, 3, TRUE),
+  ('a1b2c3d4-0000-0000-0000-000000000014', 'a1b2c3d4-0000-0000-0000-000000000001', 'Bedroom 4',      'room-4',         'Bedroom', 'King Size Bed',  1, 3, FALSE, 'Shared',   'First Floor',  156, 4, TRUE),
   ('a1b2c3d4-0000-0000-0000-000000000015', 'a1b2c3d4-0000-0000-0000-000000000001', 'Private Lounge', 'private-lounge', 'Lounge',  'Sofa Cum Bed',   2, 3, FALSE, 'Shared',   'First Floor',  144, 5, FALSE)
 ON CONFLICT (id) DO NOTHING;
 

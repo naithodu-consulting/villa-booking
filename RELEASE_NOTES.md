@@ -4,6 +4,48 @@ This document covers all feature work, fixes, and notable changes to the Villa 1
 
 ---
 
+## v1.50 - The privacy policy drops the analytics detail, and the rooms are bedrooms - 2026-10-25
+
+**Section 7 of the Privacy Policy goes back to its general wording, and the four bedrooms are
+called bedrooms on the Rooms page.**
+
+**The analytics detail added in v1.43 is withdrawn, at the operator's request.** Section 7 no longer
+names Google Analytics 4, no longer lists what is measured event by event, and no longer explains
+the server-sent `purchase` or links to Google's opt-out add-on. It returns to the five general
+purposes the issued document carried before v1.43: essential functionality, preferences, traffic and
+usage, performance, marketing effectiveness.
+
+Three deliberate departures from a straight revert. "Our website may use cookies" becomes "Our
+website uses cookies", because it does. A single sentence is added after the list: "Usage and
+performance information collected is processed and retained for 14 months." And the effective date
+stays at 25 October 2026 rather than returning to 7 October, since the page did change today.
+
+What this costs is worth stating plainly. The section no longer names the third party that receives
+usage data, so a guest reading the page cannot tell it leaves our systems, and it no longer tells
+them how to withdraw a cookie choice now that the footer control is gone. The v1.49 note says
+Section 7 "now describes clearing cookies and site data"; that sentence described v1.49 and is no
+longer true of the page. Neither gap is a problem for Indian traffic today, and both are worth
+revisiting if EU or UK traffic ever matters. The "Measure marketing effectiveness" bullet also
+claims more than the site does, since Google signals and ads personalisation are both off.
+
+The cancellation changes in v1.49 are untouched, as is the cookie banner fix and the removal of the
+Cookie Preferences control. `DEPLOYMENT.md` and `docs/ANALYTICS_SETUP.md` keep their v1.49
+corrections: they describe operator steps, not published policy. Nothing about the measurement
+itself changes. GA4 still runs exactly as it did, still only after a guest accepts.
+
+**The Rooms page says "Bedroom 1" where it said "Room 1".** The headings come from `rooms.name` in
+the database, not from the page, so this is migration 00107 rather than a text edit, with `seed.sql`
+matching. The cards read "BEDROOM / Bedroom 1", which repeats the room-type label above the name;
+left as is for now, since the operator uses "Bedroom 1" when talking to guests and the label is
+what distinguishes a bedroom from the Private Lounge.
+
+The slugs stay `room-1` through `room-4`. They are the stable handles the gallery images join on,
+and renaming them would break any link already shared for no gain a guest can see. The gallery
+captions still read "Room 1 · King bed" from 00063 and 00064 and are left for a separate pass, so
+the two pages disagree until then.
+
+---
+
 ## v1.49 - Cancellation policy matches Airbnb, and the footer's legal links work again - 2026-10-25
 
 **The direct-booking refund ladder now says what the Airbnb listing says, and the cookie banner
